@@ -448,6 +448,7 @@
   #ppdup .tb .head b{font-size:15px}
   #ppdup .tb .sep{width:1px;height:24px;background:var(--line)}
   #ppdup .tb:empty{display:none}
+  #ppdup .okbadge{color:var(--ok);font-weight:800;padding:0 6px}
   /* 進捗 */
   #ppdup .prog{padding:6px 18px;font-size:12px;color:var(--mute);background:var(--bg);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
   #ppdup .prog .pb{flex:0 0 180px;height:6px;border-radius:3px;background:var(--line);overflow:hidden;display:none}
@@ -640,33 +641,65 @@
       if (s.v === next) { cls += ' next'; sub += s.v === 'scan' ? '' : '・おすすめ'; }
       if (s.v === view) cls += ' active';
       const locked = s.v !== 'scan' && !c;
-      return `<button class="st ${cls}" data-step="${s.v}"${locked || busy ? ' disabled' : ''} title="${esc(s.d)}"><span class="n">${cls.includes('done') && s.v !== view ? '✓' : i + 1}</span><span><span class="t">${esc(s.t)}</span><span class="c">${esc(sub)}</span></span></button>`;
+      return `<button class="st ${cls}" data-step="${s.v}"${locked || busy ? ' disabled' : ''} title="${esc(s.d)}"><span class="n">${cls.includes('done') ? '✓' : i + 1}</span><span><span class="t">${esc(s.t)}</span><span class="c">${esc(sub)}</span></span></button>`;
     }).join('');
+    renderActs();
   }
-  // 次のステップへのボタン
-  function nextButton() {
+  // ステップごとの残作業の数（0 なら完了）
+  function remaining(v, c) {
+    c = c || counts();
+    if (!c) return 0;
+    if (v === 'clean') return c.clean;
+    return c[v] || 0;
+  }
+  // このステップのあとで、まだ作業が残っている最初のステップ（なければ null＝すべて完了）
+  function nextTarget(c) {
+    c = c || counts();
     const i = STEPS.findIndex((s) => s.v === view);
-    const n = STEPS[i + 1];
-    return n ? `<div class="pd-next"><button class="pri" data-step="${n.v}">次へ：${i + 2}. ${esc(n.t)} →</button></div>` : '';
+    return STEPS.slice(i + 1).find((s) => remaining(s.v, c) > 0) || null;
   }
-  // ステップごとの操作欄（切り替え時に作り直す）
+  const allDone = (c) => !!c && ['sort', 'ren', 'dup', 'clean'].every((k) => !remaining(k, c)) && !c.cleanSkip;
+  function nextHtml(c, cls) {
+    const n = nextTarget(c);
+    if (n) return `<button class="${cls || 'pri'}" data-step="${n.v}">次へ：${STEPS.indexOf(n) + 1}. ${esc(n.t)} →</button>`;
+    return `<button class="${cls || 'pri'}" data-step="scan">${allDone(c) ? '✓ すべて完了（読み込み画面へ）' : '読み込み画面へ'}</button>`;
+  }
+  // 一覧の下に置く「次へ」ボタン
+  function nextButton() { return `<div class="pd-next">${nextHtml()}</div>`; }
+  // 残作業がないときに一覧の代わりに出す表示
+  function doneCard(c) {
+    c = c || counts();
+    return `<div class="pd-hero"><h2>✓ このステップの作業はすべて完了しています</h2>
+      <div class="note">${allDone(c) ? 'すべてのステップが完了しました。PikPakで操作したあとは、「1. 読み込む」で読み込み直すと最新の状態を確認できます。' : '次のステップへ進んでください。'}</div>
+      <div class="acts" style="margin-top:16px">${nextHtml(c, 'pri big')}</div></div>`;
+  }
+  // ステップごとの操作欄（見出しと絞り込みは切り替え時に作り、ボタン部分は状態に合わせて都度更新）
   function renderToolbar() {
     const s = STEPS.find((x) => x.v === view);
     const head = `<div class="head"><b>${STEPS.indexOf(s) + 1}. ${esc(s.t)}</b><span class="note">${esc(s.d)}</span></div><span class="sp"></span>`;
-    const run = (k, label) => `<button data-a="${k}1">先頭1件だけ試す</button><button class="pri" data-a="${k}all">${label}</button><button data-a="stop">中断</button>`;
     let html = '';
-    if (view === 'scan') html = '';
-    if (view === 'sort') html = head + run('sort', 'すべて仕分け');
-    if (view === 'ren') html = head + `<select data-a="renfilter"><option value="todo">変更するもの</option><option value="skip">要確認</option><option value="same">変更なし</option><option value="all">すべて</option></select>` + run('ren', 'すべて変更');
-    if (view === 'clean') html = head + run('clean', 'チェックしたものを実行');
+    if (view === 'sort' || view === 'clean') html = head;
+    if (view === 'ren') html = head + `<select data-a="renfilter"><option value="todo">変更するもの</option><option value="skip">要確認</option><option value="same">変更なし</option><option value="all">すべて</option></select>`;
     if (view === 'dup') html = head + `
       <select data-a="mode" title="まとめ方"><option value="name">同じファイル名でまとめる</option><option value="id">同じ品番でまとめる（-1/-2違いも含む）</option></select>
       <label><input type="checkbox" data-a="nearonly"> サイズが近い組だけ</label>
       <input type="text" data-a="q" placeholder="絞り込み（品番・名前）" size="16">
-      <span class="sep"></span>
-      <button data-a="csv">CSV保存</button>
-      <button class="danger" data-a="delall">チェックしたものを削除</button>`;
-    $('[data-r=tb]').innerHTML = html;
+      <span class="sep"></span>`;
+    $('[data-r=tb]').innerHTML = html ? html + '<span data-r="acts" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"></span>' : '';
+    renderActs();
+  }
+  function renderActs() {
+    const el = $('[data-r=acts]'); if (!el) return;
+    if (busy) { el.innerHTML = '<button data-a="stop">中断</button>'; return; }
+    const c = counts();
+    const label = { sort: 'すべて仕分け', ren: 'すべて変更', clean: 'チェックしたものを実行' };
+    if (view === 'dup') {
+      el.innerHTML = visibleGroups().length ? '<button data-a="csv">CSV保存</button><button class="danger" data-a="delall">チェックしたものを削除</button>' : `<span class="okbadge">✓ 完了</span>${nextHtml(c)}`;
+      return;
+    }
+    el.innerHTML = remaining(view, c) > 0
+      ? `<button data-a="${view}1">先頭1件だけ試す</button><button class="pri" data-a="${view}all">${label[view]}</button>`
+      : `<span class="okbadge">✓ 完了${view === 'clean' && c && c.cleanSkip ? `（要確認 ${c.cleanSkip} 件）` : ''}</span>${nextHtml(c)}`;
   }
   function setView(v) {
     if (v !== 'scan' && !hasScan()) v = 'scan';
@@ -691,12 +724,13 @@
     const c = counts();
     const sum = c ? `<div class="pd-sum">${['sort', 'ren', 'dup', 'clean'].map((k, i) => `<button data-step="${k}" class="${c[k] || (k === 'clean' && c.cleanSkip) ? '' : 'zero'}"><span class="note">${i + 2}. ${esc(STEPS[i + 1].t)}</span><b>${c[k] ? c[k] + ' ' + UNIT_OF[k] : k === 'clean' && c.cleanSkip ? '要確認 ' + c.cleanSkip + ' 件' : '✓ 対象なし'}</b></button>`).join('')}</div>` : '';
     const next = c && (['sort', 'ren', 'dup', 'clean'].find((k) => c[k] > 0));
-    $('[data-r=main]').innerHTML = `
+    const doneBanner = allDone(c) ? '<div class="pd-hero" style="border-color:var(--ok)"><h2>✓ 整理はすべて完了しています</h2><div class="note">PikPakで新しくファイルを追加・操作したら、「再スキャン」で最新の状態を確認できます。</div></div>' : '';
+    $('[data-r=main]').innerHTML = `${doneBanner}
       <div class="pd-hero">
         <h2>${meta ? 'もう一度読み込む' : 'まずはフォルダを読み込みます'}</h2>
         <div class="note">ホームか My Pack を開いた状態で実行してください。読み込みはバックグラウンドで行い、PikPakの画面は切り替わりません。</div>
         <div class="where">読み込む場所：${esc(where)}</div>
-        <div class="acts"><button class="pri big" data-a="scan"${busy ? ' disabled' : ''}>${meta ? '再スキャン' : 'スキャン開始'}</button><button class="big" data-a="stop">中断</button></div>
+        <div class="acts"><button class="pri big" data-a="scan"${busy ? ' disabled' : ''}>${meta ? '再スキャン' : 'スキャン開始'}</button>${busy ? '<button class="big" data-a="stop">中断</button>' : ''}</div>
         ${meta ? `<div class="note" style="margin-top:14px">前回：${new Date(meta.at).toLocaleString('ja-JP')} ／ ${esc(meta.where || '')} ／ フォルダ ${meta.nfo} ・ ファイル ${meta.nfi}</div>` : ''}
       </div>
       ${sum}
@@ -725,6 +759,7 @@
   // ---------- 2. 作品ごとに仕分け ----------
   function renderSort() {
     const todo = splan.filter((g) => g.status !== 'done');
+    if (!todo.length) { $('[data-r=main]').innerHTML = doneCard(); if (!busy) status('仕分けは完了しています。'); return; }
     const nNew = todo.filter((g) => g.folderNew).length, nFiles = todo.reduce((a, g) => a + g.items.length, 0), nRen = todo.reduce((a, g) => a + g.items.filter((x) => x.to !== x.name).length, 0);
     $('[data-r=main]').innerHTML = `<div class="pd-g"><div class="pd-gh"><span>残り ${todo.length} 作品</span><span class="note">移動 ${nFiles} 本 ／ 新規フォルダ ${nNew} ／ 同名のため (1) を付ける ${nRen}</span></div>
       ${todo.map((g) => `<div class="pd-row"><div class="pd-info"><div class="pd-path">${esc(g.cpath || '（読み込んだフォルダの直下）')}</div>
@@ -752,6 +787,7 @@
     const show = $('[data-a=renfilter]') ? $('[data-a=renfilter]').value : 'todo';
     const list = rplan.filter((p) => show === 'all' || (show === 'todo' ? p.status === 'rename' || p.status === 'dup' : p.status === show));
     const cnt = (s) => rplan.filter((p) => p.status === s).length;
+    if (show === 'todo' && !list.length) { $('[data-r=main]').innerHTML = doneCard(); if (!busy) status(`名前の変更は完了しています（要確認 ${cnt('skip')} 件は「要確認」で確認できます）。`); return; }
     $('[data-r=main]').innerHTML = `<div class="pd-g"><div class="pd-gh"><span>変更 ${cnt('rename')} ／ 重複回避 ${cnt('dup')}</span><span class="note">要確認 ${cnt('skip')} ／ 一致済み ${cnt('same')}</span></div>
       ${list.map((p) => `<div class="pd-row"><div class="pd-info"><div class="pd-path">${esc(p.path)}</div>
         <div class="pd-name">${esc(p.cur)} <span class="note">→</span> ${p.target ? esc(p.target) : '<i>（未定）</i>'}</div>
@@ -791,7 +827,7 @@
   function renderDup() {
     const groups = visibleGroups();
     const main = $('[data-r=main]');
-    if (!groups.length) { main.innerHTML = '<div class="empty">✓ 該当する重複はありません。</div>' + nextButton(); if (!busy) status('重複はありません。'); return; }
+    if (!groups.length) { const qq = $('[data-a=q]'), nn = $('[data-a=nearonly]'); main.innerHTML = (qq && qq.value) || (nn && nn.checked) ? '<div class="empty">絞り込みに該当する重複はありません。</div>' : doneCard(); if (!busy) status('重複はありません。'); renderActs(); return; }
     main.innerHTML = groups.map((g) => {
       const max = g.items[0].size || 1;
       const rows = g.items.map((f, i) => {
@@ -808,6 +844,7 @@
       }).join('');
       return `<section class="pd-g"><div class="pd-gh"><span>${esc(g.items[0].name)}</span><span class="note">${g.items.length}件</span>${g.near ? '<span class="pd-tag">サイズが近い組あり</span>' : ''}<span class="sp"></span><button data-g="${esc(g.key)}">この組のチェックを削除</button></div>${rows}</section>`;
     }).join('') + nextButton();
+    renderActs();
     if (!busy) { const dl = delList(groups); status(`重複 ${groups.length} 組 ／ チェック（削除する） ${dl.length} 件・${fmt(dl.reduce((a, f) => a + f.size, 0))}　※各組の一番大きいファイルは最初からチェックなし（残す）になっています`); }
   }
   // 削除確認（Enhancement Master と同じく「ゴミ箱を経由しない」チェック付き）
@@ -849,6 +886,7 @@
   const cleanOff = new Set(); // チェックを外した（実行しない）項目
   function renderClean() {
     const trash = cplan.filter((p) => p.status === 'todo' && p.op === 'trash'), ren = cplan.filter((p) => p.status === 'todo' && p.op === 'rename'), skip = cplan.filter((p) => p.status === 'skip');
+    if (!trash.length && !ren.length && !skip.length) { $('[data-r=main]').innerHTML = doneCard(); if (!busy) status('片付けは完了しています。'); return; }
     const row = (p, chk) => `<div class="pd-row ${chk && !cleanOff.has(p.id) ? 'del' : ''}">${chk ? `<label class="pd-chk"><input type="checkbox" data-cchk="${esc(p.id)}"${cleanOff.has(p.id) ? '' : ' checked'}></label>` : ''}<div class="pd-info"><div class="pd-path">${esc(p.path || '（読み込んだフォルダの直下）')}</div>
       <div class="pd-name">${esc(p.cur)}${p.op === 'rename' ? ` <span class="note">→</span> ${esc(p.target)}` : ''} <span class="pd-tag">${p.kind === 'folder' ? 'フォルダ' : 'ファイル'}</span></div>
       ${p.note ? `<div class="note">${esc(p.note)}</div>` : ''}</div></div>`;

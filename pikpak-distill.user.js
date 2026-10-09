@@ -7,12 +7,13 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.3.1
+// @version      3.4.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMzMDZmZmYiLz48cmVjdCB4PSIxMiIgeT0iMTYiIHdpZHRoPSIyNCIgaGVpZ2h0PSIzMiIgcng9IjQiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii41NSIvPjxyZWN0IHg9IjI2IiB5PSIxMiIgd2lkdGg9IjI2IiBoZWlnaHQ9IjM0IiByeD0iNCIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik0zMiAyNGgxNE0zMiAzMGgxNE0zMiAzNmg5IiBzdHJva2U9IiMzMDZmZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGNpcmNsZSBjeD0iNDQiIGN5PSI0NiIgcj0iOSIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJNNDAgNDZsMyAzIDUtNiIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
 // @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
+// @grant        GM_info
 // @connect      api-drive.mypikpak.com
 // @run-at       document-idle
 // ==/UserScript==
@@ -29,6 +30,22 @@
   const LS_DECISION = 'ppdup:decision:v1';
   const LS_SCAN = 'ppdup:scan:v1';
   const LS_FOLD = 'ppdup:folders:v1';
+  const LS_LOG = 'ppdup:log:v1';
+  const LS_LOGSEEN = 'ppdup:logseen:v1';
+  const SS_RESUME = 'ppdup:resume:v1';
+  const VER = (typeof GM_info !== 'undefined' && GM_info && GM_info.script && GM_info.script.version) || '';
+
+  // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
+  function log(level, msg, ctx) {
+    try {
+      const a = JSON.parse(localStorage.getItem(LS_LOG) || '[]');
+      a.push({ t: Date.now(), level, msg: String(msg || '').slice(0, 500), ctx: ctx ? String(ctx).slice(0, 300) : '', v: VER });
+      while (a.length > 300) a.shift();
+      localStorage.setItem(LS_LOG, JSON.stringify(a));
+    } catch (e) { /* 保存できなくても処理は続ける */ }
+  }
+  const readLog = () => { try { return JSON.parse(localStorage.getItem(LS_LOG) || '[]'); } catch (e) { return []; } };
+  window.addEventListener('error', (e) => { if (String(e.filename || '').includes('userscript') || /ppdup|PikPak Distill/.test(String(e.message))) log('error', e.message, 'window.onerror'); });
 
   // Tampermonkey の権限付き実行では、PikPak画面側のオブジェクトは unsafeWindow 経由で参照する
   const pageWin = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
@@ -173,15 +190,26 @@
   // ---------- PikPak API を直接呼ぶ（画面操作なし・バックグラウンド処理） ----------
   // ログイン中のPikPak画面が保存している認証情報を、このブラウザ内でだけ使います（外部へは送りません）。
   const API = 'https://api-drive.mypikpak.com/drive/v1';
-  function apiHeaders() {
-    let auth = '';
+  // ログイン情報（PikPak画面が保存しているもの）。有効期限は約2時間で、PikPak画面が動いている間だけ更新される
+  function readCred() {
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
       if (!k || !k.startsWith('credentials')) continue;
-      try { const v = JSON.parse(localStorage.getItem(k)); if (v && v.access_token) { auth = (v.token_type || 'Bearer') + ' ' + v.access_token; break; } } catch (e) { /* 次へ */ }
+      try {
+        const v = JSON.parse(localStorage.getItem(k));
+        if (v && v.access_token) return { auth: (v.token_type || 'Bearer') + ' ' + v.access_token, expiresAt: v.expires_at ? Date.parse(v.expires_at) : 0 };
+      } catch (e) { /* 次へ */ }
     }
-    if (!auth) throw new Error('ログイン情報を取得できません（PikPakの画面を再読み込みするか、再ログインしてください）');
-    return { 'Content-Type': 'application/json', Authorization: auth, 'x-device-id': localStorage.getItem('deviceid') || '' };
+    return null;
+  }
+  const SESSION_MARGIN = 3 * 60 * 1000; // 期限の3分前から「切れた」とみなす
+  const sessionValid = () => { const c = readCred(); return !!c && (!c.expiresAt || c.expiresAt - Date.now() > SESSION_MARGIN); };
+  const sessionError = (msg) => { const e = new Error(msg); e.session = true; return e; };
+  function apiHeaders() {
+    const c = readCred();
+    if (!c) throw sessionError('ログイン情報を取得できません');
+    if (c.expiresAt && c.expiresAt - Date.now() <= SESSION_MARGIN) throw sessionError('ログインの有効期限が切れています');
+    return { 'Content-Type': 'application/json', Authorization: c.auth, 'x-device-id': localStorage.getItem('deviceid') || '' };
   }
   // 通信は Tampermonkey の GM_xmlhttpRequest を優先（ブラウザやスクリプト実行環境の通信制限を受けない）
   function http(url, opt) {
@@ -199,10 +227,21 @@
     for (let tries = 0; ; tries++) {
       let res;
       try { res = await http(API + path, { ...opt, headers: apiHeaders() }); }
-      catch (e) { if (tries < 2) { await sleep(1500); continue; } throw new Error(e.message === 'Failed to fetch' ? 'PikPakのサーバーに接続できませんでした（画面を再読み込みして、もう一度お試しください）' : e.message); }
+      catch (e) {
+        if (e.session) throw e;
+        if (tries < 2) { await sleep(1500); continue; }
+        log('error', e.message, (opt.method || 'GET') + ' ' + path.split('?')[0]);
+        // 長時間放置後は通信自体が失敗することがあるため、ログイン切れとして扱い再読み込みで回復させる
+        throw sessionError(e.message === 'Failed to fetch' ? 'PikPakのサーバーに接続できませんでした' : e.message);
+      }
       if ((res.status === 429 || res.status >= 500) && tries < 5) { await sleep(1500 * (tries + 1)); continue; }
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error((data.error_description || data.error || 'API ' + res.status) + (res.status === 401 ? '（画面を再読み込みしてから再実行してください）' : ''));
+      if (!res.ok) {
+        const msg = data.error_description || data.error || 'API ' + res.status;
+        log('error', msg, (opt.method || 'GET') + ' ' + path.split('?')[0] + ' → HTTP ' + res.status);
+        if (res.status === 401 || /unauthenticated|token/i.test(String(data.error || ''))) throw sessionError('ログインの有効期限が切れています');
+        throw new Error(msg);
+      }
       return data;
     }
   }
@@ -424,6 +463,9 @@
   .pd-act{flex:none}
   .pd-chk{flex:none;display:flex;align-items:center;justify-content:center;width:34px;align-self:stretch;cursor:pointer}
   .pd-chk input{width:20px;height:20px;cursor:pointer;accent-color:var(--danger)}
+  #ppdup [data-r=logbadge]:not(:empty){margin-left:6px;padding:0 6px;border-radius:999px;background:var(--danger);color:#fff;font-size:11px;font-weight:700}
+  #pd-dlg .logs{max-height:55vh;overflow:auto;font:12px/1.5 ui-monospace,Menlo,monospace;border:1px solid #c5c9d288;border-radius:8px;padding:8px;margin:10px 0;white-space:pre-wrap;word-break:break-all}
+  #pd-dlg .logs .error{color:#d93025}#pd-dlg .logs .warn{color:#b26a00}
   #pd-dlg{position:fixed;inset:0;z-index:100001;background:#0007;display:flex;align-items:center;justify-content:center}
   #pd-dlg .box{background:#fff;color:#1c1f26;border-radius:12px;padding:24px;width:min(460px,92vw);box-shadow:0 10px 40px #0006}
   #pd-dlg h3{margin:0 0 12px;font-size:17px}
@@ -448,7 +490,7 @@
   const root = document.createElement('div'); root.id = 'ppdup';
   root.innerHTML = `
     <header>
-      <div class="brand">${LOGO}<h1>PikPak Distill</h1><span class="chip">Dedupe</span><span class="by">by Noel Labs</span><span class="sp"></span><button data-a="close">閉じる</button></div>
+      <div class="brand">${LOGO}<h1>PikPak Distill</h1><span class="chip">Dedupe</span><span class="by">by Noel Labs</span><span class="sp"></span><button data-a="log" title="エラーや処理の記録">ログ<span data-r="logbadge"></span></button><button data-a="close">閉じる</button></div>
       <nav data-r="nav"></nav>
     </header>
     <div class="tb" data-r="tb"></div>
@@ -479,6 +521,78 @@
   let view = 'scan';
   let splan = [], cplan = [], rplan = [];
   let busy = false;
+
+
+  // ---------- ログイン切れの自動回復 ----------
+  // 放置してPikPakのログイン情報の期限が切れたら、画面を再読み込みして更新させ、Distillを開き直す
+  function reloadForSession(resume) {
+    let prev = null; try { prev = JSON.parse(sessionStorage.getItem(SS_RESUME) || 'null'); } catch (e) { prev = null; }
+    const count = prev && Date.now() - prev.at < 5 * 60 * 1000 ? (prev.count || 0) + 1 : 1;
+    if (count > 2) { // 再読み込みしても直らない場合はループさせない
+      log('error', '再読み込み後もログイン情報が更新されません', JSON.stringify(resume));
+      status('PikPakへの再ログインが必要な可能性があります。PikPakの画面で一度ログインし直してから、もう一度お試しください。');
+      try { sessionStorage.removeItem(SS_RESUME); } catch (e) { /* 無視 */ }
+      return;
+    }
+    log('warn', 'ログイン期限切れのため画面を再読み込み', JSON.stringify(resume));
+    try { sessionStorage.setItem(SS_RESUME, JSON.stringify({ ...resume, at: Date.now(), count })); } catch (e) { /* 無視 */ }
+    status('ログインの有効期限が切れていたため、PikPakの画面を再読み込みします…', 0.5);
+    setTimeout(() => location.reload(), 1200);
+  }
+  // 操作の前にログインの有効期限を確認（切れていれば再読み込みして続きから）
+  function ensureSession(action) {
+    if (sessionValid()) return true;
+    reloadForSession({ view, action });
+    return false;
+  }
+  // 処理中のエラーがログイン切れなら再読み込み、それ以外はログに残して表示
+  function handleErr(err, action, msg) {
+    if (err && err.session) { reloadForSession({ view, action }); return; }
+    log('error', msg || (err && err.message), action);
+    status(msg || ('エラー：' + (err && err.message)));
+    updateLogBadge();
+  }
+  async function resumeAfterReload() {
+    let r = null; try { r = JSON.parse(sessionStorage.getItem(SS_RESUME) || 'null'); } catch (e) { r = null; }
+    if (!r || Date.now() - r.at > 2 * 60 * 1000) return;
+    root.classList.add('on');
+    setView(r.view || 'scan');
+    status('画面を再読み込みしました。ログイン情報の更新を待っています…', 0.3);
+    const t0 = Date.now();
+    while (!sessionValid() && Date.now() - t0 < 30000) await sleep(500);
+    if (!sessionValid()) { reloadForSession(r); return; }
+    try { sessionStorage.removeItem(SS_RESUME); } catch (e) { /* 無視 */ }
+    log('info', 'ログイン情報を更新して再開', JSON.stringify(r));
+    if (r.action === 'scan') { runScan(); return; } // 読み込みは読み取りだけなので自動で再開
+    setView(r.view || 'scan');
+    status(r.action ? 'ログイン情報を更新しました。途中まで完了した分は保存済みです。もう一度ボタンを押すと続きから実行します。' : 'ログイン情報を更新しました。');
+  }
+  // 画面を開いたまま放置した場合も、期限切れを検知したら自動で再読み込み
+  setInterval(() => { if (root.classList.contains('on') && !busy && !sessionValid() && readCred()) reloadForSession({ view }); }, 60 * 1000);
+
+  // ---------- ログ表示 ----------
+  function updateLogBadge() {
+    const seen = +(localStorage.getItem(LS_LOGSEEN) || 0);
+    const n = readLog().filter((x) => x.level === 'error' && x.t > seen).length;
+    $('[data-r=logbadge]').textContent = n ? String(n) : '';
+  }
+  function showLog() {
+    const logs = readLog().slice().reverse();
+    const fmtT = (t) => new Date(t).toLocaleString('ja-JP');
+    const text = () => `PikPak Distill ${VER} / ${navigator.userAgent}\n` + readLog().map((x) => `${fmtT(x.t)} [${x.level}] ${x.msg}${x.ctx ? ' | ' + x.ctx : ''}${x.v ? ' (v' + x.v + ')' : ''}`).join('\n');
+    const d = document.createElement('div'); d.id = 'pd-dlg';
+    d.innerHTML = `<div class="box" style="width:min(820px,94vw)"><h3>ログ（新しい順・最新300件）</h3>
+      <div class="note">エラーや主な処理の記録です。このブラウザの中にだけ保存されます（ログイン情報は記録しません）。不具合の報告にはコピーして貼り付けてください。</div>
+      <div class="logs">${logs.map((x) => `<div class="${x.level}">${esc(fmtT(x.t))} [${esc(x.level)}] ${esc(x.msg)}${x.ctx ? ' <span style="opacity:.7">| ' + esc(x.ctx) + '</span>' : ''}</div>`).join('') || '記録はありません'}</div>
+      <div class="acts"><button data-clear>消去</button><button data-save>テキスト保存</button><button data-copy>コピー</button><button data-close class="danger" style="background:#306fff;border-color:#306fff">閉じる</button></div></div>`;
+    document.body.appendChild(d);
+    try { localStorage.setItem(LS_LOGSEEN, String(Date.now())); } catch (e) { /* 無視 */ }
+    updateLogBadge();
+    d.querySelector('[data-close]').onclick = () => d.remove();
+    d.querySelector('[data-copy]').onclick = async () => { try { await navigator.clipboard.writeText(text()); d.querySelector('[data-copy]').textContent = 'コピーしました'; } catch (e) { d.querySelector('[data-copy]').textContent = 'コピー失敗'; } };
+    d.querySelector('[data-save]').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text()], { type: 'text/plain' })); a.download = 'pikpak-distill-log.txt'; a.click(); };
+    d.querySelector('[data-clear]').onclick = () => { if (confirm('ログを消去しますか？')) { try { localStorage.removeItem(LS_LOG); } catch (e) { /* 無視 */ } d.remove(); updateLogBadge(); } };
+  }
 
   // ---------- 件数（ステップの案内用） ----------
   function counts() {
@@ -568,6 +682,7 @@
   }
   async function runScan() {
     if (busy) return;
+    if (!ensureSession('scan')) return;
     busy = true; renderNav(); renderScan();
     status('読み込み中…', 0);
     try {
@@ -580,7 +695,8 @@
       status(`読み込み完了：フォルダ ${folders.length} ／ ファイル ${files.length} 件`);
       setView('scan');
       status(`読み込み完了：フォルダ ${folders.length} ／ ファイル ${files.length} 件。次のステップを選んでください。`);
-    } catch (err) { busy = false; renderNav(); renderScan(); status('エラー: ' + err.message); }
+      log('info', `読み込み完了：フォルダ ${folders.length} ／ ファイル ${files.length}`, where);
+    } catch (err) { busy = false; renderNav(); renderScan(); handleErr(err, 'scan', '読み込みに失敗しました：' + err.message); }
   }
 
   // ---------- 2. 作品ごとに仕分け ----------
@@ -595,16 +711,16 @@
   }
   async function runSort(onlyFirst) {
     const targets = splan.filter((g) => g.status !== 'done').slice(0, onlyFirst ? 1 : undefined);
-    if (!targets.length) return;
+    if (!targets.length || !ensureSession('sort')) return;
     busy = true; renderNav(); window.__ppdupStop = false; let ok = 0;
     for (const g of targets) {
       if (window.__ppdupStop) break;
       status(`仕分け中… ${ok + 1}/${targets.length}：${g.work}`, ok / targets.length);
       try { await sortApi(g); ok++; saveAll(); }
-      catch (err) { saveAll(); busy = false; setView('sort'); status(`停止：${g.cpath} の ${g.work}：${err.message}（${ok}作品完了）`); return; }
+      catch (err) { saveAll(); busy = false; setView('sort'); handleErr(err, 'sort', `停止：${g.cpath} の ${g.work}：${err.message}（${ok}作品完了）`); return; }
       await sleep(100);
     }
-    busy = false; setView('sort'); status(`${ok} 作品を仕分けしました。`); refreshView();
+    busy = false; setView('sort'); status(`${ok} 作品を仕分けしました。`); log('info', `仕分け ${ok} 作品`); refreshView();
   }
 
   // ---------- 3. フォルダ名を揃える ----------
@@ -623,16 +739,16 @@
     const sh = $('[data-a=renfilter]') ? $('[data-a=renfilter]').value : 'todo';
     const todo = rplan.filter((p) => p.status === 'rename' || p.status === 'dup');
     const targets = (sh === 'all' || sh === 'todo' ? todo : []).slice(0, onlyFirst ? 1 : undefined);
-    if (!targets.length) return;
+    if (!targets.length || !ensureSession('ren')) return;
     busy = true; renderNav(); window.__ppdupStop = false; let ok = 0;
     for (const p of targets) {
       if (window.__ppdupStop) break;
       status(`名前を変更中… ${ok + 1}/${targets.length}：${p.cur}`, ok / targets.length);
       try { await renameApi(p); ok++; persistFolders(); }
-      catch (err) { persistFolders(); busy = false; setView('ren'); status(`停止：${p.cur} → ${p.target}：${err.message}（${ok}件完了）`); return; }
+      catch (err) { persistFolders(); busy = false; setView('ren'); handleErr(err, 'ren', `停止：${p.cur} → ${p.target}：${err.message}（${ok}件完了）`); return; }
       await sleep(150);
     }
-    persistFolders(); busy = false; setView('ren'); status(`${ok} 件のフォルダ名を変更しました。`); refreshView();
+    persistFolders(); busy = false; setView('ren'); status(`${ok} 件のフォルダ名を変更しました。`); log('info', `フォルダ名の変更 ${ok} 件`); refreshView();
   }
   function persistFolders() { // 変更後の名前をキャッシュへ反映
     rplan.forEach((p) => { const f = folders.find((x) => x.id === p.id); if (f) f.name = p.cur; });
@@ -696,13 +812,14 @@
       list.push(...del);
     });
     if (!list.length) { status(skipped.length ? '全件にチェックが入っている組しかないため、削除しませんでした（1件は残してください）' : 'チェックの入ったファイルがありません'); return; }
+    if (!ensureSession('dup')) return;
     const ans = await askDelete(list, skipped);
     if (!ans) return;
     busy = true; renderNav(); window.__ppdupStop = false;
     try {
       const n = await deleteApi(list, ans.hard, (d, t) => status(`削除中… ${d}/${t}`, d / t));
-      busy = false; render(); renderNav(); status(`${n} 件を${ans.hard ? '完全に削除' : 'ゴミ箱へ移動'}しました。`); refreshView();
-    } catch (err) { busy = false; render(); renderNav(); status('停止：' + err.message); }
+      busy = false; render(); renderNav(); status(`${n} 件を${ans.hard ? '完全に削除' : 'ゴミ箱へ移動'}しました。`); log('info', `削除 ${n} 件（${ans.hard ? '完全削除' : 'ゴミ箱'}）`); refreshView();
+    } catch (err) { busy = false; render(); renderNav(); handleErr(err, 'dup', '削除を停止しました：' + err.message); }
   }
 
   // ---------- 5. (1)を外す ----------
@@ -718,16 +835,16 @@
   }
   async function runClean(onlyFirst) {
     const targets = cplan.filter((p) => p.status === 'todo').slice(0, onlyFirst ? 1 : undefined);
-    if (!targets.length) return;
+    if (!targets.length || !ensureSession('clean')) return;
     busy = true; renderNav(); window.__ppdupStop = false; let ok = 0;
     for (const p of targets) {
       if (window.__ppdupStop) break;
       status(`(1)を外しています… ${ok + 1}/${targets.length}：${p.cur}`, ok / targets.length);
       try { await cleanOne(p); ok++; saveAll(); }
-      catch (err) { saveAll(); busy = false; setView('clean'); status(`停止：${p.cur} → ${p.target}：${err.message}（${ok}件完了）`); return; }
+      catch (err) { saveAll(); busy = false; setView('clean'); handleErr(err, 'clean', `停止：${p.cur} → ${p.target}：${err.message}（${ok}件完了）`); return; }
       await sleep(150);
     }
-    busy = false; setView('clean'); status(`${ok} 件の (1) を外しました。`); refreshView();
+    busy = false; setView('clean'); status(`${ok} 件の (1) を外しました。`); log('info', `(1)の除去 ${ok} 件`); refreshView();
   }
 
   // ---------- 操作 ----------
@@ -746,6 +863,7 @@
     }
     if (t.dataset.g !== undefined) { if (busy) return; const g = visibleGroups().find((x) => x.key === t.dataset.g); if (g) runDelete([g]); return; }
     if (a === 'close') { root.classList.remove('on'); return; }
+    if (a === 'log') { showLog(); return; }
     if (a === 'stop') { window.__ppdupStop = true; status('中断しています…（いまの処理が終わったら止まります）'); return; }
     if (busy) return;
     if (a === 'scan') return runScan();
@@ -766,7 +884,9 @@
     if (['mode', 'nearonly', 'renfilter'].includes(e.target.dataset.a)) render();
   });
   root.addEventListener('input', (e) => { if (e.target.dataset.a === 'q') render(); });
-  btn.addEventListener('click', () => { root.classList.add('on'); if (!busy) setView(hasScan() ? view : 'scan'); });
+  btn.addEventListener('click', () => { root.classList.add('on'); updateLogBadge(); if (!busy) setView(hasScan() ? view : 'scan'); });
+  updateLogBadge();
+  resumeAfterReload();
 
   window.PPDup = { buildCleanPlan, buildSortPlan, buildRenamePlan, get folders() { return folders; }, scanApi, buildGroups, render, get files() { return files; }, set files(v) { files = v; } };
 })();

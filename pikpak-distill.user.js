@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.5.0
+// @version      3.6.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMzMDZmZmYiLz48cmVjdCB4PSIxMiIgeT0iMTYiIHdpZHRoPSIyNCIgaGVpZ2h0PSIzMiIgcng9IjQiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii41NSIvPjxyZWN0IHg9IjI2IiB5PSIxMiIgd2lkdGg9IjI2IiBoZWlnaHQ9IjM0IiByeD0iNCIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik0zMiAyNGgxNE0zMiAzMGgxNE0zMiAzNmg5IiBzdHJva2U9IiMzMDZmZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGNpcmNsZSBjeD0iNDQiIGN5PSI0NiIgcj0iOSIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJNNDAgNDZsMyAzIDUtNiIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -30,7 +30,7 @@
   const LS_LOG = 'ppdup:log:v1';
   const LS_LOGSEEN = 'ppdup:logseen:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.5.0'; // @version と合わせて更新する
+  const VER = '3.6.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -413,6 +413,22 @@
   #ppdup-btn{position:fixed;right:20px;bottom:76px;z-index:99998;display:flex;align-items:center;gap:8px;padding:6px 14px 6px 6px;border:0;border-radius:999px;background:#306fff;color:#fff;font:700 13px system-ui,sans-serif;cursor:pointer;box-shadow:0 4px 14px #0005}
   #ppdup-btn svg{width:30px;height:30px;border-radius:9px;box-shadow:0 0 0 2px #ffffff80}
   #ppdup-btn:hover{filter:brightness(1.08)}
+  #ppdup-fab{position:fixed;right:20px;bottom:128px;z-index:99998;width:290px;background:#1d2027;color:#e6e8ee;border:1px solid #2c303a;border-radius:14px;box-shadow:0 12px 40px #0008;padding:8px;font:13px/1.4 system-ui,"Hiragino Sans","Yu Gothic",sans-serif;display:none}
+  #ppdup-fab.on{display:block;animation:pdfab .12s ease-out}
+  @keyframes pdfab{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  #ppdup-fab .hd{font-size:11px;color:#8b91a1;padding:6px 10px 4px}
+  #ppdup-fab button{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;color:inherit;font:inherit;padding:9px 10px;border-radius:9px;cursor:pointer;text-align:left}
+  #ppdup-fab button:hover:not(:disabled){background:#2a2f3a}
+  #ppdup-fab button:disabled{opacity:.45;cursor:not-allowed}
+  #ppdup-fab button.flow{background:#306fff;color:#fff;font-weight:700;margin-bottom:4px}
+  #ppdup-fab button.flow:hover{background:#3d7bff}
+  #ppdup-fab .n{width:22px;height:22px;border-radius:50%;background:#2a2f3a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex:none}
+  #ppdup-fab .t{flex:1}
+  #ppdup-fab .b{font-size:11px;color:#8b91a1}
+  #ppdup-fab .b.todo{color:#8fb0ff;font-weight:700}
+  #ppdup-fab .b.ok{color:#3fb96f}
+  #ppdup-fab hr{border:0;border-top:1px solid #2c303a;margin:6px 4px}
+  #ppdup.single nav{display:none}
   #ppdup{--bg:#f5f6f8;--panel:#fff;--panel2:#eef0f4;--line:#dde0e6;--fg:#1c1f26;--mute:#6a7080;--pri:#306fff;--pri-soft:#306fff1f;--ok:#1f9d55;--danger:#d64545;--keep:#f0faf2;--del:#fff5f5;--ctl:#fff;--ctl-line:#c5c9d2;
     position:fixed;inset:0;z-index:99999;background:var(--bg);color:var(--fg);font:13px/1.5 system-ui,"Hiragino Sans","Yu Gothic",sans-serif;display:none;flex-direction:column}
   @media (prefers-color-scheme:dark){#ppdup{--bg:#15171c;--panel:#1d2027;--panel2:#252932;--line:#2c303a;--fg:#e6e8ee;--mute:#8b91a1;--pri-soft:#306fff33;--keep:#17261c;--del:#2a1a1a;--ctl:#252932;--ctl-line:#3a3f4b}}
@@ -508,7 +524,8 @@
     { v: 'clean', t: '(1)を外す・片付け', d: '重複を削除したあとに残った空フォルダをゴミ箱へ移し、不要になった (1) を外します。' },
   ];
 
-  const btn = document.createElement('button'); btn.id = 'ppdup-btn'; btn.innerHTML = LOGO + '<span>Distill</span>'; btn.title = 'PikPak Distill – Dedupe'; document.body.appendChild(btn);
+  const btn = document.createElement('button'); btn.id = 'ppdup-btn'; btn.innerHTML = LOGO + '<span>Distill</span>'; btn.title = 'PikPak Distill – Dedupe（クリックでメニュー）'; document.body.appendChild(btn);
+  const fab = document.createElement('div'); fab.id = 'ppdup-fab'; document.body.appendChild(fab);
   const root = document.createElement('div'); root.id = 'ppdup';
   root.innerHTML = `
     <header>
@@ -543,6 +560,8 @@
   let view = 'scan';
   let splan = [], cplan = [], rplan = [];
   let busy = false;
+  let mode = 'flow'; // flow＝1〜5の流れで表示／single＝1つの作業だけを表示
+  let afterScan = null; // 読み込み後に開く作業
 
 
   // ---------- ログイン切れの自動回復 ----------
@@ -564,12 +583,12 @@
   // 操作の前にログインの有効期限を確認（切れていれば再読み込みして続きから）
   function ensureSession(action) {
     if (sessionValid()) return true;
-    reloadForSession({ view, action });
+    reloadForSession({ view, action, mode });
     return false;
   }
   // 処理中のエラーがログイン切れなら再読み込み、それ以外はログに残して表示
   function handleErr(err, action, msg) {
-    if (err && err.session) { reloadForSession({ view, action }); return; }
+    if (err && err.session) { reloadForSession({ view, action, mode }); return; }
     log('error', msg || (err && err.message), action);
     status(msg || ('エラー：' + (err && err.message)));
     updateLogBadge();
@@ -577,6 +596,7 @@
   async function resumeAfterReload() {
     let r = null; try { r = JSON.parse(sessionStorage.getItem(SS_RESUME) || 'null'); } catch (e) { r = null; }
     if (!r || Date.now() - r.at > 2 * 60 * 1000) return;
+    mode = r.mode || 'flow'; root.classList.toggle('single', mode === 'single');
     root.classList.add('on');
     setView(r.view || 'scan');
     status('画面を再読み込みしました。ログイン情報の更新を待っています…', 0.3);
@@ -590,7 +610,7 @@
     status(r.action ? 'ログイン情報を更新しました。途中まで完了した分は保存済みです。もう一度ボタンを押すと続きから実行します。' : 'ログイン情報を更新しました。');
   }
   // 画面を開いたまま放置した場合も、期限切れを検知したら自動で再読み込み
-  setInterval(() => { if (root.classList.contains('on') && !busy && !sessionValid() && readCred()) reloadForSession({ view }); }, 60 * 1000);
+  setInterval(() => { if (root.classList.contains('on') && !busy && !sessionValid() && readCred()) reloadForSession({ view, mode }); }, 60 * 1000);
 
   // ---------- ログ表示 ----------
   function updateLogBadge() {
@@ -660,6 +680,7 @@
   }
   const allDone = (c) => !!c && ['sort', 'ren', 'dup', 'clean'].every((k) => !remaining(k, c)) && !c.cleanSkip;
   function nextHtml(c, cls) {
+    if (mode === 'single') return `<button class="${cls || 'pri'}" data-a="close">完了（閉じる）</button><button data-a="toflow">1〜5の流れで続ける</button>`;
     const n = nextTarget(c);
     if (n) return `<button class="${cls || 'pri'}" data-step="${n.v}">次へ：${STEPS.indexOf(n) + 1}. ${esc(n.t)} →</button>`;
     return `<button class="${cls || 'pri'}" data-step="scan">${allDone(c) ? '✓ すべて完了（読み込み画面へ）' : '読み込み画面へ'}</button>`;
@@ -676,7 +697,8 @@
   // ステップごとの操作欄（見出しと絞り込みは切り替え時に作り、ボタン部分は状態に合わせて都度更新）
   function renderToolbar() {
     const s = STEPS.find((x) => x.v === view);
-    const head = `<div class="head"><b>${STEPS.indexOf(s) + 1}. ${esc(s.t)}</b><span class="note">${esc(s.d)}</span></div><span class="sp"></span>`;
+    const single = mode === 'single' ? `<span class="note">読み込み：${meta ? esc(new Date(meta.at).toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })) : '未'}</span><button data-a="rescan" title="最新の状態を読み込んでから、この作業を続けます">再読み込み</button><button data-a="toflow" title="1〜5のステップ表示に切り替えます">流れで表示</button><span class="sep"></span>` : '';
+    const head = `<div class="head"><b>${mode === 'single' ? '' : STEPS.indexOf(s) + 1 + '. '}${esc(s.t)}</b><span class="note">${esc(s.d)}</span></div><span class="sp"></span>${single}`;
     let html = '';
     if (view === 'sort' || view === 'clean') html = head;
     if (view === 'ren') html = head + `<select data-a="renfilter"><option value="todo">変更するもの</option><option value="skip">要確認</option><option value="same">変更なし</option><option value="all">すべて</option></select>`;
@@ -750,8 +772,8 @@
       try { localStorage.setItem(LS_META, JSON.stringify(meta)); } catch (e) { /* 無視 */ }
       busy = false;
       status(`読み込み完了：フォルダ ${folders.length} ／ ファイル ${files.length} 件`);
-      setView('scan');
-      status(`読み込み完了：フォルダ ${folders.length} ／ ファイル ${files.length} 件。次のステップを選んでください。`);
+      if (afterScan) { const v = afterScan; afterScan = null; setView(v); status(`読み込み完了：フォルダ ${folders.length} ／ ファイル ${files.length} 件`); }
+      else { setView('scan'); status(`読み込み完了：フォルダ ${folders.length} ／ ファイル ${files.length} 件。次のステップを選んでください。`); }
       log('info', `読み込み完了：フォルダ ${folders.length} ／ ファイル ${files.length}`, where);
     } catch (err) { busy = false; renderNav(); renderScan(); handleErr(err, 'scan', '読み込みに失敗しました：' + err.message); }
   }
@@ -929,6 +951,8 @@
     if (t.dataset.g !== undefined) { if (busy) return; const g = visibleGroups().find((x) => x.key === t.dataset.g); if (g) runDelete([g]); return; }
     if (a === 'close') { root.classList.remove('on'); return; }
     if (a === 'log') { showLog(); return; }
+    if (a === 'toflow') { if (!busy) openFlow(); return; }
+    if (a === 'rescan') { if (!busy) { afterScan = view; runScan(); } return; }
     if (a === 'stop') { window.__ppdupStop = true; status('中断しています…（いまの処理が終わったら止まります）'); return; }
     if (busy) return;
     if (a === 'scan') return runScan();
@@ -951,7 +975,47 @@
     if (['mode', 'nearonly', 'renfilter'].includes(e.target.dataset.a)) render();
   });
   root.addEventListener('input', (e) => { if (e.target.dataset.a === 'q') render(); });
-  btn.addEventListener('click', () => { root.classList.add('on'); updateLogBadge(); if (!busy) setView(hasScan() ? view : 'scan'); });
+  // ---------- フローティングメニュー ----------
+  function openFlow() {
+    mode = 'flow'; root.classList.remove('single'); root.classList.add('on'); updateLogBadge();
+    if (!busy) setView(hasScan() ? (view || 'scan') : 'scan');
+  }
+  // 1つの作業だけを開く。まだ読み込んでいなければ、先に読み込んでから開く
+  function openTask(v) {
+    mode = v === 'scan' ? 'flow' : 'single';
+    root.classList.toggle('single', mode === 'single'); root.classList.add('on'); updateLogBadge();
+    if (busy) return;
+    if (v !== 'scan' && !hasScan()) { afterScan = v; setView('scan'); runScan(); return; }
+    setView(v);
+  }
+  function renderFab() {
+    const c = counts();
+    const badge = (k) => {
+      if (k === 'scan') return meta ? `<span class="b ok">${esc(new Date(meta.at).toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }))}</span>` : '<span class="b todo">未読み込み</span>';
+      if (!c) return '<span class="b">読み込んでから</span>';
+      const n = remaining(k, c);
+      if (n) return `<span class="b todo">${n} ${UNIT_OF[k]}</span>`;
+      if (k === 'clean' && c.cleanSkip) return `<span class="b">要確認 ${c.cleanSkip}</span>`;
+      return '<span class="b ok">✓ 完了</span>';
+    };
+    const seen = +(localStorage.getItem(LS_LOGSEEN) || 0);
+    const errs = readLog().filter((x) => x.level === 'error' && x.t > seen).length;
+    fab.innerHTML = `<button class="flow" data-fab="flow"><span class="n" style="background:#ffffff33">▶</span><span class="t">おまかせ整理<br><span style="font-weight:400;font-size:11px;opacity:.85">1〜5の流れで順番に進める</span></span></button>
+      <div class="hd">作業を選んで開く</div>
+      ${STEPS.map((s, i) => `<button data-fab="${s.v}"${busy ? ' disabled' : ''}><span class="n">${i + 1}</span><span class="t">${esc(s.t)}</span>${badge(s.v)}</button>`).join('')}
+      <hr><button data-fab="log"><span class="n">≡</span><span class="t">ログ</span>${errs ? `<span class="b todo">エラー ${errs}</span>` : ''}</button>`;
+  }
+  const closeFab = () => fab.classList.remove('on');
+  btn.addEventListener('click', (e) => { e.stopPropagation(); if (fab.classList.contains('on')) { closeFab(); return; } renderFab(); fab.classList.add('on'); });
+  fab.addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b || b.disabled) return;
+    const k = b.dataset.fab; closeFab();
+    if (k === 'flow') openFlow();
+    else if (k === 'log') showLog();
+    else openTask(k);
+  });
+  document.addEventListener('click', (e) => { if (fab.classList.contains('on') && !fab.contains(e.target) && e.target !== btn) closeFab(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeFab(); });
   updateLogBadge();
   resumeAfterReload();
 

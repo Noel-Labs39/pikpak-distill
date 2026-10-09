@@ -7,14 +7,11 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.4.0
+// @version      3.4.1
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMzMDZmZmYiLz48cmVjdCB4PSIxMiIgeT0iMTYiIHdpZHRoPSIyNCIgaGVpZ2h0PSIzMiIgcng9IjQiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii41NSIvPjxyZWN0IHg9IjI2IiB5PSIxMiIgd2lkdGg9IjI2IiBoZWlnaHQ9IjM0IiByeD0iNCIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik0zMiAyNGgxNE0zMiAzMGgxNE0zMiAzNmg5IiBzdHJva2U9IiMzMDZmZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGNpcmNsZSBjeD0iNDQiIGN5PSI0NiIgcj0iOSIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJNNDAgNDZsMyAzIDUtNiIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
-// @grant        GM_xmlhttpRequest
-// @grant        unsafeWindow
-// @grant        GM_info
-// @connect      api-drive.mypikpak.com
+// @grant        none
 // @run-at       document-idle
 // ==/UserScript==
 (function () {
@@ -33,7 +30,7 @@
   const LS_LOG = 'ppdup:log:v1';
   const LS_LOGSEEN = 'ppdup:logseen:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = (typeof GM_info !== 'undefined' && GM_info && GM_info.script && GM_info.script.version) || '';
+  const VER = '3.4.1'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -47,8 +44,7 @@
   const readLog = () => { try { return JSON.parse(localStorage.getItem(LS_LOG) || '[]'); } catch (e) { return []; } };
   window.addEventListener('error', (e) => { if (String(e.filename || '').includes('userscript') || /ppdup|PikPak Distill/.test(String(e.message))) log('error', e.message, 'window.onerror'); });
 
-  // Tampermonkey の権限付き実行では、PikPak画面側のオブジェクトは unsafeWindow 経由で参照する
-  const pageWin = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
+  const pageWin = window; // @grant none のため、PikPak画面と同じ環境で動く
   const getRouter = () => {
     const d = pageWin.document || document;
     const a = d.querySelector('#app') || d.body.firstElementChild;
@@ -211,18 +207,9 @@
     if (c.expiresAt && c.expiresAt - Date.now() <= SESSION_MARGIN) throw sessionError('ログインの有効期限が切れています');
     return { 'Content-Type': 'application/json', Authorization: c.auth, 'x-device-id': localStorage.getItem('deviceid') || '' };
   }
-  // 通信は Tampermonkey の GM_xmlhttpRequest を優先（ブラウザやスクリプト実行環境の通信制限を受けない）
-  function http(url, opt) {
-    if (typeof GM_xmlhttpRequest !== 'function') return fetch(url, opt);
-    return new Promise((resolve, reject) => {
-      GM_xmlhttpRequest({
-        method: opt.method || 'GET', url, headers: opt.headers, data: opt.body, timeout: 60000,
-        onload: (r) => resolve({ ok: r.status >= 200 && r.status < 300, status: r.status, json: async () => JSON.parse(r.responseText || '{}') }),
-        onerror: () => reject(new Error('通信に失敗しました（ネットワーク、またはTampermonkeyの通信許可を確認してください）')),
-        ontimeout: () => reject(new Error('通信がタイムアウトしました')),
-      });
-    });
-  }
+  // 通信はPikPakの画面と同じ方法（ページ上の fetch）で行う。
+  // ※ Tampermonkey の GM_xmlhttpRequest 経由だと、PikPak側で「認証コードが無効です」と拒否されるため使わない
+  const http = (url, opt) => fetch(url, opt);
   async function api(path, opt = {}) {
     for (let tries = 0; ; tries++) {
       let res;
@@ -240,6 +227,7 @@
         const msg = data.error_description || data.error || 'API ' + res.status;
         log('error', msg, (opt.method || 'GET') + ' ' + path.split('?')[0] + ' → HTTP ' + res.status);
         if (res.status === 401 || /unauthenticated|token/i.test(String(data.error || ''))) throw sessionError('ログインの有効期限が切れています');
+        if (/captcha/i.test(String(data.error || '')) || /認証コード/.test(msg)) throw sessionError('認証の確認が必要です（' + msg + '）'); // 画面の再読み込みで更新される
         throw new Error(msg);
       }
       return data;

@@ -7,11 +7,13 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.3.0
+// @version      3.3.1
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMzMDZmZmYiLz48cmVjdCB4PSIxMiIgeT0iMTYiIHdpZHRoPSIyNCIgaGVpZ2h0PSIzMiIgcng9IjQiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii41NSIvPjxyZWN0IHg9IjI2IiB5PSIxMiIgd2lkdGg9IjI2IiBoZWlnaHQ9IjM0IiByeD0iNCIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik0zMiAyNGgxNE0zMiAzMGgxNE0zMiAzNmg5IiBzdHJva2U9IiMzMDZmZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGNpcmNsZSBjeD0iNDQiIGN5PSI0NiIgcj0iOSIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJNNDAgNDZsMyAzIDUtNiIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
-// @grant        none
+// @grant        GM_xmlhttpRequest
+// @grant        unsafeWindow
+// @connect      api-drive.mypikpak.com
 // @run-at       document-idle
 // ==/UserScript==
 (function () {
@@ -28,8 +30,11 @@
   const LS_SCAN = 'ppdup:scan:v1';
   const LS_FOLD = 'ppdup:folders:v1';
 
+  // Tampermonkey の権限付き実行では、PikPak画面側のオブジェクトは unsafeWindow 経由で参照する
+  const pageWin = typeof unsafeWindow !== 'undefined' ? unsafeWindow : window;
   const getRouter = () => {
-    const a = document.querySelector('#app') || document.body.firstElementChild;
+    const d = pageWin.document || document;
+    const a = d.querySelector('#app') || d.body.firstElementChild;
     return a && a.__vue_app__ && a.__vue_app__.config.globalProperties.$router;
   };
   // PikPak Enhancement Master が画面を置き換えている場合（.pk-row）と標準画面（li.row）の両対応
@@ -178,9 +183,23 @@
     if (!auth) throw new Error('ログイン情報を取得できません（PikPakの画面を再読み込みするか、再ログインしてください）');
     return { 'Content-Type': 'application/json', Authorization: auth, 'x-device-id': localStorage.getItem('deviceid') || '' };
   }
+  // 通信は Tampermonkey の GM_xmlhttpRequest を優先（ブラウザやスクリプト実行環境の通信制限を受けない）
+  function http(url, opt) {
+    if (typeof GM_xmlhttpRequest !== 'function') return fetch(url, opt);
+    return new Promise((resolve, reject) => {
+      GM_xmlhttpRequest({
+        method: opt.method || 'GET', url, headers: opt.headers, data: opt.body, timeout: 60000,
+        onload: (r) => resolve({ ok: r.status >= 200 && r.status < 300, status: r.status, json: async () => JSON.parse(r.responseText || '{}') }),
+        onerror: () => reject(new Error('通信に失敗しました（ネットワーク、またはTampermonkeyの通信許可を確認してください）')),
+        ontimeout: () => reject(new Error('通信がタイムアウトしました')),
+      });
+    });
+  }
   async function api(path, opt = {}) {
     for (let tries = 0; ; tries++) {
-      const res = await fetch(API + path, { ...opt, headers: apiHeaders() });
+      let res;
+      try { res = await http(API + path, { ...opt, headers: apiHeaders() }); }
+      catch (e) { if (tries < 2) { await sleep(1500); continue; } throw new Error(e.message === 'Failed to fetch' ? 'PikPakのサーバーに接続できませんでした（画面を再読み込みして、もう一度お試しください）' : e.message); }
       if ((res.status === 429 || res.status >= 500) && tries < 5) { await sleep(1500 * (tries + 1)); continue; }
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error((data.error_description || data.error || 'API ' + res.status) + (res.status === 401 ? '（画面を再読み込みしてから再実行してください）' : ''));
@@ -456,7 +475,7 @@
   const saveDecision = () => { try { localStorage.setItem(LS_DECISION, JSON.stringify(decision)); } catch (e) { /* 無視 */ } };
   const saveAll = () => { try { localStorage.setItem(LS_SCAN, JSON.stringify(files)); localStorage.setItem(LS_FOLD, JSON.stringify(folders)); } catch (e) { /* 容量超過は無視 */ } };
   const stateOf = (f, idx) => decision[f.id] || (idx === 0 ? 'keep' : 'del');
-  const hasScan = () => folders.length > 0 || files.length > 0;
+  const hasScan = () => !!meta && (folders.length > 0 || files.length > 0); // このバージョンで読み込んだ結果だけを使う
   let view = 'scan';
   let splan = [], cplan = [], rplan = [];
   let busy = false;

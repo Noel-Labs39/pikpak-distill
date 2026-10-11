@@ -168,7 +168,7 @@
   // ---------- FC2 ファイル名を整える ----------
   // 例：4k688.com@FC2-PPV-4988183_1.mp4 → FC2-PPV-4988183-1.mp4
   //   ・品番は FC2-PPV-数字 にそろえる（サイト名・広告などの前後の文字は消す）
-  //   ・シーン／分割の連番（_1・-1・part1・cd1・_A）は「-1」「-A」の形で残す
+  //   ・シリーズ／分割の番号（_1・-1・part1・cd1・_A、タイトル末尾の「…編-3」も）は「-1」「-A」の形で残す
   //   ・重複回避の (1) と拡張子はそのまま残す
   //   ・FC2 以外のファイル名は変更しない
   function fc2CleanName(name) {
@@ -177,7 +177,10 @@
     const dup = stem.match(/\s?\((\d+)\)$/); if (dup) stem = stem.slice(0, dup.index);
     const f = stem.match(/FC2[\s_-]*PPV[\s_-]*(\d{5,8})(.*)$/i);
     if (!f) return null;
-    const pm = f[2].match(/^[\s_-]*(?:(?:part|cd)\s?)?(\d{1,2}|[A-Ea-e])(?=$|[\s_\-.[(（【])/i);
+    // シリーズ番号：品番のすぐ後ろ（FC2-PPV-1234567_2）か、タイトルの末尾（…編-3）にあるもの
+    const pm = f[2].match(/^[\s_\-－]*(?:(?:part|cd)\s?)?(\d{1,2}|[A-Ea-e])(?=$|[\s_\-－.[(（【])/i)
+      || f[2].match(/[\s_\-－](?:(?:part|cd)\s?)?(\d{1,2}|[A-Ea-e])$/i)
+      || f[2].match(/第\s?(\d{1,2})\s?[話部巻章]/);
     return 'FC2-PPV-' + f[1] + (pm ? '-' + pm[1].toUpperCase() : '') + (dup ? '(' + dup[1] + ')' : '') + ext;
   }
   // 計画: [{op:'rename', kind:'file', id, parentId, path, cur, target, status, note}]
@@ -849,7 +852,7 @@
       <ul class="note">
         <li>例：<code>4k688.com@FC2-PPV-4988183_1.mp4</code> → <code>FC2-PPV-4988183-1.mp4</code></li>
         <li>サイト名・広告など、品番の前後にある余計な文字は消します</li>
-        <li>シーン／分割の番号（<code>_1</code>・<code>part2</code>・<code>cd1</code>・<code>_A</code> など）は <code>-1</code>・<code>-A</code> の形で残します</li>
+        <li>シリーズ／分割の番号（<code>_1</code>・<code>part2</code>・<code>cd1</code>・<code>_A</code>、タイトル末尾の <code>…編-3</code>、<code>第2話</code> など）は <code>-1</code>・<code>-3</code> の形で残します</li>
         <li>同じ場所に同じ名前のファイルができる場合は <code>(1)</code> を付けます（重複の可能性があるため、あとで比べられます）</li>
         <li>FC2 以外のファイルは変更しません。ファイルの中身や置き場所は変わりません</li>
       </ul>

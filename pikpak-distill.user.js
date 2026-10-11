@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.6.0
+// @version      3.6.1
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMzMDZmZmYiLz48cmVjdCB4PSIxMiIgeT0iMTYiIHdpZHRoPSIyNCIgaGVpZ2h0PSIzMiIgcng9IjQiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii41NSIvPjxyZWN0IHg9IjI2IiB5PSIxMiIgd2lkdGg9IjI2IiBoZWlnaHQ9IjM0IiByeD0iNCIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik0zMiAyNGgxNE0zMiAzMGgxNE0zMiAzNmg5IiBzdHJva2U9IiMzMDZmZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGNpcmNsZSBjeD0iNDQiIGN5PSI0NiIgcj0iOSIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJNNDAgNDZsMyAzIDUtNiIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -30,7 +30,7 @@
   const LS_LOG = 'ppdup:log:v1';
   const LS_LOGSEEN = 'ppdup:logseen:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.6.0'; // @version と合わせて更新する
+  const VER = '3.6.1'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -76,9 +76,18 @@
 
 
   // ---------- フォルダ名を中のファイル名に揃える ----------
-  // 拡張子と、分割ファイルの連番(-1,-2)を除いた名前（SAMPLE-1234567-2.mp4 → SAMPLE-1234567）
-  // 重複回避で付けた (1) なども除く（SAMPLE-1234567(1).mp4 → SAMPLE-1234567）
-  const baseName = (n) => n.replace(/\.[A-Za-z0-9]{2,5}$/, '').replace(/\s?\(\d+\)$/, '').replace(/^(.*\d{4,})-\d{1,2}$/, '$1');
+  // 作品の品番（作品ID）。次の違いは同じ作品として扱う
+  //   ・拡張子、重複回避の (1)
+  //   ・分割・シーン違いの連番：-1 / -2、_1 / _2、part1、cd1、-A など
+  //   ・配布元サイト名などの接頭辞：hhd800.com@FC2-PPV-1234567_1.mp4 → FC2-PPV-1234567
+  //   ・FC2の表記ゆれ：FC2PPV-1234567 / FC2_PPV_1234567 → FC2-PPV-1234567
+  const baseName = (n) => {
+    let b = String(n).replace(/\.[A-Za-z0-9]{2,5}$/, '').replace(/\s?\(\d+\)$/, '');
+    const fc2 = b.match(/FC2[\s_-]*PPV[\s_-]*(\d{5,8})/i);
+    if (fc2) return 'FC2-PPV-' + fc2[1];
+    b = b.replace(/^[^@]*@/, '').replace(/^\[[^\]]*\]\s*/, '').trim();
+    return b.replace(/^(.*\d{4,})(?:[\s_-]+(?:\d{1,2}|[A-Ea-e])|[\s_-]*(?:part|cd)\s?\d{1,2})$/i, '$1');
+  };
   // 計画: [{id, parentId, path, cur, target, status, note}]  status: same / rename / dup / skip
   function buildRenamePlan(files, folders) {
     const direct = new Map();
@@ -137,10 +146,10 @@
       const groups = new Map();
       fs.forEach((f) => { const k = workKey(f.name); if (!k) return; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(f); });
       if (groups.size < 2) return; // 1作品だけのフォルダは仕分け不要（フォルダ名の整合で対応）
-      const own = [...groups.keys()].find((k) => k.toLowerCase() === c.name.toLowerCase()); // フォルダ名と同じ作品はそのまま残す
+      const own = [...groups.keys()].find((k) => k.toLowerCase() === baseName(c.name).toLowerCase()); // フォルダ名と同じ作品はそのまま残す
       [...groups.keys()].sort().forEach((k) => {
         if (k === own) return;
-        const ex = (kids.get(c.id) || []).find((f) => f.name.toLowerCase() === k.toLowerCase());
+        const ex = (kids.get(c.id) || []).find((f) => f.name.toLowerCase() === k.toLowerCase()) || (kids.get(c.id) || []).find((f) => baseName(f.name).toLowerCase() === k.toLowerCase());
         const taken = new Set((ex ? direct.get(ex.id) || [] : []).map((f) => f.name.toLowerCase()));
         const items = groups.get(k).map((f) => {
           let to = f.name;

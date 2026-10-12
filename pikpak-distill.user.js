@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.8.2
+// @version      3.8.3
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMzMDZmZmYiLz48cmVjdCB4PSIxMiIgeT0iMTYiIHdpZHRoPSIyNCIgaGVpZ2h0PSIzMiIgcng9IjQiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii41NSIvPjxyZWN0IHg9IjI2IiB5PSIxMiIgd2lkdGg9IjI2IiBoZWlnaHQ9IjM0IiByeD0iNCIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik0zMiAyNGgxNE0zMiAzMGgxNE0zMiAzNmg5IiBzdHJva2U9IiMzMDZmZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGNpcmNsZSBjeD0iNDQiIGN5PSI0NiIgcj0iOSIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJNNDAgNDZsMyAzIDUtNiIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -32,7 +32,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.8.2'; // @version と合わせて更新する
+  const VER = '3.8.3'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -94,16 +94,24 @@
   function buildRenamePlan(files, folders) {
     const direct = new Map();
     files.forEach((f) => { if (!direct.has(f.parentId)) direct.set(f.parentId, []); direct.get(f.parentId).push(f); });
+    const kids = new Map();
+    folders.forEach((f) => { if (!kids.has(f.parentId)) kids.set(f.parentId, []); kids.get(f.parentId).push(f); });
     const taken = new Map(); // parentId -> Set(小文字の名前) ※「そのまま残るフォルダ」と確定済みの新名
     const add = (pid, n) => { if (!taken.has(pid)) taken.set(pid, new Set()); taken.get(pid).add(n.toLowerCase()); };
     const plan = folders.map((fo) => {
-      const fs = (direct.get(fo.id) || []).filter((f) => f.size > 0 || true);
-      const bases = [...new Set(fs.map((f) => baseName(f.name)))];
+      // 品番の入ったファイルだけを見る（広告など品番のないファイルの名前をフォルダ名にしない）
+      const fs = (direct.get(fo.id) || []).filter((f) => hasWorkId(f.name));
+      let bases = [...new Set(fs.map((f) => baseName(f.name)))];
+      let fromSub = false;
+      if (!bases.length) { // 直下に作品ファイルがなく、中のフォルダが（広告フォルダを除いて）1作品だけなら、その品番に揃える
+        const sub = (kids.get(fo.id) || []).filter((k) => hasWorkId(k.name) || !(AD_WORD.test(k.name) || DOMAIN.test(k.name)));
+        if (sub.length && sub.every((k) => hasWorkId(k.name))) { bases = [...new Set(sub.map((k) => baseName(k.name)))]; fromSub = true; }
+      }
       const p = { id: fo.id, parentId: fo.parentId, trail: fo.trail, path: fo.path, cur: fo.name, target: '', status: 'skip', note: '' };
       if (fo.isRoot || fo.parentId === 'root' || fo.parentId === '') p.note = '最上位・スキャン起点のフォルダは変更しません';
-      else if (!fs.length) p.note = '直下にファイルなし';
-      else if (bases.length > 1) { p.note = '直下に名前の異なるファイルが複数: ' + bases.slice(0, 3).join(' / '); p.cands = bases; }
-      else p.target = bases[0];
+      else if (!bases.length) p.note = (direct.get(fo.id) || []).length ? '品番の入ったファイルがないため変更しません' : '直下にファイルなし';
+      else if (bases.length > 1) { p.note = (fromSub ? '中に品番の異なるフォルダが複数: ' : '直下に名前の異なるファイルが複数: ') + bases.slice(0, 3).join(' / '); p.cands = bases; }
+      else { p.target = bases[0]; if (fromSub) p.why = '中のフォルダの品番に揃えます'; }
       return p;
     });
     // すでに一致しているものを先に確定（衝突時にこちらを優先して名前を守る）
@@ -124,7 +132,7 @@
       if (n === p.cur) { p.status = 'same'; add(p.parentId, n); return; }
       add(p.parentId, n);
       p.finalName = n; p.status = i ? 'dup' : 'rename';
-      p.note = i ? '同名フォルダがあるため (' + i + ') を付与' : '';
+      p.note = [p.why, i ? '同名フォルダがあるため (' + i + ') を付与' : ''].filter(Boolean).join('／');
     });
     plan.forEach((p) => { if (p.finalName) p.target = p.finalName; else if (p.status === 'same') p.target = p.cur; });
     return plan;
@@ -209,20 +217,32 @@
   //   del    … 作品と関係ないと判断（最初からチェックあり）
   //   review … 作品の可能性があるので確認してほしいもの（最初はチェックなし）
   const JUNK_MAX = 10 * UNIT.MB;
+  const AD_VIDEO_MAX = 50 * UNIT.MB; // 作品フォルダに紛れた品番のない動画は、これより小さければ広告とみなす
+  const SPREAD_MAX = 200 * UNIT.MB;
   const AD_EXT = new Set(['url', 'lnk', 'webloc', 'txt', 'htm', 'html', 'mht', 'mhtml', 'chm', 'exe', 'apk', 'bat', 'cmd', 'scr', 'vbs', 'torrent']);
   const SUB_EXT = new Set(['srt', 'ass', 'ssa', 'vtt', 'sub', 'idx', 'smi']);
   const AD_WORD = /广告|廣告|広告|宣传|宣傳|宣伝|推广|推廣|地址|網址|网址|发布|發布|获取|獲取|下载|下載|防屏蔽|永久|澳门|澳門|葡京|赌场|賭場|博彩|娱乐|娛樂|直播|约炮|約炮|社区|社區|论坛|論壇|福利|扫码|掃碼|客服|微信|QQ群|电报|電報|telegram|公告|必看|招募|关注|關注|聯繫|联系|最新アドレス|promo|advert/i;
   const DOMAIN = /(^|[^a-z0-9])[a-z0-9-]{2,}\.(com|net|org|la|xyz|cc|me|tv|top|vip|club|info|app|io|co|link|site|online|live|fun|win|life)($|[^a-z0-9])/i;
   const KANA = /[぀-ヿ]/;
   // 中国語にしかない字（簡体字・繁体字）。日本語の漢字だけのタイトルを中国語と誤判定しないよう、日本語と共通の字は入れない
-  const ZH_ONLY = /[们这个资视频获发址网载为无码对时说请关联报电级实购买么吗该进过还从让给见门问间开头东车马书读写语话认识记广场论坛专业产单经现选择变态爱亲热线红际欢边领导员样传统观众极简习盘约骚妇鸡伦强调們這發實從讓讀寫專產單廣碼說聯對麼嗎]/;
-  const hasWorkId = (name) => !!workKey(name) || /[A-Za-z]{2,6}-\d{3,5}/.test(name);
-  // 品番のない同じ名前のファイルが、別々の作品フォルダに入っている＝作品に付いてきた広告
-  let spreadNames = new Set();
-  function markSpread(files) {
+  const ZH_ONLY = /[们这个资视频获发址网载为无码对时说请关联报电级备实购买么吗该进过还从让给见门问间开头东车马书读写语话认识记广场论坛专业产单经现选择变态爱亲热线红际欢边领导员样传统观众极简习盘约骚妇鸡伦强调們這發實從讓讀寫專產單廣碼說聯對麼嗎]/;
+  // 品番＝FC2-PPV-数字、または ABC-123 の形。日付などの数字だけ（例：发布器20260609）は品番とみなさない
+  const hasWorkId = (name) => /FC2[\s_-]*PPV[\s_-]*\d{5,8}/i.test(name) || /(^|[^A-Za-z])[A-Za-z]{2,6}-\d{3,5}(?!\d)/.test(name);
+  // 判定に使う周りの情報
+  //   spreadNames … 品番のない同じ名前のファイルが、別々のフォルダに入っている（作品に付いてきた広告）
+  //   workDirs    … 作品のフォルダ（フォルダ名か、中のファイル・フォルダに品番がある）
+  //   adDirs      … 名前が広告・宣伝のフォルダ（その中身も含む）
+  let spreadNames = new Set(), workDirs = new Set(), adDirs = new Set();
+  function prepJunk(files, folders) {
     const where = new Map();
     files.forEach((f) => { if (hasWorkId(f.name)) return; const k = f.name.toLowerCase(); if (!where.has(k)) where.set(k, new Set()); where.get(k).add(f.parentId); });
     spreadNames = new Set([...where].filter(([, s]) => s.size >= 2).map(([k]) => k));
+    workDirs = new Set();
+    const top = new Set(folders.filter((d) => d.isRoot || d.parentId === 'root' || d.parentId === '').map((d) => d.id)); // 起点・ホーム直下（My Pack 等）は除く
+    folders.forEach((d) => { if (hasWorkId(d.name)) { workDirs.add(d.id); if (!top.has(d.parentId)) workDirs.add(d.parentId); } });
+    files.forEach((f) => { if (hasWorkId(f.name) && !top.has(f.parentId)) workDirs.add(f.parentId); });
+    const ad = folders.filter((d) => !d.isRoot && !hasWorkId(d.name) && (AD_WORD.test(d.name) || DOMAIN.test(d.name))).map((d) => d.id);
+    adDirs = new Set(folders.filter((d) => (d.trail || []).some((id) => ad.includes(id))).map((d) => d.id));
   }
   function junkInfo(f) {
     const name = String(f.name || '');
@@ -231,17 +251,19 @@
     const id = hasWorkId(name);
     const zh = !KANA.test(stem) && ZH_ONLY.test(stem);
     if (AD_EXT.has(ext)) return { level: 'del', reason: '広告・宣伝（' + ext + ' ファイル）' };
+    if (!id && adDirs.has(f.parentId)) return { level: 'del', reason: '広告・宣伝（広告フォルダの中）' };
     if (!id && (AD_WORD.test(stem) || DOMAIN.test(stem))) return { level: 'del', reason: '広告・宣伝（品番なし）' };
-    if (!id && spreadNames.has(name.toLowerCase())) return { level: 'del', reason: '広告・宣伝（品番がなく、複数のフォルダに同じ名前）' };
     if (SUB_EXT.has(ext)) return { level: 'review', reason: '字幕ファイル' };
     if (f.size <= JUNK_MAX) return { level: 'del', reason: '10MB以下' };
     if (zh && !id) return { level: 'del', reason: '中国語のファイル（品番なし）' };
+    if (!id && f.size < SPREAD_MAX && spreadNames.has(name.toLowerCase())) return { level: 'del', reason: '広告・宣伝（品番がなく、複数のフォルダに同じ名前）' };
+    if (!id && workDirs.has(f.parentId)) return f.size < AD_VIDEO_MAX ? { level: 'del', reason: '広告・宣伝（作品フォルダの中の、品番のない小さなファイル）' } : { level: 'review', reason: '作品フォルダの中の、品番のないファイル' };
     if (zh) return { level: 'review', reason: '中国語のファイル名（品番あり・作品の可能性）' };
     return null;
   }
   // 計画: [{id, name, path, parentId, size, thumb, level, reason}]
-  function buildJunkPlan(files) {
-    markSpread(files);
+  function buildJunkPlan(files, folders) {
+    prepJunk(files, folders);
     return files.map((f) => { const j = junkInfo(f); return j ? { ...f, level: j.level, reason: j.reason } : null; }).filter(Boolean)
       .sort((a, b) => (a.level === b.level ? 0 : a.level === 'del' ? -1 : 1) || a.path.localeCompare(b.path) || a.name.localeCompare(b.name));
   }
@@ -675,7 +697,7 @@
   const junkSel = new Map(); // 不要ファイルのチェック（変更したものだけ記録。未記録は del＝あり／review＝なし）
   const junkChecked = (p) => (junkSel.has(p.id) ? junkSel.get(p.id) : p.level === 'del');
   // ほかのステップで使うファイル（オンのときは「作品と関係ない」と判断したものを除く）
-  const workFiles = () => (junkEnabled() ? (markSpread(files), files).filter((f) => { const j = junkInfo(f); return !j || j.level !== 'del'; }) : files);
+  const workFiles = () => (junkEnabled() ? (prepJunk(files, folders), files).filter((f) => { const j = junkInfo(f); return !j || j.level !== 'del'; }) : files);
 
 
   // ---------- ログイン切れの自動回復 ----------
@@ -762,8 +784,8 @@
     if (!hasScan()) return null;
     const wf = workFiles();
     return {
-      junk: junkEnabled() ? buildJunkPlan(files).filter((p) => p.level === 'del').length : 0,
-      junkReview: junkEnabled() ? buildJunkPlan(files).filter((p) => p.level === 'review').length : 0,
+      junk: junkEnabled() ? buildJunkPlan(files, folders).filter((p) => p.level === 'del').length : 0,
+      junkReview: junkEnabled() ? buildJunkPlan(files, folders).filter((p) => p.level === 'review').length : 0,
       name: nameEnabled() ? buildNamePlan(wf, folders).length : 0,
       sort: buildSortPlan(wf, folders).length,
       ren: buildRenamePlan(wf, folders).filter((p) => p.status === 'rename' || p.status === 'dup').length,
@@ -863,7 +885,7 @@
     if (v !== 'scan' && !hasScan()) v = 'scan';
     view = v;
     if (v === 'clean') cplan = buildCleanPlan(files, folders);
-    if (v === 'junk') jplan = junkEnabled() ? buildJunkPlan(files) : [];
+    if (v === 'junk') jplan = junkEnabled() ? buildJunkPlan(files, folders) : [];
     if (v === 'name') nplan = buildNamePlan(workFiles(), folders);
     if (v === 'ren') rplan = buildRenamePlan(workFiles(), folders);
     if (v === 'sort') splan = buildSortPlan(workFiles(), folders);
@@ -1051,8 +1073,14 @@
     }
     persistFolders(); busy = false; setView('ren'); status(`${ok} 件のフォルダ名を変更しました。`); log('info', `フォルダ名の変更 ${ok} 件`); refreshView();
   }
-  function persistFolders() { // 変更後の名前をキャッシュへ反映
-    rplan.forEach((p) => { const f = folders.find((x) => x.id === p.id); if (f) f.name = p.cur; });
+  function persistFolders() { // 変更後の名前をキャッシュへ反映（中のフォルダ・ファイルの場所の表示も更新）
+    rplan.forEach((p) => {
+      const f = folders.find((x) => x.id === p.id);
+      if (!f || f.name === p.cur) return;
+      const old = f.path; f.name = p.cur; f.path = old.slice(0, old.length - old.split('/').pop().length) + p.cur;
+      folders.forEach((y) => { if (y.path.startsWith(old + '/')) y.path = f.path + y.path.slice(old.length); });
+      files.forEach((y) => { if (y.path === old || y.path.startsWith(old + '/')) y.path = f.path + y.path.slice(old.length); });
+    });
     saveAll();
   }
 

@@ -101,6 +101,42 @@
   #ppdup [data-r=logbadge]:not(:empty){margin-left:6px;padding:0 6px;border-radius:999px;background:var(--danger);color:#fff;font-size:11px;font-weight:700}
   #pd-dlg .logs{max-height:55vh;overflow:auto;font:12px/1.5 ui-monospace,Menlo,monospace;border:1px solid #c5c9d288;border-radius:8px;padding:8px;margin:10px 0;white-space:pre-wrap;word-break:break-all}
   #pd-dlg .logs .error{color:#d93025}#pd-dlg .logs .warn{color:#b26a00}
+  /* フォルダツリー（Finder のリスト表示風） */
+  #ppdup main:has(.tr){padding:0}
+  .tr{outline:none;font:13px/1 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;min-height:100%;background:var(--panel);user-select:none}
+  .tr-h,.tr-row{display:grid;grid-template-columns:minmax(0,1fr) 110px 120px 90px;align-items:center}
+  .tr-h{position:sticky;top:0;z-index:1;background:var(--panel);border-bottom:1px solid var(--line);height:28px;color:var(--mute);font-size:12px}
+  .tr-h span{padding:0 10px;cursor:pointer;border-left:1px solid var(--line);line-height:28px;white-space:nowrap}
+  .tr-h span:first-child{border-left:0;padding-left:34px}
+  .tr-h span:hover{color:var(--fg)}
+  .tr-row{height:26px;cursor:default}
+  .tr-row.odd{background:var(--panel2)}
+  .tr-row.sel{background:#d4def5}
+  .tr:focus .tr-row.sel{background:#0a64d6;color:#fff}
+  .tr:focus .tr-row.sel .c-size,.tr:focus .tr-row.sel .c-kind,.tr:focus .tr-row.sel .c-n,.tr:focus .tr-row.sel .tw{color:#fff}
+  .tr-row > span{padding:0 10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tr-row .c-name{display:flex;align-items:center;gap:5px;padding-right:6px}
+  .tr-row .c-size,.tr-h .c-size{text-align:right}
+  .tr-row .c-size,.tr-row .c-kind,.tr-row .c-n{color:var(--mute);font-size:12px}
+  .tr .tw{width:14px;flex:none;font-size:9px;color:var(--mute);text-align:center;cursor:pointer;transition:transform .12s;display:inline-block}
+  .tr .tw.open{transform:rotate(90deg)}
+  .tr .tw.blank{cursor:default}
+  .tr .ic{width:18px;height:16px;flex:none;display:flex;align-items:center;justify-content:center}
+  .tr .ic svg{width:18px;height:16px}
+  .tr .nm{overflow:hidden;text-overflow:ellipsis}
+  .tr .jk{flex:none;font-size:10px;line-height:14px;padding:0 5px;border-radius:7px;background:#ff6b6b;color:#fff;margin-left:4px}
+  .tr-ren{font:inherit;padding:1px 4px !important;border:2px solid #4b8df8 !important;border-radius:3px !important;flex:1;min-width:120px;cursor:text !important}
+  @media (prefers-color-scheme:dark){.tr-row.sel{background:#3a3f4b}}
+  #pd-ql{position:fixed;inset:0;z-index:100002;display:flex;align-items:center;justify-content:center;background:#0004}
+  #pd-ql .ql{background:#2b2d31ee;color:#eee;border-radius:12px;box-shadow:0 20px 60px #000a;width:min(820px,90vw);overflow:hidden;font:13px/1.5 -apple-system,"Hiragino Sans",sans-serif;backdrop-filter:blur(20px)}
+  #pd-ql .ql-h{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#0003}
+  #pd-ql .ql-h b{flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #pd-ql .ql-h button{border:0;background:#fff2;color:#eee;border-radius:50%;width:22px;height:22px;cursor:pointer}
+  #pd-ql .ql-b{display:flex;align-items:center;justify-content:center;min-height:300px;max-height:65vh;background:#000}
+  #pd-ql .ql-b img{max-width:100%;max-height:65vh;display:block}
+  #pd-ql .ql-ic svg{width:160px;height:140px}
+  #pd-ql .ql-f{padding:10px 14px}
+  #pd-ql .note{color:#aaa;font-size:12px;word-break:break-all}
   #pd-dlg{position:fixed;inset:0;z-index:100001;background:#0007;display:flex;align-items:center;justify-content:center}
   #pd-dlg .box{background:#fff;color:#1c1f26;border-radius:12px;padding:24px;width:min(460px,92vw);box-shadow:0 10px 40px #0006}
   #pd-dlg h3{margin:0 0 12px;font-size:17px}
@@ -113,11 +149,12 @@
   </style></head><body><div id="app"></div><button id="ppdup-btn" title="PikPak Distill – Dedupe（クリックでメニュー）"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#306fff"></rect><rect x="12" y="16" width="24" height="32" rx="4" fill="#fff" opacity=".55"></rect><rect x="26" y="12" width="26" height="34" rx="4" fill="#fff"></rect><path d="M32 24h14M32 30h14M32 36h9" stroke="#306fff" stroke-width="3" stroke-linecap="round"></path><circle cx="44" cy="46" r="9" fill="#ffb020" stroke="#fff" stroke-width="3"></circle><path d="M40 46l3 3 5-6" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg><span>Distill</span></button><div id="ppdup-fab" class=""><button class="flow" data-fab="flow"><span class="n" style="background:#ffffff33">▶</span><span class="t">おまかせ整理<br><span style="font-weight:400;font-size:11px;opacity:.85">1〜7の流れで順番に進める</span></span></button>
       <div class="hd">作業を選んで開く</div>
       <button data-fab="scan"><span class="n">1</span><span class="t">読み込む</span><span class="b todo">未読み込み</span></button><button data-fab="junk"><span class="n">2</span><span class="t">不要ファイルを削除</span><span class="b">読み込んでから</span></button><button data-fab="name"><span class="n">3</span><span class="t">ファイル名を整える</span><span class="b">読み込んでから</span></button><button data-fab="sort"><span class="n">4</span><span class="t">作品ごとに仕分け</span><span class="b">読み込んでから</span></button><button data-fab="ren"><span class="n">5</span><span class="t">フォルダ名を揃える</span><span class="b">読み込んでから</span></button><button data-fab="dup"><span class="n">6</span><span class="t">重複を比べて削除</span><span class="b">読み込んでから</span></button><button data-fab="clean"><span class="n">7</span><span class="t">(1)を外す・片付け</span><span class="b">読み込んでから</span></button>
-      <hr><button data-fab="log"><span class="n">≡</span><span class="t">ログ</span></button>
-      <div class="hd" style="text-align:right;padding:2px 10px 4px">PikPak Distill v3.8.3</div></div><div id="ppdup" class="on">
+      <hr><button data-fab="tree"><span class="n">🗂</span><span class="t">フォルダツリー</span><span class="b">読み込んでから</span></button>
+      <button data-fab="log"><span class="n">≡</span><span class="t">ログ</span></button>
+      <div class="hd" style="text-align:right;padding:2px 10px 4px">PikPak Distill v3.9.0</div></div><div id="ppdup" class="on">
     <header>
-      <div class="brand"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#306fff"></rect><rect x="12" y="16" width="24" height="32" rx="4" fill="#fff" opacity=".55"></rect><rect x="26" y="12" width="26" height="34" rx="4" fill="#fff"></rect><path d="M32 24h14M32 30h14M32 36h9" stroke="#306fff" stroke-width="3" stroke-linecap="round"></path><circle cx="44" cy="46" r="9" fill="#ffb020" stroke="#fff" stroke-width="3"></circle><path d="M40 46l3 3 5-6" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg><h1>PikPak Distill</h1><span class="chip">Dedupe</span><span class="ver" title="いま動いているバージョン">v3.8.3</span><span class="by">by Noel Labs</span><span class="sp"></span><button data-a="log" title="エラーや処理の記録">ログ<span data-r="logbadge"></span></button><button data-a="close">閉じる</button></div>
-      <nav data-r="nav"><button class="st done" data-step="scan" title="開いているフォルダ以下のファイルとフォルダを読み込みます。ほかの機能はこのあとで使えます。"><span class="n">✓</span><span><span class="t">読み込む</span><span class="c">10/12 15:56 読み込み済み</span></span></button><button class="st  next active" data-step="junk" title="広告・宣伝のファイル、10MB以下のファイル、中国語のファイルなど、作品と関係ないものを削除します。ほかのステップでは対象から外します（使うかどうかを選べます）。"><span class="n">2</span><span><span class="t">不要ファイルを削除</span><span class="c">8 件・おすすめ</span></span></button><button class="st " data-step="name" title="FC2のファイル名から、サイト名や広告などの余計な文字を消して「FC2-PPV-品番」の形にそろえます（使うかどうかを選べます）。"><span class="n">3</span><span><span class="t">ファイル名を整える</span><span class="c">3 件</span></span></button><button class="st done" data-step="sort" title="複数の作品が入ったフォルダの中に品番フォルダを作り、ファイルを振り分けます。"><span class="n">✓</span><span><span class="t">作品ごとに仕分け</span><span class="c">対象なし</span></span></button><button class="st " data-step="ren" title="フォルダ名を中のファイル名（品番）に揃えます。同名があれば (1) を付けます。"><span class="n">5</span><span><span class="t">フォルダ名を揃える</span><span class="c">1 件</span></span></button><button class="st done" data-step="dup" title="同じファイルをサムネイルとサイズで比べ、チェックしたものを削除します。"><span class="n">✓</span><span><span class="t">重複を比べて削除</span><span class="c">対象なし</span></span></button><button class="st done" data-step="clean" title="重複を削除したあとに残った空フォルダをゴミ箱へ移し、不要になった (1) を外します。"><span class="n">✓</span><span><span class="t">(1)を外す・片付け</span><span class="c">対象なし</span></span></button></nav>
+      <div class="brand"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#306fff"></rect><rect x="12" y="16" width="24" height="32" rx="4" fill="#fff" opacity=".55"></rect><rect x="26" y="12" width="26" height="34" rx="4" fill="#fff"></rect><path d="M32 24h14M32 30h14M32 36h9" stroke="#306fff" stroke-width="3" stroke-linecap="round"></path><circle cx="44" cy="46" r="9" fill="#ffb020" stroke="#fff" stroke-width="3"></circle><path d="M40 46l3 3 5-6" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg><h1>PikPak Distill</h1><span class="chip">Dedupe</span><span class="ver" title="いま動いているバージョン">v3.9.0</span><span class="by">by Noel Labs</span><span class="sp"></span><button data-a="tree" title="読み込んだフォルダをツリーで表示（Finder のような操作）">ツリー</button><button data-a="log" title="エラーや処理の記録">ログ<span data-r="logbadge"></span></button><button data-a="close">閉じる</button></div>
+      <nav data-r="nav"><button class="st done" data-step="scan" title="開いているフォルダ以下のファイルとフォルダを読み込みます。ほかの機能はこのあとで使えます。"><span class="n">✓</span><span><span class="t">読み込む</span><span class="c">10/12 16:11 読み込み済み</span></span></button><button class="st  next active" data-step="junk" title="広告・宣伝のファイル、10MB以下のファイル、中国語のファイルなど、作品と関係ないものを削除します。ほかのステップでは対象から外します（使うかどうかを選べます）。"><span class="n">2</span><span><span class="t">不要ファイルを削除</span><span class="c">8 件・おすすめ</span></span></button><button class="st " data-step="name" title="FC2のファイル名から、サイト名や広告などの余計な文字を消して「FC2-PPV-品番」の形にそろえます（使うかどうかを選べます）。"><span class="n">3</span><span><span class="t">ファイル名を整える</span><span class="c">3 件</span></span></button><button class="st done" data-step="sort" title="複数の作品が入ったフォルダの中に品番フォルダを作り、ファイルを振り分けます。"><span class="n">✓</span><span><span class="t">作品ごとに仕分け</span><span class="c">対象なし</span></span></button><button class="st " data-step="ren" title="フォルダ名を中のファイル名（品番）に揃えます。同名があれば (1) を付けます。"><span class="n">5</span><span><span class="t">フォルダ名を揃える</span><span class="c">1 件</span></span></button><button class="st done" data-step="dup" title="同じファイルをサムネイルとサイズで比べ、チェックしたものを削除します。"><span class="n">✓</span><span><span class="t">重複を比べて削除</span><span class="c">対象なし</span></span></button><button class="st done" data-step="clean" title="重複を削除したあとに残った空フォルダをゴミ箱へ移し、不要になった (1) を外します。"><span class="n">✓</span><span><span class="t">(1)を外す・片付け</span><span class="c">対象なし</span></span></button></nav>
     </header>
     <div class="tb" data-r="tb"><div class="head"><b>2. 不要ファイルを削除</b><span class="note">広告・宣伝のファイル、10MB以下のファイル、中国語のファイルなど、作品と関係ないものを削除します。ほかのステップでは対象から外します（使うかどうかを選べます）。</span></div><span class="sp"></span><label class="optsw" title="オフにすると、不要ファイルの判定を使わず、すべてのファイルをほかのステップの対象にします"><input type="checkbox" data-a="junkopt" checked=""> このステップを使う</label><span class="sep"></span><span data-r="acts" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="danger" data-a="junkdel">チェックしたものを削除（8 件）</button></span></div>
     <div class="prog" data-r="prog"><span data-r="status">チェック（削除する） 8 件・191.0 MB</span><span class="pb"><i data-r="pbar" style="width: 100%;"></i></span></div>

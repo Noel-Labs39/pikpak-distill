@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.8.1
+// @version      3.8.2
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMzMDZmZmYiLz48cmVjdCB4PSIxMiIgeT0iMTYiIHdpZHRoPSIyNCIgaGVpZ2h0PSIzMiIgcng9IjQiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii41NSIvPjxyZWN0IHg9IjI2IiB5PSIxMiIgd2lkdGg9IjI2IiBoZWlnaHQ9IjM0IiByeD0iNCIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik0zMiAyNGgxNE0zMiAzMGgxNE0zMiAzNmg5IiBzdHJva2U9IiMzMDZmZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGNpcmNsZSBjeD0iNDQiIGN5PSI0NiIgcj0iOSIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJNNDAgNDZsMyAzIDUtNiIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -32,7 +32,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.8.1'; // @version と合わせて更新する
+  const VER = '3.8.2'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -309,7 +309,9 @@
     }
     return null;
   }
-  const SESSION_MARGIN = 3 * 60 * 1000; // 期限の3分前から「切れた」とみなす
+  // PikPak画面はログイン情報を「期限が切れてから」更新するため、期限前に切れた扱いにすると再読み込みしても更新されない。
+  // そのため余裕は30秒だけにして、期限ぎりぎりまで使う
+  const SESSION_MARGIN = 30 * 1000;
   const sessionValid = () => { const c = readCred(); return !!c && (!c.expiresAt || c.expiresAt - Date.now() > SESSION_MARGIN); };
   const sessionError = (msg) => { const e = new Error(msg); e.session = true; return e; };
   function apiHeaders() {
@@ -328,7 +330,7 @@
       catch (e) {
         if (e.session) throw e;
         if (tries < 2) { await sleep(1500); continue; }
-        log('error', e.message, (opt.method || 'GET') + ' ' + path.split('?')[0]);
+        log('warn', e.message + '（ログイン切れとして再読み込みで回復します）', (opt.method || 'GET') + ' ' + path.split('?')[0]);
         // 長時間放置後は通信自体が失敗することがあるため、ログイン切れとして扱い再読み込みで回復させる
         throw sessionError(e.message === 'Failed to fetch' ? 'PikPakのサーバーに接続できませんでした' : e.message);
       }
@@ -336,9 +338,11 @@
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         const msg = data.error_description || data.error || 'API ' + res.status;
-        log('error', msg, (opt.method || 'GET') + ' ' + path.split('?')[0] + ' → HTTP ' + res.status);
-        if (res.status === 401 || /unauthenticated|token/i.test(String(data.error || ''))) throw sessionError('ログインの有効期限が切れています');
-        if (/captcha/i.test(String(data.error || '')) || /認証コード/.test(msg)) throw sessionError('認証の確認が必要です（' + msg + '）'); // 画面の再読み込みで更新される
+        const where = (opt.method || 'GET') + ' ' + path.split('?')[0] + ' → HTTP ' + res.status;
+        // ログイン切れ・認証コードの期限切れは、画面の再読み込みで自動回復するため warn として記録する
+        if (res.status === 401 || /unauthenticated|token/i.test(String(data.error || ''))) { log('warn', msg + '（自動で回復します）', where); throw sessionError('ログインの有効期限が切れています'); }
+        if (/captcha/i.test(String(data.error || '')) || /認証コード/.test(msg)) { log('warn', msg + '（自動で回復します）', where); throw sessionError('認証の確認が必要です（' + msg + '）'); }
+        log('error', msg, where);
         throw new Error(msg);
       }
       return data;
@@ -710,8 +714,15 @@
     root.classList.add('on');
     setView(r.view || 'scan');
     status('画面を再読み込みしました。ログイン情報の更新を待っています…', 0.3);
+    // 期限の直前に再読み込みした場合、PikPak画面は期限が切れるまで更新しないので、そこまで待つ（最大4分）
     const t0 = Date.now();
-    while (!sessionValid() && Date.now() - t0 < 30000) await sleep(500);
+    const c0 = readCred();
+    const limit = Math.min(4 * 60 * 1000, Math.max(30 * 1000, c0 && c0.expiresAt ? c0.expiresAt - t0 + 30 * 1000 : 0));
+    while (!sessionValid() && Date.now() - t0 < limit) {
+      const left = Math.ceil((limit - (Date.now() - t0)) / 1000);
+      status(`画面を再読み込みしました。ログイン情報の更新を待っています…（最大 あと ${left} 秒）`, (Date.now() - t0) / limit);
+      await sleep(1000);
+    }
     if (!sessionValid()) { reloadForSession(r); return; }
     try { sessionStorage.removeItem(SS_RESUME); } catch (e) { /* 無視 */ }
     log('info', 'ログイン情報を更新して再開', JSON.stringify(r));

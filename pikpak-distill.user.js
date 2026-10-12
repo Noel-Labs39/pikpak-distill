@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.8.0
+// @version      3.8.1
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMzMDZmZmYiLz48cmVjdCB4PSIxMiIgeT0iMTYiIHdpZHRoPSIyNCIgaGVpZ2h0PSIzMiIgcng9IjQiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii41NSIvPjxyZWN0IHg9IjI2IiB5PSIxMiIgd2lkdGg9IjI2IiBoZWlnaHQ9IjM0IiByeD0iNCIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik0zMiAyNGgxNE0zMiAzMGgxNE0zMiAzNmg5IiBzdHJva2U9IiMzMDZmZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGNpcmNsZSBjeD0iNDQiIGN5PSI0NiIgcj0iOSIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJNNDAgNDZsMyAzIDUtNiIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -21,7 +21,7 @@
 
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const UNIT = { B: 1, KB: 1024, MB: 1048576, GB: 1073741824, TB: 1099511627776 };
-  const fmt = (b) => (b >= UNIT.GB ? (b / UNIT.GB).toFixed(2) + ' GB' : b >= UNIT.MB / 10 ? (b / UNIT.MB).toFixed(1) + ' MB' : Math.max(1, Math.round(b / UNIT.KB)) + ' KB');
+  const fmt = (b) => (b >= UNIT.GB ? (b / UNIT.GB).toFixed(2) + ' GB' : b >= UNIT.MB / 10 ? (b / UNIT.MB).toFixed(1) + ' MB' : (b ? Math.max(1, Math.round(b / UNIT.KB)) : 0) + ' KB');
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const NEAR = 0.015; // 最大サイズとの差が1.5%以内なら「サイズが近い」
   const LS_DECISION = 'ppdup:decision:v1';
@@ -32,7 +32,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.8.0'; // @version と合わせて更新する
+  const VER = '3.8.1'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -217,6 +217,13 @@
   // 中国語にしかない字（簡体字・繁体字）。日本語の漢字だけのタイトルを中国語と誤判定しないよう、日本語と共通の字は入れない
   const ZH_ONLY = /[们这个资视频获发址网载为无码对时说请关联报电级实购买么吗该进过还从让给见门问间开头东车马书读写语话认识记广场论坛专业产单经现选择变态爱亲热线红际欢边领导员样传统观众极简习盘约骚妇鸡伦强调們這發實從讓讀寫專產單廣碼說聯對麼嗎]/;
   const hasWorkId = (name) => !!workKey(name) || /[A-Za-z]{2,6}-\d{3,5}/.test(name);
+  // 品番のない同じ名前のファイルが、別々の作品フォルダに入っている＝作品に付いてきた広告
+  let spreadNames = new Set();
+  function markSpread(files) {
+    const where = new Map();
+    files.forEach((f) => { if (hasWorkId(f.name)) return; const k = f.name.toLowerCase(); if (!where.has(k)) where.set(k, new Set()); where.get(k).add(f.parentId); });
+    spreadNames = new Set([...where].filter(([, s]) => s.size >= 2).map(([k]) => k));
+  }
   function junkInfo(f) {
     const name = String(f.name || '');
     const m = name.match(/^(.*?)(?:\.([A-Za-z0-9]{2,7}))?$/);
@@ -225,6 +232,7 @@
     const zh = !KANA.test(stem) && ZH_ONLY.test(stem);
     if (AD_EXT.has(ext)) return { level: 'del', reason: '広告・宣伝（' + ext + ' ファイル）' };
     if (!id && (AD_WORD.test(stem) || DOMAIN.test(stem))) return { level: 'del', reason: '広告・宣伝（品番なし）' };
+    if (!id && spreadNames.has(name.toLowerCase())) return { level: 'del', reason: '広告・宣伝（品番がなく、複数のフォルダに同じ名前）' };
     if (SUB_EXT.has(ext)) return { level: 'review', reason: '字幕ファイル' };
     if (f.size <= JUNK_MAX) return { level: 'del', reason: '10MB以下' };
     if (zh && !id) return { level: 'del', reason: '中国語のファイル（品番なし）' };
@@ -233,6 +241,7 @@
   }
   // 計画: [{id, name, path, parentId, size, thumb, level, reason}]
   function buildJunkPlan(files) {
+    markSpread(files);
     return files.map((f) => { const j = junkInfo(f); return j ? { ...f, level: j.level, reason: j.reason } : null; }).filter(Boolean)
       .sort((a, b) => (a.level === b.level ? 0 : a.level === 'del' ? -1 : 1) || a.path.localeCompare(b.path) || a.name.localeCompare(b.name));
   }
@@ -662,7 +671,7 @@
   const junkSel = new Map(); // 不要ファイルのチェック（変更したものだけ記録。未記録は del＝あり／review＝なし）
   const junkChecked = (p) => (junkSel.has(p.id) ? junkSel.get(p.id) : p.level === 'del');
   // ほかのステップで使うファイル（オンのときは「作品と関係ない」と判断したものを除く）
-  const workFiles = () => (junkEnabled() ? files.filter((f) => { const j = junkInfo(f); return !j || j.level !== 'del'; }) : files);
+  const workFiles = () => (junkEnabled() ? (markSpread(files), files).filter((f) => { const j = junkInfo(f); return !j || j.level !== 'del'; }) : files);
 
 
   // ---------- ログイン切れの自動回復 ----------
@@ -1070,19 +1079,25 @@
     if (!busy) { const dl = delList(groups); status(`重複 ${groups.length} 組 ／ チェック（削除する） ${dl.length} 件・${fmt(dl.reduce((a, f) => a + f.size, 0))}　※各組の一番大きいファイルは最初からチェックなし（残す）になっています`); }
   }
   // 削除確認（Enhancement Master と同じく「ゴミ箱を経由しない」チェック付き）
+  // skipped: 全件にチェックが入っている組 [{name, items}]。「強制削除」にチェックしたときだけ、それらも削除する
   function askDelete(list, skipped) {
     return new Promise((resolve) => {
       const d = document.createElement('div'); d.id = 'pd-dlg';
-      const total = list.reduce((a, f) => a + f.size, 0);
-      d.innerHTML = `<div class="box"><h3>${list.length} 件を削除します（${fmt(total)}）</h3>
+      const sItems = skipped.flatMap((g) => g.items || []);
+      const sum = (a) => a.reduce((x, f) => x + f.size, 0);
+      const title = (force) => (force ? list.length + sItems.length : list.length) + ' 件を削除します（' + fmt(sum(list) + (force ? sum(sItems) : 0)) + '）';
+      d.innerHTML = `<div class="box"><h3 data-title>${title(false)}</h3>
         <div class="note">対象はチェックの入ったファイルだけです。通常はPikPakのゴミ箱へ移動し、あとから戻せます。</div>
-        ${skipped.length ? `<div class="note" style="color:#d93025;margin-top:8px">全件にチェックが入っている組 ${skipped.length} 組は、すべて消えてしまうため対象外にしました（${esc(skipped.slice(0, 3).join(' / '))}${skipped.length > 3 ? ' …' : ''}）</div>` : ''}
+        ${skipped.length ? `<div class="note" style="color:#d93025;margin-top:8px">全件にチェックが入っている組 ${skipped.length} 組（${sItems.length} 件）は、組ごと消えてしまうため通常は対象外にしています（${esc(skipped.slice(0, 3).map((g) => g.name).join(' / '))}${skipped.length > 3 ? ' …' : ''}）</div>
+        <label class="hard" style="margin:10px 0 0"><input type="checkbox" data-force> 強制削除：全件にチェックが入っている組も、すべて削除する（広告ファイルなど）</label>` : ''}
         <label class="hard"><input type="checkbox" data-hard> ゴミ箱を経由せず完全に削除する（元に戻せません）</label>
-        <div class="acts"><button data-no>キャンセル</button><button class="danger" data-yes>削除する</button></div></div>`;
+        <div class="acts"><button data-no>キャンセル</button><button class="danger" data-yes${list.length ? '' : ' disabled'}>削除する</button></div></div>`;
       document.body.appendChild(d);
+      const fc = d.querySelector('[data-force]'), yes = d.querySelector('[data-yes]');
+      if (fc) fc.onchange = () => { d.querySelector('[data-title]').textContent = title(fc.checked); yes.disabled = !list.length && !fc.checked; yes.textContent = fc.checked ? '強制削除する' : '削除する'; };
       const done = (v) => { d.remove(); resolve(v); };
       d.querySelector('[data-no]').onclick = () => done(null);
-      d.querySelector('[data-yes]').onclick = () => done({ hard: d.querySelector('[data-hard]').checked });
+      yes.onclick = () => { if (yes.disabled) return; done({ hard: d.querySelector('[data-hard]').checked, force: !!(fc && fc.checked) }); };
     });
   }
   async function runDelete(groups) {
@@ -1090,17 +1105,18 @@
     groups.forEach((g) => {
       const del = g.items.filter((f, i) => stateOf(f, i) === 'del');
       if (!del.length) return;
-      if (del.length === g.items.length) { skipped.push(g.items[0].name); return; }
+      if (del.length === g.items.length) { skipped.push({ name: g.items[0].name, items: del }); return; }
       list.push(...del);
     });
-    if (!list.length) { status(skipped.length ? '全件にチェックが入っている組しかないため、削除しませんでした（1件は残してください）' : 'チェックの入ったファイルがありません'); return; }
+    if (!list.length && !skipped.length) { status('チェックの入ったファイルがありません'); return; }
     if (!ensureSession('dup')) return;
     const ans = await askDelete(list, skipped);
     if (!ans) return;
+    const targets = ans.force ? list.concat(skipped.flatMap((g) => g.items)) : list;
     busy = true; renderNav(); window.__ppdupStop = false;
     try {
-      const n = await deleteApi(list, ans.hard, (d, t) => status(`削除中… ${d}/${t}`, d / t));
-      busy = false; render(); renderNav(); status(`${n} 件を${ans.hard ? '完全に削除' : 'ゴミ箱へ移動'}しました。`); log('info', `削除 ${n} 件（${ans.hard ? '完全削除' : 'ゴミ箱'}）`); refreshView();
+      const n = await deleteApi(targets, ans.hard, (d, t) => status(`削除中… ${d}/${t}`, d / t));
+      busy = false; render(); renderNav(); status(`${n} 件を${ans.hard ? '完全に削除' : 'ゴミ箱へ移動'}しました${ans.force ? `（強制削除 ${skipped.length} 組を含む）` : ''}。`); log('info', `削除 ${n} 件（${ans.hard ? '完全削除' : 'ゴミ箱'}${ans.force ? '・強制削除 ' + skipped.length + ' 組' : ''}）`); refreshView();
     } catch (err) { busy = false; render(); renderNav(); handleErr(err, 'dup', '削除を停止しました：' + err.message); }
   }
 

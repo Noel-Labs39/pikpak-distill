@@ -7,9 +7,9 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.7.1
+// @version      3.8.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMzMDZmZmYiLz48cmVjdCB4PSIxMiIgeT0iMTYiIHdpZHRoPSIyNCIgaGVpZ2h0PSIzMiIgcng9IjQiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii41NSIvPjxyZWN0IHg9IjI2IiB5PSIxMiIgd2lkdGg9IjI2IiBoZWlnaHQ9IjM0IiByeD0iNCIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik0zMiAyNGgxNE0zMiAzMGgxNE0zMiAzNmg5IiBzdHJva2U9IiMzMDZmZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGNpcmNsZSBjeD0iNDQiIGN5PSI0NiIgcj0iOSIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJNNDAgNDZsMyAzIDUtNiIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==
-// @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
+// @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
 // @grant        none
 // @run-at       document-idle
@@ -21,7 +21,7 @@
 
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const UNIT = { B: 1, KB: 1024, MB: 1048576, GB: 1073741824, TB: 1099511627776 };
-  const fmt = (b) => (b >= UNIT.GB ? (b / UNIT.GB).toFixed(2) + ' GB' : (b / UNIT.MB).toFixed(1) + ' MB');
+  const fmt = (b) => (b >= UNIT.GB ? (b / UNIT.GB).toFixed(2) + ' GB' : b >= UNIT.MB / 10 ? (b / UNIT.MB).toFixed(1) + ' MB' : Math.max(1, Math.round(b / UNIT.KB)) + ' KB');
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const NEAR = 0.015; // 最大サイズとの差が1.5%以内なら「サイズが近い」
   const LS_DECISION = 'ppdup:decision:v1';
@@ -30,8 +30,9 @@
   const LS_LOG = 'ppdup:log:v1';
   const LS_LOGSEEN = 'ppdup:logseen:v1';
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
+  const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.7.1'; // @version と合わせて更新する
+  const VER = '3.8.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -203,6 +204,39 @@
     return plan;
   }
 
+  // ---------- 不要ファイル（広告・宣伝／10MB以下／中国語）の判定 ----------
+  // 読み込んだファイルのうち作品と関係ないものを見分け、ほかのステップの対象から外す
+  //   del    … 作品と関係ないと判断（最初からチェックあり）
+  //   review … 作品の可能性があるので確認してほしいもの（最初はチェックなし）
+  const JUNK_MAX = 10 * UNIT.MB;
+  const AD_EXT = new Set(['url', 'lnk', 'webloc', 'txt', 'htm', 'html', 'mht', 'mhtml', 'chm', 'exe', 'apk', 'bat', 'cmd', 'scr', 'vbs', 'torrent']);
+  const SUB_EXT = new Set(['srt', 'ass', 'ssa', 'vtt', 'sub', 'idx', 'smi']);
+  const AD_WORD = /广告|廣告|広告|宣传|宣傳|宣伝|推广|推廣|地址|網址|网址|发布|發布|获取|獲取|下载|下載|防屏蔽|永久|澳门|澳門|葡京|赌场|賭場|博彩|娱乐|娛樂|直播|约炮|約炮|社区|社區|论坛|論壇|福利|扫码|掃碼|客服|微信|QQ群|电报|電報|telegram|公告|必看|招募|关注|關注|聯繫|联系|最新アドレス|promo|advert/i;
+  const DOMAIN = /(^|[^a-z0-9])[a-z0-9-]{2,}\.(com|net|org|la|xyz|cc|me|tv|top|vip|club|info|app|io|co|link|site|online|live|fun|win|life)($|[^a-z0-9])/i;
+  const KANA = /[぀-ヿ]/;
+  // 中国語にしかない字（簡体字・繁体字）。日本語の漢字だけのタイトルを中国語と誤判定しないよう、日本語と共通の字は入れない
+  const ZH_ONLY = /[们这个资视频获发址网载为无码对时说请关联报电级实购买么吗该进过还从让给见门问间开头东车马书读写语话认识记广场论坛专业产单经现选择变态爱亲热线红际欢边领导员样传统观众极简习盘约骚妇鸡伦强调們這發實從讓讀寫專產單廣碼說聯對麼嗎]/;
+  const hasWorkId = (name) => !!workKey(name) || /[A-Za-z]{2,6}-\d{3,5}/.test(name);
+  function junkInfo(f) {
+    const name = String(f.name || '');
+    const m = name.match(/^(.*?)(?:\.([A-Za-z0-9]{2,7}))?$/);
+    const stem = m[1], ext = (m[2] || '').toLowerCase();
+    const id = hasWorkId(name);
+    const zh = !KANA.test(stem) && ZH_ONLY.test(stem);
+    if (AD_EXT.has(ext)) return { level: 'del', reason: '広告・宣伝（' + ext + ' ファイル）' };
+    if (!id && (AD_WORD.test(stem) || DOMAIN.test(stem))) return { level: 'del', reason: '広告・宣伝（品番なし）' };
+    if (SUB_EXT.has(ext)) return { level: 'review', reason: '字幕ファイル' };
+    if (f.size <= JUNK_MAX) return { level: 'del', reason: '10MB以下' };
+    if (zh && !id) return { level: 'del', reason: '中国語のファイル（品番なし）' };
+    if (zh) return { level: 'review', reason: '中国語のファイル名（品番あり・作品の可能性）' };
+    return null;
+  }
+  // 計画: [{id, name, path, parentId, size, thumb, level, reason}]
+  function buildJunkPlan(files) {
+    return files.map((f) => { const j = junkInfo(f); return j ? { ...f, level: j.level, reason: j.reason } : null; }).filter(Boolean)
+      .sort((a, b) => (a.level === b.level ? 0 : a.level === 'del' ? -1 : 1) || a.path.localeCompare(b.path) || a.name.localeCompare(b.name));
+  }
+
   // ---------- 仕上げ：(1) を外す・空フォルダを片付ける ----------
   // 重複を削除したあとに残る「中身が空のフォルダ」をゴミ箱へ移し、
   // 同じ場所に元の名前が無くなったフォルダ・ファイルの (n) を外す
@@ -232,7 +266,7 @@
           const o = full[0];
           if (o.f.name !== base) plan.push(item('rename', 'folder', o.f, pid, base, 'todo', empties.length ? '空の同名フォルダを片付けたあとに外します' : ''));
         } else if (full.length > 1) {
-          full.filter((o) => o.n > 0).forEach((o) => plan.push(item('rename', 'folder', o.f, pid, base, 'skip', '中身のある同名フォルダが複数あります（「4. 重複を比べて削除」で整理してください）')));
+          full.filter((o) => o.n > 0).forEach((o) => plan.push(item('rename', 'folder', o.f, pid, base, 'skip', '中身のある同名フォルダが複数あります（「重複を比べて削除」で整理してください）')));
         }
       });
     });
@@ -243,7 +277,7 @@
         .sort((a, b) => (+a.m[2] - +b.m[2]) || a.x.name.localeCompare(b.x.name))
         .forEach(({ x, m }) => {
           const to = m[1] + m[3];
-          if (taken.has(to.toLowerCase())) { plan.push(item('rename', 'file', x, pid, to, 'skip', '同じ場所に「' + to + '」が残っています（「4. 重複を比べて削除」で整理してください）')); return; }
+          if (taken.has(to.toLowerCase())) { plan.push(item('rename', 'file', x, pid, to, 'skip', '同じ場所に「' + to + '」が残っています（「重複を比べて削除」で整理してください）')); return; }
           taken.delete(x.name.toLowerCase()); taken.add(to.toLowerCase());
           plan.push(item('rename', 'file', x, pid, to, 'todo', ''));
         });
@@ -532,7 +566,7 @@
   .pd-hero h2{margin:0 0 8px;font-size:20px}
   .pd-hero .where{display:inline-block;margin:10px 0 18px;padding:6px 14px;border-radius:999px;background:var(--panel2);font-weight:700}
   .pd-hero .acts{display:flex;gap:10px;justify-content:center}
-  .pd-sum{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;max-width:900px;margin:0 auto}
+  .pd-sum{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;max-width:900px;margin:0 auto}
   .pd-sum button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:14px;border-radius:12px;background:var(--panel);text-align:left}
   .pd-sum button b{font-size:22px}
   .pd-sum button.zero b{color:var(--ok)}
@@ -574,6 +608,7 @@
 
   const STEPS = [
     { v: 'scan', t: '読み込む', d: '開いているフォルダ以下のファイルとフォルダを読み込みます。ほかの機能はこのあとで使えます。' },
+    { v: 'junk', t: '不要ファイルを削除', d: '広告・宣伝のファイル、10MB以下のファイル、中国語のファイルなど、作品と関係ないものを削除します。ほかのステップでは対象から外します（使うかどうかを選べます）。' },
     { v: 'name', t: 'ファイル名を整える', d: 'FC2のファイル名から、サイト名や広告などの余計な文字を消して「FC2-PPV-品番」の形にそろえます（使うかどうかを選べます）。' },
     { v: 'sort', t: '作品ごとに仕分け', d: '複数の作品が入ったフォルダの中に品番フォルダを作り、ファイルを振り分けます。' },
     { v: 'ren', t: 'フォルダ名を揃える', d: 'フォルダ名を中のファイル名（品番）に揃えます。同名があれば (1) を付けます。' },
@@ -617,11 +652,17 @@
   let view = 'scan';
   let splan = [], cplan = [], rplan = [];
   let busy = false;
-  let mode = 'flow'; // flow＝1〜6の流れで表示／single＝1つの作業だけを表示
+  let mode = 'flow'; // flow＝1〜7の流れで表示／single＝1つの作業だけを表示
   let afterScan = null; // 読み込み後に開く作業
   let nplan = [];
   const nameOff = new Set(); // ファイル名の整理でチェックを外した項目
   const nameEnabled = () => { try { return localStorage.getItem(LS_OPT_NAME) !== '0'; } catch (e) { return true; } };
+  const junkEnabled = () => { try { return localStorage.getItem(LS_OPT_JUNK) !== '0'; } catch (e) { return true; } };
+  let jplan = [];
+  const junkSel = new Map(); // 不要ファイルのチェック（変更したものだけ記録。未記録は del＝あり／review＝なし）
+  const junkChecked = (p) => (junkSel.has(p.id) ? junkSel.get(p.id) : p.level === 'del');
+  // ほかのステップで使うファイル（オンのときは「作品と関係ない」と判断したものを除く）
+  const workFiles = () => (junkEnabled() ? files.filter((f) => { const j = junkInfo(f); return !j || j.level !== 'del'; }) : files);
 
 
   // ---------- ログイン切れの自動回復 ----------
@@ -699,17 +740,20 @@
   // ---------- 件数（ステップの案内用） ----------
   function counts() {
     if (!hasScan()) return null;
+    const wf = workFiles();
     return {
-      name: nameEnabled() ? buildNamePlan(files, folders).length : 0,
-      sort: buildSortPlan(files, folders).length,
-      ren: buildRenamePlan(files, folders).filter((p) => p.status === 'rename' || p.status === 'dup').length,
-      dup: buildGroups(files, 'name').length,
+      junk: junkEnabled() ? buildJunkPlan(files).filter((p) => p.level === 'del').length : 0,
+      junkReview: junkEnabled() ? buildJunkPlan(files).filter((p) => p.level === 'review').length : 0,
+      name: nameEnabled() ? buildNamePlan(wf, folders).length : 0,
+      sort: buildSortPlan(wf, folders).length,
+      ren: buildRenamePlan(wf, folders).filter((p) => p.status === 'rename' || p.status === 'dup').length,
+      dup: buildGroups(wf, 'name').length,
       clean: buildCleanPlan(files, folders).filter((p) => p.status === 'todo').length,
       cleanSkip: buildCleanPlan(files, folders).filter((p) => p.status === 'skip').length,
     };
   }
-  const UNIT_OF = { name: '件', sort: '作品', ren: '件', dup: '組', clean: '件' };
-  const WORK = ['name', 'sort', 'ren', 'dup', 'clean'];
+  const UNIT_OF = { junk: '件', name: '件', sort: '作品', ren: '件', dup: '組', clean: '件' };
+  const WORK = ['junk', 'name', 'sort', 'ren', 'dup', 'clean'];
   function renderNav() {
     const c = counts();
     const next = c ? (WORK.find((k) => c[k] > 0) || null) : 'scan';
@@ -718,6 +762,8 @@
       if (s.v === 'scan') { sub = meta ? `${new Date(meta.at).toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })} 読み込み済み` : 'まずはここから'; if (meta) cls = 'done'; }
       else if (!c) sub = '読み込み後に使えます';
       else if (s.v === 'name' && !nameEnabled()) { sub = 'オフ（使わない設定）'; cls = 'done'; }
+      else if (s.v === 'junk' && !junkEnabled()) { sub = 'オフ（使わない設定）'; cls = 'done'; }
+      else if (s.v === 'junk' && c.junk === 0 && c.junkReview) sub = `要確認 ${c.junkReview} 件`;
       else if (s.v === 'clean' && c.clean === 0 && c.cleanSkip) sub = `要確認 ${c.cleanSkip} 件`;
       else if (c[s.v] === 0) { sub = '対象なし'; cls = 'done'; }
       else sub = `${c[s.v]} ${UNIT_OF[s.v]}`;
@@ -743,7 +789,7 @@
   }
   const allDone = (c) => !!c && WORK.every((k) => !remaining(k, c)) && !c.cleanSkip;
   function nextHtml(c, cls) {
-    if (mode === 'single') return `<button class="${cls || 'pri'}" data-a="close">完了（閉じる）</button><button data-a="toflow">1〜6の流れで続ける</button>`;
+    if (mode === 'single') return `<button class="${cls || 'pri'}" data-a="close">完了（閉じる）</button><button data-a="toflow">1〜7の流れで続ける</button>`;
     const n = nextTarget(c);
     if (n) return `<button class="${cls || 'pri'}" data-step="${n.v}">次へ：${STEPS.indexOf(n) + 1}. ${esc(n.t)} →</button>`;
     return `<button class="${cls || 'pri'}" data-step="scan">${allDone(c) ? '✓ すべて完了（読み込み画面へ）' : '読み込み画面へ'}</button>`;
@@ -760,10 +806,11 @@
   // ステップごとの操作欄（見出しと絞り込みは切り替え時に作り、ボタン部分は状態に合わせて都度更新）
   function renderToolbar() {
     const s = STEPS.find((x) => x.v === view);
-    const single = mode === 'single' ? `<span class="note">読み込み：${meta ? esc(new Date(meta.at).toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })) : '未'}</span><button data-a="rescan" title="最新の状態を読み込んでから、この作業を続けます">再読み込み</button><button data-a="toflow" title="1〜6のステップ表示に切り替えます">流れで表示</button><span class="sep"></span>` : '';
+    const single = mode === 'single' ? `<span class="note">読み込み：${meta ? esc(new Date(meta.at).toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })) : '未'}</span><button data-a="rescan" title="最新の状態を読み込んでから、この作業を続けます">再読み込み</button><button data-a="toflow" title="1〜7のステップ表示に切り替えます">流れで表示</button><span class="sep"></span>` : '';
     const head = `<div class="head"><b>${mode === 'single' ? '' : STEPS.indexOf(s) + 1 + '. '}${esc(s.t)}</b><span class="note">${esc(s.d)}</span></div><span class="sp"></span>${single}`;
     let html = '';
     if (view === 'sort' || view === 'clean') html = head;
+    if (view === 'junk') html = head + `<label class="optsw" title="オフにすると、不要ファイルの判定を使わず、すべてのファイルをほかのステップの対象にします"><input type="checkbox" data-a="junkopt"${junkEnabled() ? ' checked' : ''}> このステップを使う</label><span class="sep"></span>`;
     if (view === 'name') html = head + `<label class="optsw" title="オフにすると、このステップを使わず次へ進みます"><input type="checkbox" data-a="nameopt"${nameEnabled() ? ' checked' : ''}> このステップを使う</label><span class="sep"></span>`;
     if (view === 'ren') html = head + `<select data-a="renfilter"><option value="todo">変更するもの</option><option value="skip">要確認</option><option value="same">変更なし</option><option value="all">すべて</option></select>`;
     if (view === 'dup') html = head + `
@@ -779,6 +826,11 @@
     if (busy) { el.innerHTML = '<button data-a="stop">中断</button>'; return; }
     const c = counts();
     const label = { name: 'チェックしたものを変更', sort: 'すべて仕分け', ren: 'すべて変更', clean: 'チェックしたものを実行' };
+    if (view === 'junk') {
+      const n = jplan.filter(junkChecked).length;
+      el.innerHTML = junkEnabled() && jplan.length ? `<button class="danger" data-a="junkdel"${n ? '' : ' disabled'}>チェックしたものを削除（${n} 件）</button>` : `<span class="okbadge">✓ 完了</span>${nextHtml(c)}`;
+      return;
+    }
     if (view === 'dup') {
       el.innerHTML = visibleGroups().length ? '<button data-a="csv">CSV保存</button><button class="danger" data-a="delall">チェックしたものを削除</button>' : `<span class="okbadge">✓ 完了</span>${nextHtml(c)}`;
       return;
@@ -791,9 +843,10 @@
     if (v !== 'scan' && !hasScan()) v = 'scan';
     view = v;
     if (v === 'clean') cplan = buildCleanPlan(files, folders);
-    if (v === 'name') nplan = buildNamePlan(files, folders);
-    if (v === 'ren') rplan = buildRenamePlan(files, folders);
-    if (v === 'sort') splan = buildSortPlan(files, folders);
+    if (v === 'junk') jplan = junkEnabled() ? buildJunkPlan(files) : [];
+    if (v === 'name') nplan = buildNamePlan(workFiles(), folders);
+    if (v === 'ren') rplan = buildRenamePlan(workFiles(), folders);
+    if (v === 'sort') splan = buildSortPlan(workFiles(), folders);
     renderToolbar(); render(); renderNav();
     $('[data-r=main]').scrollTop = 0;
   }
@@ -803,6 +856,7 @@
     if (view === 'sort') return renderSort();
     if (view === 'clean') return renderClean();
     if (view === 'name') return renderName();
+    if (view === 'junk') return renderJunk();
     return renderDup();
   }
 
@@ -810,7 +864,7 @@
   function renderScan() {
     const where = crumbs().map((c) => c.name).filter(Boolean).join(' › ') || (currentFolderId() === 'root' ? 'ホーム' : 'いま開いているフォルダ');
     const c = counts();
-    const sum = c ? `<div class="pd-sum">${WORK.map((k) => { const i = STEPS.findIndex((x) => x.v === k); return `<button data-step="${k}" class="${c[k] || (k === 'clean' && c.cleanSkip) ? '' : 'zero'}"><span class="note">${i + 1}. ${esc(STEPS[i].t)}</span><b>${k === 'name' && !nameEnabled() ? 'オフ' : c[k] ? c[k] + ' ' + UNIT_OF[k] : k === 'clean' && c.cleanSkip ? '要確認 ' + c.cleanSkip + ' 件' : '✓ 対象なし'}</b></button>`; }).join('')}</div>` : '';
+    const sum = c ? `<div class="pd-sum">${WORK.map((k) => { const i = STEPS.findIndex((x) => x.v === k); return `<button data-step="${k}" class="${c[k] || (k === 'clean' && c.cleanSkip) ? '' : 'zero'}"><span class="note">${i + 1}. ${esc(STEPS[i].t)}</span><b>${(k === 'name' && !nameEnabled()) || (k === 'junk' && !junkEnabled()) ? 'オフ' : c[k] ? c[k] + ' ' + UNIT_OF[k] : k === 'clean' && c.cleanSkip ? '要確認 ' + c.cleanSkip + ' 件' : k === 'junk' && c.junkReview ? '要確認 ' + c.junkReview + ' 件' : '✓ 対象なし'}</b></button>`; }).join('')}</div>` : '';
     const next = c && (WORK.find((k) => c[k] > 0));
     const doneBanner = allDone(c) ? '<div class="pd-hero" style="border-color:var(--ok)"><h2>✓ 整理はすべて完了しています</h2><div class="note">PikPakで新しくファイルを追加・操作したら、「再スキャン」で最新の状態を確認できます。</div></div>' : '';
     $('[data-r=main]').innerHTML = `${doneBanner}
@@ -818,6 +872,7 @@
         <h2>${meta ? 'もう一度読み込む' : 'まずはフォルダを読み込みます'}</h2>
         <div class="note">ホームか My Pack を開いた状態で実行してください。読み込みはバックグラウンドで行い、PikPakの画面は切り替わりません。</div>
         <div class="where">読み込む場所：${esc(where)}</div>
+        <div style="margin:0 0 16px"><label class="optsw" style="justify-content:center" title="オンにすると、広告・宣伝、10MB以下、中国語のファイルなど作品と関係ないものを、仕分け・名前の変更・重複比較の対象から外します（「2. 不要ファイルを削除」で削除できます）"><input type="checkbox" data-a="junkopt"${junkEnabled() ? ' checked' : ''}> 作品と関係ないファイル（広告・宣伝／10MB以下／中国語）を除外する</label></div>
         <div class="acts"><button class="pri big" data-a="scan"${busy ? ' disabled' : ''}>${meta ? '再スキャン' : 'スキャン開始'}</button>${busy ? '<button class="big" data-a="stop">中断</button>' : ''}</div>
         ${meta ? `<div class="note" style="margin-top:14px">前回：${new Date(meta.at).toLocaleString('ja-JP')} ／ ${esc(meta.where || '')} ／ フォルダ ${meta.nfo} ・ ファイル ${meta.nfi}</div>` : ''}
       </div>
@@ -844,7 +899,51 @@
     } catch (err) { busy = false; renderNav(); renderScan(); handleErr(err, 'scan', '読み込みに失敗しました：' + err.message); }
   }
 
-  // ---------- 2. ファイル名を整える ----------
+  // ---------- 2. 不要ファイルを削除 ----------
+  function renderJunk() {
+    const explain = `<div class="pd-explain"><h3>このステップでできること</h3>
+      <div class="note">読み込んだファイルのうち、作品と関係ないものを見分けて削除します。オンの間は、ここで見つけたファイルを「ファイル名を整える」「作品ごとに仕分け」「フォルダ名を揃える」「重複を比べて削除」の対象から外すので、広告ファイルの名前でフォルダが作られたり、フォルダ名が広告の名前になったりしません（削除しなくても外れます）。</div>
+      <ul class="note">
+        <li><b>広告・宣伝</b>：<code>.url</code> <code>.txt</code> <code>.html</code> <code>.exe</code> <code>.apk</code> <code>.torrent</code> などのファイル、品番がなく「最新地址」「广告」「福利」などの宣伝の言葉やサイトのアドレス（<code>xxx.com</code> など）が入ったファイル</li>
+        <li><b>10MB以下</b>：画像・説明ファイル・短い宣伝動画など（字幕ファイルは「要確認」に回します）</li>
+        <li><b>中国語のファイル</b>：ひらがな・カタカナがなく、中国語にしかない字が入った名前。品番がないものは削除の対象、品番があるものは作品の可能性があるため「要確認」に回します</li>
+      </ul>
+      <div class="note" style="margin-top:6px">「要確認」は最初はチェックなしです。削除はPikPakのゴミ箱へ移動します（確認画面で完全削除も選べます）。削除したあとに空になったフォルダは、「7. (1)を外す・片付け」でまとめて片付けられます。使わない場合は、右上の「このステップを使う」のチェックを外してください。</div></div>`;
+    if (!junkEnabled()) { $('[data-r=main]').innerHTML = explain + `<div class="pd-hero"><h2>このステップはオフになっています</h2><div class="note">すべてのファイルを、ほかのステップの対象にします。</div><div class="acts" style="margin-top:16px">${nextHtml(undefined, 'pri big')}</div></div>`; if (!busy) status('不要ファイルの除外はオフです。'); return; }
+    if (!jplan.length) { $('[data-r=main]').innerHTML = explain + doneCard(); if (!busy) status('作品と関係ないファイルは見つかりませんでした。'); return; }
+    const row = (p) => {
+      const on = junkChecked(p);
+      return `<div class="pd-row ${on ? 'del' : ''}" data-id="${esc(p.id)}"><label class="pd-chk" title="チェック＝削除する"><input type="checkbox" data-jchk="${esc(p.id)}"${on ? ' checked' : ''}></label>
+        <div class="pd-th" style="width:96px;height:54px">${p.thumb ? `<img loading="lazy" referrerpolicy="no-referrer" src="${esc(p.thumb)}" alt="">` : ''}</div>
+        <div class="pd-info"><div class="pd-name">${esc(p.name)} <span class="pd-tag">${esc(p.reason)}</span></div><div class="pd-path">${esc(p.path)}</div></div>
+        <div class="pd-sz"><b>${fmt(p.size)}</b></div></div>`;
+    };
+    const sec = (lv, title, note) => {
+      const l = jplan.filter((p) => p.level === lv);
+      if (!l.length) return '';
+      return `<div class="pd-g"><div class="pd-gh"><span>${title} ${l.length} 件</span><span class="note">${note}</span><span class="sp"></span><button data-a="jall" data-lv="${lv}">すべてチェック</button><button data-a="jnone" data-lv="${lv}">すべて外す</button></div>${l.map(row).join('')}</div>`;
+    };
+    $('[data-r=main]').innerHTML = explain
+      + sec('del', '作品と関係ないファイル', 'ほかのステップの対象から外しています')
+      + sec('review', '要確認', '作品の可能性があるもの。削除する場合はチェックしてください（ほかのステップの対象のままです）')
+      + nextButton();
+    if (!busy) { const sel = jplan.filter(junkChecked); status(`チェック（削除する） ${sel.length} 件・${fmt(sel.reduce((a, p) => a + p.size, 0))}`); }
+  }
+  async function runJunk() {
+    const list = jplan.filter(junkChecked).map((p) => files.find((f) => f.id === p.id)).filter(Boolean);
+    if (!list.length) { status('チェックの入ったファイルがありません'); return; }
+    if (!ensureSession('junk')) return;
+    const ans = await askDelete(list, []);
+    if (!ans) return;
+    busy = true; renderNav(); renderActs(); window.__ppdupStop = false;
+    try {
+      const n = await deleteApi(list, ans.hard, (d, t) => status(`削除中… ${d}/${t}`, d / t));
+      list.forEach((f) => junkSel.delete(f.id));
+      busy = false; setView('junk'); status(`${n} 件を${ans.hard ? '完全に削除' : 'ゴミ箱へ移動'}しました。`); log('info', `不要ファイルの削除 ${n} 件（${ans.hard ? '完全削除' : 'ゴミ箱'}）`); refreshView();
+    } catch (err) { busy = false; setView('junk'); handleErr(err, 'junk', '削除を停止しました：' + err.message); }
+  }
+
+  // ---------- 3. ファイル名を整える ----------
   function renderName() {
     const on = nameEnabled();
     const todo = nplan.filter((p) => p.status === 'todo');
@@ -879,7 +978,7 @@
     busy = false; setView('name'); status(`${ok} 件のファイル名を整えました${skipped ? `（${skipped} 件は実行直前の確認で対象外になりました）` : ''}。`); log('info', `ファイル名の整理 ${ok} 件・対象外 ${skipped} 件`); refreshView();
   }
 
-  // ---------- 3. 作品ごとに仕分け ----------
+  // ---------- 4. 作品ごとに仕分け ----------
   function renderSort() {
     const todo = splan.filter((g) => g.status !== 'done');
     if (!todo.length) { $('[data-r=main]').innerHTML = doneCard(); if (!busy) status('仕分けは完了しています。'); return; }
@@ -904,7 +1003,7 @@
     busy = false; setView('sort'); status(`${ok} 作品を仕分けしました。`); log('info', `仕分け ${ok} 作品`); refreshView();
   }
 
-  // ---------- 4. フォルダ名を揃える ----------
+  // ---------- 5. フォルダ名を揃える ----------
   const STLABEL = { same: '変更なし', rename: '変更', dup: '変更（重複回避）', skip: '要確認・対象外' };
   function renderRen() {
     const show = $('[data-a=renfilter]') ? $('[data-a=renfilter]').value : 'todo';
@@ -937,10 +1036,10 @@
     saveAll();
   }
 
-  // ---------- 5. 重複を比べて削除 ----------
+  // ---------- 6. 重複を比べて削除 ----------
   function visibleGroups() {
     const m = $('[data-a=mode]'), n = $('[data-a=nearonly]'), qq = $('[data-a=q]');
-    let groups = buildGroups(files, m ? m.value : 'name');
+    let groups = buildGroups(workFiles(), m ? m.value : 'name');
     if (n && n.checked) groups = groups.filter((g) => g.near);
     const q = qq ? qq.value.trim().toLowerCase() : '';
     if (q) groups = groups.filter((g) => g.items.some((x) => x.name.toLowerCase().includes(q)));
@@ -1005,7 +1104,7 @@
     } catch (err) { busy = false; render(); renderNav(); handleErr(err, 'dup', '削除を停止しました：' + err.message); }
   }
 
-  // ---------- 6. (1)を外す ----------
+  // ---------- 7. (1)を外す ----------
   const cleanOff = new Set(); // チェックを外した（実行しない）項目
   function renderClean() {
     const trash = cplan.filter((p) => p.status === 'todo' && p.op === 'trash'), ren = cplan.filter((p) => p.status === 'todo' && p.op === 'rename'), skip = cplan.filter((p) => p.status === 'skip');
@@ -1058,6 +1157,8 @@
     if (busy) return;
     if (a === 'scan') return runScan();
     if (a === 'delall') return runDelete(visibleGroups());
+    if (a === 'junkdel') return runJunk();
+    if (a === 'jall' || a === 'jnone') { const lv = t.dataset.lv; jplan.filter((p) => p.level === lv).forEach((p) => junkSel.set(p.id, a === 'jall')); render(); renderActs(); return; }
     const m = /^(name|sort|ren|clean)(1|all)$/.exec(a || '');
     if (m) { if (m[2] === '1') RUN[m[1]](true); else if (confirm(CONFIRM[m[1]])) RUN[m[1]](false); return; }
     if (a === 'csv') {
@@ -1071,6 +1172,9 @@
   root.addEventListener('change', (e) => {
     const id = e.target.dataset && e.target.dataset.chk;
     if (id) { decision[id] = e.target.checked ? 'del' : 'keep'; saveDecision(); const row = e.target.closest('.pd-row'); if (row) { row.classList.toggle('del', e.target.checked); row.classList.toggle('keep', !e.target.checked); } const dl = delList(visibleGroups()); status(`チェック（削除する） ${dl.length} 件・${fmt(dl.reduce((a, f) => a + f.size, 0))}`); return; }
+    if (e.target.dataset && e.target.dataset.a === 'junkopt') { try { localStorage.setItem(LS_OPT_JUNK, e.target.checked ? '1' : '0'); } catch (err) { /* 無視 */ } log('info', '不要ファイルの除外を' + (e.target.checked ? 'オン' : 'オフ') + 'に変更'); setView(view); return; }
+    const jid = e.target.dataset && e.target.dataset.jchk;
+    if (jid) { junkSel.set(jid, e.target.checked); const row = e.target.closest('.pd-row'); if (row) row.classList.toggle('del', e.target.checked); renderActs(); return; }
     if (e.target.dataset && e.target.dataset.a === 'nameopt') { try { localStorage.setItem(LS_OPT_NAME, e.target.checked ? '1' : '0'); } catch (err) { /* 無視 */ } log('info', 'ファイル名の整理を' + (e.target.checked ? 'オン' : 'オフ') + 'に変更'); render(); renderNav(); return; }
     const nid = e.target.dataset && e.target.dataset.nchk;
     if (nid) { if (e.target.checked) nameOff.delete(nid); else nameOff.add(nid); const row = e.target.closest('.pd-row'); if (row) row.classList.toggle('sel', e.target.checked); return; }
@@ -1104,7 +1208,7 @@
     };
     const seen = +(localStorage.getItem(LS_LOGSEEN) || 0);
     const errs = readLog().filter((x) => x.level === 'error' && x.t > seen).length;
-    fab.innerHTML = `<button class="flow" data-fab="flow"><span class="n" style="background:#ffffff33">▶</span><span class="t">おまかせ整理<br><span style="font-weight:400;font-size:11px;opacity:.85">1〜6の流れで順番に進める</span></span></button>
+    fab.innerHTML = `<button class="flow" data-fab="flow"><span class="n" style="background:#ffffff33">▶</span><span class="t">おまかせ整理<br><span style="font-weight:400;font-size:11px;opacity:.85">1〜7の流れで順番に進める</span></span></button>
       <div class="hd">作業を選んで開く</div>
       ${STEPS.map((s, i) => `<button data-fab="${s.v}"${busy ? ' disabled' : ''}><span class="n">${i + 1}</span><span class="t">${esc(s.t)}</span>${badge(s.v)}</button>`).join('')}
       <hr><button data-fab="log"><span class="n">≡</span><span class="t">ログ</span>${errs ? `<span class="b todo">エラー ${errs}</span>` : ''}</button>

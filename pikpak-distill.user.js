@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.12.2
+// @version      3.13.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMzMDZmZmYiLz48cmVjdCB4PSIxMiIgeT0iMTYiIHdpZHRoPSIyNCIgaGVpZ2h0PSIzMiIgcng9IjQiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii41NSIvPjxyZWN0IHg9IjI2IiB5PSIxMiIgd2lkdGg9IjI2IiBoZWlnaHQ9IjM0IiByeD0iNCIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik0zMiAyNGgxNE0zMiAzMGgxNE0zMiAzNmg5IiBzdHJva2U9IiMzMDZmZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGNpcmNsZSBjeD0iNDQiIGN5PSI0NiIgcj0iOSIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJNNDAgNDZsMyAzIDUtNiIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -32,7 +32,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.12.2'; // @version と合わせて更新する
+  const VER = '3.13.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -607,7 +607,7 @@
   #ppdup-fab hr{border:0;border-top:1px solid #2c303a;margin:6px 4px}
   #ppdup.single nav,#ppdup.treev nav{display:none}
   #ppdup{--bg:#f5f6f8;--panel:#fff;--panel2:#eef0f4;--line:#dde0e6;--fg:#1c1f26;--mute:#6a7080;--pri:#306fff;--pri-soft:#306fff1f;--ok:#1f9d55;--danger:#d64545;--keep:#f0faf2;--del:#fff5f5;--ctl:#fff;--ctl-line:#c5c9d2;
-    position:fixed;inset:0;z-index:99999;background:var(--bg);color:var(--fg);font:13px/1.5 system-ui,"Hiragino Sans","Yu Gothic",sans-serif;display:none;flex-direction:column}
+    position:fixed;inset:0;z-index:99999;background:var(--bg);color:var(--fg);font:13px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Yu Gothic","Meiryo","Noto Sans CJK JP","Noto Sans JP",sans-serif;display:none;flex-direction:column}
   @media (prefers-color-scheme:dark){#ppdup{--bg:#15171c;--panel:#1d2027;--panel2:#252932;--line:#2c303a;--fg:#e6e8ee;--mute:#8b91a1;--pri-soft:#306fff33;--keep:#17261c;--del:#2a1a1a;--ctl:#252932;--ctl-line:#3a3f4b}}
   #ppdup.on{display:flex}
   #ppdup{padding-left:78px}
@@ -623,7 +623,7 @@
   #ppdup header{padding:12px 18px 0;background:var(--panel);border-bottom:1px solid var(--line)}
   #ppdup .brand{display:flex;align-items:center;gap:12px}
   #ppdup .brand svg{width:44px;height:44px;flex:none}
-  #ppdup .brand h1{margin:0;font:800 24px/1.1 system-ui,"Hiragino Sans",sans-serif}
+  #ppdup .brand h1{margin:0;font:800 24px/1.1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Yu Gothic","Meiryo","Noto Sans CJK JP","Noto Sans JP",sans-serif}
   #ppdup .brand .chip{font:700 12px system-ui,sans-serif;padding:3px 10px;border-radius:999px;background:var(--pri-soft);color:var(--pri)}
   #ppdup .brand .ver{font:700 12px ui-monospace,Menlo,monospace;color:var(--mute);border:1px solid var(--line);border-radius:6px;padding:1px 7px;align-self:center}
   #ppdup .brand .by{font-size:12px;color:var(--mute);align-self:flex-end;margin-bottom:4px}
@@ -698,9 +698,9 @@
   .pd-chk input{width:20px;height:20px;cursor:pointer;accent-color:var(--danger)}
   #pd-dlg .logs{max-height:55vh;overflow:auto;font:12px/1.5 ui-monospace,Menlo,monospace;border:1px solid #c5c9d288;border-radius:8px;padding:8px;margin:10px 0;white-space:pre-wrap;word-break:break-all}
   #pd-dlg .logs .error{color:#d93025}#pd-dlg .logs .warn{color:#b26a00}
-  /* フォルダ一覧（Finder のリスト表示風） */
+  /* フォルダ一覧（Finder / エクスプローラーのリスト表示風） */
   #ppdup main:has(.tr){padding:0}
-  .tr{outline:none;font:13px/1 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;min-height:100%;background:var(--panel);user-select:none}
+  .tr{outline:none;font:13px/1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Yu Gothic","Meiryo","Noto Sans CJK JP","Noto Sans JP",sans-serif;min-height:100%;background:var(--panel);user-select:none}
   .tr-h,.tr-row{display:grid;grid-template-columns:minmax(0,1fr) 110px 120px 90px;align-items:center}
   .tr-h{position:sticky;top:0;z-index:1;background:var(--panel);border-bottom:1px solid var(--line);height:28px;color:var(--mute);font-size:12px}
   .tr-h span{padding:0 10px;cursor:pointer;border-left:1px solid var(--line);line-height:28px;white-space:nowrap}
@@ -743,7 +743,7 @@
   .tr-ren{font:inherit;padding:1px 4px !important;border:2px solid #4b8df8 !important;border-radius:3px !important;flex:1;min-width:120px;cursor:text !important}
   @media (prefers-color-scheme:dark){.tr-row.sel{background:#3a3f4b}}
   #pd-ql{position:fixed;inset:0;z-index:100002;display:flex;align-items:center;justify-content:center;background:#0004}
-  #pd-ql .ql{background:#2b2d31ee;color:#eee;border-radius:12px;box-shadow:0 20px 60px #000a;width:min(820px,90vw);overflow:hidden;font:13px/1.5 -apple-system,"Hiragino Sans",sans-serif;backdrop-filter:blur(20px)}
+  #pd-ql .ql{background:#2b2d31ee;color:#eee;border-radius:12px;box-shadow:0 20px 60px #000a;width:min(820px,90vw);overflow:hidden;font:13px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Yu Gothic","Meiryo","Noto Sans CJK JP","Noto Sans JP",sans-serif;backdrop-filter:blur(20px)}
   #pd-ql .ql-h{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#0003}
   #pd-ql .ql-h b{flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   #pd-ql .ql-h button{border:0;background:#fff2;color:#eee;border-radius:50%;width:22px;height:22px;cursor:pointer}
@@ -791,7 +791,7 @@
   .tr-row.drop{outline:2px solid #4b8df8;outline-offset:-2px;background:#4b8df833 !important}
   #pd-drag{position:fixed;z-index:100005;pointer-events:none;background:#306fff;color:#fff;font:600 12px system-ui,sans-serif;padding:4px 10px;border-radius:6px;box-shadow:0 4px 14px #0005;max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   #pd-drag.ng{background:#6a7080}
-  #pd-ctx{position:fixed;z-index:100004;min-width:220px;background:#f6f6f8f2;color:#1c1f26;border:1px solid #0002;border-radius:8px;box-shadow:0 10px 30px #0004;padding:5px;font:13px -apple-system,"Hiragino Sans",sans-serif;backdrop-filter:blur(16px)}
+  #pd-ctx{position:fixed;z-index:100004;min-width:220px;background:#f6f6f8f2;color:#1c1f26;border:1px solid #0002;border-radius:8px;box-shadow:0 10px 30px #0004;padding:5px;font:13px system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Yu Gothic","Meiryo","Noto Sans CJK JP","Noto Sans JP",sans-serif;backdrop-filter:blur(16px)}
   #pd-ctx button{display:flex;justify-content:space-between;gap:24px;width:100%;border:0;background:none;color:inherit;font:inherit;padding:4px 10px;border-radius:4px;text-align:left;cursor:default}
   #pd-ctx button:hover:not(:disabled){background:#0a64d6;color:#fff}
   #pd-ctx button:disabled{opacity:.4}
@@ -806,7 +806,7 @@
   #pd-dlg .mv-r.on{background:#306fff;color:#fff}
   #pd-dlg .mv-r.ng{opacity:.35;cursor:not-allowed}
   #pd-player{position:fixed;inset:0;z-index:100003;background:#000c;display:flex;align-items:center;justify-content:center}
-  #pd-player .pl{width:min(1280px,96vw);background:#111;color:#eee;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px #000;font:13px -apple-system,"Hiragino Sans",sans-serif}
+  #pd-player .pl{width:min(1280px,96vw);background:#111;color:#eee;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px #000;font:13px system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Yu Gothic","Meiryo","Noto Sans CJK JP","Noto Sans JP",sans-serif}
   #pd-player .pl-h{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#1d1f24}
   #pd-player .pl-h b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   #pd-player .pl-h button,#pd-player .pl-h select,#pd-player .pl-h a{font:inherit;background:#2b2e35;color:#eee;border:1px solid #3a3f4b;border-radius:6px;padding:4px 10px;text-decoration:none;cursor:pointer}
@@ -843,7 +843,7 @@
   root.innerHTML = `
     <aside class="rail" data-r="rail">
       <button data-a="toflow" data-rail="flow" title="整理（1〜7のステップ）"><svg viewBox="0 0 24 24"><path d="M4 6h10M4 12h16M4 18h7" /><circle cx="18" cy="6" r="2"/><circle cx="15" cy="18" r="2"/></svg><span>整理</span></button>
-      <button data-a="tree" data-rail="tree" title="フォルダ一覧（Finder のように、フォルダを開いて中身を見られます）"><svg viewBox="0 0 24 24"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/><path d="M7 11h10M7 15h6"/></svg><span>フォルダ<br>一覧</span></button>
+      <button data-a="tree" data-rail="tree" title="フォルダ一覧（Finder やエクスプローラーのように、フォルダを開いて中身を見られます）"><svg viewBox="0 0 24 24"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/><path d="M7 11h10M7 15h6"/></svg><span>フォルダ<br>一覧</span></button>
       <button data-a="rescan" data-rail="scan" title="最新の状態を読み込み直す"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg><span>再読み込み</span></button>
       <button data-a="log" data-rail="log" title="エラーや処理の記録"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7M9 7h3"/></svg><span>ログ</span><i data-r="logbadge"></i></button>
       <span class="sp"></span>
@@ -1398,9 +1398,22 @@
     busy = false; setView('clean'); status(`${ok} 件を実行しました${skipped ? `（${skipped} 件は実行直前の確認で対象外になりました）` : ''}。`); log('info', `片付け ${ok} 件・対象外 ${skipped} 件`); refreshView();
   }
 
-  // ---------- フォルダ一覧（macOS の Finder のリスト表示に近い操作） ----------
-  // 読み込んだ結果をツリーで表示する。▶ で開閉、矢印キーで移動、スペースでプレビュー、
-  // Enter で名前の変更、⌘⌫ でゴミ箱へ。⌘/Shift クリックで複数選択。
+  // ---------- フォルダ一覧（Finder / エクスプローラーに近い操作） ----------
+  // 読み込んだ結果をツリーで表示する。キー操作はブラウザが動いている OS に合わせる
+  //   macOS：Finder と同じ（⌘ キー・Enter で名前の変更・⌘⌫ でゴミ箱）
+  //   Windows / Linux：エクスプローラーやファイルマネージャーと同じ（Ctrl キー・F2 で名前の変更・Delete でゴミ箱）
+  // ※ ブラウザ自体が使うショートカット（⌘1〜3・Ctrl+1〜3＝タブ切り替え、⇧⌘N・Ctrl+Shift+N＝シークレットウィンドウ、
+  //    ⌥⌘← →＝タブ移動 など）はページ側で止められないため使わない
+  const OS = (() => {
+    const p = String((navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || navigator.userAgent || '');
+    return /mac|iphone|ipad/i.test(p) ? 'mac' : /win/i.test(p) ? 'win' : 'linux';
+  })();
+  const IS_MAC = OS === 'mac';
+  const OS_NAME = { mac: 'macOS', win: 'Windows', linux: 'Linux' }[OS];
+  const modKey = (e) => (IS_MAC ? e.metaKey : e.ctrlKey); // ⌘（mac）／Ctrl（Windows・Linux）
+  const KEY = IS_MAC
+    ? { mod: '⌘', multi: '⌘', deep: '⌥', open: '⌘↓', up: '⌘↑', rename: 'Enter', trash: '⌘⌫', mkdir: '⌥⌘N', expand: '⇧⌘→', collapse: '⇧⌘←', copy: '⌘C', all: '⌘A', back: '⌫（delete）', next: '⌘↓', prev: '⌘↑' }
+    : { mod: 'Ctrl', multi: 'Ctrl', deep: 'Alt', open: 'Enter', up: 'Alt+↑', rename: 'F2', trash: 'Delete', mkdir: 'Alt+N', expand: 'Ctrl+Shift+→', collapse: 'Ctrl+Shift+←', copy: 'Ctrl+C', all: 'Ctrl+A', back: 'Backspace', next: 'Ctrl+↓', prev: 'Ctrl+↑' };
   const LS_TREE = 'ppdup:tree:v1';
   let tree = { open: [], sort: 'name', dir: 1, q: '', thumb: false };
   try { tree = { ...tree, ...JSON.parse(localStorage.getItem(LS_TREE) || '{}') }; } catch (e) { /* 無視 */ }
@@ -1457,7 +1470,7 @@
     treeSel.clear(); treeCur = ''; treeAnchor = ''; closeQL();
     if (tree.base) treeOpen.add(tree.base);
     renderTree(); $('[data-r=main]').scrollTop = 0;
-    status(tree.base ? `「${(ix.byId.get(id) || {}).name}」を最上位にして表示しています（⌘↑ または上のパスで戻れます）` : '読み込んだ場所から表示しています');
+    status(tree.base ? `「${(ix.byId.get(id) || {}).name}」を最上位にして表示しています（${KEY.up} または上のパスで戻れます）` : '読み込んだ場所から表示しています');
   }
   function treeRows() {
     const ix = treeIdx = buildTreeIndex();
@@ -1492,11 +1505,11 @@
   }
   function renderTreeToolbar() {
     const arrow = (k) => (tree.sort === k ? (tree.dir > 0 ? ' ▲' : ' ▼') : '');
-    $('[data-r=tb]').innerHTML = `<div class="head"><b>フォルダ一覧 <span class="pd-tag" style="vertical-align:2px">Finder 表示</span></b><span class="note">Finder と同じ操作：▶ / ← → で開閉・⌘↓ でフォルダを最上位に（⌘↑ で戻る）・ダブルクリックで再生・ドラッグで移動・右クリックでメニュー・スペースでプレビュー・Enter で名前の変更・⇧⌘N で新規フォルダ・⌘⌫ でゴミ箱へ</span></div><span class="sp"></span>
+    $('[data-r=tb]').innerHTML = `<div class="head"><b>フォルダ一覧 <span class="pd-tag" style="vertical-align:2px">${{ mac: 'Finder', win: 'エクスプローラー', linux: 'ファイルマネージャー' }[OS]} 風</span></b><span class="note">${OS_NAME} の操作：▶ / ← → で開閉（${KEY.deep} で中もすべて）・${KEY.open} でフォルダを最上位に（${KEY.up} で戻る）・ダブルクリックで再生・ドラッグで移動・右クリックでメニュー・スペースでプレビュー・${KEY.rename} で名前の変更・${KEY.mkdir} で新規フォルダ・${KEY.trash} でゴミ箱へ・1 / 2 / 3 で表示の切り替え</span></div><span class="sp"></span>
       <span class="note">読み込み：${meta ? esc(new Date(meta.at).toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })) : '未'}</span>
       <input type="text" data-a="tq" placeholder="🔍 名前で絞り込み" size="18" value="${esc(tree.q || '')}">
-      <span class="seg"><button data-a="texpand" title="すべてのフォルダを開く（⌥⌘→）">⊞ 全展開</button><button data-a="tcollapse" title="すべてのフォルダを閉じる（⌥⌘←）">⊟ 全格納</button></span>
-      <span class="seg"><button data-a="tview" data-v="list" class="${tree.view === 'list' ? 'on' : ''}" title="リスト表示（⌘1）">☰ リスト</button><button data-a="tview" data-v="thumb" class="${tree.view === 'thumb' ? 'on' : ''}" title="サムネイル付きのリスト（⌘2）">▤ サムネイル</button><button data-a="tview" data-v="tile" class="${tree.view === 'tile' ? 'on' : ''}" title="タイル表示。フォルダごとに見出しを付けて並べます（⌘3）">▦ タイル</button></span>
+      <span class="seg"><button data-a="texpand" title="すべてのフォルダを開く（${KEY.expand}）">⊞ 全展開</button><button data-a="tcollapse" title="すべてのフォルダを閉じる（${KEY.collapse}）">⊟ 全格納</button></span>
+      <span class="seg"><button data-a="tview" data-v="list" class="${tree.view === 'list' ? 'on' : ''}" title="リスト表示（1 キー）">☰ リスト</button><button data-a="tview" data-v="thumb" class="${tree.view === 'thumb' ? 'on' : ''}" title="サムネイル付きのリスト（2 キー）">▤ サムネイル</button><button data-a="tview" data-v="tile" class="${tree.view === 'tile' ? 'on' : ''}" title="タイル表示。フォルダごとに見出しを付けて並べます（3 キー）">▦ タイル</button></span>
       <button data-a="rescan" title="最新の状態を読み込み直します">再読み込み</button>${mode === 'single' ? '<button data-a="toflow">流れで表示</button>' : ''}
       <span class="tacts" data-r="tacts"></span>`;
     treeHeadHtml = `<div class="tr-h"><span class="c-name" data-tsort="name">名前${arrow('name')}</span><span class="c-size" data-tsort="size">サイズ${arrow('size')}</span><span class="c-kind" data-tsort="kind">種類${arrow('kind')}</span><span class="c-n">項目</span></div>`;
@@ -1526,7 +1539,7 @@
     const top = ix.agg.get(baseId) || { n: 0, size: 0, files: 0 };
     const baseName = baseId === ix.rootId ? ix.rootName : (ix.byId.get(baseId) || {}).name;
     const crumbIds = baseId === ix.rootId ? [ix.rootId] : [ix.rootId, ...((ix.byId.get(baseId) || {}).trail || []).filter((x) => ix.byId.has(x) && !ix.byId.get(x).isRoot)];
-    const crumbHtml = `<div class="tr-path"><button data-tup${baseId === ix.rootId ? ' disabled' : ''} title="1 つ上の階層を最上位にする（⌘↑）">↑</button>${crumbIds.map((id, k) => `${k ? '<span class="sep">›</span>' : ''}<button data-tbase="${esc(id)}" class="${id === baseId ? 'on' : ''}" title="${id === baseId ? 'いま最上位にしているフォルダ' : 'ここを最上位にする（ドラッグして離すとこのフォルダへ移動）'}">${id === ix.rootId ? '⌂ ' : ''}${esc(id === ix.rootId ? ix.rootName : ix.byId.get(id).name)}</button>`).join('')}${baseId !== ix.rootId ? '<span class="pd-tag" style="margin-left:8px">最上位を変更中</span>' : ''}</div>`;
+    const crumbHtml = `<div class="tr-path"><button data-tup${baseId === ix.rootId ? ' disabled' : ''} title="1 つ上の階層を最上位にする（${KEY.up}）">↑</button>${crumbIds.map((id, k) => `${k ? '<span class="sep">›</span>' : ''}<button data-tbase="${esc(id)}" class="${id === baseId ? 'on' : ''}" title="${id === baseId ? 'いま最上位にしているフォルダ' : 'ここを最上位にする（ドラッグして離すとこのフォルダへ移動）'}">${id === ix.rootId ? '⌂ ' : ''}${esc(id === ix.rootId ? ix.rootName : ix.byId.get(id).name)}</button>`).join('')}${baseId !== ix.rootId ? '<span class="pd-tag" style="margin-left:8px">最上位を変更中</span>' : ''}</div>`;
     const emptyHtml = '<div class="empty">' + (tree.q ? '一致するものはありません' : '読み込んだフォルダは空です') + '</div>';
     if (tree.view === 'tile') {
       // タイル：最上位のフォルダの中身と、開いているフォルダの中身を、フォルダごとの見出し付きで並べる
@@ -1543,10 +1556,10 @@
         const items = kids.get(pid) || [];
         const a = ix.agg.get(pid) || { n: 0, size: 0 };
         const path = relPath(pid);
-        return `<section class="tl-sec" data-sec="${esc(pid)}"><div class="tl-h" data-tdrop="${esc(pid)}">${pid === baseId ? '' : `<span class="tw open" data-ttw="${esc(pid)}" title="閉じる">▶</span>`}<span class="ic">${ICON_DIR}</span><b>${path.map((n, k) => (k === path.length - 1 ? esc(n) : `<span class="pp">${esc(n)} ›</span> `)).join('')}</b><span class="note">${a.n} 項目・${fmt(a.size)}</span><span class="sp"></span>${pid === baseId ? '' : `<button data-ttop="${esc(pid)}" title="一番上の一覧へ戻る（⌫ delete キー／マウスの戻るボタン）">⤒ 一覧へ戻る</button><button data-tbase="${esc(pid)}" title="このフォルダを最上位にする">⤓ ここを最上位に</button>`}</div>
+        return `<section class="tl-sec" data-sec="${esc(pid)}"><div class="tl-h" data-tdrop="${esc(pid)}">${pid === baseId ? '' : `<span class="tw open" data-ttw="${esc(pid)}" title="閉じる">▶</span>`}<span class="ic">${ICON_DIR}</span><b>${path.map((n, k) => (k === path.length - 1 ? esc(n) : `<span class="pp">${esc(n)} ›</span> `)).join('')}</b><span class="note">${a.n} 項目・${fmt(a.size)}</span><span class="sp"></span>${pid === baseId ? '' : `<button data-ttop="${esc(pid)}" title="一番上の一覧へ戻る（${KEY.back} キー／マウスの戻るボタン）">⤒ 一覧へ戻る</button><button data-tbase="${esc(pid)}" title="このフォルダを最上位にする">⤓ ここを最上位に</button>`}</div>
           <div class="tl-grid">${items.map(tile).join('') || '<div class="note" style="padding:8px">（空のフォルダ）</div>'}</div></section>`;
       }).join('');
-      $('[data-r=main]').innerHTML = `<div class="tr has-path tl" tabindex="0" data-r="tree">${crumbHtml}<div class="tr-body">${rows.length ? body : emptyHtml}</div><button class="tl-top" data-ttop="" title="一番上の一覧へ戻る（⌫ delete キー／マウスの戻るボタン）">⤒ 一覧へ戻る</button></div>`;
+      $('[data-r=main]').innerHTML = `<div class="tr has-path tl" tabindex="0" data-r="tree">${crumbHtml}<div class="tr-body">${rows.length ? body : emptyHtml}</div><button class="tl-top" data-ttop="" title="一番上の一覧へ戻る（${KEY.back} キー／マウスの戻るボタン）">⤒ 一覧へ戻る</button></div>`;
     } else {
       $('[data-r=main]').innerHTML = `<div class="tr has-path${tree.view === 'thumb' ? ' big' : ''}" tabindex="0" data-r="tree">${crumbHtml}${treeHeadHtml}<div class="tr-body">${rows.map(rowHtml).join('') || emptyHtml}</div></div>`;
     }
@@ -1616,7 +1629,7 @@
       busy = false; renderTree(); status(`名前を変更しました：${r.name} → ${name}`); log('info', `フォルダ一覧で名前を変更：${r.name} → ${name}`); refreshView();
     } catch (err) { busy = false; renderTree(); handleErr(err, 'tree', '名前を変更できませんでした：' + err.message); }
   }
-  // ゴミ箱へ（⌘⌫）
+  // ゴミ箱へ（⌘⌫／Delete）
   async function treeTrash() {
     const rows = treeRowsCache.filter((r) => treeSel.has(r.id));
     if (!rows.length) return;
@@ -1681,7 +1694,7 @@
       status(`${items.length} 項目を「${dest}」へ移動しました${renamed ? `（同じ名前があったため ${renamed} 件に (n) を付けました）` : ''}。`); log('info', `フォルダ一覧で移動 ${items.length} 項目 → ${dest}`); refreshView();
     } catch (err) { saveAll(); busy = false; renderTree(); handleErr(err, 'tree', '移動を停止しました：' + err.message); }
   }
-  // 新規フォルダ（⇧⌘N）：選んでいるフォルダが開いていればその中、そうでなければ同じ場所に作る
+  // 新規フォルダ（⌥⌘N／Alt+N）：選んでいるフォルダが開いていればその中、そうでなければ同じ場所に作る
   async function treeNewFolder() {
     const cur = treeRowsCache.find((r) => r.id === treeCur);
     const pid = cur ? (cur.kind === 'folder' && cur.open ? cur.id : cur.parentId) : treeBase();
@@ -1745,12 +1758,12 @@
     const el = $('[data-r=tacts]'); if (!el) return;
     const rows = selRows(), one = rows.length === 1 ? rows[0] : null;
     const dis = (b) => (b && !busy ? '' : ' disabled');
-    el.innerHTML = `<button data-ta="play"${dis(isVideoRow(one))} title="再生（⌘↓ / ダブルクリック）">▶ 再生</button>
+    el.innerHTML = `<button data-ta="play"${dis(isVideoRow(one))} title="再生（${KEY.open} / ダブルクリック）">▶ 再生</button>
       <button data-ta="rename"${dis(one)} title="名前を変更（Enter）">✎ 名前を変更</button>
       <button data-ta="move"${dis(rows.length)} title="移動（ドラッグでも移動できます）">↪ 移動…</button>
-      <button data-ta="mkdir"${dis(true)} title="新規フォルダ（⇧⌘N）">＋ 新規フォルダ</button>
-      <button data-ta="base"${dis(one && one.kind === 'folder')} title="選んだフォルダを最上位にして、その中だけを表示（⌘↓）">⤓ ここを最上位に</button>
-      <button data-ta="trash"${dis(rows.length)} class="danger" title="ゴミ箱に入れる（⌘⌫）">🗑 ゴミ箱へ</button>`;
+      <button data-ta="mkdir"${dis(true)} title="新規フォルダ（${KEY.mkdir}）">＋ 新規フォルダ</button>
+      <button data-ta="base"${dis(one && one.kind === 'folder')} title="選んだフォルダを最上位にして、その中だけを表示（${KEY.open}）">⤓ ここを最上位に</button>
+      <button data-ta="trash"${dis(rows.length)} class="danger" title="ゴミ箱に入れる（${KEY.trash}）">🗑 ゴミ箱へ</button>`;
   }
   function treeAction(a) {
     const rows = selRows(), one = rows.length === 1 ? rows[0] : null;
@@ -1776,13 +1789,13 @@
     const it = (a, label, key, ok, cls) => `<button data-ta="${a}"${ok ? '' : ' disabled'} class="${cls || ''}"><span>${label}</span><kbd>${key || ''}</kbd></button>`;
     const m = document.createElement('div'); m.id = 'pd-ctx';
     m.innerHTML = [
-      isVideoRow(one) ? it('play', '▶ 再生', '⌘↓', true) : '',
+      isVideoRow(one) ? it('play', '▶ 再生', KEY.open, true) : '',
       one && one.kind === 'folder' ? it('open', '開く', '→', true) : '',
-      one && one.kind === 'folder' ? it('base', 'このフォルダを最上位にして表示', '⌘↓', true) : '',
+      one && one.kind === 'folder' ? it('base', 'このフォルダを最上位にして表示', KEY.open, true) : '',
       it('preview', 'プレビュー', 'Space', !!one), '<hr>',
-      it('rename', '名前を変更', 'Enter', !!one), it('move', `移動…${rows.length > 1 ? `（${rows.length} 項目）` : ''}`, 'ドラッグ', rows.length > 0), it('mkdir', '新規フォルダ', '⇧⌘N', true), '<hr>',
-      it('copy', '場所をコピー', '⌘C', !!one), '<hr>',
-      it('trash', `ゴミ箱に入れる${rows.length > 1 ? `（${rows.length} 項目）` : ''}`, '⌘⌫', rows.length > 0, 'red'),
+      it('rename', '名前を変更', KEY.rename, !!one), it('move', `移動…${rows.length > 1 ? `（${rows.length} 項目）` : ''}`, 'ドラッグ', rows.length > 0), it('mkdir', '新規フォルダ', KEY.mkdir, true), '<hr>',
+      it('copy', '場所をコピー', KEY.copy, !!one), '<hr>',
+      it('trash', `ゴミ箱に入れる${rows.length > 1 ? `（${rows.length} 項目）` : ''}`, KEY.trash, rows.length > 0, 'red'),
     ].join('');
     document.body.appendChild(m);
     const w = m.offsetWidth || 220, h = m.offsetHeight || 300;
@@ -1792,7 +1805,7 @@
   document.addEventListener('mousedown', (e) => { const m = document.getElementById('pd-ctx'); if (m && !m.contains(e.target)) closeCtx(); }, true);
   root.addEventListener('click', (e) => { const b = e.target.closest('[data-ta]'); if (b && !b.disabled && view === 'tree' && !busy) treeAction(b.dataset.ta); });
 
-  // ドラッグで移動（Finder と同じく、フォルダの上で離すとその中へ。フォルダの上で少し待つと開く）
+  // ドラッグで移動（Finder・エクスプローラーと同じく、フォルダの上で離すとその中へ。フォルダの上で少し待つと開く）
   let drag = null;
   function dragTarget(x, y) {
     const el = document.elementFromPoint(x, y);
@@ -1841,7 +1854,7 @@
     }
     const vids = treeRowsCache.filter(isVideoRow);
     const i = vids.findIndex((r) => r.id === id);
-    d.innerHTML = `<div class="pl"><div class="pl-h"><button data-pl="prev"${i > 0 ? '' : ' disabled'} title="前のビデオ">◀</button><button data-pl="next"${i >= 0 && i < vids.length - 1 ? '' : ' disabled'} title="次のビデオ">▶</button><b>${esc(f.name)}</b><select data-pl="q" title="画質" style="display:none"></select><a data-pl="tab" target="_blank" rel="noreferrer" style="display:none">↗ 新しいタブ</a><button data-pl="close" title="閉じる（Esc）">✕</button></div>
+    d.innerHTML = `<div class="pl"><div class="pl-h"><button data-pl="prev"${i > 0 ? '' : ' disabled'} title="前のビデオ（${KEY.prev}）">◀</button><button data-pl="next"${i >= 0 && i < vids.length - 1 ? '' : ' disabled'} title="次のビデオ（${KEY.next}）">▶</button><b>${esc(f.name)}</b><select data-pl="q" title="画質" style="display:none"></select><a data-pl="tab" target="_blank" rel="noreferrer" style="display:none">↗ 新しいタブ</a><button data-pl="close" title="閉じる（Esc）">✕</button></div>
       <div class="pl-b"><div class="pl-msg">再生の準備中…</div></div><div class="pl-f note">${esc((f.path || '/').replace(/\/$/, ''))}/ ・ ${fmt(f.size)}</div></div>`;
     const prev = d.querySelector('[data-pl=prev]'), next = d.querySelector('[data-pl=next]');
     prev.onclick = () => { if (i > 0) { treeSelect(vids[i - 1].id, null); renderTree(); playFile(vids[i - 1].id); } };
@@ -1885,8 +1898,8 @@
   document.addEventListener('keydown', (e) => {
     const d = document.getElementById('pd-player'); if (!d) return;
     if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); closePlayer(); }
-    else if (e.key === 'ArrowDown' && e.metaKey) { e.preventDefault(); d.querySelector('[data-pl=next]').click(); }
-    else if (e.key === 'ArrowUp' && e.metaKey) { e.preventDefault(); d.querySelector('[data-pl=prev]').click(); }
+    else if ((e.key === 'ArrowDown' && modKey(e)) || e.key === 'PageDown') { e.preventDefault(); d.querySelector('[data-pl=next]').click(); }
+    else if ((e.key === 'ArrowUp' && modKey(e)) || e.key === 'PageUp') { e.preventDefault(); d.querySelector('[data-pl=prev]').click(); }
   }, true);
 
   // マウス操作
@@ -1944,19 +1957,31 @@
     const cur = rows[i];
     const move = (j) => { j = Math.max(0, Math.min(rows.length - 1, j)); treeSelect(rows[j].id, e.shiftKey ? { shiftKey: true } : null); renderTree(); if (qlOpen) showQL(); };
     const k = e.key;
-    if ((k === 'ArrowRight' || k === 'ArrowLeft') && e.altKey && (e.metaKey || e.ctrlKey)) { e.preventDefault(); treeAll(k === 'ArrowRight'); return; }
-    if ((k === '1' || k === '2' || k === '3') && (e.metaKey || e.ctrlKey)) { e.preventDefault(); treeView({ 1: 'list', 2: 'thumb', 3: 'tile' }[k]); return; }
-    if (tree.view === 'tile' && (k === 'Backspace' || k === 'Home') && !e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); const c = treeRowsCache.find((q) => q.id === treeCur); jumpTop(c ? c.parentId : ''); return; }
+    const plain = !e.metaKey && !e.ctrlKey && !e.altKey;
+    if ((k === 'ArrowRight' || k === 'ArrowLeft') && e.shiftKey && modKey(e)) { e.preventDefault(); treeAll(k === 'ArrowRight'); return; } // 全展開／全格納
+    if ((k === '1' || k === '2' || k === '3') && plain && !e.shiftKey) { e.preventDefault(); treeView({ 1: 'list', 2: 'thumb', 3: 'tile' }[k]); return; }
+    if ((k === 'Backspace' || k === 'Home') && plain && !e.shiftKey) { // 戻る：タイルは一番上の一覧へ、リストは 1 つ上の階層へ
+      e.preventDefault();
+      if (tree.view === 'tile') { const c = treeRowsCache.find((q) => q.id === treeCur); jumpTop(c ? c.parentId : ''); } else if (k === 'Backspace') treeUp();
+      return;
+    }
     if (tree.view === 'tile' && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(k) && !e.metaKey && !e.altKey) {
       e.preventDefault();
       const cols = tileCols(), j = i < 0 ? 0 : i + ({ ArrowLeft: -1, ArrowRight: 1, ArrowUp: -cols, ArrowDown: cols }[k]);
       move(j); return;
     }
-    if ((k === 'n' || k === 'N') && e.shiftKey && (e.metaKey || e.ctrlKey)) { e.preventDefault(); treeNewFolder(); return; }
-    if (k === 'ArrowUp' && e.metaKey) { e.preventDefault(); treeUp(); return; }
-    if (((k === 'ArrowDown' && e.metaKey) || ((k === 'o' || k === 'O') && (e.metaKey || e.ctrlKey))) && cur) { e.preventDefault(); if (isVideoRow(cur)) playFile(cur.id); else if (cur.kind === 'folder') setBase(cur.id); else showQL(); return; }
-    if (k === 'ArrowDown') { e.preventDefault(); move(i < 0 ? 0 : (e.metaKey ? rows.length - 1 : i + 1)); }
-    else if (k === 'ArrowUp') { e.preventDefault(); move(i < 0 ? 0 : (e.metaKey ? 0 : i - 1)); }
+    const isN = e.code === 'KeyN' || k === 'n' || k === 'N';
+    if (isN && e.altKey && (IS_MAC ? e.metaKey : !e.ctrlKey)) { e.preventDefault(); treeNewFolder(); return; } // 新規フォルダ：⌥⌘N／Alt+N
+    if (k === 'ArrowUp' && (IS_MAC ? e.metaKey : (e.altKey && !e.ctrlKey))) { e.preventDefault(); treeUp(); return; } // 1 つ上へ：⌘↑／Alt+↑
+    const openKey = IS_MAC ? ((k === 'ArrowDown' && e.metaKey) || ((k === 'o' || k === 'O') && e.metaKey)) : (k === 'Enter' && plain && !e.shiftKey);
+    if (openKey && cur) { e.preventDefault(); closeQL(); if (isVideoRow(cur)) playFile(cur.id); else if (cur.kind === 'folder') setBase(cur.id); else showQL(); return; } // 開く：⌘↓／Enter
+    const renameKey = IS_MAC ? (k === 'Enter' && plain) : (k === 'F2');
+    if (renameKey && cur) { e.preventDefault(); closeQL(); renaming = cur.id; renderTree(); return; } // 名前の変更：Enter（mac）／F2
+    const trashKey = IS_MAC ? ((k === 'Backspace' && e.metaKey) || k === 'Delete') : (k === 'Delete' && !e.ctrlKey && !e.altKey);
+    if (trashKey && treeSel.size) { e.preventDefault(); closeQL(); treeTrash(); return; } // ゴミ箱：⌘⌫／Delete
+    if (k === 'ArrowDown') { e.preventDefault(); move(i < 0 ? 0 : i + 1); }
+    else if (k === 'ArrowUp') { e.preventDefault(); move(i < 0 ? 0 : i - 1); }
+    else if (k === 'End') { e.preventDefault(); move(rows.length - 1); }
     else if (k === 'ArrowRight' && cur) { e.preventDefault(); if (cur.kind === 'folder') { if (!cur.open || e.altKey) { treeToggle(cur.id, true, e.altKey); renderTree(); } else move(i + 1); } }
     else if (k === 'ArrowLeft' && cur) {
       e.preventDefault();
@@ -1965,10 +1990,8 @@
     }
     else if (k === ' ' && cur) { e.preventDefault(); if (qlOpen) closeQL(); else showQL(); }
     else if (k === 'Escape') { if (qlOpen) { e.preventDefault(); closeQL(); } }
-    else if (k === 'Enter' && cur) { e.preventDefault(); closeQL(); renaming = cur.id; renderTree(); }
-    else if ((k === 'Backspace' || k === 'Delete') && (e.metaKey || k === 'Delete') && treeSel.size) { e.preventDefault(); closeQL(); treeTrash(); }
-    else if ((k === 'a' || k === 'A') && (e.metaKey || e.ctrlKey)) { e.preventDefault(); rows.forEach((r) => treeSel.add(r.id)); renderTree(); }
-    else if ((k === 'c' || k === 'C') && (e.metaKey || e.ctrlKey) && cur) { e.preventDefault(); copyPath(cur); }
+    else if ((k === 'a' || k === 'A') && modKey(e)) { e.preventDefault(); rows.forEach((r) => treeSel.add(r.id)); renderTree(); }
+    else if ((k === 'c' || k === 'C') && modKey(e) && cur && !String(window.getSelection ? window.getSelection() : '').trim()) { e.preventDefault(); copyPath(cur); }
   });
   root.addEventListener('focusout', (e) => { if (e.target.classList && e.target.classList.contains('tr-ren') && renaming) treeCommitRename(renaming, e.target.value); });
   function treeUp() {
@@ -1987,7 +2010,7 @@
     if (!sec) return;
     main.scrollTo({ top: main.scrollTop + sec.getBoundingClientRect().top - main.getBoundingClientRect().top - 30, behavior: 'smooth' });
     flash(sec.querySelector('.tl-h'));
-    status(`「${(folderById(id) || {}).name}」の中身を表示しています（見出しの「⤒ 一覧へ戻る」か ⌫（delete）キーで一番上へ戻れます）`);
+    status(`「${(folderById(id) || {}).name}」の中身を表示しています（見出しの「⤒ 一覧へ戻る」か ${KEY.back} キーで一番上へ戻れます）`);
   }
   function jumpTop(fromId) {
     const main = $('[data-r=main]');
@@ -2001,6 +2024,8 @@
     }
   }
   // マウスの「戻る」ボタン（サイドボタン）でも一番上の一覧へ戻る
+  root.addEventListener('mousedown', (e) => { if (e.button === 3 && view === 'tree' && tree.view === 'tile') e.preventDefault(); });
+  root.addEventListener('auxclick', (e) => { if (e.button === 3 && view === 'tree' && tree.view === 'tile') e.preventDefault(); });
   root.addEventListener('mouseup', (e) => {
     if (e.button !== 3 || view !== 'tree' || tree.view !== 'tile' || busy) return;
     e.preventDefault(); const c = treeRowsCache.find((q) => q.id === treeCur); jumpTop(c ? c.parentId : '');
@@ -2101,7 +2126,7 @@
     fab.innerHTML = `<button class="flow" data-fab="flow"><span class="n" style="background:#ffffff33">▶</span><span class="t">おまかせ整理<br><span style="font-weight:400;font-size:11px;opacity:.85">1〜7の流れで順番に進める</span></span></button>
       <div class="hd">作業を選んで開く</div>
       ${STEPS.map((s, i) => `<button data-fab="${s.v}"${busy ? ' disabled' : ''}><span class="n">${i + 1}</span><span class="t">${esc(s.t)}</span>${badge(s.v)}</button>`).join('')}
-      <hr><button data-fab="tree"${busy ? ' disabled' : ''}><span class="n">🗂</span><span class="t">フォルダ一覧（Finder 表示）</span>${meta ? `<span class="b">${folders.length} フォルダ</span>` : '<span class="b">読み込んでから</span>'}</button>
+      <hr><button data-fab="tree"${busy ? ' disabled' : ''}><span class="n">🗂</span><span class="t">フォルダ一覧</span>${meta ? `<span class="b">${folders.length} フォルダ</span>` : '<span class="b">読み込んでから</span>'}</button>
       <button data-fab="log"><span class="n">≡</span><span class="t">ログ</span>${errs ? `<span class="b todo">エラー ${errs}</span>` : ''}</button>
       <div class="hd" style="text-align:right;padding:2px 10px 4px">PikPak Distill v${VER}</div>`;
   }

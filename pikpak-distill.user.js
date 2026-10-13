@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.9.0
+// @version      3.9.1
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMzMDZmZmYiLz48cmVjdCB4PSIxMiIgeT0iMTYiIHdpZHRoPSIyNCIgaGVpZ2h0PSIzMiIgcng9IjQiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii41NSIvPjxyZWN0IHg9IjI2IiB5PSIxMiIgd2lkdGg9IjI2IiBoZWlnaHQ9IjM0IiByeD0iNCIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik0zMiAyNGgxNE0zMiAzMGgxNE0zMiAzNmg5IiBzdHJva2U9IiMzMDZmZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGNpcmNsZSBjeD0iNDQiIGN5PSI0NiIgcj0iOSIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJNNDAgNDZsMyAzIDUtNiIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -32,7 +32,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.9.0'; // @version と合わせて更新する
+  const VER = '3.9.1'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -652,6 +652,24 @@
   .tr .ic{width:18px;height:16px;flex:none;display:flex;align-items:center;justify-content:center}
   .tr .ic svg{width:18px;height:16px}
   .tr .nm{overflow:hidden;text-overflow:ellipsis}
+  .seg{display:inline-flex}
+  #ppdup .seg button{border-radius:0;margin-left:-1px}
+  #ppdup .seg button:first-child{border-radius:8px 0 0 8px;margin-left:0}
+  #ppdup .seg button:last-child{border-radius:0 8px 8px 0}
+  #ppdup .seg button.on{background:var(--pri);border-color:var(--pri);color:#fff}
+  .tr.big .tr-row{height:76px}
+  .tr.big .tr-h span:first-child{padding-left:34px}
+  .tr .th{position:relative;width:112px;height:63px;flex:none;border-radius:6px;overflow:hidden;background:#d8dbe2;display:flex;align-items:center;justify-content:center;margin-right:6px;box-shadow:0 0 0 1px #0000001a}
+  .tr .th img{width:100%;height:100%;object-fit:cover;display:block}
+  .tr .th .ph svg{width:34px;height:30px}
+  .tr .th .badge{position:absolute;right:3px;bottom:3px;width:22px;height:18px;border-radius:4px;background:#000a;display:flex;align-items:center;justify-content:center}
+  .tr .th .badge svg{width:16px;height:13px}
+  .tr .th.dir{background:#cfe4fb}
+  .tr .tx{display:flex;flex-direction:column;gap:4px;min-width:0}
+  .tr .tx .nm{font-size:13px}
+  .tr .tx .sub{font-size:11px;color:var(--mute)}
+  .tr:focus .tr-row.sel .tx .sub{color:#ffffffcc}
+  @media (prefers-color-scheme:dark){.tr .th{background:#3a3f4b}.tr .th.dir{background:#2a3a4f}}
   .tr .jk{flex:none;font-size:10px;line-height:14px;padding:0 5px;border-radius:7px;background:#ff6b6b;color:#fff;margin-left:4px}
   .tr-ren{font:inherit;padding:1px 4px !important;border:2px solid #4b8df8 !important;border-radius:3px !important;flex:1;min-width:120px;cursor:text !important}
   @media (prefers-color-scheme:dark){.tr-row.sel{background:#3a3f4b}}
@@ -1232,10 +1250,10 @@
   // 読み込んだ結果をツリーで表示する。▶ で開閉、矢印キーで移動、スペースでプレビュー、
   // Enter で名前の変更、⌘⌫ でゴミ箱へ。⌘/Shift クリックで複数選択。
   const LS_TREE = 'ppdup:tree:v1';
-  let tree = { open: [], sort: 'name', dir: 1, q: '' };
+  let tree = { open: [], sort: 'name', dir: 1, q: '', thumb: false };
   try { tree = { ...tree, ...JSON.parse(localStorage.getItem(LS_TREE) || '{}') }; } catch (e) { /* 無視 */ }
   const treeOpen = new Set(tree.open || []);
-  const saveTree = () => { try { localStorage.setItem(LS_TREE, JSON.stringify({ open: [...treeOpen].slice(-2000), sort: tree.sort, dir: tree.dir })); } catch (e) { /* 無視 */ } };
+  const saveTree = () => { try { localStorage.setItem(LS_TREE, JSON.stringify({ open: [...treeOpen].slice(-2000), sort: tree.sort, dir: tree.dir, thumb: !!tree.thumb })); } catch (e) { /* 無視 */ } };
   const treeSel = new Set();
   let treeCur = '', treeAnchor = '', treeRowsCache = [], treeIdx = null, qlOpen = false, renaming = '';
   const VIDEO_EXT = new Set(['mp4', 'mkv', 'avi', 'mov', 'wmv', 'flv', 'ts', 'm4v', 'webm', 'rmvb', 'mpg', 'mpeg']);
@@ -1264,7 +1282,18 @@
     const rootId = rootF ? rootF.id : (folders[0] ? folders[0].parentId : 'root');
     sum(rootId, new Set());
     const byId = new Map(); folders.forEach((d) => byId.set(d.id, d));
-    return { kd, kf, agg, rootId, rootName: rootF ? rootF.name : 'ホーム', byId };
+    // フォルダのサムネイル＝中で一番大きい（＝本編の可能性が高い）ファイルのサムネイル
+    const thumbOf = new Map();
+    const pick = (id, seen) => {
+      if (thumbOf.has(id)) return thumbOf.get(id);
+      if (seen.has(id)) return null; seen.add(id);
+      let best = null;
+      (kf.get(id) || []).forEach((f) => { if (f.thumb && (!best || f.size > best.size)) best = f; });
+      (kd.get(id) || []).forEach((d) => { const b = pick(d.id, seen); if (b && (!best || b.size > best.size)) best = b; });
+      thumbOf.set(id, best); return best;
+    };
+    folders.forEach((d) => pick(d.id, new Set()));
+    return { kd, kf, agg, thumbOf, rootId, rootName: rootF ? rootF.name : 'ホーム', byId };
   }
   // 表示する行（開いているフォルダの中だけ）。絞り込み中は、一致したものとその上のフォルダを開いて表示
   function treeRows() {
@@ -1300,14 +1329,21 @@
   }
   function renderTreeToolbar() {
     const arrow = (k) => (tree.sort === k ? (tree.dir > 0 ? ' ▲' : ' ▼') : '');
-    $('[data-r=tb]').innerHTML = `<div class="head"><b>フォルダツリー</b><span class="note">Finder と同じ操作：▶ / ← → で開閉（⌥ で中もすべて）・↑↓ で移動・スペースでプレビュー・Enter で名前の変更・⌘⌫ でゴミ箱へ・⌘C で場所をコピー</span></div><span class="sp"></span>
+    $('[data-r=tb]').innerHTML = `<div class="head"><b>フォルダツリー</b><span class="note">Finder と同じ操作：▶ / ← → で開閉（⌥ で中もすべて・⌥⌘ ← → で全格納／全展開）・↑↓ で移動・スペースでプレビュー・Enter で名前の変更・⌘⌫ でゴミ箱へ・⌘C で場所をコピー</span></div><span class="sp"></span>
       <span class="note">読み込み：${meta ? esc(new Date(meta.at).toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })) : '未'}</span>
       <input type="text" data-a="tq" placeholder="🔍 名前で絞り込み" size="18" value="${esc(tree.q || '')}">
-      <button data-a="texpand" title="すべてのフォルダを開く">すべて開く</button><button data-a="tcollapse" title="すべてのフォルダを閉じる">すべて閉じる</button>
+      <span class="seg"><button data-a="texpand" title="すべてのフォルダを開く（⌥⌘→）">⊞ 全展開</button><button data-a="tcollapse" title="すべてのフォルダを閉じる（⌥⌘←）">⊟ 全格納</button></span>
+      <span class="seg"><button data-a="tlist" class="${tree.thumb ? '' : 'on'}" title="リスト表示（⌘1）">☰ リスト</button><button data-a="tthumb" class="${tree.thumb ? 'on' : ''}" title="サムネイル付き表示（⌘2）">▦ サムネイル</button></span>
       <button data-a="rescan" title="最新の状態を読み込み直します">再読み込み</button>${mode === 'single' ? '<button data-a="toflow">流れで表示</button>' : ''}`;
     treeHeadHtml = `<div class="tr-h"><span class="c-name" data-tsort="name">名前${arrow('name')}</span><span class="c-size" data-tsort="size">サイズ${arrow('size')}</span><span class="c-kind" data-tsort="kind">種類${arrow('kind')}</span><span class="c-n">項目</span></div>`;
   }
   let treeHeadHtml = '';
+  // サムネイル付き表示：ファイルは自分の、フォルダは中の一番大きいファイルのサムネイル（右下にフォルダの印）
+  function thumbHtml(r) {
+    const f = r.kind === 'folder' ? treeIdx.thumbOf.get(r.id) : r.f;
+    const img = f && f.thumb ? `<img loading="lazy" referrerpolicy="no-referrer" src="${esc(f.thumb)}" alt="">` : `<span class="ph">${r.kind === 'folder' ? ICON_DIR : ICON_FILE(r)}</span>`;
+    return `<span class="th${r.kind === 'folder' ? ' dir' : ''}">${img}${r.kind === 'folder' && f && f.thumb ? `<span class="badge">${ICON_DIR}</span>` : ''}</span>`;
+  }
   function renderTree() {
     if (!treeHeadHtml) renderTreeToolbar();
     const rows = treeRowsCache = treeRows();
@@ -1319,11 +1355,11 @@
       const jr = r.kind === 'file' ? junk(r.f) : '';
       const name = renaming === r.id ? `<input class="tr-ren" data-tren="${esc(r.id)}" value="${esc(r.name)}">` : `<span class="nm">${esc(r.name)}</span>`;
       return `<div class="tr-row${i % 2 ? ' odd' : ''}${treeSel.has(r.id) ? ' sel' : ''}${treeCur === r.id ? ' cur' : ''}" data-tid="${esc(r.id)}" title="${esc(r.path || '')}">
-        <span class="c-name" style="padding-left:${8 + r.depth * 18}px">${r.kind === 'folder' ? `<span class="tw${r.open ? ' open' : ''}" data-ttw="${esc(r.id)}">▶</span>` : '<span class="tw blank"></span>'}<span class="ic">${r.kind === 'folder' ? ICON_DIR : ICON_FILE(r)}</span>${name}${jr ? `<span class="jk" title="${esc(jr)}">不要</span>` : ''}</span>
+        <span class="c-name" style="padding-left:${8 + r.depth * 18}px">${r.kind === 'folder' ? `<span class="tw${r.open ? ' open' : ''}" data-ttw="${esc(r.id)}">▶</span>` : '<span class="tw blank"></span>'}${tree.thumb ? thumbHtml(r) : `<span class="ic">${r.kind === 'folder' ? ICON_DIR : ICON_FILE(r)}</span>`}${tree.thumb ? `<span class="tx">${name}<span class="sub">${esc(r.kind === 'folder' ? r.n + ' 項目・' + (r.nf ? fmt(r.size) : '空') : kindOf(r) + '・' + fmt(r.size))}</span></span>` : name}${jr ? `<span class="jk" title="${esc(jr)}">不要</span>` : ''}</span>
         <span class="c-size">${r.kind === 'folder' ? (r.nf ? fmt(r.size) : '--') : fmt(r.size)}</span><span class="c-kind">${esc(kindOf(r))}</span><span class="c-n">${r.kind === 'folder' ? r.n + ' 項目' : ''}</span></div>`;
     };
     const top = ix.agg.get(ix.rootId) || { n: 0, size: 0, files: 0 };
-    $('[data-r=main]').innerHTML = `<div class="tr" tabindex="0" data-r="tree">${treeHeadHtml}<div class="tr-body">${rows.map(rowHtml).join('') || '<div class="empty">' + (tree.q ? '一致するものはありません' : '読み込んだフォルダは空です') + '</div>'}</div></div>`;
+    $('[data-r=main]').innerHTML = `<div class="tr${tree.thumb ? ' big' : ''}" tabindex="0" data-r="tree">${treeHeadHtml}<div class="tr-body">${rows.map(rowHtml).join('') || '<div class="empty">' + (tree.q ? '一致するものはありません' : '読み込んだフォルダは空です') + '</div>'}</div></div>`;
     const selN = treeSel.size, selSize = [...treeSel].reduce((a, id) => { const r = rows.find((x) => x.id === id); return a + (r ? r.size : 0); }, 0);
     if (!busy) status(`${esc(ix.rootName)}：${top.n} 項目・ファイル ${top.files} 件・${fmt(top.size)}${selN ? `　｜　${selN} 項目を選択（${fmt(selSize)}）` : ''}`);
     const ren = $('.tr-ren'); if (ren) { ren.focus(); const dot = ren.value.lastIndexOf('.'); ren.setSelectionRange(0, dot > 0 && treeRowsCache.find((x) => x.id === renaming).kind === 'file' ? dot : ren.value.length); }
@@ -1449,6 +1485,8 @@
     const cur = rows[i];
     const move = (j) => { j = Math.max(0, Math.min(rows.length - 1, j)); treeSelect(rows[j].id, e.shiftKey ? { shiftKey: true } : null); renderTree(); if (qlOpen) showQL(); };
     const k = e.key;
+    if ((k === 'ArrowRight' || k === 'ArrowLeft') && e.altKey && (e.metaKey || e.ctrlKey)) { e.preventDefault(); treeAll(k === 'ArrowRight'); return; }
+    if ((k === '1' || k === '2') && (e.metaKey || e.ctrlKey)) { e.preventDefault(); treeThumb(k === '2'); return; }
     if (k === 'ArrowDown') { e.preventDefault(); move(i < 0 ? 0 : (e.metaKey ? rows.length - 1 : i + 1)); }
     else if (k === 'ArrowUp') { e.preventDefault(); move(i < 0 ? 0 : (e.metaKey ? 0 : i - 1)); }
     else if (k === 'ArrowRight' && cur) { e.preventDefault(); if (cur.kind === 'folder') { if (!cur.open || e.altKey) { treeToggle(cur.id, true, e.altKey); renderTree(); } else move(i + 1); } }
@@ -1465,6 +1503,11 @@
     else if ((k === 'c' || k === 'C') && (e.metaKey || e.ctrlKey) && cur) { e.preventDefault(); const p = (cur.kind === 'folder' ? cur.path : (cur.path.replace(/\/$/, '') + '/' + cur.name)).replace(/^\/?/, '/'); try { navigator.clipboard.writeText(p); } catch (err) { /* 無視 */ } status('場所をコピーしました：' + p); }
   });
   root.addEventListener('focusout', (e) => { if (e.target.classList && e.target.classList.contains('tr-ren') && renaming) treeCommitRename(renaming, e.target.value); });
+  function treeAll(open) {
+    if (open) folders.forEach((d) => { if (!d.isRoot) treeOpen.add(d.id); }); else treeOpen.clear();
+    saveTree(); renderTree(); status(open ? 'すべてのフォルダを開きました' : 'すべてのフォルダを閉じました');
+  }
+  function treeThumb(on) { tree.thumb = on; saveTree(); renderTreeToolbar(); renderTree(); }
   function openTree() {
     if (busy) return;
     closeQL(); treeHeadHtml = '';
@@ -1490,7 +1533,8 @@
     if (a === 'close') { root.classList.remove('on'); return; }
     if (a === 'log') { showLog(); return; }
     if (a === 'tree') { if (!busy) openTree(); return; }
-    if (a === 'texpand' || a === 'tcollapse') { if (busy) return; if (a === 'tcollapse') treeOpen.clear(); else folders.forEach((d) => { if (!d.isRoot) treeOpen.add(d.id); }); saveTree(); renderTree(); return; }
+    if (a === 'texpand' || a === 'tcollapse') { if (!busy) treeAll(a === 'texpand'); return; }
+    if (a === 'tlist' || a === 'tthumb') { if (!busy) treeThumb(a === 'tthumb'); return; }
     if (a === 'toflow') { if (!busy) openFlow(); return; }
     if (a === 'rescan') { if (!busy) { afterScan = view; runScan(); } return; }
     if (a === 'stop') { window.__ppdupStop = true; status('中断しています…（いまの処理が終わったら止まります）'); return; }

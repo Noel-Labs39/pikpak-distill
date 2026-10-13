@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.14.0
+// @version      3.14.1
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMzMDZmZmYiLz48cmVjdCB4PSIxMiIgeT0iMTYiIHdpZHRoPSIyNCIgaGVpZ2h0PSIzMiIgcng9IjQiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii41NSIvPjxyZWN0IHg9IjI2IiB5PSIxMiIgd2lkdGg9IjI2IiBoZWlnaHQ9IjM0IiByeD0iNCIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik0zMiAyNGgxNE0zMiAzMGgxNE0zMiAzNmg5IiBzdHJva2U9IiMzMDZmZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGNpcmNsZSBjeD0iNDQiIGN5PSI0NiIgcj0iOSIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJNNDAgNDZsMyAzIDUtNiIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -33,7 +33,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.14.0'; // @version と合わせて更新する
+  const VER = '3.14.1'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -798,6 +798,13 @@
   .tr:focus .tr-row.tile.sel .sub{color:#ffffffcc}
   .tr .tr-row.tile.drop{outline:2px solid #4b8df8}
   @media (prefers-color-scheme:dark){.tr .tr-row.tile.sel{background:#3a3f4b}}
+  #pd-hover{position:fixed;z-index:100002;width:340px;background:var(--hv-bg,#fff);color:#1c1f26;border-radius:10px;box-shadow:0 10px 32px #0005;padding:8px;pointer-events:none;font:12px/1.4 system-ui,"Segoe UI","Hiragino Sans","Yu Gothic UI","Meiryo","Noto Sans CJK JP",sans-serif;animation:pdhv .12s ease-out}
+  @keyframes pdhv{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  #pd-hover img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:6px;display:block;background:#d8dbe2}
+  #pd-hover .hv-n{display:flex;gap:6px;align-items:center;margin-top:6px;font-weight:600;word-break:break-all}
+  #pd-hover .hv-n svg{width:16px;height:14px;flex:none}
+  #pd-hover .hv-s{color:#6a7080;margin-top:2px;word-break:break-all}
+  @media (prefers-color-scheme:dark){#pd-hover{background:#252932;color:#e6e8ee}#pd-hover .hv-s{color:#8b91a1}}
   .tacts{display:flex;gap:6px;flex-wrap:wrap;width:100%;padding-top:4px;border-top:1px dashed var(--line);margin-top:2px}
   .tr-row.drop{outline:2px solid #4b8df8;outline-offset:-2px;background:#4b8df833 !important}
   #pd-drag{position:fixed;z-index:100005;pointer-events:none;background:#306fff;color:#fff;font:600 12px system-ui,sans-serif;padding:4px 10px;border-radius:6px;box-shadow:0 4px 14px #0005;max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -1105,7 +1112,7 @@
     if (v === 'name') nplan = buildNamePlan(workFiles(), folders);
     if (v === 'ren') rplan = buildRenamePlan(workFiles(), folders);
     if (v === 'sort') splan = buildSortPlan(workFiles(), folders);
-    if (v !== 'tree') { closeQL(); closeCtx(); closePlayer(); }
+    if (v !== 'tree') { closeQL(); closeCtx(); closePlayer(); hideHover(); }
     root.classList.toggle('treev', v === 'tree'); // フォルダ一覧ではステップの表示を隠す
     renderToolbar(); render(); renderNav();
     $('[data-r=main]').scrollTop = 0;
@@ -1431,7 +1438,7 @@
   try { tree = { ...tree, ...JSON.parse(localStorage.getItem(LS_TREE) || '{}') }; } catch (e) { /* 無視 */ }
   if (!tree.view) tree.view = tree.thumb ? 'thumb' : 'list'; // 表示：list（リスト）／thumb（サムネイル付きリスト）／tile（タイル）
   const treeOpen = new Set(tree.open || []);
-  const saveTree = () => { try { localStorage.setItem(LS_TREE, JSON.stringify({ open: [...treeOpen].slice(-2000), sort: tree.sort, dir: tree.dir, base: tree.base || '', view: tree.view })); } catch (e) { /* 無視 */ } };
+  const saveTree = () => { try { localStorage.setItem(LS_TREE, JSON.stringify({ open: [...treeOpen].slice(-2000), sort: tree.sort, dir: tree.dir, base: tree.base || '', view: tree.view, hover: tree.hover !== false })); } catch (e) { /* 無視 */ } };
   const treeSel = new Set();
   let treeCur = '', treeAnchor = '', treeRowsCache = [], treeIdx = null, qlOpen = false, renaming = '';
   const VIDEO_EXT = new Set(['mp4', 'mkv', 'avi', 'mov', 'wmv', 'flv', 'ts', 'm4v', 'webm', 'rmvb', 'mpg', 'mpeg']);
@@ -1522,6 +1529,7 @@
       <input type="text" data-a="tq" placeholder="🔍 名前で絞り込み" size="18" value="${esc(tree.q || '')}">
       <span class="seg"><button data-a="texpand" title="すべてのフォルダを開く（${KEY.expand}）">⊞ 全展開</button><button data-a="tcollapse" title="すべてのフォルダを閉じる（${KEY.collapse}）">⊟ 全格納</button></span>
       <span class="seg"><button data-a="tview" data-v="list" class="${tree.view === 'list' ? 'on' : ''}" title="リスト表示（1 キー）">☰ リスト</button><button data-a="tview" data-v="thumb" class="${tree.view === 'thumb' ? 'on' : ''}" title="サムネイル付きのリスト（2 キー）">▤ サムネイル</button><button data-a="tview" data-v="tile" class="${tree.view === 'tile' ? 'on' : ''}" title="タイル表示。フォルダごとに見出しを付けて並べます（3 キー）">▦ タイル</button></span>
+      <label class="optsw" title="マウスを乗せたときにサムネイルを大きく表示します"><input type="checkbox" data-a="thover"${tree.hover !== false ? ' checked' : ''}> ホバーでサムネイル</label>
       <button data-a="rescan" title="最新の状態を読み込み直します">再読み込み</button>${mode === 'single' ? '<button data-a="toflow">流れで表示</button>' : ''}
       <span class="tacts" data-r="tacts"></span>`;
     treeHeadHtml = `<div class="tr-h"><span class="c-name" data-tsort="name">名前${arrow('name')}</span><span class="c-size" data-tsort="size">サイズ${arrow('size')}</span><span class="c-kind" data-tsort="kind">種類${arrow('kind')}</span><span class="c-n">項目</span></div>`;
@@ -2082,6 +2090,35 @@
     else if ((e.key === 'ArrowUp' && modKey(e)) || e.key === 'PageUp') { e.preventDefault(); d.querySelector('[data-pl=prev]').click(); }
   }, true);
 
+  // ホバーでサムネイルを大きく表示（Enhancement Master と同じく、リスト・サムネイル・タイルのどれでも）
+  let hovT = null, hovId = '';
+  function hideHover() { clearTimeout(hovT); hovT = null; hovId = ''; const h = document.getElementById('pd-hover'); if (h) h.remove(); }
+  function showHover(id, x, y) {
+    const r = treeRowsCache.find((q) => q.id === id); if (!r) return;
+    const f = r.kind === 'folder' ? treeIdx.thumbOf.get(r.id) : r.f;
+    if (!f || !f.thumb) return;
+    let h = document.getElementById('pd-hover');
+    if (!h) { h = document.createElement('div'); h.id = 'pd-hover'; document.body.appendChild(h); }
+    h.innerHTML = `<img src="${esc(f.thumb)}" referrerpolicy="no-referrer" alt=""><div class="hv-n">${r.kind === 'folder' ? ICON_DIR : ''}<span>${esc(r.name)}</span></div><div class="hv-s">${esc(r.kind === 'folder' ? `${r.n} 項目・${fmt(r.size)}（中で一番大きいファイル：${f.name}）` : `${kindOf(r)}・${fmt(r.size)}`)}</div>`;
+    const W = 340, H = 250;
+    const left = x + 18 + W > innerWidth ? Math.max(8, x - W - 18) : x + 18;
+    const top = Math.min(Math.max(8, y + 14), innerHeight - H - 8);
+    h.style.left = left + 'px'; h.style.top = top + 'px';
+  }
+  root.addEventListener('mousemove', (e) => {
+    if (view !== 'tree' || tree.hover === false || drag || renaming || qlOpen || document.getElementById('pd-ctx') || document.getElementById('pd-player') || document.getElementById('pd-dlg')) { if (hovId) hideHover(); return; }
+    const row = e.target.closest('.tr-row');
+    const id = row ? row.dataset.tid : '';
+    if (!id) { if (hovId || hovT) hideHover(); return; }
+    if (id === hovId) { const h = document.getElementById('pd-hover'); if (h) showHover(id, e.clientX, e.clientY); return; }
+    hideHover(); hovId = id;
+    const x = e.clientX, y = e.clientY;
+    hovT = setTimeout(() => { if (hovId === id) showHover(id, x, y); }, 350);
+  });
+  root.addEventListener('mouseleave', hideHover);
+  root.addEventListener('mousedown', hideHover, true);
+  root.addEventListener('wheel', hideHover, { passive: true });
+  document.addEventListener('keydown', () => { if (hovId) hideHover(); }, true);
   // マウス操作
   root.addEventListener('mousedown', (e) => {
     if (view !== 'tree' || busy) return;
@@ -2272,6 +2309,7 @@
   root.addEventListener('change', (e) => {
     const id = e.target.dataset && e.target.dataset.chk;
     if (id) { decision[id] = e.target.checked ? 'del' : 'keep'; saveDecision(); const row = e.target.closest('.pd-row'); if (row) { row.classList.toggle('del', e.target.checked); row.classList.toggle('keep', !e.target.checked); } const dl = delList(visibleGroups()); status(`チェック（削除する） ${dl.length} 件・${fmt(dl.reduce((a, f) => a + f.size, 0))}`); return; }
+    if (e.target.dataset && e.target.dataset.a === 'thover') { tree.hover = e.target.checked; saveTree(); hideHover(); return; }
     if (e.target.dataset && e.target.dataset.a === 'junkopt') { try { localStorage.setItem(LS_OPT_JUNK, e.target.checked ? '1' : '0'); } catch (err) { /* 無視 */ } log('info', '不要ファイルの除外を' + (e.target.checked ? 'オン' : 'オフ') + 'に変更'); setView(view); return; }
     const jid = e.target.dataset && e.target.dataset.jchk;
     if (jid) { junkSel.set(jid, e.target.checked); const row = e.target.closest('.pd-row'); if (row) row.classList.toggle('del', e.target.checked); renderActs(); return; }

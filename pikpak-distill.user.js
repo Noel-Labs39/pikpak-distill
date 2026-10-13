@@ -7,11 +7,12 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.13.0
+// @version      3.13.1
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMzMDZmZmYiLz48cmVjdCB4PSIxMiIgeT0iMTYiIHdpZHRoPSIyNCIgaGVpZ2h0PSIzMiIgcng9IjQiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii41NSIvPjxyZWN0IHg9IjI2IiB5PSIxMiIgd2lkdGg9IjI2IiBoZWlnaHQ9IjM0IiByeD0iNCIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik0zMiAyNGgxNE0zMiAzMGgxNE0zMiAzNmg5IiBzdHJva2U9IiMzMDZmZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGNpcmNsZSBjeD0iNDQiIGN5PSI0NiIgcj0iOSIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJNNDAgNDZsMyAzIDUtNiIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
 // @grant        none
+// @require      https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js
 // @run-at       document-idle
 // ==/UserScript==
 (function () {
@@ -32,7 +33,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.13.0'; // @version と合わせて更新する
+  const VER = '3.13.1'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -814,7 +815,8 @@
   #pd-player .pl-b{position:relative;background:#000;min-height:300px;display:flex;flex-direction:column;align-items:stretch;justify-content:center}
   #pd-player video{width:100%;max-height:78vh;display:block;background:#000}
   #pd-player .pl-msg{padding:40px;color:#bbb;text-align:center}
-  #pd-player .pl-f{padding:6px 12px;color:#999}
+  #pd-player .pl-f{padding:6px 12px;color:#999;display:flex;gap:4px}
+  #pd-player .pl-err{position:absolute;left:0;right:0;bottom:56px;padding:10px 16px;background:#000c;color:#ffb4b4}
   #pd-dlg{position:fixed;inset:0;z-index:100001;background:#0007;display:flex;align-items:center;justify-content:center}
   #pd-dlg .box{background:#fff;color:#1c1f26;border-radius:12px;padding:24px;width:min(460px,92vw);box-shadow:0 10px 40px #0006}
   #pd-dlg h3{margin:0 0 12px;font-size:17px}
@@ -1843,10 +1845,27 @@
   });
 
   // 再生（PikPak の再生用リンクを取得して、この画面の中で再生する）
+  // HLS（PikPak の変換画質）は Chrome / Edge / Firefox では標準で再生できないため hls.js を使う（Safari は標準で再生可）
+  const LS_PLQ = 'ppdup:player:q:v1'; // 前回選んだ画質の種類（orig＝オリジナル／trans＝変換画質）
+  let curHls = null;
+  const isHlsUrl = (u) => /\.m3u8(\?|#|$)|ts_downloader|[?&](format|type)=(hls|m3u8)\b|\/hls(\/|$)/i.test(String(u || ''));
+  function getHls() {
+    const H = window.Hls || (typeof Hls !== 'undefined' ? Hls : null); // eslint-disable-line no-undef
+    if (H || getHls.loading) return Promise.resolve(H || null);
+    // @require が効かない環境向けに、念のため読み込みを試す
+    getHls.loading = new Promise((res) => {
+      const sc = document.createElement('script'); sc.src = 'https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js';
+      sc.onload = () => res(window.Hls || null); sc.onerror = () => res(null);
+      document.head.appendChild(sc); setTimeout(() => res(window.Hls || null), 8000);
+    });
+    return getHls.loading;
+  }
+  function stopHls() { if (curHls) { try { curHls.destroy(); } catch (e) { /* 無視 */ } curHls = null; } }
   async function playFile(id) {
     const f = files.find((x) => x.id === id); if (!f) return;
     closeQL(); closeCtx();
     if (!ensureSession('tree')) return;
+    stopHls();
     let d = document.getElementById('pd-player');
     if (!d) {
       d = document.createElement('div'); d.id = 'pd-player'; document.body.appendChild(d);
@@ -1854,47 +1873,72 @@
     }
     const vids = treeRowsCache.filter(isVideoRow);
     const i = vids.findIndex((r) => r.id === id);
-    d.innerHTML = `<div class="pl"><div class="pl-h"><button data-pl="prev"${i > 0 ? '' : ' disabled'} title="前のビデオ（${KEY.prev}）">◀</button><button data-pl="next"${i >= 0 && i < vids.length - 1 ? '' : ' disabled'} title="次のビデオ（${KEY.next}）">▶</button><b>${esc(f.name)}</b><select data-pl="q" title="画質" style="display:none"></select><a data-pl="tab" target="_blank" rel="noreferrer" style="display:none">↗ 新しいタブ</a><button data-pl="close" title="閉じる（Esc）">✕</button></div>
-      <div class="pl-b"><div class="pl-msg">再生の準備中…</div></div><div class="pl-f note">${esc((f.path || '/').replace(/\/$/, ''))}/ ・ ${fmt(f.size)}</div></div>`;
+    d.innerHTML = `<div class="pl"><div class="pl-h"><button data-pl="prev"${i > 0 ? '' : ' disabled'} title="前のビデオ（${KEY.prev}）">◀</button><button data-pl="next"${i >= 0 && i < vids.length - 1 ? '' : ' disabled'} title="次のビデオ（${KEY.next}）">▶</button><b>${esc(f.name)}</b><select data-pl="q" title="画質（カクつく場合は変換画質を選んでください）" style="display:none"></select><a data-pl="tab" target="_blank" rel="noreferrer" style="display:none">↗ 新しいタブ</a><button data-pl="close" title="閉じる（Esc）">✕</button></div>
+      <div class="pl-b"><div class="pl-msg">再生の準備中…</div></div><div class="pl-f note"><span>${esc((f.path || '/').replace(/\/$/, ''))}/ ・ ${fmt(f.size)}</span><span data-pl="info"></span></div></div>`;
     const prev = d.querySelector('[data-pl=prev]'), next = d.querySelector('[data-pl=next]');
     prev.onclick = () => { if (i > 0) { treeSelect(vids[i - 1].id, null); renderTree(); playFile(vids[i - 1].id); } };
     next.onclick = () => { if (i < vids.length - 1) { treeSelect(vids[i + 1].id, null); renderTree(); playFile(vids[i + 1].id); } };
     try {
       const info = await api('/files/' + id + '?thumbnail_size=SIZE_LARGE');
+      if (!document.body.contains(d)) return;
       const src = [];
       (Array.isArray(info.medias) ? info.medias : []).forEach((m) => {
         const url = m && m.link && m.link.url; if (!url) return;
         const origin = m.is_origin === true || String(m.is_origin) === 'true';
         const nm = m.media_name || m.resolution_name || '';
-        src.push({ label: origin ? 'オリジナル画質' + (nm && !/orig/i.test(nm) ? `（${nm}）` : '') : (nm || '再生用'), url, origin });
+        const v = m.video || {};
+        const h = parseInt(v.height || m.height || (String(nm).match(/(\d{3,4})\s*p/i) || [])[1] || 0, 10);
+        src.push({ label: origin ? 'オリジナル画質' + (nm && !/orig/i.test(nm) ? `（${nm}）` : '') : (nm || (h ? h + 'P' : '変換画質')), url, origin, h, hls: isHlsUrl(url) });
       });
-      if (info.web_content_link) src.push({ label: '元ファイル（ダウンロード用リンク）', url: info.web_content_link, origin: false });
-      src.sort((a, b) => (b.origin - a.origin));
-      if (!document.body.contains(d) || !src.length) { if (src.length === 0) d.querySelector('.pl-msg').textContent = 'このファイルの再生用リンクを取得できませんでした（PikPak 側で変換中の可能性があります）'; return; }
-      const isHls = (u) => /\.m3u8(\?|$)/i.test(u);
-      const vtest = document.createElement('video');
-      const playable = (u) => !isHls(u) || !!vtest.canPlayType('application/vnd.apple.mpegurl');
-      const sel = d.querySelector('[data-pl=q]'), tab = d.querySelector('[data-pl=tab]');
-      sel.innerHTML = src.map((x, k) => `<option value="${k}">${esc(x.label)}${playable(x.url) ? '' : '（ブラウザで再生不可）'}</option>`).join('');
+      if (info.web_content_link) src.push({ label: '元ファイル（ダウンロード用リンク）', url: info.web_content_link, origin: true, h: 0, dl: true, hls: false });
+      if (!src.length) { d.querySelector('.pl-msg').textContent = 'このファイルの再生用リンクを取得できませんでした（PikPak 側で変換中の可能性があります）'; return; }
+      // 並び：オリジナル → 変換画質（高い順） → 元ファイル
+      src.sort((a, b) => (!!a.dl - !!b.dl) || (!!b.origin - !!a.origin) || (b.h - a.h));
+      const H = await getHls();
+      const nativeHls = !!document.createElement('video').canPlayType('application/vnd.apple.mpegurl');
+      const canHls = nativeHls || !!(H && H.isSupported && H.isSupported());
+      const playable = (x) => !x.hls || canHls;
+      const sel = d.querySelector('[data-pl=q]'), tab = d.querySelector('[data-pl=tab]'), inf = d.querySelector('[data-pl=info]');
+      sel.innerHTML = src.map((x, k) => `<option value="${k}">${esc(x.label)}${x.hls ? '・変換' : ''}${playable(x) ? '' : '（このブラウザでは再生不可）'}</option>`).join('');
       sel.style.display = src.length > 1 ? '' : 'none';
-      const load = (k) => {
-        const x = src[k]; tab.href = x.url; tab.style.display = '';
+      const fail = (x, why) => {
         const box = d.querySelector('.pl-b');
-        if (!playable(x.url)) { box.innerHTML = '<div class="pl-msg">この形式（HLS）はこのブラウザの中では再生できません。「↗ 新しいタブ」か、別の画質を選んでください。</div>'; return; }
+        if (!box.querySelector('.pl-err')) box.insertAdjacentHTML('beforeend', `<div class="pl-msg pl-err">「${esc(x.label)}」は再生できませんでした${why ? `（${esc(why)}）` : ''}。上の画質を切り替えるか「↗ 新しいタブ」を試してください。</div>`);
+        log('warn', `再生できない画質：${x.label}${why ? '（' + why + '）' : ''}`, f.name); updateLogBadge();
+      };
+      const load = (k, retried) => {
+        const x = src[k]; tab.href = x.url; tab.style.display = '';
+        try { localStorage.setItem(LS_PLQ, x.origin ? 'orig' : 'trans'); } catch (e) { /* 無視 */ }
+        const box = d.querySelector('.pl-b');
         const t = (box.querySelector('video') || {}).currentTime || 0;
-        box.innerHTML = `<video controls autoplay playsinline src="${esc(x.url)}"></video>`;
+        stopHls();
+        if (!playable(x)) { box.innerHTML = '<div class="pl-msg">この画質（HLS）はこのブラウザの中では再生できません。別の画質か「↗ 新しいタブ」を選んでください。</div>'; return; }
+        box.innerHTML = '<video controls autoplay playsinline preload="auto"></video>';
         const v = box.querySelector('video');
-        v.addEventListener('loadedmetadata', () => { if (t) v.currentTime = t; }, { once: true });
-        v.addEventListener('error', () => { box.insertAdjacentHTML('beforeend', '<div class="pl-msg">再生できませんでした。別の画質か「↗ 新しいタブ」を試してください。</div>'); });
+        v.addEventListener('loadedmetadata', () => { if (t) v.currentTime = t; inf.textContent = v.videoWidth ? ` ・ ${v.videoWidth}×${v.videoHeight}${x.hls ? '（変換）' : ''}` : ''; }, { once: true });
+        const useHls = x.hls || retried;
+        if (useHls && !nativeHls && H && H.isSupported()) {
+          curHls = new H({ maxBufferLength: 60, enableWorker: true });
+          curHls.on(H.Events.ERROR, (ev, data) => { if (data && data.fatal) { fail(x, data.details || data.type); stopHls(); } });
+          curHls.loadSource(x.url); curHls.attachMedia(v);
+        } else {
+          v.src = x.url;
+          // 拡張子で HLS と判別できなかったリンクは、hls.js でもう一度試す
+          v.addEventListener('error', () => { if (!retried && !x.hls && !x.dl && H && H.isSupported()) load(k, true); else fail(x, v.error && v.error.message); }, { once: true });
+        }
         v.focus();
       };
       sel.onchange = () => load(+sel.value);
-      const first = src.findIndex((x) => playable(x.url));
-      sel.value = String(first >= 0 ? first : 0); load(first >= 0 ? first : 0);
-      log('info', '再生：' + f.name);
+      // 最初の画質：前回選んだ種類（なければ変換画質）を優先。変換画質の方がデータが軽く、カクつきにくい
+      let pref = 'trans'; try { pref = localStorage.getItem(LS_PLQ) || 'trans'; } catch (e) { /* 無視 */ }
+      let first = src.findIndex((x) => !x.dl && playable(x) && (pref === 'orig' ? x.origin : !x.origin));
+      if (first < 0) first = src.findIndex((x) => playable(x));
+      if (first < 0) first = 0;
+      sel.value = String(first); load(first);
+      log('info', '再生：' + f.name + '（' + src[first].label + '）');
     } catch (err) { if (err.session) { closePlayer(); handleErr(err, 'tree'); return; } d.querySelector('.pl-msg').textContent = '再生用リンクを取得できませんでした：' + err.message; log('error', '再生用リンクの取得に失敗：' + err.message, f.name); updateLogBadge(); }
   }
-  function closePlayer() { const d = document.getElementById('pd-player'); if (d) { const v = d.querySelector('video'); try { if (v) { v.pause(); v.removeAttribute('src'); v.load(); } } catch (e) { /* 無視 */ } d.remove(); } const t = $('[data-r=tree]'); if (t) t.focus(); }
+  function closePlayer() { stopHls(); const d = document.getElementById('pd-player'); if (d) { const v = d.querySelector('video'); try { if (v) { v.pause(); v.removeAttribute('src'); v.load(); } } catch (e) { /* 無視 */ } d.remove(); } const t = $('[data-r=tree]'); if (t) t.focus(); }
   document.addEventListener('keydown', (e) => {
     const d = document.getElementById('pd-player'); if (!d) return;
     if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); closePlayer(); }

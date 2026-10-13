@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.9.1
+// @version      3.9.2
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMzMDZmZmYiLz48cmVjdCB4PSIxMiIgeT0iMTYiIHdpZHRoPSIyNCIgaGVpZ2h0PSIzMiIgcng9IjQiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii41NSIvPjxyZWN0IHg9IjI2IiB5PSIxMiIgd2lkdGg9IjI2IiBoZWlnaHQ9IjM0IiByeD0iNCIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik0zMiAyNGgxNE0zMiAzMGgxNE0zMiAzNmg5IiBzdHJva2U9IiMzMDZmZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGNpcmNsZSBjeD0iNDQiIGN5PSI0NiIgcj0iOSIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJNNDAgNDZsMyAzIDUtNiIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -32,7 +32,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.9.1'; // @version と合わせて更新する
+  const VER = '3.9.2'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -545,11 +545,21 @@
   #ppdup-fab .b.todo{color:#8fb0ff;font-weight:700}
   #ppdup-fab .b.ok{color:#3fb96f}
   #ppdup-fab hr{border:0;border-top:1px solid #2c303a;margin:6px 4px}
-  #ppdup.single nav{display:none}
+  #ppdup.single nav,#ppdup.treev nav{display:none}
   #ppdup{--bg:#f5f6f8;--panel:#fff;--panel2:#eef0f4;--line:#dde0e6;--fg:#1c1f26;--mute:#6a7080;--pri:#306fff;--pri-soft:#306fff1f;--ok:#1f9d55;--danger:#d64545;--keep:#f0faf2;--del:#fff5f5;--ctl:#fff;--ctl-line:#c5c9d2;
     position:fixed;inset:0;z-index:99999;background:var(--bg);color:var(--fg);font:13px/1.5 system-ui,"Hiragino Sans","Yu Gothic",sans-serif;display:none;flex-direction:column}
   @media (prefers-color-scheme:dark){#ppdup{--bg:#15171c;--panel:#1d2027;--panel2:#252932;--line:#2c303a;--fg:#e6e8ee;--mute:#8b91a1;--pri-soft:#306fff33;--keep:#17261c;--del:#2a1a1a;--ctl:#252932;--ctl-line:#3a3f4b}}
   #ppdup.on{display:flex}
+  #ppdup{padding-left:78px}
+  #ppdup .rail{position:absolute;left:0;top:0;bottom:0;width:78px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 0 10px;background:var(--panel2);border-right:1px solid var(--line);z-index:2}
+  #ppdup .rail button{position:relative;width:64px;line-height:1.2;text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 7px;border:0;border-radius:10px;background:none;color:var(--mute);font-size:11px;font-weight:600}
+  #ppdup .rail button:hover:not(:disabled){background:var(--panel);color:var(--fg)}
+  #ppdup .rail button.on{background:var(--pri-soft);color:var(--pri)}
+  #ppdup .rail svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  #ppdup .rail .sp{flex:1}
+  #ppdup .rail .rv{font:600 10px ui-monospace,Menlo,monospace;color:var(--mute)}
+  #ppdup .rail [data-r=logbadge]:empty{display:none}
+  #ppdup .rail [data-r=logbadge]{position:absolute;top:4px;right:10px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--danger);color:#fff;font:700 10px/16px system-ui,sans-serif;font-style:normal}
   #ppdup header{padding:12px 18px 0;background:var(--panel);border-bottom:1px solid var(--line)}
   #ppdup .brand{display:flex;align-items:center;gap:12px}
   #ppdup .brand svg{width:44px;height:44px;flex:none}
@@ -626,10 +636,9 @@
   .pd-act{flex:none}
   .pd-chk{flex:none;display:flex;align-items:center;justify-content:center;width:34px;align-self:stretch;cursor:pointer}
   .pd-chk input{width:20px;height:20px;cursor:pointer;accent-color:var(--danger)}
-  #ppdup [data-r=logbadge]:not(:empty){margin-left:6px;padding:0 6px;border-radius:999px;background:var(--danger);color:#fff;font-size:11px;font-weight:700}
   #pd-dlg .logs{max-height:55vh;overflow:auto;font:12px/1.5 ui-monospace,Menlo,monospace;border:1px solid #c5c9d288;border-radius:8px;padding:8px;margin:10px 0;white-space:pre-wrap;word-break:break-all}
   #pd-dlg .logs .error{color:#d93025}#pd-dlg .logs .warn{color:#b26a00}
-  /* フォルダツリー（Finder のリスト表示風） */
+  /* フォルダ一覧（Finder のリスト表示風） */
   #ppdup main:has(.tr){padding:0}
   .tr{outline:none;font:13px/1 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;min-height:100%;background:var(--panel);user-select:none}
   .tr-h,.tr-row{display:grid;grid-template-columns:minmax(0,1fr) 110px 120px 90px;align-items:center}
@@ -709,8 +718,17 @@
   const fab = document.createElement('div'); fab.id = 'ppdup-fab'; document.body.appendChild(fab);
   const root = document.createElement('div'); root.id = 'ppdup';
   root.innerHTML = `
+    <aside class="rail" data-r="rail">
+      <button data-a="toflow" data-rail="flow" title="整理（1〜7のステップ）"><svg viewBox="0 0 24 24"><path d="M4 6h10M4 12h16M4 18h7" /><circle cx="18" cy="6" r="2"/><circle cx="15" cy="18" r="2"/></svg><span>整理</span></button>
+      <button data-a="tree" data-rail="tree" title="フォルダ一覧（Finder のように、フォルダを開いて中身を見られます）"><svg viewBox="0 0 24 24"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/><path d="M7 11h10M7 15h6"/></svg><span>フォルダ<br>一覧</span></button>
+      <button data-a="rescan" data-rail="scan" title="最新の状態を読み込み直す"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg><span>再読み込み</span></button>
+      <button data-a="log" data-rail="log" title="エラーや処理の記録"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7M9 7h3"/></svg><span>ログ</span><i data-r="logbadge"></i></button>
+      <span class="sp"></span>
+      <button data-a="close" data-rail="close" title="閉じる（PikPakの画面に戻る）"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg><span>閉じる</span></button>
+      <span class="rv">v${VER}</span>
+    </aside>
     <header>
-      <div class="brand">${LOGO}<h1>PikPak Distill</h1><span class="chip">Dedupe</span><span class="ver" title="いま動いているバージョン">v${VER}</span><span class="by">by Noel Labs</span><span class="sp"></span><button data-a="tree" title="読み込んだフォルダをツリーで表示（Finder のような操作）">ツリー</button><button data-a="log" title="エラーや処理の記録">ログ<span data-r="logbadge"></span></button><button data-a="close">閉じる</button></div>
+      <div class="brand">${LOGO}<h1>PikPak Distill</h1><span class="chip">Dedupe</span><span class="ver" title="いま動いているバージョン">v${VER}</span><span class="by">by Noel Labs</span><span class="sp"></span></div>
       <nav data-r="nav"></nav>
     </header>
     <div class="tb" data-r="tb"></div>
@@ -850,7 +868,15 @@
   }
   const UNIT_OF = { junk: '件', name: '件', sort: '作品', ren: '件', dup: '組', clean: '件' };
   const WORK = ['junk', 'name', 'sort', 'ren', 'dup', 'clean'];
+  function renderRail() {
+    root.querySelectorAll('.rail [data-rail]').forEach((b) => {
+      const k = b.dataset.rail;
+      b.classList.toggle('on', k === 'tree' ? view === 'tree' : k === 'flow' ? view !== 'tree' && mode === 'flow' : false);
+      if (k === 'tree' || k === 'scan' || k === 'flow') b.disabled = busy;
+    });
+  }
   function renderNav() {
+    renderRail();
     const c = counts();
     const next = c ? (WORK.find((k) => c[k] > 0) || null) : 'scan';
     $('[data-r=nav]').innerHTML = STEPS.map((s, i) => {
@@ -945,6 +971,7 @@
     if (v === 'ren') rplan = buildRenamePlan(workFiles(), folders);
     if (v === 'sort') splan = buildSortPlan(workFiles(), folders);
     if (v !== 'tree') closeQL();
+    root.classList.toggle('treev', v === 'tree'); // フォルダ一覧ではステップの表示を隠す
     renderToolbar(); render(); renderNav();
     $('[data-r=main]').scrollTop = 0;
   }
@@ -1246,7 +1273,7 @@
     busy = false; setView('clean'); status(`${ok} 件を実行しました${skipped ? `（${skipped} 件は実行直前の確認で対象外になりました）` : ''}。`); log('info', `片付け ${ok} 件・対象外 ${skipped} 件`); refreshView();
   }
 
-  // ---------- フォルダツリー（macOS の Finder のリスト表示に近い操作） ----------
+  // ---------- フォルダ一覧（macOS の Finder のリスト表示に近い操作） ----------
   // 読み込んだ結果をツリーで表示する。▶ で開閉、矢印キーで移動、スペースでプレビュー、
   // Enter で名前の変更、⌘⌫ でゴミ箱へ。⌘/Shift クリックで複数選択。
   const LS_TREE = 'ppdup:tree:v1';
@@ -1329,7 +1356,7 @@
   }
   function renderTreeToolbar() {
     const arrow = (k) => (tree.sort === k ? (tree.dir > 0 ? ' ▲' : ' ▼') : '');
-    $('[data-r=tb]').innerHTML = `<div class="head"><b>フォルダツリー</b><span class="note">Finder と同じ操作：▶ / ← → で開閉（⌥ で中もすべて・⌥⌘ ← → で全格納／全展開）・↑↓ で移動・スペースでプレビュー・Enter で名前の変更・⌘⌫ でゴミ箱へ・⌘C で場所をコピー</span></div><span class="sp"></span>
+    $('[data-r=tb]').innerHTML = `<div class="head"><b>フォルダ一覧 <span class="pd-tag" style="vertical-align:2px">Finder 表示</span></b><span class="note">Finder と同じ操作：▶ / ← → で開閉（⌥ で中もすべて・⌥⌘ ← → で全格納／全展開）・↑↓ で移動・スペースでプレビュー・Enter で名前の変更・⌘⌫ でゴミ箱へ・⌘C で場所をコピー</span></div><span class="sp"></span>
       <span class="note">読み込み：${meta ? esc(new Date(meta.at).toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })) : '未'}</span>
       <input type="text" data-a="tq" placeholder="🔍 名前で絞り込み" size="18" value="${esc(tree.q || '')}">
       <span class="seg"><button data-a="texpand" title="すべてのフォルダを開く（⌥⌘→）">⊞ 全展開</button><button data-a="tcollapse" title="すべてのフォルダを閉じる（⌥⌘←）">⊟ 全格納</button></span>
@@ -1421,7 +1448,7 @@
     try {
       await renameApi({ id, cur: r.name, target: name });
       applyRenameCache(r.kind, id, name); saveAll();
-      busy = false; renderTree(); status(`名前を変更しました：${r.name} → ${name}`); log('info', `ツリーで名前を変更：${r.name} → ${name}`); refreshView();
+      busy = false; renderTree(); status(`名前を変更しました：${r.name} → ${name}`); log('info', `フォルダ一覧で名前を変更：${r.name} → ${name}`); refreshView();
     } catch (err) { busy = false; renderTree(); handleErr(err, 'tree', '名前を変更できませんでした：' + err.message); }
   }
   // ゴミ箱へ（⌘⌫）
@@ -1450,7 +1477,7 @@
         done += items.length; saveAll();
       }
       treeSel.clear(); busy = false; renderTree();
-      status(`${done} 項目を${ans.hard ? '完全に削除' : 'ゴミ箱へ移動'}しました。`); log('info', `ツリーで削除 ${done} 項目（${ans.hard ? '完全削除' : 'ゴミ箱'}）`); refreshView();
+      status(`${done} 項目を${ans.hard ? '完全に削除' : 'ゴミ箱へ移動'}しました。`); log('info', `フォルダ一覧で削除 ${done} 項目（${ans.hard ? '完全削除' : 'ゴミ箱'}）`); refreshView();
     } catch (err) { saveAll(); busy = false; renderTree(); handleErr(err, 'tree', `削除を停止しました（${done} 項目完了）：` + err.message); }
   }
   // マウス操作
@@ -1535,7 +1562,7 @@
     if (a === 'tree') { if (!busy) openTree(); return; }
     if (a === 'texpand' || a === 'tcollapse') { if (!busy) treeAll(a === 'texpand'); return; }
     if (a === 'tlist' || a === 'tthumb') { if (!busy) treeThumb(a === 'tthumb'); return; }
-    if (a === 'toflow') { if (!busy) openFlow(); return; }
+    if (a === 'toflow') { if (!busy) { if (view === 'tree') view = 'scan'; openFlow(); } return; }
     if (a === 'rescan') { if (!busy) { afterScan = view; runScan(); } return; }
     if (a === 'stop') { window.__ppdupStop = true; status('中断しています…（いまの処理が終わったら止まります）'); return; }
     if (busy) return;
@@ -1595,7 +1622,7 @@
     fab.innerHTML = `<button class="flow" data-fab="flow"><span class="n" style="background:#ffffff33">▶</span><span class="t">おまかせ整理<br><span style="font-weight:400;font-size:11px;opacity:.85">1〜7の流れで順番に進める</span></span></button>
       <div class="hd">作業を選んで開く</div>
       ${STEPS.map((s, i) => `<button data-fab="${s.v}"${busy ? ' disabled' : ''}><span class="n">${i + 1}</span><span class="t">${esc(s.t)}</span>${badge(s.v)}</button>`).join('')}
-      <hr><button data-fab="tree"${busy ? ' disabled' : ''}><span class="n">🗂</span><span class="t">フォルダツリー</span>${meta ? `<span class="b">${folders.length} フォルダ</span>` : '<span class="b">読み込んでから</span>'}</button>
+      <hr><button data-fab="tree"${busy ? ' disabled' : ''}><span class="n">🗂</span><span class="t">フォルダ一覧（Finder 表示）</span>${meta ? `<span class="b">${folders.length} フォルダ</span>` : '<span class="b">読み込んでから</span>'}</button>
       <button data-fab="log"><span class="n">≡</span><span class="t">ログ</span>${errs ? `<span class="b todo">エラー ${errs}</span>` : ''}</button>
       <div class="hd" style="text-align:right;padding:2px 10px 4px">PikPak Distill v${VER}</div>`;
   }

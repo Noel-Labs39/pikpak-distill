@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.12.1
+// @version      3.12.2
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMzMDZmZmYiLz48cmVjdCB4PSIxMiIgeT0iMTYiIHdpZHRoPSIyNCIgaGVpZ2h0PSIzMiIgcng9IjQiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii41NSIvPjxyZWN0IHg9IjI2IiB5PSIxMiIgd2lkdGg9IjI2IiBoZWlnaHQ9IjM0IiByeD0iNCIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik0zMiAyNGgxNE0zMiAzMGgxNE0zMiAzNmg5IiBzdHJva2U9IiMzMDZmZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGNpcmNsZSBjeD0iNDQiIGN5PSI0NiIgcj0iOSIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJNNDAgNDZsMyAzIDUtNiIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -32,7 +32,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.12.1'; // @version と合わせて更新する
+  const VER = '3.12.2'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1543,10 +1543,10 @@
         const items = kids.get(pid) || [];
         const a = ix.agg.get(pid) || { n: 0, size: 0 };
         const path = relPath(pid);
-        return `<section class="tl-sec" data-sec="${esc(pid)}"><div class="tl-h" data-tdrop="${esc(pid)}">${pid === baseId ? '' : `<span class="tw open" data-ttw="${esc(pid)}" title="閉じる">▶</span>`}<span class="ic">${ICON_DIR}</span><b>${path.map((n, k) => (k === path.length - 1 ? esc(n) : `<span class="pp">${esc(n)} ›</span> `)).join('')}</b><span class="note">${a.n} 項目・${fmt(a.size)}</span><span class="sp"></span>${pid === baseId ? '' : `<button data-ttop="${esc(pid)}" title="一番上の一覧へ戻る（Home）">⤒ 一覧へ戻る</button><button data-tbase="${esc(pid)}" title="このフォルダを最上位にする">⤓ ここを最上位に</button>`}</div>
+        return `<section class="tl-sec" data-sec="${esc(pid)}"><div class="tl-h" data-tdrop="${esc(pid)}">${pid === baseId ? '' : `<span class="tw open" data-ttw="${esc(pid)}" title="閉じる">▶</span>`}<span class="ic">${ICON_DIR}</span><b>${path.map((n, k) => (k === path.length - 1 ? esc(n) : `<span class="pp">${esc(n)} ›</span> `)).join('')}</b><span class="note">${a.n} 項目・${fmt(a.size)}</span><span class="sp"></span>${pid === baseId ? '' : `<button data-ttop="${esc(pid)}" title="一番上の一覧へ戻る（⌫ delete キー／マウスの戻るボタン）">⤒ 一覧へ戻る</button><button data-tbase="${esc(pid)}" title="このフォルダを最上位にする">⤓ ここを最上位に</button>`}</div>
           <div class="tl-grid">${items.map(tile).join('') || '<div class="note" style="padding:8px">（空のフォルダ）</div>'}</div></section>`;
       }).join('');
-      $('[data-r=main]').innerHTML = `<div class="tr has-path tl" tabindex="0" data-r="tree">${crumbHtml}<div class="tr-body">${rows.length ? body : emptyHtml}</div><button class="tl-top" data-ttop="" title="一番上の一覧へ戻る（Home）">⤒ 一覧へ戻る</button></div>`;
+      $('[data-r=main]').innerHTML = `<div class="tr has-path tl" tabindex="0" data-r="tree">${crumbHtml}<div class="tr-body">${rows.length ? body : emptyHtml}</div><button class="tl-top" data-ttop="" title="一番上の一覧へ戻る（⌫ delete キー／マウスの戻るボタン）">⤒ 一覧へ戻る</button></div>`;
     } else {
       $('[data-r=main]').innerHTML = `<div class="tr has-path${tree.view === 'thumb' ? ' big' : ''}" tabindex="0" data-r="tree">${crumbHtml}${treeHeadHtml}<div class="tr-body">${rows.map(rowHtml).join('') || emptyHtml}</div></div>`;
     }
@@ -1946,7 +1946,7 @@
     const k = e.key;
     if ((k === 'ArrowRight' || k === 'ArrowLeft') && e.altKey && (e.metaKey || e.ctrlKey)) { e.preventDefault(); treeAll(k === 'ArrowRight'); return; }
     if ((k === '1' || k === '2' || k === '3') && (e.metaKey || e.ctrlKey)) { e.preventDefault(); treeView({ 1: 'list', 2: 'thumb', 3: 'tile' }[k]); return; }
-    if (tree.view === 'tile' && k === 'Home') { e.preventDefault(); const c = treeRowsCache.find((q) => q.id === treeCur); jumpTop(c ? c.parentId : ''); return; }
+    if (tree.view === 'tile' && (k === 'Backspace' || k === 'Home') && !e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); const c = treeRowsCache.find((q) => q.id === treeCur); jumpTop(c ? c.parentId : ''); return; }
     if (tree.view === 'tile' && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(k) && !e.metaKey && !e.altKey) {
       e.preventDefault();
       const cols = tileCols(), j = i < 0 ? 0 : i + ({ ArrowLeft: -1, ArrowRight: 1, ArrowUp: -cols, ArrowDown: cols }[k]);
@@ -1987,7 +1987,7 @@
     if (!sec) return;
     main.scrollTo({ top: main.scrollTop + sec.getBoundingClientRect().top - main.getBoundingClientRect().top - 30, behavior: 'smooth' });
     flash(sec.querySelector('.tl-h'));
-    status(`「${(folderById(id) || {}).name}」の中身を表示しています（見出しの「⤒ 一覧へ戻る」か Home キーで一番上へ戻れます）`);
+    status(`「${(folderById(id) || {}).name}」の中身を表示しています（見出しの「⤒ 一覧へ戻る」か ⌫（delete）キーで一番上へ戻れます）`);
   }
   function jumpTop(fromId) {
     const main = $('[data-r=main]');
@@ -2000,6 +2000,11 @@
       if (top) { treeSel.clear(); treeSel.add(top); treeCur = top; treeAnchor = top; renderTree(); main.scrollTo({ top: 0, behavior: 'smooth' }); flash([...root.querySelectorAll('.tr-row.tile')].find((x) => x.dataset.tid === top)); }
     }
   }
+  // マウスの「戻る」ボタン（サイドボタン）でも一番上の一覧へ戻る
+  root.addEventListener('mouseup', (e) => {
+    if (e.button !== 3 || view !== 'tree' || tree.view !== 'tile' || busy) return;
+    e.preventDefault(); const c = treeRowsCache.find((q) => q.id === treeCur); jumpTop(c ? c.parentId : '');
+  });
   $('[data-r=main]').addEventListener('scroll', (e) => { const b = root.querySelector('.tl-top'); if (b) b.classList.toggle('on', e.target.scrollTop > 120); }, { passive: true });
   // タイルの横の数（↑↓ で 1 行ぶん移動するため）
   function tileCols() {

@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.14.1
+// @version      3.14.2
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMzMDZmZmYiLz48cmVjdCB4PSIxMiIgeT0iMTYiIHdpZHRoPSIyNCIgaGVpZ2h0PSIzMiIgcng9IjQiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii41NSIvPjxyZWN0IHg9IjI2IiB5PSIxMiIgd2lkdGg9IjI2IiBoZWlnaHQ9IjM0IiByeD0iNCIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik0zMiAyNGgxNE0zMiAzMGgxNE0zMiAzNmg5IiBzdHJva2U9IiMzMDZmZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGNpcmNsZSBjeD0iNDQiIGN5PSI0NiIgcj0iOSIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJNNDAgNDZsMyAzIDUtNiIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -33,7 +33,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.14.1'; // @version と合わせて更新する
+  const VER = '3.14.2'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -775,8 +775,8 @@
   .tl-sec{margin-bottom:10px}
   .tl-top{position:fixed;right:28px;bottom:24px;z-index:5;padding:8px 16px !important;border-radius:999px !important;background:var(--pri) !important;color:#fff !important;border:0 !important;font-weight:700;box-shadow:0 6px 18px #0004;opacity:0;pointer-events:none;transition:opacity .15s}
   .tl-top.on{opacity:1;pointer-events:auto}
-  @keyframes pdflash{0%{background:#ffd54a88}100%{background:transparent}}
-  .flash{animation:pdflash 1.2s ease-out}
+  @keyframes pdflash{0%,40%{background:#ffd54aaa;box-shadow:0 0 0 3px #ffd54a}20%,60%{background:#ffd54a55;box-shadow:0 0 0 3px #ffd54a88}100%{background:transparent;box-shadow:0 0 0 3px transparent}}
+  .flash{animation:pdflash 2.4s ease-out}
   .tl-h{position:sticky;top:30px;z-index:1;display:flex;align-items:center;gap:8px;padding:8px 6px;background:var(--panel);border-bottom:1px solid var(--line);font-size:13px}
   .tl-h .ic svg{width:18px;height:16px;display:block}
   .tl-h b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -2227,11 +2227,19 @@
   }
   // タイル：フォルダの見出しへ飛ぶ／一番上の一覧へ戻る
   function flash(el) { if (!el) return; el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+  // スクロールが止まってから光らせる（スクロール中に光り終わって見落とさないように）
+  function afterScroll(main, fn) {
+    let last = -1, still = 0, done = false;
+    const end = () => { if (done) return; done = true; fn(); };
+    const t0 = Date.now();
+    const tick = () => { if (done) return; const y = main.scrollTop; still = y === last ? still + 1 : 0; last = y; if (still >= 3 || Date.now() - t0 > 2000) end(); else requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  }
   function jumpToSection(id) {
     const main = $('[data-r=main]'), sec = [...root.querySelectorAll('.tl-sec')].find((x) => x.dataset.sec === id);
     if (!sec) return;
     main.scrollTo({ top: main.scrollTop + sec.getBoundingClientRect().top - main.getBoundingClientRect().top - 30, behavior: 'smooth' });
-    flash(sec.querySelector('.tl-h'));
+    afterScroll(main, () => flash(sec.querySelector('.tl-h')));
     status(`「${(folderById(id) || {}).name}」の中身を表示しています（見出しの「⤒ 一覧へ戻る」か ${KEY.back} キーで一番上へ戻れます）`);
   }
   function jumpTop(fromId) {
@@ -2242,7 +2250,7 @@
     if (f) {
       const tr = f.trail || [], k = tr.indexOf(base);
       const top = k >= 0 ? tr[k + 1] : (tr.find((x) => treeRowsCache.some((q) => q.id === x && q.parentId === base)) || '');
-      if (top) { treeSel.clear(); treeSel.add(top); treeCur = top; treeAnchor = top; renderTree(); main.scrollTo({ top: 0, behavior: 'smooth' }); flash([...root.querySelectorAll('.tr-row.tile')].find((x) => x.dataset.tid === top)); }
+      if (top) { treeSel.clear(); treeSel.add(top); treeCur = top; treeAnchor = top; renderTree(); main.scrollTo({ top: 0, behavior: 'smooth' }); afterScroll(main, () => flash([...root.querySelectorAll('.tr-row.tile')].find((x) => x.dataset.tid === top))); }
     }
   }
   // マウスの「戻る」ボタン（サイドボタン）でも一番上の一覧へ戻る

@@ -1,0 +1,79 @@
+# main に入ったスクリプトの @version を見て、まだその版のリリースがなければ自動で作る
+#   本文：release-notes/v<版>.md があればそれを使い、なければ CHANGELOG.md から
+#         「前回のリリースより新しい版」の部分をまとめて使う
+name: Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - pikpak-distill.user.js
+      - CHANGELOG.md
+      - release-notes/**
+      - .github/workflows/release.yml
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read version
+        id: ver
+        run: |
+          v=$(grep -m1 -E '^// @version' pikpak-distill.user.js | awk '{print $3}')
+          c=$(grep -m1 -E "const VER = '" pikpak-distill.user.js | sed -E "s/.*const VER = '([^']+)'.*/\1/")
+          if [ -z "$v" ]; then echo "::error::@version が見つかりません"; exit 1; fi
+          if [ "$v" != "$c" ]; then echo "::error::@version ($v) と VER ($c) が一致しません"; exit 1; fi
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          echo "tag=v$v" >> "$GITHUB_OUTPUT"
+
+      - name: Skip if the release already exists
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "${{ steps.ver.outputs.tag }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "${{ steps.ver.outputs.tag }} は作成済みのため、何もしません"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build release notes
+        if: steps.check.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          v="${{ steps.ver.outputs.version }}"
+          if [ -f "release-notes/v$v.md" ]; then
+            cp "release-notes/v$v.md" notes.md
+          else
+            prev=$(gh release list --limit 1 --exclude-drafts --exclude-pre-releases --json tagName --jq '.[0].tagName // ""' | sed 's/^v//')
+            # CHANGELOG の「## 今回の版」から「## 前回リリースした版」の手前までを使う
+            awk -v cur="$v" -v prev="$prev" '
+              /^## / { ver=$2; if (ver==cur) on=1; else if (prev!="" && ver==prev) on=0 }
+              on' CHANGELOG.md > body.md
+            if [ ! -s body.md ]; then echo "::error::CHANGELOG.md に「## $v」が見つかりません"; exit 1; fi
+            { if [ -n "$prev" ]; then printf '## v%s の変更（v%s から）\n\n' "$v" "$prev"; fi; cat body.md; } > notes.md
+          fi
+          printf '\n### 更新方法\nTampermonkey で自動更新されます。すぐに反映したい場合は、Tampermonkey の「更新を確認」を押すか、README の「▶ インストール」から入れ直してください。\n' >> notes.md
+          cat notes.md
+
+      - name: Create release
+        if: steps.check.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.ver.outputs.tag }}" pikpak-distill.user.js \
+            --target "${{ github.sha }}" \
+            --title "${{ steps.ver.outputs.tag }}" \
+            --notes-file notes.md

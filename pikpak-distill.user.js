@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.20.0
+// @version      3.21.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -81,7 +81,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.20.0'; // @version と合わせて更新する
+  const VER = '3.21.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -677,6 +677,37 @@
   #ppdup{position:fixed;inset:0;z-index:99999;background:var(--bg);color:var(--fg);font:13px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Yu Gothic","Meiryo","Noto Sans CJK JP","Noto Sans JP",sans-serif;display:none;flex-direction:column}
   html.pd-dark #ppdup,html.pd-dark #pd-set{--bg:#15171c;--panel:#1d2027;--panel2:#252932;--line:#2c303a;--fg:#e6e8ee;--mute:#8b91a1;--pri-soft:#306fff33;--keep:#17261c;--del:#2a1a1a;--ctl:#252932;--ctl-line:#3a3f4b}
   #ppdup.on{display:flex}
+  #ppdup .wbtn-full,#ppdup .wbtn-min,#ppdup.pop .wbtn-pop{display:none}
+  #ppdup.pop .wbtn-full,#ppdup.pop .wbtn-min{display:inline-flex}
+  #ppdup.pop{inset:auto;box-sizing:border-box;border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 60px #0006,0 2px 8px #0003;overflow:hidden;resize:both;min-width:560px;min-height:380px;max-width:100vw;max-height:100vh;padding-left:58px}
+  #ppdup.pop .rail{width:58px;padding-top:10px}
+  #ppdup.pop .rail button{width:46px;padding:9px 0}
+  #ppdup.pop .rail button span{display:none}
+  #ppdup.pop header{padding:8px 12px 0}
+  #ppdup.pop .brand{cursor:move;user-select:none;gap:8px;padding-bottom:8px}
+  #ppdup.pop .brand :is(button,input,select,label,a){cursor:pointer}
+  #ppdup.pop .brand input{cursor:text}
+  #ppdup.pop .brand > svg{width:30px;height:30px}
+  #ppdup.pop .wm small{display:none}
+  #ppdup.pop .wm .gw{font-size:19px}
+  #ppdup.pop{container-type:inline-size}
+  #ppdup.pop .brand{flex-wrap:nowrap}
+  #ppdup.pop .brand > *{flex-shrink:0}
+  #ppdup.pop .pd-quota{flex:0 1 210px;width:210px;min-width:120px;overflow:hidden}
+  #ppdup.pop .pd-quota .qt i{overflow:hidden;text-overflow:ellipsis}
+  #ppdup.pop .pd-quota .ql{display:none}
+  #ppdup.pop .hbtn{padding:0 10px}
+  #ppdup.pop [data-a=lang] > span,#ppdup.pop [data-a=settings] > span{display:none}
+  #ppdup.pop .hq input{width:110px}
+  @container (max-width:880px){#ppdup .wbtn-full > span,#ppdup .brand .ver,#ppdup .pd-quota{display:none}}
+  @container (max-width:700px){#ppdup .wm{display:none}}
+  #ppdup.pop .tl-top{position:absolute;right:20px;bottom:44px}
+  #ppdup.dragging{user-select:none;opacity:.92}
+  #ppdup .pd-popban{display:none}
+  #ppdup.pop.ban .pd-popban{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 14px;background:var(--pri-soft);border-bottom:1px solid var(--line);font-size:12.5px}
+  #ppdup .pd-popban span{flex:1 1 260px;min-width:0}
+  #ppdup .pd-popban button{height:28px;padding:0 12px;border-radius:7px;border:1px solid var(--ctl-line);background:var(--ctl);color:inherit;font:inherit;cursor:pointer}
+  #ppdup .pd-popban button.pri{background:var(--pri);border-color:var(--pri);color:#fff;font-weight:700}
   #ppdup{padding-left:78px}
   #ppdup .rail{position:absolute;left:0;top:0;bottom:0;width:78px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 0 10px;background:var(--panel2);border-right:1px solid var(--line);z-index:2}
   #ppdup .rail button{position:relative;width:64px;line-height:1.2;text-align:center;word-break:keep-all;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 7px;border:0;border-radius:10px;background:none;color:var(--mute);font-size:11px;font-weight:600}
@@ -1052,6 +1083,9 @@
     folder: SVG('<path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/>'),
     dedupe: SVG('<rect x="3" y="4" width="11" height="13" rx="2"/><path d="M8 8h11a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H10"/>'),
     alert: SVG('<circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/>'),
+    expand: SVG('<path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/>'),
+    shrink: SVG('<path d="M4 14h6v6M20 10h-6V4M10 14l-7 7M14 10l7-7"/>'),
+    minus: SVG('<path d="M6 12h12"/>'),
   };
   const btn = document.createElement('button'); btn.id = 'ppdup-btn'; btn.innerHTML = LOGO + '<span>Dedupe</span>'; btn.title = 'PikPak Distill – Dedupe（クリックでメニュー）'; document.body.appendChild(btn);
   const fab = document.createElement('div'); fab.id = 'ppdup-fab'; document.body.appendChild(fab);
@@ -1069,10 +1103,14 @@
         <span class="seg thm" data-r="theme" role="group" aria-label="テーマ"></span>
         <button class="hbtn" data-a="lang" title="表示言語を切り替える">${IC.globe}<span class="raw" data-r="langname"></span></button>
         <button class="hbtn" data-a="settings" title="設定（表示・再生・整理・情報）">${IC.gear}<span>設定</span><i data-r="logbadge"></i></button>
+        <button class="hbtn wbtn-full" data-a="tofull" title="PikPak の画面を Dedupe に切り替えて、広い画面で使う">${IC.expand}<span>全画面で開く</span></button>
+        <button class="hbtn wbtn-pop" data-a="topop" title="PikPak の画面の上に重ねる小さな画面に戻す">${IC.shrink}<span>ポップアップに戻す</span></button>
+        <button class="hx wbtn-min" data-a="mini" title="小さくする（右下のボタンに戻す。作業中の内容はそのまま）" aria-label="小さくする">${IC.minus}</button>
         <button class="hx" data-a="close" title="閉じる（PikPakの画面に戻る）" aria-label="閉じる">${IC.x}</button>
       </div>
       <nav data-r="nav"></nav>
     </header>
+    <div class="pd-popban" data-r="popban"><span>PikPak の画面を Dedupe に切り替えて使うこともできます。一覧が広くなり、キー操作やドラッグも使いやすくなります。</span><button class="pri" data-a="tofull">全画面で開く</button><button data-a="fullnext">次から全画面で開く</button><button data-a="banclose">閉じる</button></div>
     <div class="tb" data-r="tb"></div>
     <div class="tsel" data-r="tsel"></div>
     <main data-r="main"></main>
@@ -1090,6 +1128,7 @@
   EN.push(...[["テーマ", "Theme"], ["ライト", "Light"], ["ダーク", "Dark"], ["自動", "Auto"], ["自動（OS の設定に合わせる）", "Auto (follow the OS setting)"], ["設定", "Settings"], ["設定（表示・再生・整理・情報）", "Settings (display, playback, organizing, about)"], ["名前で絞り込み", "Filter by name"], ["使用中", "used"], ["その他", "Other"], ["契約容量", "Plan capacity"], [" 使用 / 上限 ", " used / limit "], ["未スキャン", "Not scanned"], ["内の割合", "share"], ["使用量に占める割合", "Share of usage"], ["使用量全体に対する割合（まだ読み込んでいないフォルダがあるため）", "Share of total usage (some folders are not scanned yet)"], ["表示中のフォルダの中での割合", "Share within the shown folder"], ["1 つ上の階層へ（", "Up one level ("], ["1 つ上の階層へ", "Up one level"], ["（未スキャンのフォルダを除く）", " (excluding unscanned folders)"], ["契約容量比 ", "of plan "], ["・全体比 ", " · of total "], ["選択中", "Selected"], ["項目を選ぶと、再生・名前の変更・移動・ゴミ箱が使えます（右クリックでもメニューを開けます）", "Select items to play, rename, move or trash them (right-click also opens the menu)"], ["読み込んだ場所とその上のフォルダは、ここでは移動できません", "The scanned folder and the folders above it can't be moved here"], ["読み込んだ場所とその上のフォルダは、ここではゴミ箱に入れられません", "The scanned folder and the folders above it can't be trashed here"], ["上の階層を確認しています…", "Checking parent folders…"], ["上の階層を読み込めませんでした：", "Couldn't load parent folders: "], ["これより上の階層はありません", "There is no level above this"], ["表示", "Display"], ["再生", "Playback"], ["情報", "About"], ["右上のボタンと同じ設定です", "Same as the buttons at the top right"], ["自動（ブラウザ）", "Auto (browser)"], ["フォルダ一覧の表示", "Folders view"], ["フォルダ一覧の操作", "Folders controls"], ["▶ 再生ボタン・ダブルクリックのとき", "▶ Play button / double-click"], ["更新履歴", "Changelog"], ["ログを表示", "Show log"], ["見る・再生・名前の変更・移動", "Browse · play · rename · move"], ["Dedupe スキャン", "Dedupe scan"], ["重複・不要ファイルを読み込んで整理", "Scan, then clean up duplicates and junk files"], ["前回の操作でエラーが ", "Errors in recent actions: "], ["件あります", ""], ["確認", "Review"], ["閉じる（Esc）", "Close (Esc)"]]);
   EN.push(...[["販売者ごとに仕分け", "Sort by seller"], ["作品フォルダの品番から販売者を調べ、ホーム/販売者別/販売者名（販売者ID）/ へ移動します。調べるだけでは何も動かしません（使うかどうかを選べます）。", "Looks up the seller of each work folder by its ID and moves it to Home/By seller/Seller (ID)/. Looking up alone moves nothing (optional)."], ["販売者が決まった", "Seller found"], ["販売者不明", "Unknown seller"], ["未調査", "Not looked up"], ["販売者を調べる（未調査 ", "Look up sellers (not looked up: "], ["販売者を変更", "Change seller"], ["販売者を入力", "Enter seller"], ["fd2ppv.cc で開く", "Open on fd2ppv.cc"], ["今の場所：", "Now in: "], ["新しく作るフォルダ", "New folder"], ["既にあるフォルダ", "Existing folder"], ["チェックしたものを移動（", "Move checked ("], ["手入力できます", "Can be entered manually"], ["品番が複数・同名あり", "Several IDs / same name"], ["「販売者を調べる」で調べます", "Use \"Look up sellers\""], ["販売者名", "Seller name"], ["入力を消す", "Clear input"], ["まとめるフォルダ", "Container folder"], ["ホームの直下に作ります", "Created directly under Home"], ["販売者が分からないとき", "When the seller is unknown"], ["判断できないとき", "When it can't be decided"], ["調べる間隔", "Lookup interval"], ["調べた結果", "Lookup results"], ["手入力", "manual"], ["fd2ppv.cc で確認", "Confirmed on fd2ppv.cc"], ["fd2ppv.cc にページがありません", "No page on fd2ppv.cc"], ["販売者の欄がありません", "No seller field"], ["ホームから読み込んでいません。", "Not scanned from Home."]]);
   EN.push(...[["fc2cmadb.com で確認", "Confirmed on fc2cmadb.com"], ["fd2ppv.cc で確認（配信元）", "Confirmed on fd2ppv.cc (studio)"], ["fd2ppv.cc・fc2cmadb.com に見つかりません", "Not found on fd2ppv.cc or fc2cmadb.com"], ["fd2ppv.cc に見つかりません", "Not found on fd2ppv.cc"], ["fc2cmadb.com で開く", "Open on fc2cmadb.com"], ["fd2ppv.cc で探す（", "Search on fd2ppv.cc ("], ["同じ番号の作品が複数のサイトにあります（名前にサイト名を入れるか、販売者を入力）", "The same number exists on several sites (add the site name to the folder name, or enter the seller)"], ["販売者名（配信元。例：カリビアンコム）", "Seller name (studio, e.g. Caribbeancom)"], ["販売者ID（英数字。例：carib）", "Seller ID (letters/digits, e.g. carib)"], ["✓ 仕分けが必要な作品フォルダはありません（FC2-PPV-品番・HEYZO・カリビアンコムなどの品番の名前のフォルダが対象です）", "✓ No work folders to sort (folders named with an FC2-PPV, HEYZO, Caribbeancom or similar ID are targets)"]]);
+  EN.push(...[["全画面で開く", "Open full screen"], ["ポップアップに戻す", "Back to popup"], ["次から全画面で開く", "Always open full screen"], ["PikPak の画面を Dedupe に切り替えて使うこともできます。一覧が広くなり、キー操作やドラッグも使いやすくなります。", "You can also switch the PikPak screen to Dedupe. Lists get wider, and keys and dragging are easier to use."], ["開き方", "How to open"], ["ポップアップ（おすすめ）", "Popup (recommended)"], ["全画面", "Full screen"], ["PikPak の画面の上に重ねて開きます。動かしたり大きさを変えたりでき、後ろの PikPak もそのまま使えます", "Opens on top of PikPak. You can move and resize it, and keep using PikPak behind it"], ["PikPak の画面を Dedupe に切り替えます（今までの開き方）", "Switches the PikPak screen to Dedupe (the previous way)"], ["次からは全画面で開きます（設定の「表示」→「開き方」で戻せます）", "Will open full screen from now on (change it in Settings → Display → How to open)"]]);
   EN.sort((a, b) => b[0].length - a[0].length); // 長い言い回しから先に置き換える
   const EN_MAP = new Map(EN);
   const EN_UNIT = EN.filter(([a]) => a.length > 1 && /^(件|項目|組|作品|本)./.test(a));
@@ -1256,7 +1295,7 @@
     let r = null; try { r = JSON.parse(sessionStorage.getItem(SS_RESUME) || 'null'); } catch (e) { r = null; }
     if (!r || Date.now() - r.at > 2 * 60 * 1000) return;
     mode = r.mode || 'flow'; root.classList.toggle('single', mode === 'single');
-    root.classList.add('on');
+    showRoot();
     setView(r.view || 'scan');
     status('画面を再読み込みしました。ログイン情報の更新を待っています…', 0.3);
     // 期限の直前に再読み込みした場合、PikPak画面は期限が切れるまで更新しないので、そこまで待つ（最大4分）
@@ -2835,6 +2874,7 @@
       <div class="bd">
         ${sec('view') ? `<h3>表示</h3>
         <div class="row"><span><b>テーマ</b><small>右上のボタンと同じ設定です</small></span><span class="seg">${[['light', 'ライト'], ['dark', 'ダーク'], ['auto', '自動']].map(([k, l]) => `<button data-s="theme" data-v="${k}" class="${th === k ? 'on' : ''}">${l}</button>`).join('')}</span></div>
+        <div class="row col"><b>開き方</b>${[['pop', 'ポップアップ（おすすめ）', 'PikPak の画面の上に重ねて開きます。動かしたり大きさを変えたりでき、後ろの PikPak もそのまま使えます'], ['full', '全画面', 'PikPak の画面を Dedupe に切り替えます（今までの開き方）']].map(([k, l, d]) => `<label><input type="radio" name="pdopen" data-s="openmode" value="${k}"${openPref() === k ? ' checked' : ''}> <span><b>${l}</b><small style="display:block">${d}</small></span></label>`).join('')}</div>
         <div class="row"><span><b>表示言語</b></span><select data-s="lang"><option value="auto"${lp === 'auto' ? ' selected' : ''}>自動（ブラウザ）</option><option value="ja" data-raw${lp === 'ja' ? ' selected' : ''}>日本語</option><option value="en" data-raw${lp === 'en' ? ' selected' : ''}>English</option></select></div>
         <div class="row"><span><b>フォルダ一覧の表示</b></span><select data-s="tview"><option value="list"${tree.view === 'list' ? ' selected' : ''}>☰ リスト</option><option value="thumb"${tree.view === 'thumb' ? ' selected' : ''}>▤ サムネイル</option><option value="tile"${tree.view === 'tile' ? ' selected' : ''}>▦ タイル</option></select></div>
         <label class="row"><span><b>ホバーでサムネイル</b><small>マウスを乗せたときにサムネイルを大きく表示します</small></span><input type="checkbox" data-s="hover"${tree.hover !== false ? ' checked' : ''}></label>
@@ -2871,6 +2911,7 @@
   function onSettingsChange(e) {
     const t = e.target, k = t.dataset.s;
     if (k === 'lang') { setLang(t.value); return; }
+    if (k === 'openmode') { setOpenPref(t.value); if (root.classList.contains('on')) setWin(t.value); return; }
     if (k === 'tview') { tree.view = t.value; saveTree(); if (view === 'tree') treeView(t.value); return; }
     if (k === 'hover') { tree.hover = t.checked; saveTree(); hideHover(); return; }
     if (k === 'mode' || k === 'ext') {
@@ -3044,6 +3085,7 @@
   // キーボード操作
   document.addEventListener('keydown', (e) => {
     if (!root.classList.contains('on') || view !== 'tree' || busy || document.getElementById('pd-dlg') || document.getElementById('pd-player') || document.getElementById('pd-set')) return;
+    if (winMode === 'pop' && !root.contains(document.activeElement)) return; // ポップアップのときは、後ろの PikPak を操作中ならキーを横取りしない
     if (document.getElementById('pd-ctx')) { if (e.key === 'Escape') { e.preventDefault(); closeCtx(); } return; }
     const t = e.target;
     if (t && t.classList && t.classList.contains('tr-ren')) {
@@ -3185,7 +3227,11 @@
       return;
     }
     if (t.dataset.g !== undefined) { if (busy) return; const g = visibleGroups().find((x) => x.key === t.dataset.g); if (g) runDelete([g]); return; }
-    if (a === 'close') { root.classList.remove('on'); return; }
+    if (a === 'close' || a === 'mini') { root.classList.remove('on'); return; }
+    if (a === 'tofull') { setWin('full'); return; }
+    if (a === 'topop') { setWin('pop'); return; }
+    if (a === 'fullnext') { setOpenPref('full'); setWin('full'); status('次からは全画面で開きます（設定の「表示」→「開き方」で戻せます）'); return; }
+    if (a === 'banclose') { try { localStorage.setItem(LS_POPBAN, '0'); } catch (err) { /* 無視 */ } applyWin(); return; }
     if (a === 'log') { showLog(); return; }
     if (a === 'settings') { openSettings(); return; }
     if (a === 'slookup') { runSellerLookup(); return; }
@@ -3234,15 +3280,55 @@
     if (['mode', 'nearonly', 'renfilter'].includes(e.target.dataset.a)) render();
   });
   root.addEventListener('input', (e) => { if (e.target.dataset.a === 'q') render(); if (e.target.dataset.a === 'tq') { tree.q = e.target.value; renderTree(); } });
+  // ---------- 開き方（ポップアップ／全画面） ----------
+  // ポップアップは PikPak の画面の上に重ねる小さな画面。見出しをつかんで移動、右下で大きさを変える。位置と大きさは覚えておく
+  const LS_OPEN = 'ppdup:open:v1', LS_POPGEOM = 'ppdup:popgeom:v1', LS_POPBAN = 'ppdup:popban:v1';
+  const openPref = () => { try { return localStorage.getItem(LS_OPEN) === 'full' ? 'full' : 'pop'; } catch (e) { return 'pop'; } };
+  const setOpenPref = (v) => { try { localStorage.setItem(LS_OPEN, v === 'full' ? 'full' : 'pop'); } catch (e) { /* 無視 */ } if (document.getElementById('pd-set')) renderSettings(); };
+  let winMode = openPref();
+  function popGeom() {
+    let g = null; try { g = JSON.parse(localStorage.getItem(LS_POPGEOM) || 'null'); } catch (e) { g = null; }
+    const W = window.innerWidth, H = window.innerHeight;
+    const w = Math.min(W, Math.max(560, g && g.w ? g.w : Math.min(1040, W - 80))), h = Math.min(H, Math.max(380, g && g.h ? g.h : Math.min(720, H - 80)));
+    const x = Math.min(Math.max(0, g && g.x != null ? g.x : W - w - 40), W - w), y = Math.min(Math.max(0, g && g.y != null ? g.y : 40), H - h);
+    return { x, y, w, h };
+  }
+  const savePopGeom = (g) => { try { localStorage.setItem(LS_POPGEOM, JSON.stringify(g)); } catch (e) { /* 無視 */ } };
+  function applyWin() {
+    const pop = winMode === 'pop';
+    root.classList.toggle('pop', pop);
+    let ban = true; try { ban = localStorage.getItem(LS_POPBAN) !== '0'; } catch (e) { /* 無視 */ }
+    root.classList.toggle('ban', pop && ban);
+    if (pop) { const g = popGeom(); Object.assign(root.style, { left: g.x + 'px', top: g.y + 'px', width: g.w + 'px', height: g.h + 'px' }); }
+    else ['left', 'top', 'width', 'height'].forEach((k) => root.style.removeProperty(k));
+  }
+  function setWin(m) { winMode = m === 'full' ? 'full' : 'pop'; applyWin(); }
+  function showRoot() { if (!root.classList.contains('on')) winMode = openPref(); applyWin(); root.classList.add('on'); }
+  // 見出しをつかんで移動
+  root.addEventListener('mousedown', (e) => {
+    if (winMode !== 'pop' || e.button !== 0 || !e.target.closest('.brand') || e.target.closest('button,input,select,label,a,.pd-quota,.seg')) return;
+    e.preventDefault();
+    const r = root.getBoundingClientRect(), dx = e.clientX - r.left, dy = e.clientY - r.top;
+    root.classList.add('dragging');
+    const mv = (ev) => { root.style.left = Math.min(Math.max(0, ev.clientX - dx), window.innerWidth - 120) + 'px'; root.style.top = Math.min(Math.max(0, ev.clientY - dy), window.innerHeight - 48) + 'px'; };
+    const up = () => { document.removeEventListener('mousemove', mv); document.removeEventListener('mouseup', up); root.classList.remove('dragging'); const b = root.getBoundingClientRect(); savePopGeom({ x: Math.round(b.left), y: Math.round(b.top), w: Math.round(b.width), h: Math.round(b.height) }); };
+    document.addEventListener('mousemove', mv); document.addEventListener('mouseup', up);
+  });
+  // 右下で大きさを変えたら覚えておく
+  if (window.ResizeObserver) {
+    let rt = null;
+    new ResizeObserver(() => { if (winMode !== 'pop' || !root.classList.contains('on')) return; clearTimeout(rt); rt = setTimeout(() => { const b = root.getBoundingClientRect(); if (b.width && b.height) savePopGeom({ x: Math.round(b.left), y: Math.round(b.top), w: Math.round(b.width), h: Math.round(b.height) }); }, 300); }).observe(root);
+  }
+  window.addEventListener('resize', () => { if (winMode === 'pop' && root.classList.contains('on')) applyWin(); });
   // ---------- フローティングメニュー ----------
   function openFlow() {
-    mode = 'flow'; root.classList.remove('single'); root.classList.add('on'); updateLogBadge();
+    mode = 'flow'; root.classList.remove('single'); showRoot(); updateLogBadge();
     if (!busy) setView(hasScan() ? (view || 'scan') : 'scan');
   }
   // 1つの作業だけを開く。まだ読み込んでいなければ、先に読み込んでから開く
   function openTask(v) {
     mode = v === 'scan' ? 'flow' : 'single';
-    root.classList.toggle('single', mode === 'single'); root.classList.add('on'); updateLogBadge();
+    root.classList.toggle('single', mode === 'single'); showRoot(); updateLogBadge();
     if (busy) return;
     if (v !== 'scan' && !hasScan()) { afterScan = v; setView('scan'); runScan(); return; }
     setView(v);
@@ -3261,7 +3347,7 @@
     const k = b.dataset.fab; closeFab();
     if (k === 'flow') { if (!busy && view === 'tree') view = 'scan'; openFlow(); }
     else if (k === 'log') showLog();
-    else if (k === 'tree') { mode = 'single'; root.classList.add('single', 'on'); updateLogBadge(); openTree(); }
+    else if (k === 'tree') { mode = 'single'; root.classList.add('single'); showRoot(); updateLogBadge(); openTree(); }
     else openTask(k);
   });
   document.addEventListener('click', (e) => { if (fab.classList.contains('on') && !fab.contains(e.target) && e.target !== btn) closeFab(); });

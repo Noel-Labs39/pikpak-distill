@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.23.0
+// @version      3.24.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -81,7 +81,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.23.0'; // @version と合わせて更新する
+  const VER = '3.24.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -673,9 +673,9 @@
   #ppdup-fab .err button{width:auto;padding:0;background:none;color:#ffb4b4;font-weight:700}
   #ppdup-fab .err button:hover{background:none;text-decoration:underline}
   #ppdup.single nav,#ppdup.treev nav{display:none}
-  #ppdup,#pd-set{--bg:#f5f6f8;--panel:#fff;--panel2:#eef0f4;--line:#dde0e6;--fg:#1c1f26;--mute:#6a7080;--pri:#306fff;--pri-soft:#306fff1f;--ok:#1f9d55;--danger:#d64545;--keep:#f0faf2;--del:#fff5f5;--ctl:#fff;--ctl-line:#c5c9d2}
+  #ppdup,#pd-set,#pd-add{--bg:#f5f6f8;--panel:#fff;--panel2:#eef0f4;--line:#dde0e6;--fg:#1c1f26;--mute:#6a7080;--pri:#306fff;--pri-soft:#306fff1f;--ok:#1f9d55;--danger:#d64545;--keep:#f0faf2;--del:#fff5f5;--ctl:#fff;--ctl-line:#c5c9d2}
   #ppdup{position:fixed;inset:0;z-index:99999;background:var(--bg);color:var(--fg);font:13px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Yu Gothic","Meiryo","Noto Sans CJK JP","Noto Sans JP",sans-serif;display:none;flex-direction:column}
-  html.pd-dark #ppdup,html.pd-dark #pd-set{--bg:#15171c;--panel:#1d2027;--panel2:#252932;--line:#2c303a;--fg:#e6e8ee;--mute:#8b91a1;--pri-soft:#306fff33;--keep:#17261c;--del:#2a1a1a;--ctl:#252932;--ctl-line:#3a3f4b}
+  html.pd-dark #ppdup,html.pd-dark #pd-set,html.pd-dark #pd-add{--bg:#15171c;--panel:#1d2027;--panel2:#252932;--line:#2c303a;--fg:#e6e8ee;--mute:#8b91a1;--pri-soft:#306fff33;--keep:#17261c;--del:#2a1a1a;--ctl:#252932;--ctl-line:#3a3f4b}
   #ppdup.on{display:flex}
   #ppdup:not(.pop) .wbtn-full,#ppdup:not(.pop) .wbtn-min{display:none !important}
   #ppdup.pop .wbtn-full,#ppdup.pop .wbtn-min{display:inline-flex}
@@ -793,9 +793,11 @@
   #ppdup .prog{padding:7px 18px;font-size:12px;color:var(--mute);background:var(--panel2);border-top:1px solid var(--line);display:flex;align-items:center;gap:12px}
   #ppdup .prog [data-r=status]{flex:1;min-width:0}
   #ppdup .prog [data-r=pright]{white-space:nowrap}
-  #ppdup .prog .pb{flex:0 0 180px;height:6px;border-radius:3px;background:var(--line);overflow:hidden;display:none}
+  #ppdup .prog .pb{flex:0 0 220px;height:6px;border-radius:3px;background:var(--line);overflow:hidden;display:none}
   #ppdup .prog .pb i{display:block;height:100%;width:0;background:var(--pri);transition:width .2s}
   #ppdup .prog.busy .pb{display:block}
+  #ppdup .prog .pp{white-space:nowrap;font:700 12px ui-monospace,Menlo,Consolas,monospace;color:var(--fg);min-width:0}
+  #ppdup .prog .pp:empty{display:none}
   #ppdup main{flex:1;overflow:auto;padding:14px 18px}
   #ppdup .empty{padding:40px;text-align:center;color:var(--mute)}
   /* スキャン画面 */
@@ -903,6 +905,49 @@
   #pd-ext .gr small{font-size:10px;color:#8b91a1}
   #pd-ext .ft{margin-top:10px;font-size:11px;color:#8b91a1}
   .sl-chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+  #pd-add{position:fixed;inset:0;z-index:100005;background:#14161b80;display:flex;align-items:center;justify-content:center;font:13px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Meiryo","Noto Sans CJK JP",sans-serif;color:var(--fg)}
+  #pd-add.drop .ad-box{outline:3px dashed var(--pri);outline-offset:-8px}
+  #pd-add .ad-box{width:min(980px,96vw);max-height:92vh;display:flex;flex-direction:column;background:var(--panel);border-radius:14px;box-shadow:0 18px 50px #0006;overflow:hidden}
+  #pd-add .ad-hd,#pd-add .ad-ft,#pd-add .ad-row,#pd-add .ad-h{display:flex;align-items:center;gap:10px}
+  #pd-add .ad-hd{padding:12px 18px;border-bottom:1px solid var(--line)}
+  #pd-add .ad-hd b{font-size:16px}
+  #pd-add .sp{flex:1}
+  #pd-add .note{color:var(--mute);font-size:12px}
+  #pd-add select{max-width:380px;height:32px;border:1px solid var(--ctl-line);border-radius:8px;background:var(--ctl);color:inherit;font:inherit;padding:0 8px}
+  #pd-add button{white-space:nowrap;height:34px;padding:0 14px;border:1px solid var(--ctl-line);border-radius:8px;background:var(--ctl);color:inherit;font:inherit;font-weight:600;cursor:pointer}
+  #pd-add button.pri{background:var(--pri);border-color:var(--pri);color:#fff;font-weight:700}
+  #pd-add button:disabled{opacity:.45;cursor:default}
+  #pd-add button.x{width:32px;padding:0;border:0;background:none;display:inline-flex;align-items:center;justify-content:center;color:var(--mute)}
+  #pd-add button.x svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+  #pd-add .ad-in{padding:12px 18px;display:flex;flex-direction:column;gap:8px;border-bottom:1px solid var(--line)}
+  #pd-add textarea{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--ctl-line);border-radius:9px;background:var(--ctl);color:inherit;font:500 12px/1.6 ui-monospace,Menlo,Consolas,monospace;resize:vertical}
+  #pd-add .ad-msg{padding:8px 12px;border-radius:8px;background:var(--pri-soft);font-weight:600}
+  #pd-add .ad-list{flex:1 1 auto;overflow:auto;padding:12px 18px;background:var(--bg);display:flex;flex-direction:column;gap:10px;min-height:120px}
+  #pd-add .ad-list .empty{color:var(--mute);text-align:center;padding:30px 0}
+  #pd-add .ad-it{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  #pd-add .ad-it.ex{border-color:#f0d9a8}
+  #pd-add .ad-h{padding:9px 12px;background:var(--panel2)}
+  #pd-add .ad-h b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:50%}
+  #pd-add .ad-h .note{text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #pd-add .ad-note{padding:6px 12px;font-size:12px;color:#8a5600;background:#fff8e6}
+  html.pd-dark #pd-add .ad-note{color:#f0c46c;background:#3a2c12}
+  #pd-add .ad-f{display:flex;align-items:center;gap:10px;padding:5px 12px;border-top:1px solid var(--line);cursor:pointer}
+  #pd-add .ad-f.dis{opacity:.5;cursor:default}
+  #pd-add .ad-f .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #pd-add .ad-f .nm i{font-style:normal;color:var(--mute)}
+  #pd-add .ad-f .sz{width:80px;text-align:right;color:var(--mute);font-size:12px}
+  #pd-add .ad-tag{font-size:11px;padding:1px 8px;border-radius:99px;font-weight:700;white-space:nowrap;background:var(--panel2);color:var(--mute)}
+  #pd-add .ad-tag.ok{background:#e3f6ec;color:#17703f}
+  #pd-add .ad-tag.pri{background:var(--pri-soft);color:var(--pri)}
+  #pd-add .ad-tag.warn{background:#fff3dc;color:#8a5600}
+  #pd-add .ad-tag.del{background:#fde8e8;color:#b42318}
+  html.pd-dark #pd-add .ad-tag.ok{background:#17331f;color:#6fdc9a}
+  html.pd-dark #pd-add .ad-tag.warn{background:#3a2c12;color:#f0c46c}
+  html.pd-dark #pd-add .ad-tag.del{background:#3a1a1a;color:#ff8a80}
+  #pd-add .ad-ft{padding:12px 18px;border-top:1px solid var(--line)}
+  #pd-add .ad-ft .tx{flex:1;min-width:0;color:var(--mute)}
+  #pd-add .ad-ft .tx b{color:var(--fg)}
+  #pd-add input[type=checkbox]{width:16px;height:16px;accent-color:var(--pri);flex:none}
   .st-bar{position:sticky;bottom:0;z-index:3;display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:14px 0 0;padding:10px 14px;background:#1c1f26;color:#fff;border-radius:12px;box-shadow:0 10px 30px #0004}
   html.pd-dark .st-bar{background:#2b3040}
   .st-bar.hide{display:none}
@@ -1164,6 +1209,7 @@
     alert: SVG('<circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/>'),
     expand: SVG('<path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/>'),
     minus: SVG('<path d="M6 12h12"/>'),
+    link: SVG('<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.2 1.2"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.2-1.2"/>'),
   };
   const btn = document.createElement('button'); btn.id = 'ppdup-btn'; btn.innerHTML = LOGO + '<span>Dedupe</span>'; btn.title = 'PikPak Distill – Dedupe（クリックでメニュー）'; document.body.appendChild(btn);
   const fab = document.createElement('div'); fab.id = 'ppdup-fab'; document.body.appendChild(fab);
@@ -1191,7 +1237,7 @@
     <div class="tb" data-r="tb"></div>
     <div class="tsel" data-r="tsel"></div>
     <main data-r="main"></main>
-    <div class="prog" data-r="prog"><span data-r="status"></span><span class="pb"><i data-r="pbar"></i></span><span data-r="pright"></span></div>`;
+    <div class="prog" data-r="prog"><span data-r="status"></span><span class="pb"><i data-r="pbar"></i></span><b class="pp" data-r="ppct"></b><span data-r="pright"></span></div>`;
   document.body.appendChild(root);
 
   // ---------- 表示言語（日本語／英語） ----------
@@ -1208,6 +1254,7 @@
   EN.push(...[["全画面で開く", "Open full screen"], ["ポップアップに戻す", "Back to popup"], ["次から全画面で開く", "Always open full screen"], ["PikPak の画面を Dedupe に切り替えて使うこともできます。一覧が広くなり、キー操作やドラッグも使いやすくなります。", "You can also switch the PikPak screen to Dedupe. Lists get wider, and keys and dragging are easier to use."], ["開き方", "How to open"], ["ポップアップ（おすすめ）", "Popup (recommended)"], ["全画面", "Full screen"], ["PikPak の画面の上に重ねて開きます。動かしたり大きさを変えたりでき、後ろの PikPak もそのまま使えます", "Opens on top of PikPak. You can move and resize it, and keep using PikPak behind it"], ["PikPak の画面を Dedupe に切り替えます（今までの開き方）", "Switches the PikPak screen to Dedupe (the previous way)"], ["次からは全画面で開きます（設定の「表示」→「開き方」で戻せます）", "Will open full screen from now on (change it in Settings → Display → How to open)"]]);
   EN.push(...[["品番から判定", "From the ID"], ["サイトで確認", "Confirmed on a site"], ["名前の「", "From \""], ["」から判定", "\" in the name"], ["日付型の品番だけで、名前にサイト名がありません（名前に 1pon・carib などがあれば自動で決まります）", "Only a date-style ID and no site name (names containing 1pon, carib, etc. are decided automatically)"], ["同じ番号の作品が複数のサイトにあります", "The same number exists on several sites"], ["外部サイトで確かめる", "Check on other sites"], ["外部サイト ▾", "Other sites ▾"], ["分かったら、行の入力欄に販売者名と ID を入れて「保存」", "When you find it, enter the seller name and ID in the row and press Save"], ["調べ直す", "Look up again"], ["販売者を調べる", "Look up sellers"], ["確かめる・入力", "Check & enter"], ["移動", "Move"], ["未調査はありません", "Nothing left to look up"], ["分からないものはありません", "Nothing unknown"], ["件は販売者が分かりませんでした。外部サイトで確かめて入力してください", " could not be identified. Check other sites and enter the seller"], ["このまま ③ 移動へ", "Go to ③ Move as is"], ["② に戻る", "Back to ②"], ["移動するもの ", "To move: "], ["チェックの入った作品がありません", "No works are checked"], ["先頭1件だけ試す", "Try the first one"], ["決まった", "Decided"], ["自動では移動しません（初めはチェックなし）", "Not moved automatically (unchecked at first)"], ["入力すると、その販売者の組へ移ります", "Enter a seller to move it to that group"], ["販売者名と販売者ID（英数字）を入れてください", "Enter the seller name and seller ID (letters/digits)"], ["件を確かめる", " to check"], ["分からない ", "Unknown: "]]);
   EN.push(...[["残り時間を計算中…", "Estimating time left…"], ["まもなく完了", "Almost done"], ["あと約 ", "About "], ["（目安・前回 ", "(estimate, last time "], ["（目安）", "(estimate)"], ["実行中…", "Running…"], ["中断すると、そこまでの分は反映されます", "If you stop, what has been done so far is kept"], ["削除するもの ", "To delete: "], ["PikPak のゴミ箱へ移動します", "Moves to the PikPak trash"], ["チェックの入ったファイルがありません", "No files are checked"], ["削除するものにチェックを入れてください", "Check the files to delete"], ["表示中 ", "Showing "], ["チェックした（削除の）ファイルを PikPak のゴミ箱へ移動します", "Moves the checked (delete) files to the PikPak trash"], ["対象 ", "Targets: "], ["まずは「先頭1件だけ試す」で動きを確かめてください", "First check how it works with \"Try the first one\""], ["下の「画質」で別の画質を試せます。", "Try another quality from the quality menu below."]]);
+  EN.push(...[["（残り ", "(left "], ["リンク・マグネットを追加", "Add links / magnets"], ["追加する前に、もうあるか確かめる", "Checks whether you already have it before adding"], ["中身を確認", "Check contents"], ["もうあります", "Already have"], ["すべて保存", "Save all"], ["一部だけ保存", "Save selected only"], ["キャッシュなし", "No cache"], ["中身を確認中…", "Checking contents…"], ["中身を確認できません", "Can't check contents"], ["追加するもの ", "To add: "], ["追加するものがありません", "Nothing to add"], ["PikPak の既定の保存先（My Pack）", "PikPak default location (My Pack)"], ["保存先", "Save to"], ["🔗 リンクを追加", "🔗 Add links"], ["ここにリンクを追加…", "Add links here…"], ["リンク・マグネットを追加…", "Add links / magnets…"]]);
   EN.sort((a, b) => b[0].length - a[0].length); // 長い言い回しから先に置き換える
   const EN_MAP = new Map(EN);
   const EN_UNIT = EN.filter(([a]) => a.length > 1 && /^(件|項目|組|作品|本)./.test(a));
@@ -1310,7 +1357,13 @@
     $('[data-r=status]').textContent = t || '';
     const busy = typeof ratio === 'number';
     $('[data-r=prog]').classList.toggle('busy', busy);
-    if (busy) $('[data-r=pbar]').style.width = Math.max(2, Math.min(100, ratio * 100)).toFixed(1) + '%';
+    if (busy) {
+      const pct = Math.max(0, Math.min(100, ratio * 100));
+      $('[data-r=pbar]').style.width = Math.max(2, pct).toFixed(1) + '%';
+      // ゲージの横に、進んだ割合と残りの割合を出す
+      const done = Math.min(99, Math.floor(pct));
+      $('[data-r=ppct]').textContent = `${done}%（残り ${100 - done}%）`;
+    } else $('[data-r=ppct]').textContent = '';
   };
 
   let folders = [];
@@ -1656,7 +1709,7 @@
     let all = {}; try { all = JSON.parse(localStorage.getItem(LS_SCANSTAT) || '{}') || {}; } catch (e) { all = {}; }
     const prev = all[key] && all[key].folders > 0 && all[key].ms > 0 ? all[key] : null;
     const t0 = Date.now();
-    let shown = null, lastAt = t0;
+    let shown = null, lastAt = t0, maxFrac = 0;
     return {
       tick(d, known) {
         const now = Date.now(), el = now - t0;
@@ -1672,7 +1725,11 @@
         lastAt = now;
         const tail = prev ? `（目安・前回 ${fmtDur(prev.ms)}）` : '（目安）';
         const text = shown == null ? '残り時間を計算中…' : shown < 5000 ? `まもなく完了${tail}` : `あと約 ${fmtDur(shown)}${tail}`;
-        return { text, frac: d / Math.max(expected, 1), expectedLabel: prev || known > d ? `約 ${expected}` : `${expected}` };
+        // ％は戻らないようにする（初めての場所では、フォルダが見つかるにつれて全体の数が増えるため）
+        let frac = d / Math.max(expected, 1);
+        if (!prev && el < 3000 && known < 20) frac = Math.min(frac, 0.05);
+        maxFrac = Math.max(maxFrac, Math.min(0.99, frac));
+        return { text, frac: maxFrac, expectedLabel: prev || known > d ? `約 ${expected}` : `${expected}` };
       },
       done(nfo, nfi) {
         if (window.__ppdupStop) return;
@@ -2900,8 +2957,8 @@
         <button data-ta="move"${dis(rows.length && !fixed)} title="${fixed ? '読み込んだ場所とその上のフォルダは、ここでは移動できません' : '移動（ドラッグでも移動できます）'}">↪ 移動…</button>
         <button data-ta="base"${dis(one && one.kind === 'folder')} title="選んだフォルダを最上位にして、その中だけを表示（${KEY.open}）">⤓ ここを最上位に</button>
         <button data-ta="trash"${dis(rows.length && !fixed)} class="red" title="${fixed ? '読み込んだ場所とその上のフォルダは、ここではゴミ箱に入れられません' : `ゴミ箱に入れる（${KEY.trash}）`}">🗑 ゴミ箱へ</button>
-        <span class="sp"></span><button data-ta="mkdir"${dis(true)} title="新規フォルダ（${KEY.mkdir}）">＋ 新規フォルダ</button>`
-      : `<span class="hint">項目を選ぶと、再生・名前の変更・移動・ゴミ箱が使えます（右クリックでもメニューを開けます）</span><span class="sp"></span><button data-ta="mkdir"${dis(true)} title="新規フォルダ（${KEY.mkdir}）">＋ 新規フォルダ</button>`;
+        <span class="sp"></span><button data-ta="addlink"${dis(true)} title="リンク・マグネットを、選んでいる場所へ追加">🔗 リンクを追加</button><button data-ta="mkdir"${dis(true)} title="新規フォルダ（${KEY.mkdir}）">＋ 新規フォルダ</button>`
+      : `<span class="hint">項目を選ぶと、再生・名前の変更・移動・ゴミ箱が使えます（右クリックでもメニューを開けます）</span><span class="sp"></span><button data-ta="addlink"${dis(true)} title="リンク・マグネットを、表示中の場所へ追加">🔗 リンクを追加</button><button data-ta="mkdir"${dis(true)} title="新規フォルダ（${KEY.mkdir}）">＋ 新規フォルダ</button>`;
   }
   function treeAction(a) {
     const rows = selRows(), one = rows.length === 1 ? rows[0] : null;
@@ -2914,6 +2971,7 @@
     else if (a === 'rename' && one) { closeQL(); renaming = one.id; renderTree(); }
     else if (a === 'move') treeMoveAsk();
     else if (a === 'mkdir') treeNewFolder();
+    else if (a === 'addlink') openAdd(one ? (one.kind === 'folder' ? one.id : one.parentId) : treeBase());
     else if (a === 'trash' && rows.length) { closeQL(); treeTrash(); }
     else if (a === 'copy' && one) copyPath(one);
     else if (a === 'open' && one && one.kind === 'folder') { treeToggle(one.id, true); renderTree(); }
@@ -2937,7 +2995,7 @@
       one && one.kind === 'folder' ? it('open', '開く', '→', true) : '',
       one && one.kind === 'folder' ? it('base', 'このフォルダを最上位にして表示', KEY.open, true) : '',
       it('preview', 'プレビュー', 'Space', !!one), '<hr>',
-      it('rename', '名前を変更', KEY.rename, !!one), it('move', `移動…${rows.length > 1 ? `（${rows.length} 項目）` : ''}`, 'ドラッグ', rows.length > 0 && !rows.some((r) => isRootOrAbove(r.id))), it('mkdir', '新規フォルダ', KEY.mkdir, true), '<hr>',
+      it('rename', '名前を変更', KEY.rename, !!one), it('move', `移動…${rows.length > 1 ? `（${rows.length} 項目）` : ''}`, 'ドラッグ', rows.length > 0 && !rows.some((r) => isRootOrAbove(r.id))), it('mkdir', '新規フォルダ', KEY.mkdir, true), it('addlink', one && one.kind === 'folder' ? 'ここにリンクを追加…' : 'リンク・マグネットを追加…', '', true), '<hr>',
       it('copy', '場所をコピー', KEY.copy, !!one), '<hr>',
       it('trash', `ゴミ箱に入れる${rows.length > 1 ? `（${rows.length} 項目）` : ''}`, KEY.trash, rows.length > 0 && !rows.some((r) => isRootOrAbove(r.id)), 'red'),
     ].join('');
@@ -3604,6 +3662,274 @@
     new ResizeObserver(() => { if (winMode !== 'pop' || !root.classList.contains('on')) return; clearTimeout(rt); rt = setTimeout(() => { const b = root.getBoundingClientRect(); if (b.width && b.height) savePopGeom({ x: Math.round(b.left), y: Math.round(b.top), w: Math.round(b.width), h: Math.round(b.height) }); }, 300); }).observe(root);
   }
   window.addEventListener('resize', () => { if (winMode === 'pop' && root.classList.contains('on')) applyWin(); });
+  // ---------- リンク・マグネットを追加（追加する前に、もうあるか確かめる） ----------
+  // ・中身の確認：PikPak の resource/list で、マグネットの中のファイル一覧（とキャッシュの有無）を取る
+  // ・すべて保存：クラウドダウンロード（UPLOAD_TYPE_URL）に追加
+  // ・一部だけ保存：PikPak 側にキャッシュがあるファイル（gcid あり）だけを、選んだものだけすぐ保存
+  const SS_ADDTEXT = 'ppdup:addtext';
+  let addSt = null; // { pid, text, items: [...] }
+  // 名前から「同じ作品」を見分けるための鍵（FC2 の品番・ABC-123・日付型の品番）
+  function libKeys(name) {
+    const n = String(name || ''), out = new Set();
+    const fc2 = n.match(/FC2[\s_-]*(?:PPV[\s_-]*)?(\d{5,8})(?!\d)/i); if (fc2) out.add('fc2:' + fc2[1]);
+    if (/FC2/i.test(n)) [...n.matchAll(/(?:^|[^\d])(\d{6,8})(?!\d)/g)].forEach((m) => out.add('fc2:' + m[1]));
+    if (!out.size) {
+      const j = n.match(/(?:^|[^A-Za-z0-9])([A-Za-z]{2,6})[-_ ]?(\d{3,5})(?![\d])/); if (j && !/^(FC|MP|AVI|MKV|HD|FHD|UHD|PART|CD|DISC|VOL|EP)$/i.test(j[1])) out.add('id:' + j[1].toUpperCase() + '-' + j[2]);
+      workKeys(n).forEach((k) => { if (k.kind !== 'fc2') out.add(k.key.replace(/^x:(?:[a-z0-9]+-)?(?=\d{6})/, 'x:').replace(/_/g, '-')); });
+    }
+    return [...out];
+  }
+  let libIdx = null;
+  function buildLibIdx() {
+    const m = new Map();
+    const add = (name, path, size, isDir) => libKeys(name).forEach((k) => { if (!m.has(k)) m.set(k, { path, size, isDir }); });
+    folders.forEach((d) => { if (!d.isRoot) add(d.name, d.path || '/', 0, true); });
+    files.forEach((f) => add(f.name, (f.path || '').replace(/\/$/, '') + '/' + f.name, f.size, false));
+    libIdx = m; return m;
+  }
+  const findInLib = (name) => { if (!hasScan()) return null; const m = libIdx || buildLibIdx(); for (const k of libKeys(name)) if (m.has(k)) return m.get(k); return null; };
+  // 貼り付けた文からリンクを取り出す（マグネット・40 桁のハッシュ・http(s)/ftp/ed2k）。同じものは 1 つにまとめる
+  function parseLinks(text) {
+    const out = [], seen = new Set();
+    const push = (url, kind, hash) => { const k = hash ? 'h:' + hash : 'u:' + url; if (seen.has(k)) return; seen.add(k); out.push({ url, kind, hash: hash || '' }); };
+    String(text || '').split(/\r?\n/).forEach((line) => {
+      [...line.matchAll(/magnet:\?[^\s"'<>]+/gi)].forEach((m) => { const h = (m[0].match(/xt=urn:btih:([a-z0-9]{32,40})/i) || [])[1]; if (h) push(m[0].replace(/&amp;/g, '&'), 'magnet', h.toLowerCase()); });
+      if (/magnet:\?/i.test(line)) return;
+      [...line.matchAll(/(?:https?|ftp|ed2k|thunder):\/\/[^\s"'<>]+/gi)].forEach((m) => push(m[0], 'url'));
+      if (/:\/\//.test(line)) return;
+      [...line.matchAll(/(?:^|[^a-z0-9])([a-f0-9]{40})(?![a-z0-9])/gi)].forEach((m) => push(`magnet:?xt=urn:btih:${m[1].toLowerCase()}`, 'magnet', m[1].toLowerCase()));
+    });
+    return out;
+  }
+  const linkName = (it) => { if (it.kind === 'magnet') { const dn = (it.url.match(/[?&]dn=([^&]+)/i) || [])[1]; if (dn) { try { return decodeURIComponent(dn.replace(/\+/g, ' ')); } catch (e) { return dn; } } return ''; } try { return decodeURIComponent(new URL(it.url).pathname.split('/').pop() || '') || it.url; } catch (e) { return it.url; } };
+  // .torrent → マグネット（info の部分の SHA-1）
+  async function torrentToMagnet(file) {
+    const b = new Uint8Array(await file.arrayBuffer());
+    let i = 0;
+    const num = (end) => { let s = ''; while (b[i] !== end) s += String.fromCharCode(b[i++]); i++; return +s; };
+    const skip = () => {
+      const c = b[i];
+      if (c === 0x69) { i++; num(0x65); return; } // i...e
+      if (c === 0x6c || c === 0x64) { i++; while (b[i] !== 0x65) { skip(); } i++; return; } // l...e / d...e
+      const len = num(0x3a); i += len; // 文字列
+    };
+    if (b[i] !== 0x64) throw new Error('.torrent の形式ではありません');
+    i++;
+    let name = '';
+    while (b[i] !== 0x65 && i < b.length) {
+      const klen = num(0x3a); const key = new TextDecoder().decode(b.slice(i, i + klen)); i += klen;
+      if (key === 'info') {
+        const st = i; skip(); const en = i;
+        const h = new Uint8Array(await crypto.subtle.digest('SHA-1', b.slice(st, en)));
+        // info の中の name（表示用）
+        try { const t = new TextDecoder().decode(b.slice(st, en)); const m = t.match(/4:name(\d+):/); if (m) { const p = t.indexOf(m[0]) + m[0].length; name = t.slice(p, p + +m[1]); } } catch (e) { /* 無視 */ }
+        const hex = [...h].map((x) => x.toString(16).padStart(2, '0')).join('');
+        return `magnet:?xt=urn:btih:${hex}${name ? '&dn=' + encodeURIComponent(name) : ''}`;
+      }
+      skip();
+    }
+    throw new Error('.torrent の中に info がありません');
+  }
+  // resource/list の結果を、ファイルの一覧（相対パスつき）にする
+  function flatResources(data) {
+    const list = data && data.list && typeof data.list === 'object' ? data.list : data;
+    const res = Array.isArray(list && list.resources) ? list.resources : Array.isArray(data && data.resources) ? data.resources : [];
+    const kids = (r) => (r && r.dir && Array.isArray(r.dir.resources) ? r.dir.resources : Array.isArray(r && r.resources) ? r.resources : Array.isArray(r && r.children) ? r.children : []);
+    const isDir = (r) => !!(r && (r.is_dir === true || r.is_dir === 'true' || r.kind === 'drive#folder' || kids(r).length));
+    const out = [];
+    let rootName = '';
+    let roots = res;
+    if (res.length === 1 && isDir(res[0])) { rootName = String(res[0].name || res[0].file_name || '').trim(); roots = kids(res[0]); }
+    const walk = (r, dir) => {
+      const name = String(r.name || r.file_name || r.title || '').trim() || '（名前なし）';
+      if (isDir(r)) { kids(r).forEach((c) => walk(c, dir ? dir + '/' + name : name)); return; }
+      out.push({ name, dir, size: Math.max(0, +(r.file_size != null ? r.file_size : r.size) || 0), gcid: String((r.meta && r.meta.hash) || r.gcid || r.hash || '').trim() });
+    };
+    roots.forEach((r) => walk(r, ''));
+    if (!rootName && res.length === 1) rootName = String(res[0].name || res[0].file_name || '').trim();
+    return { rootName, files: out };
+  }
+  // 一部だけ保存できるか（選んだファイルがすべてキャッシュあり）
+  const addMode = (it) => {
+    if (it.kind !== 'magnet' || !it.files || !it.files.length) return 'all';
+    const on = it.files.filter((f) => f.on);
+    return on.length === it.files.length ? 'all' : 'part';
+  };
+  async function previewLinks() {
+    const ta = document.querySelector('#pd-add textarea');
+    if (ta) addSt.text = ta.value;
+    const links = parseLinks(addSt.text);
+    if (!links.length) { addSt.msg = 'リンクが見つかりません。マグネット・http(s) のリンクを 1 行に 1 つずつ貼り付けてください'; renderAdd(); return; }
+    if (!sessionValid()) { try { sessionStorage.setItem(SS_ADDTEXT, addSt.text); } catch (e) { /* 無視 */ } ensureSession(view); return; }
+    const old = new Map(addSt.items.map((x) => [x.hash ? 'h:' + x.hash : 'u:' + x.url, x]));
+    addSt.items = links.map((l) => old.get(l.hash ? 'h:' + l.hash : 'u:' + l.url) || { ...l, name: linkName(l), st: 'new', on: true });
+    addSt.msg = ''; libIdx = null;
+    addSt.busy = true; renderAdd();
+    for (const it of addSt.items) {
+      if (it.st === 'ok' || !document.getElementById('pd-add')) continue;
+      const ex = findInLib(it.name);
+      if (it.kind !== 'magnet') { it.st = 'ok'; it.exists = ex; it.on = !ex; renderAdd(); continue; }
+      it.st = 'loading'; renderAdd();
+      try {
+        const r = flatResources(await api('/resource/list', { method: 'POST', body: JSON.stringify({ urls: it.url }) }));
+        it.rootName = r.rootName || it.name; if (!it.name) it.name = it.rootName;
+        prepJunk(files, folders);
+        it.files = r.files.map((f) => { const j = junkInfo({ name: f.name, size: f.size, parentId: '' }); const fx = findInLib(f.name); return { ...f, junk: j && j.level === 'del' ? j.reason : '', sub: j && j.level === 'review' ? j.reason : '', exists: fx, on: !(j && j.level === 'del') && !fx }; });
+        it.exists = findInLib(it.name) || (it.files.length && it.files.every((f) => f.exists || f.junk) && it.files.some((f) => f.exists) ? it.files.find((f) => f.exists).exists : null);
+        it.on = !it.exists;
+        // 一部だけにしたいのにキャッシュがないファイルを含むときは、すべて保存に戻す
+        if (addMode(it) === 'part' && it.files.some((f) => f.on && !f.gcid)) { it.files.forEach((f) => { f.on = true; }); it.note = 'キャッシュがないファイルがあるため、広告ファイルも含めてすべて保存します'; }
+        it.st = 'ok';
+      } catch (err) {
+        if (err.session) { try { sessionStorage.setItem(SS_ADDTEXT, addSt.text); } catch (e) { /* 無視 */ } addSt.busy = false; handleErr(err, view); return; }
+        it.st = 'err'; it.err = err.message; it.exists = findInLib(it.name); it.on = !it.exists;
+      }
+      renderAdd();
+      await sleep(300);
+    }
+    addSt.busy = false; renderAdd();
+  }
+  function addSummary() {
+    const on = addSt.items.filter((x) => x.on && x.st !== 'new' && x.st !== 'loading');
+    const all = on.filter((x) => addMode(x) === 'all').length, part = on.filter((x) => addMode(x) === 'part');
+    const pf = part.reduce((n, x) => n + x.files.filter((f) => f.on).length, 0), ps = part.reduce((n, x) => n + x.files.filter((f) => f.on).reduce((s, f) => s + f.size, 0), 0);
+    const ex = addSt.items.filter((x) => x.exists && !x.on).length;
+    return { n: on.length, text: on.length ? `<b>追加するもの ${on.length} 件</b>（すべて保存 ${all}${part.length ? `・一部だけ保存 ${part.length}：${pf} ファイル ${fmt(ps)}` : ''}）${ex ? `　もうある ${ex} 件は追加しません` : ''}` : `<b>追加するものがありません</b>${addSt.items.length ? '（チェックを入れたリンクだけを追加します）' : ''}` };
+  }
+  function addDestOptions() {
+    const opts = [['DL', 'PikPak の既定の保存先（My Pack）']];
+    const seen = new Set(['DL']);
+    const push = (id, label) => { if (seen.has(id)) return; seen.add(id); opts.push([id, label]); };
+    if (addSt.pid && addSt.pid !== 'DL') push(addSt.pid, isHomeId(addSt.pid) ? 'ホーム' : fullPath(addSt.pid));
+    push('root', 'ホーム');
+    folders.filter((d) => !d.isRoot).slice().sort((a, b) => a.path.localeCompare(b.path)).slice(0, 800).forEach((d) => push(d.id, d.path));
+    return opts;
+  }
+  function renderAdd() {
+    const d = document.getElementById('pd-add'); if (!d || !addSt) return;
+    const ta = d.querySelector('textarea'); if (ta) addSt.text = ta.value;
+    const pill = (cls, t) => `<span class="ad-tag ${cls}">${esc(t)}</span>`;
+    const item = (it, i) => {
+      const mode = addMode(it);
+      const tag = it.st === 'loading' ? pill('pend', '中身を確認中…') : it.st === 'new' ? pill('pend', '未確認') : it.exists ? pill('warn', 'もうあります') : it.st === 'err' ? pill('warn', '中身を確認できません') : pill(mode === 'part' ? 'pri' : 'ok', mode === 'part' ? '一部だけ保存' : 'すべて保存');
+      const info = it.exists ? `${esc(it.exists.path)} に同じ品番${it.exists.size ? `（${fmt(it.exists.size)}）` : ''}${it.on ? '・それでも追加します' : '・追加しません'}`
+        : it.st === 'err' ? `${esc(it.err || '')}（すべて保存として追加はできます）` : it.files ? `${it.files.filter((f) => f.on).length} / ${it.files.length} ファイル・${fmt(it.files.filter((f) => f.on).reduce((s, f) => s + f.size, 0))}` : it.kind === 'url' ? 'クラウドダウンロードに追加' : '';
+      const fl = it.files && it.files.length > 1 || (it.files && it.files.length === 1 && (it.files[0].junk || it.files[0].exists)) ? it.files.map((f, k) => {
+        const part = mode === 'part';
+        const dis = part && !f.gcid && !f.on;
+        const t = f.junk ? pill('del', /広告/.test(f.junk) ? '広告' : '小さいファイル') : f.exists ? pill('warn', 'もうあります') : f.sub ? pill('mute', f.sub) : !f.gcid ? pill('mute', 'キャッシュなし') : '';
+        return `<label class="ad-f${dis ? ' dis' : ''}" style="padding-left:${38 + (f.dir ? f.dir.split('/').length * 14 : 0)}px"><input type="checkbox" data-adf="${i}:${k}"${f.on ? ' checked' : ''}${dis ? ' disabled' : ''}><span class="nm" title="${esc((f.dir ? f.dir + '/' : '') + f.name)}">${f.dir ? `<i>${esc(f.dir)}/</i>` : ''}${esc(f.name)}</span>${t}<span class="sz">${fmt(f.size)}</span></label>`;
+      }).join('') : '';
+      return `<div class="ad-it${it.exists ? ' ex' : ''}"><div class="ad-h"><input type="checkbox" data-adi="${i}"${it.on ? ' checked' : ''}${it.st === 'new' || it.st === 'loading' ? ' disabled' : ''}><b title="${esc(it.url)}">${esc(it.name || it.rootName || it.url)}</b>${tag}<span class="sp"></span><span class="note">${info}</span></div>${it.note ? `<div class="ad-note">${esc(it.note)}</div>` : ''}${fl}</div>`;
+    };
+    const sum = addSummary();
+    const checked = addSt.items.some((x) => x.st === 'ok' || x.st === 'err');
+    const nLinks = parseLinks(addSt.text).length;
+    d.innerHTML = `<div class="ad-box" role="dialog" aria-label="リンク・マグネットを追加">
+      <div class="ad-hd"><b>リンク・マグネットを追加</b><span class="sp"></span><span class="note">保存先</span><select data-adpid>${addDestOptions().map(([id, l]) => `<option value="${esc(id)}"${(addSt.pid || 'DL') === id ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select><button class="x" data-adclose title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
+      <div class="ad-in"><textarea rows="4" placeholder="magnet:?xt=urn:btih:…&#10;https://…&#10;（.torrent ファイルはここにドロップ）" spellcheck="false">${esc(addSt.text)}</textarea>
+        <div class="ad-row"><span class="note">1 行に 1 つ。マグネット・http(s)・40 桁のハッシュ・.torrent（ドロップ）に対応。同じリンクと文中のほかの文字は取り除きます。${hasScan() ? '読み込んだライブラリと照らして、もうある作品を知らせます。' : '<b>まだ読み込んでいないため、もうあるかは確かめられません</b>（先に「Dedupe スキャン」で読み込むと確かめられます）。'}</span><span class="sp"></span><button class="${checked ? '' : 'pri'}" data-adcheck${addSt.busy || !nLinks ? ' disabled' : ''}>${addSt.busy ? '確認中…' : `中身を確認（${nLinks} 件）`}</button></div>
+        ${addSt.msg ? `<div class="ad-msg">${esc(addSt.msg)}</div>` : ''}</div>
+      <div class="ad-list">${addSt.items.map(item).join('') || '<div class="empty">リンクを貼り付けて「中身を確認」を押すと、ここに中身が出ます</div>'}</div>
+      <div class="ad-ft"><span class="tx">${sum.text}</span><button data-adclose>キャンセル</button><button class="${checked ? 'pri' : ''}" data-adgo${sum.n && !addSt.busy ? '' : ' disabled'}>${sum.n} 件を追加</button></div></div>`;
+    if (LANG === 'en') d.querySelectorAll('*').forEach(trNode);
+    const nta = d.querySelector('textarea');
+    nta.addEventListener('input', () => { addSt.text = nta.value; const b = d.querySelector('[data-adcheck]'); const n = parseLinks(nta.value).length; if (b && !addSt.busy) { b.disabled = !n; b.textContent = tr(`中身を確認（${n} 件）`); } });
+  }
+  function openAdd(pid) {
+    closeFab(); closeCtx();
+    let text = ''; try { text = sessionStorage.getItem(SS_ADDTEXT) || ''; sessionStorage.removeItem(SS_ADDTEXT); } catch (e) { /* 無視 */ }
+    addSt = { pid: pid || 'DL', text, items: [], busy: false, msg: '' };
+    let d = document.getElementById('pd-add');
+    if (!d) {
+      d = document.createElement('div'); d.id = 'pd-add'; document.body.appendChild(d);
+      d.addEventListener('mousedown', (e) => { if (e.target === d && !addSt.busy) closeAdd(); });
+      d.addEventListener('click', onAddClick);
+      d.addEventListener('change', onAddChange);
+      d.addEventListener('dragover', (e) => { e.preventDefault(); d.classList.add('drop'); });
+      d.addEventListener('dragleave', (e) => { if (e.target === d) d.classList.remove('drop'); });
+      d.addEventListener('drop', async (e) => {
+        e.preventDefault(); d.classList.remove('drop');
+        const fs = [...(e.dataTransfer.files || [])].filter((f) => /\.torrent$/i.test(f.name));
+        const add = [];
+        for (const f of fs) { try { add.push(await torrentToMagnet(f)); } catch (err) { addSt.msg = `${f.name}：${err.message}`; } }
+        const txt = e.dataTransfer.getData('text');
+        addSt.text = [addSt.text.trim(), ...add, fs.length ? '' : txt].filter(Boolean).join('\n');
+        renderAdd();
+      });
+    }
+    renderAdd();
+    d.querySelector('textarea').focus();
+  }
+  function closeAdd() { const d = document.getElementById('pd-add'); if (d) d.remove(); addSt = null; }
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.getElementById('pd-add') && addSt && !addSt.busy) { e.preventDefault(); e.stopImmediatePropagation(); closeAdd(); } }, true);
+  function onAddClick(e) {
+    const b = e.target.closest('button'); if (!b || b.disabled) return;
+    if (b.dataset.adclose !== undefined) { if (!addSt.busy) closeAdd(); return; }
+    if (b.dataset.adcheck !== undefined) { previewLinks(); return; }
+    if (b.dataset.adgo !== undefined) { runAdd(); }
+  }
+  function onAddChange(e) {
+    const t = e.target;
+    if (t.dataset.adpid !== undefined) { addSt.pid = t.value; return; }
+    if (t.dataset.adi !== undefined) { const it = addSt.items[+t.dataset.adi]; if (it) it.on = t.checked; renderAdd(); return; }
+    if (t.dataset.adf) {
+      const [i, k] = t.dataset.adf.split(':').map(Number); const it = addSt.items[i]; if (!it) return;
+      it.files[k].on = t.checked; it.note = '';
+      // 一部だけ保存になったら、キャッシュのないファイルは選べない
+      if (addMode(it) === 'part') { const bad = it.files.filter((f) => f.on && !f.gcid); if (bad.length) { bad.forEach((f) => { f.on = false; }); it.note = `キャッシュがないファイル ${bad.length} 件は、一部だけの保存では保存できません（すべてにチェックを入れると、すべて保存になります）`; } }
+      if (!it.files.some((f) => f.on)) it.on = false; else if (!it.exists) it.on = true;
+      renderAdd();
+    }
+  }
+  async function runAdd() {
+    if (!addSt || addSt.busy) return;
+    const list = addSt.items.filter((x) => x.on && x.st !== 'new' && x.st !== 'loading');
+    if (!list.length) return;
+    if (!sessionValid()) { try { sessionStorage.setItem(SS_ADDTEXT, addSt.text); } catch (e) { /* 無視 */ } ensureSession(view); return; }
+    const pid = addSt.pid === 'DL' ? '' : apiPid(addSt.pid);
+    addSt.busy = true; renderAdd();
+    let ok = 0, ng = 0, dupl = 0, nfile = 0;
+    const errs = [];
+    for (const it of list) {
+      try {
+        if (addMode(it) === 'part') {
+          // 入れ物のフォルダ（同じ名前があれば (2) などを付ける）→ 中のフォルダ → ファイル
+          // 既定の保存先のときは、PikPak の既定の保存フォルダ（My Pack）の中に作る
+          let base = pid;
+          if (!base) { const home = await apiList(''); const mp = home.find((x) => x.kind === 'drive#folder' && (x.folder_type === 'DOWNLOAD' || x.name === 'My Pack')); if (mp) base = mp.id; }
+          const sib = new Set((await apiList(base || '')).map((x) => x.name.toLowerCase()));
+          let nm = String(it.rootName || it.name || 'magnet').replace(/[\/\\]/g, '・').slice(0, 200), c = 1;
+          while (sib.has(nm.toLowerCase())) nm = `${String(it.rootName || it.name).replace(/[\/\\]/g, '・').slice(0, 200)} (${++c})`;
+          const top = await apiMkdir(base, nm);
+          const dirs = new Map([['', top]]);
+          for (const f of it.files.filter((x) => x.on)) {
+            let cur = '', p = top;
+            for (const part of (f.dir ? f.dir.split('/') : [])) { cur = cur ? cur + '/' + part : part; if (!dirs.has(cur)) dirs.set(cur, await apiMkdir(p, part)); p = dirs.get(cur); }
+            await api('/files', { method: 'POST', body: JSON.stringify({ kind: 'drive#file', name: f.name, size: String(f.size), hash: f.gcid.toUpperCase(), upload_type: 'UPLOAD_TYPE_RESUMABLE', folder_type: 'NORMAL', objProvider: { provider: 'UPLOAD_TYPE_UNKNOWN' }, parent_id: p }) });
+            nfile++;
+          }
+        } else {
+          const body = { kind: 'drive#file', upload_type: 'UPLOAD_TYPE_URL', url: { url: it.url }, params: { with_thumbnail: 'true', from: 'manual' } };
+          if (pid) body.parent_id = pid; else body.folder_type = 'DOWNLOAD';
+          await api('/files', { method: 'POST', body: JSON.stringify(body) });
+        }
+        ok++; it.on = false; it.done = true;
+        log('info', `リンクを追加（${addMode(it) === 'part' ? '一部だけ保存' : 'クラウドダウンロード'}）：${it.name || it.url}`);
+      } catch (err) {
+        if (err.session) { try { sessionStorage.setItem(SS_ADDTEXT, addSt.text); } catch (e) { /* 無視 */ } addSt.busy = false; handleErr(err, view); return; }
+        if (/exist|already|重複|已存在/i.test(err.message)) { dupl++; it.on = false; continue; }
+        ng++; errs.push(`${it.name || it.url}：${err.message}`);
+      }
+      await sleep(400);
+    }
+    addSt.busy = false;
+    addSt.msg = `${ok} 件を追加しました${nfile ? `（すぐ保存したファイル ${nfile}）` : ''}${dupl ? `・PikPak に同じタスクがあった ${dupl} 件` : ''}${ng ? `・失敗 ${ng} 件：${errs.slice(0, 3).join(' ／ ')}` : ''}。クラウドダウンロードの分は、完了すると保存先に出ます。`;
+    addSt.items = addSt.items.filter((x) => !x.done);
+    addSt.text = addSt.items.map((x) => x.url).join('\n');
+    renderAdd(); status(addSt.msg); refreshQuota();
+    if (view === 'tree' && nfile) refreshView();
+  }
   // ---------- フローティングメニュー ----------
   function openFlow() {
     mode = 'flow'; root.classList.remove('single'); showRoot(); updateLogBadge();
@@ -3622,6 +3948,7 @@
     const errs = readLog().filter((x) => x.level === 'error' && x.t > seen).length;
     fab.innerHTML = `<button class="it" data-fab="tree"${busy ? ' disabled' : ''}><span class="ic">${IC.folder}</span><span class="t"><b>フォルダ一覧</b><small>見る・再生・名前の変更・移動</small></span></button>
       <button class="it pri" data-fab="flow"><span class="ic">${IC.dedupe}</span><span class="t"><b>Dedupe スキャン</b><small>重複・不要ファイルを読み込んで整理</small></span></button>
+      <button class="it" data-fab="add"${busy ? ' disabled' : ''}><span class="ic">${IC.link}</span><span class="t"><b>リンク・マグネットを追加</b><small>追加する前に、もうあるか確かめる</small></span></button>
       ${errs ? `<div class="err">${IC.alert}<span>前回の操作でエラーが ${errs} 件あります</span><button data-fab="log">確認</button></div>` : ''}`;
   }
   const closeFab = () => fab.classList.remove('on');
@@ -3631,6 +3958,7 @@
     const k = b.dataset.fab; closeFab();
     if (k === 'flow') { if (!busy && view === 'tree') view = 'scan'; openFlow(); }
     else if (k === 'log') showLog();
+    else if (k === 'add') { const c = currentFolderId(); openAdd(isHomeId(c) ? 'DL' : c); }
     else if (k === 'tree') { mode = 'single'; root.classList.add('single'); showRoot(); updateLogBadge(); openTree(); }
     else openTask(k);
   });

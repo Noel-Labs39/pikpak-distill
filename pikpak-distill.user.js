@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.21.0
+// @version      3.22.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -81,7 +81,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.21.0'; // @version と合わせて更新する
+  const VER = '3.22.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -677,7 +677,7 @@
   #ppdup{position:fixed;inset:0;z-index:99999;background:var(--bg);color:var(--fg);font:13px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Yu Gothic","Meiryo","Noto Sans CJK JP","Noto Sans JP",sans-serif;display:none;flex-direction:column}
   html.pd-dark #ppdup,html.pd-dark #pd-set{--bg:#15171c;--panel:#1d2027;--panel2:#252932;--line:#2c303a;--fg:#e6e8ee;--mute:#8b91a1;--pri-soft:#306fff33;--keep:#17261c;--del:#2a1a1a;--ctl:#252932;--ctl-line:#3a3f4b}
   #ppdup.on{display:flex}
-  #ppdup .wbtn-full,#ppdup .wbtn-min,#ppdup.pop .wbtn-pop{display:none}
+  #ppdup .wbtn-full,#ppdup .wbtn-min{display:none}
   #ppdup.pop .wbtn-full,#ppdup.pop .wbtn-min{display:inline-flex}
   #ppdup.pop{inset:auto;box-sizing:border-box;border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 60px #0006,0 2px 8px #0003;overflow:hidden;resize:both;min-width:560px;min-height:380px;max-width:100vw;max-height:100vh;padding-left:58px}
   #ppdup.pop .rail{width:58px;padding-top:10px}
@@ -842,6 +842,66 @@
   .sc.next .sc-s{color:var(--pri);font-weight:700}
   @media (max-width:760px){.sv-hero{grid-template-columns:1fr}.sv-badge{display:none}}
   .pd-next{display:flex;justify-content:flex-end;margin:16px 0 4px}
+  .sl-guide{margin:0 0 12px;padding:14px 16px;background:var(--panel);border:1.5px solid var(--pri);border-radius:12px;box-shadow:0 4px 16px #306fff1f;display:flex;flex-direction:column;gap:12px}
+  .sl-guide .fl{display:flex;align-items:center;gap:0}
+  .sl-guide .st{display:flex;align-items:center;gap:8px;flex:0 1 auto;min-width:0}
+  .sl-guide .st .n{width:26px;height:26px;flex:none;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;color:#fff;background:#c5c9d2}
+  .sl-guide .st.done .n{background:var(--ok)}
+  .sl-guide .st.now .n{background:var(--pri);box-shadow:0 0 0 4px var(--pri-soft)}
+  .sl-guide .st .t{display:flex;flex-direction:column;min-width:0}
+  .sl-guide .st .t b{font-size:13px;white-space:nowrap}
+  .sl-guide .st:not(.done):not(.now) .t b{color:var(--mute)}
+  .sl-guide .st .t small{font-size:11px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sl-guide .ln{flex:1 1 24px;height:2px;margin:0 12px;background:var(--line);min-width:16px}
+  .sl-guide .msg{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 14px;background:var(--pri-soft);border-radius:9px}
+  .sl-guide .msg .tx{flex:1 1 360px;min-width:0;display:flex;flex-direction:column;gap:2px}
+  .sl-guide .msg .tx b{font-size:14px}
+  .sl-guide .msg .tx small{font-size:12px;color:var(--mute)}
+  .sl-guide .msg button{height:36px;padding:0 16px}
+  .sl-guide .msg button.pri{font-size:13.5px}
+  .sl-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+  .sl-tabs button{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 14px;border-radius:99px !important;font-weight:600}
+  .sl-tabs button i{width:8px;height:8px;border-radius:2px}
+  .sl-tabs button b{font-size:14px}
+  .sl-tabs button.on{background:var(--fg) !important;color:var(--bg) !important;border-color:var(--fg) !important}
+  .sl-tabs button:disabled{opacity:.45}
+  .sl-why{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:3px}
+  .sl-b{font-size:11px;padding:1px 8px;border-radius:99px;font-weight:700;background:var(--panel2);color:var(--mute)}
+  .sl-b:empty{display:none}
+  .sl-b.auto{background:#e3f6ec;color:#17703f}
+  .sl-b.ok{background:var(--pri-soft);color:var(--pri)}
+  .sl-b.man{background:#efe9ff;color:#5b3fd6}
+  .sl-b.warn{background:#fff3dc;color:#8a5600}
+  html.pd-dark .sl-b.auto{background:#17331f;color:#6fdc9a}
+  html.pd-dark .sl-b.man{background:#2a2346;color:#b9a6ff}
+  html.pd-dark .sl-b.warn{background:#3a2c12;color:#f0c46c}
+  .sl-in{display:flex;flex-wrap:wrap;gap:6px;align-items:center;flex:0 1 auto}
+  .sl-in input{height:32px;box-sizing:border-box;padding:0 10px;border:1px solid var(--ctl-line);border-radius:7px;background:var(--ctl);color:inherit;font:inherit}
+  .sl-in input[data-sname]{width:180px}
+  .sl-in input[data-ssid]{width:96px}
+  .sl-in .err{flex-basis:100%;color:var(--danger);font-size:12px}
+  .sl-in .err:empty{display:none}
+  .pd-g.unk .pd-row{background:var(--panel)}
+  .sl-bar{position:sticky;bottom:0;z-index:3;display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:14px 0 0;padding:10px 14px;background:#1c1f26;color:#fff;border-radius:12px;box-shadow:0 10px 30px #0004}
+  html.pd-dark .sl-bar{background:#2b3040}
+  .sl-bar:empty{display:none}
+  .sl-bar .n{min-width:22px;height:22px;padding:0 4px;box-sizing:border-box;border-radius:11px;background:var(--pri);display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:12px}
+  .sl-bar .tx{flex:1 1 280px;min-width:0;display:flex;flex-direction:column}
+  .sl-bar .tx small{color:#b6bbc7;font-size:12px}
+  .sl-bar button.sec{background:#ffffff1a !important;color:#fff !important;border-color:#5a6070 !important;font-weight:700}
+  .sl-bar button:not(.pri):not(.sec){background:transparent !important;color:#fff !important;border-color:#5a6070 !important}
+  #pd-ext{position:fixed;z-index:100004;width:400px;max-width:calc(100vw - 16px);box-sizing:border-box;padding:12px 14px 14px;background:#1d2027;color:#e6e8ee;border-radius:14px;box-shadow:0 18px 50px #0006;font:13px/1.5 system-ui,-apple-system,"Segoe UI","Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif}
+  #pd-ext .hd{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  #pd-ext .hd b{flex:1}
+  #pd-ext .hd button{width:28px;height:28px;border:0;border-radius:7px;background:none;color:#8b91a1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+  #pd-ext .hd svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+  #pd-ext .kw{font:500 12px ui-monospace,Menlo,monospace;color:#8b91a1;margin:6px 0}
+  #pd-ext .gr{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  #pd-ext .gr a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;height:50px;border:1px solid #3a3f4b;border-radius:10px;background:#252932;color:#e6e8ee;text-decoration:none}
+  #pd-ext .gr a:hover{border-color:#7fa8ff;color:#7fa8ff}
+  #pd-ext .gr b{font-size:12.5px}
+  #pd-ext .gr small{font-size:10px;color:#8b91a1}
+  #pd-ext .ft{margin-top:10px;font-size:11px;color:#8b91a1}
   .sl-chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
   .sl-chip{display:flex;flex-direction:column;gap:2px;min-width:150px;padding:8px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--line)}
   .sl-chip span,.sl-chip small{font-size:12px;color:var(--mute)}
@@ -1084,7 +1144,6 @@
     dedupe: SVG('<rect x="3" y="4" width="11" height="13" rx="2"/><path d="M8 8h11a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H10"/>'),
     alert: SVG('<circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/>'),
     expand: SVG('<path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/>'),
-    shrink: SVG('<path d="M4 14h6v6M20 10h-6V4M10 14l-7 7M14 10l7-7"/>'),
     minus: SVG('<path d="M6 12h12"/>'),
   };
   const btn = document.createElement('button'); btn.id = 'ppdup-btn'; btn.innerHTML = LOGO + '<span>Dedupe</span>'; btn.title = 'PikPak Distill – Dedupe（クリックでメニュー）'; document.body.appendChild(btn);
@@ -1104,7 +1163,6 @@
         <button class="hbtn" data-a="lang" title="表示言語を切り替える">${IC.globe}<span class="raw" data-r="langname"></span></button>
         <button class="hbtn" data-a="settings" title="設定（表示・再生・整理・情報）">${IC.gear}<span>設定</span><i data-r="logbadge"></i></button>
         <button class="hbtn wbtn-full" data-a="tofull" title="PikPak の画面を Dedupe に切り替えて、広い画面で使う">${IC.expand}<span>全画面で開く</span></button>
-        <button class="hbtn wbtn-pop" data-a="topop" title="PikPak の画面の上に重ねる小さな画面に戻す">${IC.shrink}<span>ポップアップに戻す</span></button>
         <button class="hx wbtn-min" data-a="mini" title="小さくする（右下のボタンに戻す。作業中の内容はそのまま）" aria-label="小さくする">${IC.minus}</button>
         <button class="hx" data-a="close" title="閉じる（PikPakの画面に戻る）" aria-label="閉じる">${IC.x}</button>
       </div>
@@ -1129,6 +1187,7 @@
   EN.push(...[["販売者ごとに仕分け", "Sort by seller"], ["作品フォルダの品番から販売者を調べ、ホーム/販売者別/販売者名（販売者ID）/ へ移動します。調べるだけでは何も動かしません（使うかどうかを選べます）。", "Looks up the seller of each work folder by its ID and moves it to Home/By seller/Seller (ID)/. Looking up alone moves nothing (optional)."], ["販売者が決まった", "Seller found"], ["販売者不明", "Unknown seller"], ["未調査", "Not looked up"], ["販売者を調べる（未調査 ", "Look up sellers (not looked up: "], ["販売者を変更", "Change seller"], ["販売者を入力", "Enter seller"], ["fd2ppv.cc で開く", "Open on fd2ppv.cc"], ["今の場所：", "Now in: "], ["新しく作るフォルダ", "New folder"], ["既にあるフォルダ", "Existing folder"], ["チェックしたものを移動（", "Move checked ("], ["手入力できます", "Can be entered manually"], ["品番が複数・同名あり", "Several IDs / same name"], ["「販売者を調べる」で調べます", "Use \"Look up sellers\""], ["販売者名", "Seller name"], ["入力を消す", "Clear input"], ["まとめるフォルダ", "Container folder"], ["ホームの直下に作ります", "Created directly under Home"], ["販売者が分からないとき", "When the seller is unknown"], ["判断できないとき", "When it can't be decided"], ["調べる間隔", "Lookup interval"], ["調べた結果", "Lookup results"], ["手入力", "manual"], ["fd2ppv.cc で確認", "Confirmed on fd2ppv.cc"], ["fd2ppv.cc にページがありません", "No page on fd2ppv.cc"], ["販売者の欄がありません", "No seller field"], ["ホームから読み込んでいません。", "Not scanned from Home."]]);
   EN.push(...[["fc2cmadb.com で確認", "Confirmed on fc2cmadb.com"], ["fd2ppv.cc で確認（配信元）", "Confirmed on fd2ppv.cc (studio)"], ["fd2ppv.cc・fc2cmadb.com に見つかりません", "Not found on fd2ppv.cc or fc2cmadb.com"], ["fd2ppv.cc に見つかりません", "Not found on fd2ppv.cc"], ["fc2cmadb.com で開く", "Open on fc2cmadb.com"], ["fd2ppv.cc で探す（", "Search on fd2ppv.cc ("], ["同じ番号の作品が複数のサイトにあります（名前にサイト名を入れるか、販売者を入力）", "The same number exists on several sites (add the site name to the folder name, or enter the seller)"], ["販売者名（配信元。例：カリビアンコム）", "Seller name (studio, e.g. Caribbeancom)"], ["販売者ID（英数字。例：carib）", "Seller ID (letters/digits, e.g. carib)"], ["✓ 仕分けが必要な作品フォルダはありません（FC2-PPV-品番・HEYZO・カリビアンコムなどの品番の名前のフォルダが対象です）", "✓ No work folders to sort (folders named with an FC2-PPV, HEYZO, Caribbeancom or similar ID are targets)"]]);
   EN.push(...[["全画面で開く", "Open full screen"], ["ポップアップに戻す", "Back to popup"], ["次から全画面で開く", "Always open full screen"], ["PikPak の画面を Dedupe に切り替えて使うこともできます。一覧が広くなり、キー操作やドラッグも使いやすくなります。", "You can also switch the PikPak screen to Dedupe. Lists get wider, and keys and dragging are easier to use."], ["開き方", "How to open"], ["ポップアップ（おすすめ）", "Popup (recommended)"], ["全画面", "Full screen"], ["PikPak の画面の上に重ねて開きます。動かしたり大きさを変えたりでき、後ろの PikPak もそのまま使えます", "Opens on top of PikPak. You can move and resize it, and keep using PikPak behind it"], ["PikPak の画面を Dedupe に切り替えます（今までの開き方）", "Switches the PikPak screen to Dedupe (the previous way)"], ["次からは全画面で開きます（設定の「表示」→「開き方」で戻せます）", "Will open full screen from now on (change it in Settings → Display → How to open)"]]);
+  EN.push(...[["品番から判定", "From the ID"], ["サイトで確認", "Confirmed on a site"], ["名前の「", "From \""], ["」から判定", "\" in the name"], ["日付型の品番だけで、名前にサイト名がありません（名前に 1pon・carib などがあれば自動で決まります）", "Only a date-style ID and no site name (names containing 1pon, carib, etc. are decided automatically)"], ["同じ番号の作品が複数のサイトにあります", "The same number exists on several sites"], ["外部サイトで確かめる", "Check on other sites"], ["外部サイト ▾", "Other sites ▾"], ["分かったら、行の入力欄に販売者名と ID を入れて「保存」", "When you find it, enter the seller name and ID in the row and press Save"], ["調べ直す", "Look up again"], ["販売者を調べる", "Look up sellers"], ["確かめる・入力", "Check & enter"], ["移動", "Move"], ["未調査はありません", "Nothing left to look up"], ["分からないものはありません", "Nothing unknown"], ["件は販売者が分かりませんでした。外部サイトで確かめて入力してください", " could not be identified. Check other sites and enter the seller"], ["このまま ③ 移動へ", "Go to ③ Move as is"], ["② に戻る", "Back to ②"], ["移動するもの ", "To move: "], ["チェックの入った作品がありません", "No works are checked"], ["先頭1件だけ試す", "Try the first one"], ["決まった", "Decided"], ["自動では移動しません（初めはチェックなし）", "Not moved automatically (unchecked at first)"], ["入力すると、その販売者の組へ移ります", "Enter a seller to move it to that group"], ["販売者名と販売者ID（英数字）を入れてください", "Enter the seller name and seller ID (letters/digits)"], ["件を確かめる", " to check"], ["分からない ", "Unknown: "]]);
   EN.sort((a, b) => b[0].length - a[0].length); // 長い言い回しから先に置き換える
   const EN_MAP = new Map(EN);
   const EN_UNIT = EN.filter(([a]) => a.length > 1 && /^(件|項目|組|作品|本)./.test(a));
@@ -1426,10 +1485,7 @@
     let html = '';
     if (view === 'sort' || view === 'clean') html = head;
     if (view === 'seller') {
-      const pend = selPlan.filter((p) => p.kind === 'pending').length;
-      html = head + `<label class="optsw" title="オフにすると、このステップを使わず次へ進みます"><input type="checkbox" data-a="selleropt"${sellerEnabled() ? ' checked' : ''}> このステップを使う</label><span class="sep"></span>
-        <select data-a="selfilter" title="表示"><option value="all">すべて</option><option value="seller">販売者が決まった</option><option value="unknown">販売者不明</option><option value="review">要確認</option><option value="pending">未調査</option></select>
-        <button data-a="slookup"${pend && !busy && sellerEnabled() ? '' : ' disabled'} title="小さなウィンドウで fd2ppv.cc の作品ページを順に開き、販売者を調べます（移動はしません）" style="border-color:var(--pri);color:var(--pri);font-weight:700">販売者を調べる（未調査 ${pend} 件）</button>`;
+      html = head + `<label class="optsw" title="オフにすると、このステップを使わず次へ進みます"><input type="checkbox" data-a="selleropt"${sellerEnabled() ? ' checked' : ''}> このステップを使う</label>`;
     }
     if (view === 'junk') html = head + `<label class="optsw" title="オフにすると、不要ファイルの判定を使わず、すべてのファイルをほかのステップの対象にします"><input type="checkbox" data-a="junkopt"${junkEnabled() ? ' checked' : ''}> このステップを使う</label><span class="sep"></span>`;
     if (view === 'name') html = head + `<label class="optsw" title="オフにすると、このステップを使わず次へ進みます"><input type="checkbox" data-a="nameopt"${nameEnabled() ? ' checked' : ''}> このステップを使う</label><span class="sep"></span>`;
@@ -1448,8 +1504,9 @@
     const c = counts();
     const label = { name: 'チェックしたものを変更', sort: 'すべて仕分け', ren: 'すべて変更', clean: 'チェックしたものを実行' };
     if (view === 'seller') {
-      const n = selPlan.filter((p) => p.kind !== 'pending' && sellerChecked(p)).length;
-      el.innerHTML = sellerEnabled() && selPlan.length ? `<button data-a="seller1"${n ? '' : ' disabled'}>先頭1件だけ試す</button><button class="pri" data-a="sellerall"${n ? '' : ' disabled'}>チェックしたものを移動（${n} 件）</button>` : `<span class="okbadge">✓ 完了</span>${nextHtml(c)}`;
+      // 実行ボタンは一覧の下の帯（.sl-bar）に置く
+      el.innerHTML = sellerEnabled() && selPlan.length ? '' : `<span class="okbadge">✓ 完了</span>${nextHtml(c)}`;
+      refreshSellerChrome();
       return;
     }
     if (view === 'junk') {
@@ -1829,19 +1886,34 @@
   const saveSellerCfg = (c) => { try { localStorage.setItem(LS_SELLER_CFG, JSON.stringify(c)); } catch (e) { /* 無視 */ } };
   // 名前に入っている品番。FC2 は品番（「FC2 〇〇 collection 1234567 2345678」のような複数作品の名前も拾う）、
   // FC2 以外は HEYZO・カリビアンコムなど日付型の品番（例：033118_001 / 102324-001）・h4610 系を拾う
-  const STUDIO_HINTS = [[/caribbeancompr|caribpr|カリビアンコム\s*プレミアム/i, 'caribpr'], [/caribbean|carib|カリビアン/i, 'carib'], [/1pondo|1pon|一本道/i, '1pon'], [/10musume|10mu|天然むすめ/i, '10mu'], [/pacopacomama|paco|パコパコママ/i, 'paco'], [/muramura|ムラムラ/i, 'mura']];
+  // 名前にサイト名が入っていれば、販売者（配信元）はその場で決まる（調べに行かない）。フォルダ名は既存の「Caribbeancom（carib）」に合わせて英語名
+  const BRANDS = [
+    ['caribpr', 'Caribbeancom Premium', /caribbeancompr|caribpr|カリビアンコム\s*プレミアム/i],
+    ['carib', 'Caribbeancom', /caribbean|carib|カリビアン/i],
+    ['1pon', '1pondo', /1pondo|1pon(?![a-z])|一本道/i],
+    ['10mu', '10musume', /10musume|10mu(?![a-z])|天然むすめ/i],
+    ['paco', 'Pacopacomama', /pacopacomama|(?:^|[^a-z])paco(?![a-z])|パコパコママ/i],
+    ['mura', 'Muramura', /muramura|(?:^|[^a-z])mura(?![a-z])|ムラムラ/i],
+  ];
+  // 名前に入っている品番。FC2 は品番（「FC2 〇〇 collection 1234567 2345678」のような複数作品の名前も拾う）、
+  // FC2 以外は HEYZO・h4610 系・日付型の品番（例：121815_3315-1pon / 122415-053-carib）を拾う
   function workKeys(name) {
     const n = String(name), out = [], seen = new Set();
     const add = (k) => { if (!seen.has(k.key)) { seen.add(k.key); out.push(k); } };
     if (/FC2/i.test(n)) { [...n.matchAll(/(?:^|[^\d])(\d{6,8})(?!\d)/g)].forEach((m) => add({ key: m[1], kind: 'fc2', num: m[1], label: 'FC2-PPV-' + m[1] })); return out; }
-    [...n.matchAll(/heyzo[\s_-]*(\d{4})(?!\d)/gi)].forEach((m) => add({ key: 'x:heyzo-' + m[1], kind: 'other', kw: 'heyzo-' + m[1], digits: m[1], prefix: 'heyzo', label: 'HEYZO-' + m[1] }));
-    [...n.matchAll(/([hc]\d{4})[\s_-]*([a-z]{2,10})[\s_-]*(\d{3,6})(?!\d)/gi)].forEach((m) => add({ key: `x:${m[1]}-${m[2]}${m[3]}`.toLowerCase(), kind: 'other', kw: `${m[1]} ${m[2]}${m[3]}`.toLowerCase(), digits: m[3], prefix: m[1].toLowerCase(), label: `${m[1]} ${m[2]}${m[3]}`.toLowerCase() }));
-    // 日付型の品番は複数のサイトで同じ番号があるので、名前にサイト名があればそれで絞る
-    const hint = (STUDIO_HINTS.find(([re]) => re.test(n)) || [])[1] || '';
-    [...n.matchAll(/(?:^|[^\d])(\d{6})([-_])(\d{2,4})(?![\d])/g)].forEach((m) => add({ key: `x:${hint ? hint + '-' : ''}${m[1]}${m[2]}${m[3]}`, kind: 'other', kw: `${m[1]}${m[2]}${m[3]}`, digits: m[1] + m[3], prefix: hint, label: `${hint ? hint + ' ' : ''}${m[1]}${m[2]}${m[3]}` }));
+    [...n.matchAll(/heyzo[\s_-]*(\d{4})(?!\d)/gi)].forEach((m) => add({ key: 'x:heyzo-' + m[1], kind: 'brand', sid: 'heyzo', name: 'HEYZO', code: m[1], label: 'HEYZO-' + m[1] }));
+    [...n.matchAll(/([hc]\d{4})[\s_-]*([a-z]{2,10})[\s_-]*(\d{3,6})(?!\d)/gi)].forEach((m) => { const b = m[1].toLowerCase(); add({ key: `x:${b}-${m[2]}${m[3]}`.toLowerCase(), kind: 'brand', sid: b, name: b.toUpperCase(), code: `${m[2]}${m[3]}`.toLowerCase(), label: `${b} ${m[2]}${m[3]}`.toLowerCase() }); });
+    const br = BRANDS.find(([, , re]) => re.test(n));
+    [...n.matchAll(/(?:^|[^\d])(\d{6})([-_])(\d{2,4})(?![\d])/g)].forEach((m) => {
+      const code = `${m[1]}${m[2]}${m[3]}`;
+      if (br) add({ key: `x:${br[0]}-${code}`, kind: 'brand', sid: br[0], name: br[1], code, date: m[1], serial: m[3], label: `${br[0]} ${code}` });
+      else add({ key: `x:${code}`, kind: 'other', kw: code, digits: m[1] + m[3], prefix: '', date: m[1], serial: m[3], label: code });
+    });
     return out;
   }
-  const SRC_LABEL = { fd2ppv: 'fd2ppv.cc', fc2cmadb: 'fc2cmadb.com', manual: '手入力' };
+  const SRC_LABEL = { fd2ppv: 'fd2ppv.cc', fc2cmadb: 'fc2cmadb.com', manual: '手入力', name: '品番' };
+  // 品番 1 つの結果（手入力が最優先 → 名前から決まるもの → 調べた結果）
+  const keyRec = (k) => { const r = sellerDb[k.key]; if (r && r.src === 'manual') return r; if (k.kind === 'brand') return { status: 'ok', name: k.name, sid: k.sid, src: 'name' }; return r; };
   // 販売者フォルダの名前（フォルダ名に使えない / や \ は置き換える）
   const sellerFolderName = (s) => `${String(s.name || s.sid).replace(/[\/\\]/g, '・').replace(/\s+/g, ' ').trim().slice(0, 80)}（${s.sid}）`;
   // 仕分けの計画：作品フォルダごとに、移動先の種類（seller / unknown / review / pending）を決める
@@ -1859,15 +1931,20 @@
       // 作品フォルダの中の作品フォルダは、外側だけを動かす
       if ((d.trail || []).slice(0, -1).some((id) => candIds.has(id))) return;
       const keys = workKeys(d.name);
-      const recs = keys.map((k) => sellerDb[k.key]);
-      const p = { id: d.id, name: d.name, path: d.path, parentId: d.parentId, keys, kind: '', seller: null, note: '' };
+      const recs = keys.map(keyRec);
+      const p = { id: d.id, name: d.name, path: d.path, parentId: d.parentId, keys, kind: '', seller: null, note: '', why: '' };
       if (recs.some((r) => !r)) { p.kind = 'pending'; p.note = '未調査'; }
       else {
         const ok = recs.filter((r) => r.status === 'ok' && r.sid);
         const sids = [...new Set(ok.map((r) => r.sid))];
-        if (keys.length > 1 && (sids.length > 1 || ok.length !== recs.length)) { p.kind = 'review'; p.note = `品番が ${keys.length} つ（${recs.map((r) => (r.status === 'ok' ? r.name : '不明')).join('・')}）`; }
-        else if (sids.length === 1) { p.kind = 'seller'; p.seller = ok[0]; p.note = ok[0].src === 'manual' ? '手入力' : `${SRC_LABEL[ok[0].src] || ok[0].src} で確認${ok[0].studio ? '（配信元）' : ''}`; }
-        else { p.kind = 'unknown'; p.note = recs[0].status === 'ambiguous' ? '同じ番号の作品が複数のサイトにあります（名前にサイト名を入れるか、販売者を入力）' : recs[0].status === 'notfound' ? (keys[0].kind === 'fc2' ? 'fd2ppv.cc・fc2cmadb.com に見つかりません' : 'fd2ppv.cc に見つかりません') : '販売者の欄がありません'; }
+        if (keys.length > 1 && (sids.length > 1 || ok.length !== recs.length)) { p.kind = 'review'; p.why = 'multi'; p.note = `品番が ${keys.length} つ（${recs.map((r) => (r.status === 'ok' ? r.name : '不明')).join('・')}）`; }
+        else if (sids.length === 1) { p.kind = 'seller'; p.seller = ok[0]; p.note = ok[0].src === 'manual' ? '手入力' : ok[0].src === 'name' ? `名前の「${keys[0].sid}」から判定` : `${SRC_LABEL[ok[0].src] || ok[0].src} で確認${ok[0].studio ? '（配信元）' : ''}`; }
+        else {
+          p.kind = 'unknown'; p.why = recs[0].status;
+          p.note = recs[0].status === 'ambiguous' ? '同じ番号の作品が複数のサイトにあります'
+            : keys[0].kind === 'other' ? '日付型の品番だけで、名前にサイト名がありません（名前に 1pon・carib などがあれば自動で決まります）'
+            : recs[0].status === 'notfound' ? (keys[0].kind === 'fc2' ? 'fd2ppv.cc・fc2cmadb.com に見つかりません' : 'fd2ppv.cc に見つかりません') : '販売者の欄がありません';
+        }
       }
       plan.push(p);
     });
@@ -1884,46 +1961,136 @@
   let selPlan = [];
   const sellerSel = new Map(); // 作品フォルダ → チェック（未記録は seller だけチェックあり）
   const sellerChecked = (p) => (p.kind === 'pending' ? false : sellerSel.has(p.id) ? sellerSel.get(p.id) : p.kind === 'seller');
-  const SELLER_KIND = { seller: '販売者が決まった', unknown: '販売者不明', review: '要確認', pending: '未調査' };
-  // 作品を開くリンク（FC2 は両方のサイト、それ以外は fd2ppv.cc の検索）
-  const keyLinks = (keys) => keys.map((k) => (k.kind === 'fc2'
-    ? `<a href="${FD2}/articles/${esc(k.num)}" target="_blank" rel="noopener noreferrer">fd2ppv.cc で開く${keys.length > 1 ? `（${esc(k.num)}）` : ''}</a> <a href="${CMADB}/articles/${esc(k.num)}" target="_blank" rel="noopener noreferrer">fc2cmadb.com で開く</a>`
-    : `<a href="${FD2}/articles/?keyword=${encodeURIComponent(k.kw)}" target="_blank" rel="noopener noreferrer">fd2ppv.cc で探す（${esc(k.label)}）</a>`)).join(' ');
+  const SELLER_KIND = { seller: '決まった', unknown: '販売者不明', review: '要確認', pending: '未調査' };
+  let sellerFilter = 'all'; // 絞り込みのタブ
+  let sellerAck = false; // ②「確かめる・入力」を済ませて ③ へ進んだか
+  // 外部サイトで確かめる（品番は各サイトの形に直して開く）
+  function extSites(k) {
+    if (k.kind === 'fc2') {
+      const id = 'FC2-PPV-' + k.num;
+      return [['FD2PPV', 'FC2・配信元', `${FD2}/articles/${k.num}`], ['FC2CMADB', 'FC2 販売者', `${CMADB}/articles/${k.num}`], ['FC2DB', 'FC2 販売者', `https://fc2db.net/work/${k.num}/`], ['FC2', '公式', `https://adult.contents.fc2.com/article/${k.num}/`],
+        ['MissAV', '作品', `https://missav.ws/cn/fc2-ppv-${k.num}`], ['Supjav', '作品', `https://supjav.com/zh/?s=${encodeURIComponent(id)}`], ['JavDB', '作品', `https://javdb.com/search?q=${encodeURIComponent(id)}&f=all`], ['Sukebei', '名前で検索', `https://sukebei.nyaa.si/?f=0&c=0_0&q=${encodeURIComponent(id)}`]];
+    }
+    const short = k.kind === 'brand' && k.date ? k.sid : '';
+    const code = k.date && short ? `${k.date}${short === 'carib' ? '-' : '_'}${k.serial}` : k.kw || k.code || '';
+    const jav = short ? `${short.toUpperCase()}-${k.date}-${k.serial}` : k.label;
+    const suke = short ? `${code}-${short}` : (k.kw || k.label);
+    return [['FD2PPV', '配信元', `${FD2}/articles/?keyword=${encodeURIComponent(k.kw || k.label)}`], ['JavDB', 'メーカー', `https://javdb.com/search?q=${encodeURIComponent(jav)}&f=all`], ['JavBus', 'メーカー', `https://www.javbus.com/${encodeURIComponent(jav)}`],
+      ['JavLibrary', 'メーカー', `https://www.javlibrary.com/cn/vl_searchbyid.php?keyword=${encodeURIComponent(jav)}`], ['MissAV', '作品', `https://missav.ws/cn/${encodeURIComponent(jav.toLowerCase())}`], ['Supjav', '作品', `https://supjav.com/zh/?s=${encodeURIComponent(code || jav)}`],
+      ['Sukebei', '名前で検索', `https://sukebei.nyaa.si/?f=0&c=0_0&q=${encodeURIComponent(suke)}`], ['DMM', 'FANZA', `https://www.dmm.co.jp/search/=/searchstr=${encodeURIComponent(code || jav)}`]];
+  }
+  function openExt(btn, id) {
+    closeExt();
+    const p = selPlan.find((x) => x.id === id); if (!p) return;
+    const d = document.createElement('div'); d.id = 'pd-ext';
+    d.innerHTML = `<div class="hd"><b>外部サイトで確かめる</b><button data-x title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>` + p.keys.map((k) => `<div class="kw raw">${esc(k.label)}</div><div class="gr">${extSites(k).map(([n, s, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer"><b class="raw">${n}</b><small>${esc(s)}</small></a>`).join('')}</div>`).join('') + '<div class="ft">分かったら、行の入力欄に販売者名と ID を入れて「保存」</div>';
+    document.body.appendChild(d);
+    const r = btn.getBoundingClientRect(), w = d.offsetWidth, h = d.offsetHeight;
+    d.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.right - w)) + 'px';
+    d.style.top = (r.bottom + 6 + h > window.innerHeight - 8 ? Math.max(8, r.top - h - 6) : r.bottom + 6) + 'px';
+    d.querySelector('[data-x]').onclick = closeExt;
+    if (LANG === 'en') d.querySelectorAll('*').forEach(trNode);
+  }
+  function closeExt() { const d = document.getElementById('pd-ext'); if (d) d.remove(); }
+  document.addEventListener('mousedown', (e) => { const d = document.getElementById('pd-ext'); if (d && !d.contains(e.target) && !e.target.closest('[data-sext]')) closeExt(); }, true);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.getElementById('pd-ext')) { e.preventDefault(); e.stopImmediatePropagation(); closeExt(); } }, true);
+  // 行の中で販売者を保存
+  function saveRowSeller(id) {
+    const p = selPlan.find((x) => x.id === id); if (!p) return;
+    const row = $(`[data-srow="${CSS.escape(id)}"]`); if (!row) return;
+    const name = row.querySelector('[data-sname]').value.trim();
+    const sid = row.querySelector('[data-ssid]').value.trim().replace(/^.*\/(users|writers|channels)\//, '').replace(/[\/?#].*$/, '');
+    const err = row.querySelector('[data-serr]');
+    if (!name || !/^[A-Za-z0-9_.-]{1,64}$/.test(sid)) { err.textContent = tr('販売者名と販売者ID（英数字）を入れてください'); return; }
+    p.keys.forEach((k) => { sellerDb[k.key] = { name, sid, src: 'manual', status: 'ok', at: Date.now() }; });
+    saveSellerDb(); sellerSel.delete(id); log('info', `販売者を手入力：${p.name} → ${name}（${sid}）`);
+    setView('seller');
+  }
+  // 次にやること（① 調べる → ② 確かめる・入力 → ③ 移動）
+  function sellerStage() {
+    const n = (k) => selPlan.filter((p) => p.kind === k).length;
+    if (n('pending')) return 1;
+    if ((n('unknown') || n('review')) && !sellerAck) return 2;
+    return 3;
+  }
+  function sellerGuideHtml() {
+    const n = (k) => selPlan.filter((p) => p.kind === k).length;
+    const st = sellerStage(), pend = n('pending'), unk = n('unknown') + n('review');
+    const auto = selPlan.filter((p) => p.kind === 'seller' && p.seller.src === 'name').length;
+    const looked = selPlan.filter((p) => p.kind === 'seller' && p.seller.src !== 'name' && p.seller.src !== 'manual').length;
+    const manual = selPlan.filter((p) => p.kind === 'seller' && p.seller.src === 'manual').length;
+    const mv = selPlan.filter((p) => p.kind !== 'pending' && sellerChecked(p)).length;
+    const steps = [['販売者を調べる', pend ? `未調査 ${pend} 件` : '未調査はありません'], ['確かめる・入力', unk ? `分からない ${unk} 件` : '分からないものはありません'], ['移動', `チェック ${mv} 件`]];
+    const flow = steps.map(([t, s], i) => `<div class="st ${i + 1 < st ? 'done' : i + 1 === st ? 'now' : ''}"><span class="n">${i + 1 < st ? '✓' : i + 1}</span><span class="t"><b>${t}</b><small>${esc(s)}</small></span></div>`).join('<i class="ln"></i>');
+    const parts = [auto ? `品番から判定 ${auto}` : '', looked ? `サイトで確認 ${looked}` : '', manual ? `手入力 ${manual}` : ''].filter(Boolean).join('・');
+    let msg = '';
+    if (st === 1) msg = `<div class="tx"><b>未調査が ${pend} 件あります。まず販売者を調べます</b><small>小さなウィンドウで fd2ppv.cc（見つからなければ fc2cmadb.com）の作品ページを順に開いて調べます。調べるだけでは移動しません。</small></div><button class="pri" data-a="slookup"${busy ? ' disabled' : ''}>販売者を調べる（${pend} 件）</button>`;
+    else if (st === 2) msg = `<div class="tx"><b>${unk} 件は販売者が分かりませんでした。外部サイトで確かめて入力してください</b><small>${selPlan.length} 件中 ${selPlan.length - unk} 件は決まりました${parts ? `（${parts}）` : ''}。入力しなくても「${esc(sellerCfg().unknown)}」「${esc(sellerCfg().review)}」へまとめて移動できます。</small></div><button class="pri" data-a="sshowunk">分からない ${unk} 件を確かめる</button><button data-a="sack">このまま ③ 移動へ</button>`;
+    else msg = `<div class="tx"><b>${mv ? `チェックした ${mv} 件を移動できます。下のボタンで実行します` : 'チェックの入った作品がありません'}</b><small>${selPlan.length} 件中 ${selPlan.length - unk} 件は販売者が決まりました${parts ? `（${parts}）` : ''}。まずは「先頭1件だけ試す」で動きを確かめてください。削除はしません。</small></div>${unk ? `<button data-a="sunack">② に戻る（分からない ${unk} 件）</button>` : ''}`;
+    return `<section class="sl-guide" aria-label="次にやること"><div class="fl">${flow}</div><div class="msg">${msg}</div></section>`;
+  }
+  function sellerBarHtml() {
+    if (busy) return '';
+    const sel = selPlan.filter((p) => p.kind !== 'pending' && sellerChecked(p));
+    const cfg = sellerCfg();
+    const cnt = new Map(); sel.forEach((p) => { const k = p.kind === 'seller' ? p.seller.name : p.kind === 'unknown' ? cfg.unknown : cfg.review; cnt.set(k, (cnt.get(k) || 0) + 1); });
+    const brk = [...cnt.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6).map(([k, v]) => `${esc(k)} ${v}`).join('・') + (cnt.size > 6 ? ' …' : '');
+    const unk = selPlan.filter((p) => (p.kind === 'unknown' || p.kind === 'review') && !sellerChecked(p)).length;
+    return `<span class="n">${sellerStage() === 3 ? '③' : '移動'}</span><span class="tx"><b>${sel.length ? `移動するもの ${sel.length} 作品` : 'チェックの入った作品がありません'}</b><small>${sel.length ? `（${brk}）` : ''}${unk ? `　分からない ${unk} 件はチェックを入れると「${esc(cfg.unknown)}」などへ一緒に移動します` : ''}</small></span>
+      <button data-a="seller1"${sel.length ? '' : ' disabled'}>先頭1件だけ試す</button><button class="${sellerStage() === 3 ? 'pri' : 'sec'}" data-a="sellerall"${sel.length ? '' : ' disabled'}>${sel.length} 作品を移動</button>`;
+  }
+  // 一覧を作り直さずに、上の案内と下の帯だけを更新する（入力中の欄を消さないため）
+  function refreshSellerChrome() {
+    if (view !== 'seller') return;
+    const bar = $('[data-r=slbar]'); if (bar) bar.innerHTML = sellerBarHtml();
+    const g = $('[data-r=main] .sl-guide'); if (g && selPlan.length) g.outerHTML = sellerGuideHtml();
+    if (LANG === 'en') root.querySelectorAll('[data-r=slbar] *, [data-r=main] .sl-guide *').forEach(trNode);
+  }
   function renderSeller() {
     const cfg = sellerCfg();
     if (!sellerEnabled()) { $('[data-r=main]').innerHTML = `<div class="pd-hero"><h2>このステップはオフになっています</h2><div class="note">右上の「このステップを使う」か、設定の「整理」でオンにできます。</div></div>${nextButton()}`; if (!busy) status('販売者ごとの仕分けはオフです。'); return; }
-    const show = $('[data-a=selfilter]') ? $('[data-a=selfilter]').value : 'all';
     const by = (k) => selPlan.filter((p) => p.kind === k);
+    if (sellerFilter !== 'all' && !by(sellerFilter).length) sellerFilter = 'all';
+    const show = sellerFilter;
     const ix = buildTreeIndex();
     const R = folders.find((d) => d.isRoot);
     const homeScan = !!R && (!R.id || R.id === 'root');
-    const chip = (k, color, sub) => `<div class="sl-chip" style="border-left-color:${color}"><span>${SELLER_KIND[k]}</span><b>${by(k).length}</b><small>${esc(sub)}</small></div>`;
     const sellers = new Map();
     by('seller').forEach((p) => { const k = p.seller.sid; if (!sellers.has(k)) sellers.set(k, { s: p.seller, items: [] }); sellers.get(k).items.push(p); });
     const groups = [];
-    if (show === 'all' || show === 'seller') [...sellers.values()].sort((a, b) => b.items.length - a.items.length || String(a.s.name).localeCompare(String(b.s.name), 'ja')).forEach((g) => groups.push({ key: 's:' + g.s.sid, title: g.s.name, sid: g.s.sid, dest: `${cfg.root}/${sellerFolderName(g.s)}/`, items: g.items, cls: '' }));
-    if (show === 'all' || show === 'unknown') if (by('unknown').length) groups.push({ key: 'k:unknown', title: cfg.unknown, dest: `${cfg.root}/${cfg.unknown}/`, items: by('unknown'), cls: '', hint: '販売者を入力すると、その販売者の組へ移ります' });
-    if (show === 'all' || show === 'review') if (by('review').length) groups.push({ key: 'k:review', title: cfg.review, dest: `${cfg.root}/${cfg.review}/`, items: by('review'), cls: ' warn', hint: '初めはチェックなし' });
+    if (show === 'all' || show === 'unknown') if (by('unknown').length) groups.push({ key: 'k:unknown', title: cfg.unknown, dest: `${cfg.root}/${cfg.unknown}/`, items: by('unknown'), cls: ' unk', hint: '入力すると、その販売者の組へ移ります' });
+    if (show === 'all' || show === 'review') if (by('review').length) groups.push({ key: 'k:review', title: cfg.review, dest: `${cfg.root}/${cfg.review}/`, items: by('review'), cls: ' warn', hint: '自動では移動しません（初めはチェックなし）' });
     if (show === 'all' || show === 'pending') if (by('pending').length) groups.push({ key: 'k:pending', title: SELLER_KIND.pending, dest: '', items: by('pending'), cls: ' pend', hint: '「販売者を調べる」で調べます（調べるだけでは移動しません）' });
+    if (show === 'all' || show === 'seller') [...sellers.values()].sort((a, b) => b.items.length - a.items.length || String(a.s.name).localeCompare(String(b.s.name), 'ja')).forEach((g) => groups.push({ key: 's:' + g.s.sid, title: g.s.name, sid: g.s.sid, dest: `${cfg.root}/${sellerFolderName(g.s)}/`, items: g.items, cls: '' }));
     const thumb = (p) => { const f = ix.thumbOf.get(p.id); return f && f.thumb ? `<img loading="lazy" referrerpolicy="no-referrer" src="${esc(f.thumb)}" alt="">` : ''; };
     const sz = (p) => { const a = ix.agg.get(p.id); return a ? fmt(a.size) : ''; };
+    const known = new Map(); Object.values(sellerDb).forEach((r) => { if (r && r.status === 'ok' && r.sid && !known.has(r.sid)) known.set(r.sid, r.name); });
+    const BADGE = { seller: ['ok', ''], unknown: ['unk', '販売者不明'], review: ['warn', '要確認'], pending: ['pend', '未調査'] };
     const row = (p) => {
       const on = sellerChecked(p);
-      const acts = p.kind === 'pending' ? '' : `<button data-sedit="${esc(p.id)}">${p.kind === 'seller' ? '販売者を変更' : '販売者を入力'}</button>`;
-      return `<div class="pd-row${on ? ' sel' : ''}"><label class="pd-chk"><input type="checkbox" data-schk="${esc(p.id)}"${on ? ' checked' : ''}${p.kind === 'pending' ? ' disabled' : ''}></label>
+      const [bc, bt] = p.kind === 'seller' ? (p.seller.src === 'name' ? ['auto', '品番から判定'] : p.seller.src === 'manual' ? ['man', '手入力'] : ['ok', 'サイトで確認']) : BADGE[p.kind];
+      const canRedo = p.kind === 'unknown' && p.keys.some((k) => k.kind !== 'brand' && sellerDb[k.key] && sellerDb[k.key].src !== 'manual');
+      const input = p.kind === 'unknown' || p.kind === 'review'
+        ? `<div class="sl-in"><input type="text" data-sname list="pd-sellers" placeholder="販売者名" value="${esc(p.seller ? p.seller.name : '')}"><input type="text" data-ssid class="raw" placeholder="ID" value="${esc(p.seller ? p.seller.sid : '')}"><button data-ssave="${esc(p.id)}">保存</button><button data-sext="${esc(p.id)}">外部サイト ▾</button>${canRedo ? `<button data-sredo="${esc(p.id)}" title="調べた結果を消して、もう一度調べる対象に戻します">調べ直す</button>` : ''}<span class="err" data-serr></span></div>`
+        : p.kind === 'pending' ? '' : `<div class="pd-act" style="display:flex;gap:6px;flex-wrap:wrap"><button data-sext="${esc(p.id)}">外部サイト ▾</button><button data-sedit="${esc(p.id)}">販売者を変更</button></div>`;
+      return `<div class="pd-row sl-row${on ? ' sel' : ''}" data-srow="${esc(p.id)}"><label class="pd-chk"><input type="checkbox" data-schk="${esc(p.id)}"${on ? ' checked' : ''}${p.kind === 'pending' ? ' disabled' : ''}></label>
         <div class="pd-th" style="width:112px;height:63px">${thumb(p)}</div>
-        <div class="pd-info"><div class="pd-name">${esc(p.name)}</div><div class="pd-path">今の場所：${esc((p.path || '').replace(/\/[^/]*$/, '') || '/')}/・${sz(p)}</div><div class="note">${esc(p.note)}　${keyLinks(p.keys)}</div></div>
-        <div class="pd-act" style="display:flex;gap:6px;flex-wrap:wrap">${acts}</div></div>`;
+        <div class="pd-info"><div class="pd-name">${esc(p.name)}</div><div class="pd-path">今の場所：${esc((p.path || '').replace(/\/[^/]*$/, '') || '/')}/・${sz(p)}</div><div class="sl-why"><span class="sl-b ${bc}">${bt}</span><span class="note">${esc(p.note)}</span></div></div>
+        ${input}</div>`;
     };
     const tagNew = (g) => { if (!g.sid) return ''; const ex = sellerFolderExists(g.sid); return `<span class="pd-tag" style="${ex ? '' : 'background:var(--pri-soft);color:var(--pri)'}">${ex ? '既にあるフォルダ' : '新しく作るフォルダ'}</span>`; };
     const body = groups.map((g) => {
       const all = g.items.filter((p) => p.kind !== 'pending'), on = all.filter(sellerChecked);
       return `<div class="pd-g${g.cls}"><div class="pd-gh">${g.key === 'k:pending' ? '' : `<input type="checkbox" data-sgrp="${esc(g.key)}"${all.length && on.length === all.length ? ' checked' : ''} title="この組をすべて選ぶ／外す">`}<b>${esc(g.title)}</b>${g.sid ? `<span class="note raw">（${esc(g.sid)}）</span>` : ''}${tagNew(g)}${g.dest ? `<span class="note">→ ${esc(g.dest)}</span>` : ''}<span class="sp" style="flex:1"></span>${g.hint ? `<span class="note">${esc(g.hint)}</span>` : ''}<span class="note">${g.items.length} 作品</span></div>${g.items.map(row).join('')}</div>`;
     }).join('');
-    $('[data-r=main]').innerHTML = `<div class="sl-chips">${chip('seller', '#306fff', `${sellers.size} 販売者`)}${chip('unknown', '#8b91a1', '手入力できます')}${chip('review', '#c27a00', '品番が複数・同名あり')}${chip('pending', '#c5c9d2', '「販売者を調べる」で調べます')}</div>
+    const tab = (k, label, color, n) => `<button role="tab" data-sfilter="${k}" class="${show === k ? 'on' : ''}" aria-selected="${show === k}"${n || k === 'all' ? '' : ' disabled'}><i style="background:${color}"></i>${label}<b>${n}</b></button>`;
+    const tabs = selPlan.length ? `<div class="sl-tabs" role="tablist" aria-label="表示">${tab('all', 'すべて', '#c5c9d2', selPlan.length)}${tab('unknown', '販売者不明', '#8b91a1', by('unknown').length)}${tab('review', '要確認', '#c27a00', by('review').length)}${tab('pending', '未調査', '#dde0e6', by('pending').length)}${tab('seller', `決まった（${sellers.size} 販売者）`, '#306fff', by('seller').length)}</div>` : '';
+    $('[data-r=main]').innerHTML = `${selPlan.length ? sellerGuideHtml() : ''}${tabs}
       ${homeScan ? '' : '<div class="pd-explain"><b>ホームから読み込んでいません。</b><div class="note">移動先の「' + esc(cfg.root) + '」はホームの直下に作るため、移動した作品は読み込んだ場所の外に出て、重複チェックなどの対象から外れます。ホームを開いて読み込み直すと、仕分け後もまとめて管理できます。</div></div>'}
-      ${body || '<div class="empty">' + (selPlan.length ? '表示する作品はありません' : '✓ 仕分けが必要な作品フォルダはありません（FC2-PPV-品番・HEYZO・カリビアンコムなどの品番の名前のフォルダが対象です）') + '</div>'}${nextButton()}`;
-    if (!busy) status(by('pending').length ? `未調査 ${by('pending').length} 件。「販売者を調べる」を押すと、小さなウィンドウで fd2ppv.cc（見つからなければ fc2cmadb.com）の作品ページを順に開いて販売者を調べます（移動はしません）。` : '内容を確認して、まずは「先頭1件だけ試す」で動きを確かめてください。削除はしません。');
+      ${body || '<div class="empty">' + (selPlan.length ? '表示する作品はありません' : '✓ 仕分けが必要な作品フォルダはありません（FC2-PPV-品番・HEYZO・カリビアンコムなどの品番の名前のフォルダが対象です）') + '</div>'}
+      <datalist id="pd-sellers">${[...known.entries()].map(([sid, nm]) => `<option value="${esc(nm)}" label="${esc(sid)}"></option>`).join('')}</datalist>
+      ${selPlan.length ? `<div class="sl-bar" data-r="slbar">${sellerBarHtml()}</div>` : nextButton()}`;
+    if (!busy) status(sellerStage() === 1 ? `未調査 ${by('pending').length} 件。上の「販売者を調べる」で調べます（移動はしません）。` : sellerStage() === 2 ? '分からなかった作品は、外部サイトで確かめて販売者を入力できます。' : '内容を確認して、まずは「先頭1件だけ試す」で動きを確かめてください。削除はしません。');
   }
   // 「販売者別」の中に、その販売者ID のフォルダが既にあるか（ホームから読み込んだときだけ分かる）
   function sellerFolderExists(sid) {
@@ -2011,7 +2178,7 @@
   async function runSellerLookup() {
     if (busy) return;
     const keys = []; const seen = new Set();
-    selPlan.filter((p) => p.kind === 'pending').forEach((p) => p.keys.forEach((k) => { if (!sellerDb[k.key] && !seen.has(k.key)) { seen.add(k.key); keys.push(k); } }));
+    selPlan.filter((p) => p.kind === 'pending').forEach((p) => p.keys.forEach((k) => { if (k.kind !== 'brand' && !sellerDb[k.key] && !seen.has(k.key)) { seen.add(k.key); keys.push(k); } }));
     if (!keys.length) { status('未調査の作品はありません。'); return; }
     // ポップアップを止められないよう、押した直後に開く
     const win = window.open('about:blank', 'ppdup-lookup', 'width=560,height=720');
@@ -2035,7 +2202,7 @@
       await sleep(cfg.interval * 1000);
     }
     try { win.close(); } catch (e) { /* 無視 */ }
-    busy = false; setView('seller');
+    busy = false; sellerAck = false; setView('seller');
     status(`${stop ? stop + '。' : ''}${done} 件を調べました（販売者が分かった ${ok} 件・分からなかった ${miss} 件）。調べた結果は保存済みです。`);
     log('info', `販売者を調べた：${done} 件（判明 ${ok}・不明 ${miss}）${stop ? '・' + stop : ''}`);
   }
@@ -2874,7 +3041,7 @@
       <div class="bd">
         ${sec('view') ? `<h3>表示</h3>
         <div class="row"><span><b>テーマ</b><small>右上のボタンと同じ設定です</small></span><span class="seg">${[['light', 'ライト'], ['dark', 'ダーク'], ['auto', '自動']].map(([k, l]) => `<button data-s="theme" data-v="${k}" class="${th === k ? 'on' : ''}">${l}</button>`).join('')}</span></div>
-        <div class="row col"><b>開き方</b>${[['pop', 'ポップアップ（おすすめ）', 'PikPak の画面の上に重ねて開きます。動かしたり大きさを変えたりでき、後ろの PikPak もそのまま使えます'], ['full', '全画面', 'PikPak の画面を Dedupe に切り替えます（今までの開き方）']].map(([k, l, d]) => `<label><input type="radio" name="pdopen" data-s="openmode" value="${k}"${openPref() === k ? ' checked' : ''}> <span><b>${l}</b><small style="display:block">${d}</small></span></label>`).join('')}</div>
+        <div class="row col"><b>開き方</b>${[['pop', 'ポップアップ（おすすめ）', 'PikPak の画面の上に重ねて開きます。動かしたり大きさを変えたりでき、後ろの PikPak もそのまま使えます'], ['full', '全画面', 'PikPak の画面を Dedupe に切り替えます（今までの開き方）']].map(([k, l, d]) => `<label><input type="radio" name="pdopen" data-s="openmode" value="${k}"${(root.classList.contains('on') ? winMode : openPref()) === k ? ' checked' : ''}> <span><b>${l}</b><small style="display:block">${d}</small></span></label>`).join('')}</div>
         <div class="row"><span><b>表示言語</b></span><select data-s="lang"><option value="auto"${lp === 'auto' ? ' selected' : ''}>自動（ブラウザ）</option><option value="ja" data-raw${lp === 'ja' ? ' selected' : ''}>日本語</option><option value="en" data-raw${lp === 'en' ? ' selected' : ''}>English</option></select></div>
         <div class="row"><span><b>フォルダ一覧の表示</b></span><select data-s="tview"><option value="list"${tree.view === 'list' ? ' selected' : ''}>☰ リスト</option><option value="thumb"${tree.view === 'thumb' ? ' selected' : ''}>▤ サムネイル</option><option value="tile"${tree.view === 'tile' ? ' selected' : ''}>▦ タイル</option></select></div>
         <label class="row"><span><b>ホバーでサムネイル</b><small>マウスを乗せたときにサムネイルを大きく表示します</small></span><input type="checkbox" data-s="hover"${tree.hover !== false ? ' checked' : ''}></label>
@@ -3229,12 +3396,18 @@
     if (t.dataset.g !== undefined) { if (busy) return; const g = visibleGroups().find((x) => x.key === t.dataset.g); if (g) runDelete([g]); return; }
     if (a === 'close' || a === 'mini') { root.classList.remove('on'); return; }
     if (a === 'tofull') { setWin('full'); return; }
-    if (a === 'topop') { setWin('pop'); return; }
     if (a === 'fullnext') { setOpenPref('full'); setWin('full'); status('次からは全画面で開きます（設定の「表示」→「開き方」で戻せます）'); return; }
     if (a === 'banclose') { try { localStorage.setItem(LS_POPBAN, '0'); } catch (err) { /* 無視 */ } applyWin(); return; }
     if (a === 'log') { showLog(); return; }
     if (a === 'settings') { openSettings(); return; }
     if (a === 'slookup') { runSellerLookup(); return; }
+    if (t.dataset.sfilter) { sellerFilter = t.dataset.sfilter; render(); return; }
+    if (a === 'sshowunk') { sellerFilter = selPlan.some((p) => p.kind === 'unknown') ? 'unknown' : 'review'; render(); const tb = $('[data-r=main] .sl-tabs'); if (tb) tb.scrollIntoView({ block: 'start', behavior: 'smooth' }); return; }
+    if (a === 'sack') { sellerAck = true; sellerFilter = 'all'; render(); return; }
+    if (a === 'sunack') { sellerAck = false; render(); return; }
+    if (t.dataset.ssave) { if (!busy) saveRowSeller(t.dataset.ssave); return; }
+    if (t.dataset.sext) { if (document.getElementById('pd-ext')) { closeExt(); return; } openExt(t, t.dataset.sext); return; }
+    if (t.dataset.sredo) { if (busy) return; const p = selPlan.find((x) => x.id === t.dataset.sredo); if (p) { p.keys.forEach((k) => { if (sellerDb[k.key] && sellerDb[k.key].src !== 'manual') delete sellerDb[k.key]; }); saveSellerDb(); sellerSel.delete(p.id); sellerAck = false; log('info', `販売者を調べ直す対象に戻した：${p.name}`); setView('seller'); } return; }
     if (t.dataset.sedit) { if (!busy) editSeller(t.dataset.sedit); return; }
     if (a === 'theme') { setTheme(t.dataset.v); return; }
     if (a === 'lang') { if (!busy) setLang(LANG === 'en' ? 'ja' : 'en'); return; }
@@ -3268,17 +3441,17 @@
     if (jid) { junkSel.set(jid, e.target.checked); const row = e.target.closest('.pd-row'); if (row) row.classList.toggle('del', e.target.checked); renderActs(); return; }
     if (e.target.dataset && e.target.dataset.a === 'nameopt') { try { localStorage.setItem(LS_OPT_NAME, e.target.checked ? '1' : '0'); } catch (err) { /* 無視 */ } log('info', 'ファイル名の整理を' + (e.target.checked ? 'オン' : 'オフ') + 'に変更'); render(); renderNav(); return; }
     const sid2 = e.target.dataset && e.target.dataset.schk;
-    if (sid2) { sellerSel.set(sid2, e.target.checked); render(); renderActs(); return; }
+    if (sid2) { sellerSel.set(sid2, e.target.checked); const row = e.target.closest('.pd-row'); if (row) row.classList.toggle('sel', e.target.checked); refreshSellerChrome(); return; }
     const sg = e.target.dataset && e.target.dataset.sgrp;
     if (sg) { selPlan.filter((p) => p.kind !== 'pending' && (sg === 'k:unknown' ? p.kind === 'unknown' : sg === 'k:review' ? p.kind === 'review' : p.kind === 'seller' && 's:' + p.seller.sid === sg)).forEach((p) => sellerSel.set(p.id, e.target.checked)); render(); renderActs(); return; }
     if (e.target.dataset && e.target.dataset.a === 'selleropt') { try { localStorage.setItem(LS_OPT_SELLER, e.target.checked ? '1' : '0'); } catch (err) { /* 無視 */ } log('info', '販売者ごとの仕分けを' + (e.target.checked ? 'オン' : 'オフ') + 'に変更'); setView(view); return; }
-    if (e.target.dataset && e.target.dataset.a === 'selfilter') { render(); return; }
     const nid = e.target.dataset && e.target.dataset.nchk;
     if (nid) { if (e.target.checked) nameOff.delete(nid); else nameOff.add(nid); const row = e.target.closest('.pd-row'); if (row) row.classList.toggle('sel', e.target.checked); return; }
     const cid = e.target.dataset && e.target.dataset.cchk;
     if (cid) { if (e.target.checked) cleanOff.delete(cid); else cleanOff.add(cid); const row = e.target.closest('.pd-row'); const it = cplan.find((x) => x.id === cid); if (row) row.classList.toggle(it && it.op === 'rename' ? 'sel' : 'del', e.target.checked); return; }
     if (['mode', 'nearonly', 'renfilter'].includes(e.target.dataset.a)) render();
   });
+  root.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.matches && e.target.matches('.sl-in input')) { e.preventDefault(); const b = e.target.closest('.sl-row'); if (b && !busy) saveRowSeller(b.dataset.srow); } });
   root.addEventListener('input', (e) => { if (e.target.dataset.a === 'q') render(); if (e.target.dataset.a === 'tq') { tree.q = e.target.value; renderTree(); } });
   // ---------- 開き方（ポップアップ／全画面） ----------
   // ポップアップは PikPak の画面の上に重ねる小さな画面。見出しをつかんで移動、右下で大きさを変える。位置と大きさは覚えておく
@@ -3302,7 +3475,7 @@
     if (pop) { const g = popGeom(); Object.assign(root.style, { left: g.x + 'px', top: g.y + 'px', width: g.w + 'px', height: g.h + 'px' }); }
     else ['left', 'top', 'width', 'height'].forEach((k) => root.style.removeProperty(k));
   }
-  function setWin(m) { winMode = m === 'full' ? 'full' : 'pop'; applyWin(); }
+  function setWin(m) { winMode = m === 'full' ? 'full' : 'pop'; applyWin(); if (document.getElementById('pd-set')) renderSettings(); }
   function showRoot() { if (!root.classList.contains('on')) winMode = openPref(); applyWin(); root.classList.add('on'); }
   // 見出しをつかんで移動
   root.addEventListener('mousedown', (e) => {

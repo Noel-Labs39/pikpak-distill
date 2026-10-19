@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.26.0
+// @version      3.27.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -81,7 +81,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.26.0'; // @version と合わせて更新する
+  const VER = '3.27.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -543,7 +543,7 @@
     // スキャン起点（例：My Pack）自身も仕分け対象にするため登録（名前の変更対象にはしない）
     const rootId = startTrail[startTrail.length - 1];
     const rootName = ((crumbs().pop() || {}).name) || 'スキャン起点';
-    outFolders.unshift({ id: rootId, name: rootName, parentId: startTrail.length > 1 ? startTrail[startTrail.length - 2] : '', path: '', trail: startTrail, isRoot: true });
+    outFolders.unshift({ id: rootId, name: rootName, parentId: startTrail.length > 1 ? startTrail[startTrail.length - 2] : '', path: '', trail: startTrail, trailNames: crumbs().map((c) => c.name), isRoot: true });
     return { files: outFiles, folders: outFolders };
   }
   const apiGet = (id) => api('/files/' + id);
@@ -763,7 +763,7 @@
   #ppdup.pop .pd-quota .qt i{overflow:hidden;text-overflow:ellipsis}
   #ppdup.pop .pd-quota .ql{display:none}
   #ppdup.pop .hbtn{padding:0 10px}
-  #ppdup.pop [data-a=lang] > span,#ppdup.pop [data-a=settings] > span{display:none}
+  #ppdup.pop [data-a=lang] > span,#ppdup.pop [data-a=settings] > span,#ppdup.pop .brand [data-a=addlink] > span{display:none}
   #ppdup.pop .hq input{width:110px}
   @container (max-width:880px){#ppdup .wbtn-full > span,#ppdup .brand .ver,#ppdup .pd-quota{display:none}}
   @container (max-width:700px){#ppdup .wm{display:none}}
@@ -872,7 +872,14 @@
   .pd-explain ul{margin:6px 0 0;padding-left:18px}
   .pd-explain code{background:var(--panel2);padding:1px 6px;border-radius:5px}
   /* 進捗 */
-  #ppdup .prog{padding:7px 18px;font-size:12px;color:var(--mute);background:var(--panel2);border-top:1px solid var(--line);display:flex;align-items:center;gap:12px}
+  #ppdup .prog{padding:7px 18px;font-size:12px;color:var(--mute);background:var(--panel2);border-top:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+  #ppdup .prog .pr1,#ppdup .prog .pr2{display:flex;align-items:center;gap:12px;min-width:0}
+  #ppdup .prog .pr2{display:none}
+  #ppdup .prog.busy .pr2{display:flex}
+  #ppdup .prog [data-r=status]{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #ppdup .prog .pb{flex:1 1 auto !important}
+  #ppdup .prog .ps{white-space:nowrap;color:var(--fg);opacity:.8}
+  #ppdup .prog .pstop{height:24px !important;padding:0 10px !important;font-size:12px !important}
   #ppdup .prog [data-r=status]{flex:1;min-width:0}
   #ppdup .prog [data-r=pright]{white-space:nowrap}
   #ppdup .prog .pb{flex:0 0 220px;height:6px;border-radius:3px;background:var(--line);overflow:hidden;display:none}
@@ -943,6 +950,13 @@
   .sl-guide .msg .tx small{font-size:12px;color:var(--mute)}
   .sl-guide .msg button{height:36px;padding:0 16px}
   .sl-guide .msg button.pri{font-size:13.5px}
+  .sl-prog{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+  .sl-prog .bar{height:10px;border-radius:5px;background:var(--line);overflow:hidden;display:flex}
+  .sl-prog .bar i{display:block;height:100%;transition:width .3s}
+  .sl-prog .bar .ok{background:var(--ok)}
+  .sl-prog .bar .ng{background:#8b91a1}
+  .sl-prog .nums{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--mute)}
+  .sl-prog .nums b{color:var(--fg);font-family:ui-monospace,Menlo,monospace}
   .sl-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
   .sl-tabs button{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 14px;border-radius:99px !important;font-weight:600}
   .sl-tabs button i{width:8px;height:8px;border-radius:2px}
@@ -987,6 +1001,35 @@
   #pd-ext .gr small{font-size:10px;color:#8b91a1}
   #pd-ext .ft{margin-top:10px;font-size:11px;color:#8b91a1}
   .sl-chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+  #ppdup .pd-rotate{position:absolute;inset:0;z-index:20;background:#0b0d12ee;display:flex;align-items:center;justify-content:center;padding:24px}
+  #ppdup .pd-rotate .box{max-width:320px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;text-align:center;display:flex;flex-direction:column;gap:10px}
+  #ppdup .pd-rotate .ic{font-size:40px;line-height:1}
+  #ppdup .pd-rotate b{font-size:16px}
+  #ppdup .pd-rotate small{color:var(--mute);line-height:1.6}
+  #ppdup .pd-rotate button{height:40px;border-radius:9px}
+  @media (max-height:520px){
+    #ppdup.phone{padding-left:52px}
+    #ppdup.phone .rail{width:52px;padding-top:6px}
+    #ppdup.phone .rail button{width:42px;padding:7px 0}
+    #ppdup.phone .rail button span{display:none}
+    #ppdup.phone header{padding:4px 10px 0}
+    #ppdup.phone .brand{flex-wrap:nowrap;gap:6px;padding-bottom:4px}
+    #ppdup.phone .brand > *{flex-shrink:0}
+    #ppdup.phone .brand > svg{width:26px;height:26px}
+    #ppdup.phone .wm small,#ppdup.phone .brand .ver,#ppdup.phone .pd-quota,#ppdup.phone .hq,#ppdup.phone .hqs{display:none !important}
+    #ppdup.phone .wm .gw{font-size:17px}
+    #ppdup.phone .hbtn{height:30px;padding:0 8px}
+    #ppdup.phone .hbtn > span{display:none}
+    #ppdup.phone .thm{display:none}
+    #ppdup.phone .tb{padding:6px 10px}
+    #ppdup.phone .tb .head .note{display:none}
+    #ppdup.phone .prog{padding:4px 10px}
+  }
+  .sv-intro{margin:10px 0 0;padding:12px 14px 12px 30px;border-radius:10px;background:var(--panel2);line-height:1.9;color:var(--mute)}
+  .sv-intro b{color:var(--fg)}
+  .sv-ask{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mute);margin-top:4px}
+  .sv-stale{margin:8px 0;padding:8px 12px;border-radius:8px;background:#fff3dc;color:#8a5600;font-size:12.5px}
+  html.pd-dark .sv-stale{background:#3a2c12;color:#f0c46c}
   .pd-sk{position:relative;height:16px;padding:5px 12px;background:#000;cursor:pointer}
   .pd-sk > .sktr{position:relative;height:6px;border-radius:3px;background:#3a3f4b;overflow:hidden}
   .pd-sk:hover > .tr{height:8px;margin-top:-1px}
@@ -1342,6 +1385,7 @@
     <aside class="rail" data-r="rail">
       <button data-a="toflow" data-rail="flow" title="整理（1〜7のステップ）"><svg viewBox="0 0 24 24"><path d="M4 6h10M4 12h16M4 18h7" /><circle cx="18" cy="6" r="2"/><circle cx="15" cy="18" r="2"/></svg><span>整理</span></button>
       <button data-a="tree" data-rail="tree" title="フォルダ一覧（Finder やエクスプローラーのように、フォルダを開いて中身を見られます）"><svg viewBox="0 0 24 24"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/><path d="M7 11h10M7 15h6"/></svg><span>フォルダ​一覧</span></button>
+      <button data-a="addlink" data-rail="add" title="リンク・マグネットを追加"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.2 1.2"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.2-1.2"/></svg><span>リンク</span></button>
       <button data-a="rescan" data-rail="scan" title="最新の状態を読み込み直す"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg><span>再読み込み</span></button>
     </aside>
     <header>
@@ -1350,6 +1394,7 @@
         <div class="pd-quota" data-r="quota"></div>
         <span class="seg thm" data-r="theme" role="group" aria-label="テーマ"></span>
         <button class="hbtn" data-a="lang" title="表示言語を切り替える">${IC.globe}<span class="raw" data-r="langname"></span></button>
+        <button class="hbtn" data-a="addlink" title="リンク・マグネットを追加（追加する前に、もうあるか確かめる）">${IC.link}<span>リンクを追加</span></button>
         <button class="hbtn" data-a="settings" title="設定（表示・再生・整理・情報）">${IC.gear}<span>設定</span><i data-r="logbadge"></i></button>
         <button class="hbtn wbtn-full" data-a="tofull" title="PikPak の画面を Dedupe に切り替えて、広い画面で使う">${IC.expand}<span>全画面で開く</span></button>
         <button class="hx wbtn-min" data-a="mini" title="小さくする（右下のボタンに戻す。作業中の内容はそのまま）" aria-label="小さくする">${IC.minus}</button>
@@ -1361,7 +1406,7 @@
     <div class="tb" data-r="tb"></div>
     <div class="tsel" data-r="tsel"></div>
     <main data-r="main"></main>
-    <div class="prog" data-r="prog"><span data-r="status"></span><span class="pb"><i data-r="pbar"></i></span><b class="pp" data-r="ppct"></b><span data-r="pright"></span></div>`;
+    <div class="prog" data-r="prog"><div class="pr1"><span data-r="status"></span><span data-r="pright"></span></div><div class="pr2"><span class="pb"><i data-r="pbar"></i></span><b class="pp" data-r="ppct"></b><span class="ps" data-r="psub"></span><button class="pstop" data-a="stop" title="中断（そこまでの分は反映されます）">中断</button></div></div>`;
   document.body.appendChild(root);
 
   // ---------- 表示言語（日本語／英語） ----------
@@ -1381,6 +1426,7 @@
   EN.push(...[["（残り ", "(left "], ["リンク・マグネットを追加", "Add links / magnets"], ["追加する前に、もうあるか確かめる", "Checks whether you already have it before adding"], ["中身を確認", "Check contents"], ["もうあります", "Already have"], ["すべて保存", "Save all"], ["一部だけ保存", "Save selected only"], ["キャッシュなし", "No cache"], ["中身を確認中…", "Checking contents…"], ["中身を確認できません", "Can't check contents"], ["追加するもの ", "To add: "], ["追加するものがありません", "Nothing to add"], ["PikPak の既定の保存先（My Pack）", "PikPak default location (My Pack)"], ["保存先", "Save to"], ["🔗 リンクを追加", "🔗 Add links"], ["ここにリンクを追加…", "Add links here…"], ["リンク・マグネットを追加…", "Add links / magnets…"]]);
   EN.push(...[["▦ コマ一覧", "▦ Frames"], ["▦ コマで比べる", "▦ Compare frames"], ["▦ 2 本をコマで比べる", "▦ Compare 2 videos by frames"], ["コマ一覧", "Frames"], ["同じ位置のコマを左右に並べています", "Frames at the same positions, side by side"], ["▶ 選んだコマから再生", "▶ Play from selected frame"], ["画像で保存", "Save as image"], ["動画を読み込んでいます…", "Loading video…"], ["コマを作っています… ", "Making frames… "], ["コマを作れませんでした：", "Could not make frames: "], ["この動画はブラウザの制限でコマを作れません", "The browser does not allow frames for this video"], ["再生速度：", "Speed: "], ["残す", "Keep"], [" コマ", " frames"]]);
   EN.push(...[["名前で絞り込み・検索", "Filter / search by name"], ["このフォルダ", "This folder"], ["すべて", "All"], ["行を押すとその場所を開きます", "Click a row to open its location"], ["名前とパスで探しています", "searching names and paths"], ["書き出し／読み込み", "Export / import"], ["別のブラウザやパソコンへ移すときに使います（ログイン情報は含めません）", "Use this to move to another browser or PC (login info is not included)"], ["書き出す（.json）", "Export (.json)"], ["読み込む…", "Import…"], ["販売者の調査結果と手入力", "Seller lookups and manual entries"], ["重複の判断（残す・削除の記録）", "Duplicate decisions (keep / delete)"], ["解凍パスワード", "Archive passwords"], ["読み込む内容", "What to import"], ["今のものに足す（同じものは読み込んだ方を優先）", "Add to the current data (imported wins on conflicts)"], ["置き換える", "Replace"]]);
+  EN.push(...[["まず PikPak の中身を読み込みます", "First, load your PikPak contents"], ["フォルダとファイルの一覧を読み込んで、重複や不要ファイルを見つけます。", "Loads the list of folders and files to find duplicates and unneeded files. "], ["読むだけで、ファイルは何も変更しません。", "It only reads; nothing is changed."], ["読み込みを始める", "Start loading"], ["あとで", "Later"], ["次からは確認しない", "Don't ask again"], ["リンクを追加", "Add links"], ["リンク", "Links"], ["販売者を調べています", "Looking up sellers"], ["一時停止", "Pause"], ["再開", "Resume"], ["分かった ", "Found "], ["分からない ", "Unknown "], ["横向きにすると見やすくなります", "Rotate to landscape for a better view"], ["このまま使う", "Use as is"], ["残り ", "Left "]]);
   EN.sort((a, b) => b[0].length - a[0].length); // 長い言い回しから先に置き換える
   const EN_MAP = new Map(EN);
   const EN_UNIT = EN.filter(([a]) => a.length > 1 && /^(件|項目|組|作品|本)./.test(a));
@@ -1479,8 +1525,8 @@
   if (darkMQ) { try { darkMQ.addEventListener('change', applyTheme); } catch (e) { if (darkMQ.addListener) darkMQ.addListener(applyTheme); } }
   const $ = (s) => root.querySelector(s);
   // 状態表示（ratio を渡すと進捗バーを出す）
-  const status = (t, ratio) => {
-    $('[data-r=status]').textContent = t || '';
+  const status = (t, ratio, sub) => {
+    const st = $('[data-r=status]'); st.textContent = t || ''; st.title = t || '';
     const busy = typeof ratio === 'number';
     $('[data-r=prog]').classList.toggle('busy', busy);
     if (busy) {
@@ -1488,8 +1534,9 @@
       $('[data-r=pbar]').style.width = Math.max(2, pct).toFixed(1) + '%';
       // ゲージの横に、進んだ割合と残りの割合を出す
       const done = Math.min(99, Math.floor(pct));
-      $('[data-r=ppct]').textContent = `${done}%（残り ${100 - done}%）`;
-    } else $('[data-r=ppct]').textContent = '';
+      $('[data-r=ppct]').textContent = `${done}%`;
+      $('[data-r=psub]').textContent = `残り ${100 - done}%${sub ? '・' + sub : ''}`;
+    } else { $('[data-r=ppct]').textContent = ''; $('[data-r=psub]').textContent = ''; }
   };
 
   let folders = [];
@@ -1792,6 +1839,9 @@
   }
 
   // ---------- 1. 読み込む ----------
+  // 初めて読み込むときは、いきなり読み込まずに案内を出す（「次からは確認しない」で省略）
+  const LS_SCANASK = 'ppdup:scanask:v1';
+  const scanAsk = () => { try { return localStorage.getItem(LS_SCANASK) !== '0'; } catch (e) { return true; } };
   function renderScan() {
     const where = crumbs().map((c) => c.name).filter(Boolean).join(' › ') || (currentFolderId() === 'root' ? 'ホーム' : 'いま開いているフォルダ');
     const c = counts();
@@ -1808,13 +1858,20 @@
       return `<button data-step="${k}" class="sc ${x.cls}${k === next ? ' next' : ''}" title="${esc(STEPS[i].d)}"><span class="sc-h"><span class="sc-n">${i + 1}</span><span class="sc-t">${esc(STEPS[i].t)}</span></span><span class="sc-v"><b>${esc(String(x.v))}</b>${x.u ? `<small>${esc(x.u)}</small>` : ''}</span><span class="sc-s">${esc(x.sub || (x.cls === 'todo' ? (k === next ? 'おすすめ' : '作業あり') : x.cls === 'off' ? '使わない設定' : ''))}</span></button>`;
     };
     const when = meta ? new Date(meta.at).toLocaleString(loc(), { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+    const staleH = meta ? Math.floor((Date.now() - meta.at) / 3600000) : 0;
     const done = allDone(c);
     $('[data-r=main]').innerHTML = `<div class="sv">
       <section class="sv-hero${done ? ' ok' : ''}">
-        <div class="sv-badge">${done ? '✓' : meta ? '↻' : '⇣'}</div>
-        <div class="sv-main">
+        <div class="sv-badge">${done ? '✓' : meta ? '↻' : '⇣'}</div>${!meta && !busy ? (() => {
+          let st = null; try { st = (JSON.parse(localStorage.getItem(LS_SCANSTAT) || '{}') || {})[String(currentTrail().slice(-1)[0] || 'root')]; } catch (e) { st = null; }
+          return `<div class="sv-main"><h2>まず PikPak の中身を読み込みます</h2><p>フォルダとファイルの一覧を読み込んで、重複や不要ファイルを見つけます。<b>読むだけで、ファイルは何も変更しません。</b></p>
+            <ul class="sv-intro"><li>📁 読み込む場所：<b>${esc(where)}</b>（この中のすべて。ほかの場所は PikPak の画面でフォルダを開いてから）</li><li>⏱ かかる時間：<b>${st ? `前回は ${fmtDur(st.ms)}（フォルダ ${st.folders}）` : '数十秒〜数分'}</b>（フォルダが多いほど長くなります）</li><li>💡 読み込み中も画面は見られます。途中で止めても大丈夫です</li></ul></div>
+            <div class="sv-act"><button class="pri big" data-a="scan">読み込みを始める</button><button class="big ghost" data-a="close">あとで</button><label class="sv-ask"><input type="checkbox" data-a="scanask"${scanAsk() ? '' : ' checked'}> 次からは確認しない</label></div>`;
+        })() : ''}
+        ${!meta && !busy ? '' : `<div class="sv-main">
           <h2>${done ? '整理はすべて完了しています' : meta ? 'フォルダを読み込み済みです' : 'まずはフォルダを読み込みます'}</h2>
           <p>${done ? 'PikPak でファイルを追加・操作したら、再スキャンで最新の状態を確認できます。' : meta ? (next ? '下のカードから作業を選ぶか、おすすめの作業へ進んでください。' : '要確認の項目を確認してください。') : 'ホームか My Pack を開いた状態で実行してください。読み込みはバックグラウンドで行い、PikPak の画面は切り替わりません。'}</p>
+          ${staleH >= 6 && !busy ? `<div class="sv-stale">前回の読み込みから ${staleH >= 48 ? Math.floor(staleH / 24) + ' 日' : staleH + ' 時間'}たっています。PikPak で追加・削除したものは「↻ 再スキャン」で反映されます。</div>` : ''}
           <div class="sv-chips">
             <span class="chip-i"><i>場所</i>${esc(where)}</span>
             ${meta ? `<span class="chip-i"><i>フォルダ</i>${meta.nfo.toLocaleString()}</span><span class="chip-i"><i>ファイル</i>${meta.nfi.toLocaleString()}</span><span class="chip-i"><i>前回</i>${esc(when)}</span>` : ''}
@@ -1823,7 +1880,7 @@
         <div class="sv-act">
           <button class="pri big" data-a="scan"${busy ? ' disabled' : ''}>${meta ? '↻ 再スキャン' : 'スキャン開始'}</button>${busy ? '<button class="big" data-a="stop">中断</button>' : ''}
           ${next ? `<button class="big ghost" data-step="${next}">おすすめ：${STEPS.findIndex((s) => s.v === next) + 1}. ${esc(STEPS.find((s) => s.v === next).t)} →</button>` : ''}
-        </div>
+        </div>`}
       </section>
       <label class="sv-opt" title="オンにすると、作品と関係ないファイルを、仕分け・名前の変更・重複比較の対象から外します（「2. 不要ファイルを削除」で確認・削除できます）"><span class="sw"><input type="checkbox" data-a="junkopt"${junkEnabled() ? ' checked' : ''}><i></i></span><span><b>作品と関係ないファイルを除外する</b><small>広告・宣伝のファイルや 10MB 以下のファイルなどを、ほかの作業の対象から外します</small></span></label>
       ${c ? `<div class="sv-grid">${WORK.map(card).join('')}</div>` : ''}
@@ -1876,7 +1933,7 @@
     try {
       const where = crumbs().map((c) => c.name).filter(Boolean).join(' › ') || 'ホーム';
       const eta = scanEta(currentTrail());
-      const r = await scanApi(currentTrail(), { onProgress: (d, total, n) => { const e = eta.tick(d, total); status(`読み込み中… フォルダ ${d} / ${e.expectedLabel} ／ ファイル ${n} 件　${e.text}`, e.frac); } });
+      const r = await scanApi(currentTrail(), { onProgress: (d, total, n) => { const e = eta.tick(d, total); status(`読み込み中… フォルダ ${d} / ${e.expectedLabel} ／ ファイル ${n} 件`, e.frac, e.text); } });
       eta.done(r.folders.length, r.files.length);
       files = r.files; folders = r.folders; saveAll();
       meta = { at: Date.now(), where, nfo: folders.length, nfi: files.length };
@@ -2203,7 +2260,9 @@
     const homeScan = !!R && (!R.id || R.id === 'root');
     // 既に「販売者別」の中にあるものは対象外（ホームから読み込んだときだけ中身が見える）
     const sortedRoot = homeScan ? ds.find((d) => !d.isRoot && (d.parentId === R.id || !d.parentId || d.parentId === 'root') && d.name === cfg.root) : null;
-    const inSorted = (d) => !!sortedRoot && (d.id === sortedRoot.id || (d.trail || []).includes(sortedRoot.id));
+    // 「販売者別」の中から読み込んだとき（ホーム › 販売者別 › …）は、全部が仕分け済み
+    const insideBox = !!R && !homeScan && (R.name === cfg.root || (R.trailNames || []).slice(0, 3).includes(cfg.root) || (R.trail || []).some((id) => dirLabel(id) === cfg.root));
+    const inSorted = (d) => insideBox || (!!sortedRoot && (d.id === sortedRoot.id || (d.trail || []).includes(sortedRoot.id)));
     const cand = ds.filter((d) => !d.isRoot && !inSorted(d) && workKeys(d.name).length);
     const candIds = new Set(cand.map((d) => d.id));
     const plan = [];
@@ -2304,7 +2363,13 @@
     const flow = steps.map(([t, s], i) => `<div class="st ${i + 1 < st ? 'done' : i + 1 === st ? 'now' : ''}"><span class="n">${i + 1 < st ? '✓' : i + 1}</span><span class="t"><b>${t}</b><small>${esc(s)}</small></span></div>`).join('<i class="ln"></i>');
     const parts = [auto ? `品番から判定 ${auto}` : '', looked ? `サイトで確認 ${looked}` : '', manual ? `手入力 ${manual}` : ''].filter(Boolean).join('・');
     let msg = '';
-    if (st === 1) msg = `<div class="tx"><b>未調査が ${pend} 件あります。まず販売者を調べます</b><small>小さなウィンドウで fd2ppv.cc（見つからなければ fc2cmadb.com）の作品ページを順に開いて調べます。調べるだけでは移動しません。</small></div><button class="pri" data-a="slookup"${busy ? ' disabled' : ''}>販売者を調べる（${pend} 件）</button>`;
+    if (st === 1 && lookupSt.on) {
+      const L = lookupSt, pct = Math.floor(L.done / Math.max(1, L.total) * 100);
+      msg = `<div class="tx"><b>${L.challenge ? `${esc(L.challenge)} の確認画面が出ています。前に出した小さなウィンドウで確認を済ませてください` : L.paused ? '一時停止しています' : '販売者を調べています'}</b><small>${L.cur ? `調べている作品：${esc(L.cur)}（${esc(L.site)}）` : ''}${L.challenge ? '' : '　小さなウィンドウは画面の端に寄せてあります（閉じると止まります）'}</small>
+        <div class="sl-prog"><div class="bar"><i class="ok" style="width:${L.ok / Math.max(1, L.total) * 100}%"></i><i class="ng" style="width:${L.miss / Math.max(1, L.total) * 100}%"></i></div>
+        <div class="nums"><b>${L.done} / ${L.total}（${pct}%）</b><span>🟩 分かった ${L.ok}</span><span>⬜ 分からない ${L.miss}</span><span>${esc(lookupEta())}（1 件 ${sellerCfg().interval} 秒＋読み込み）</span></div></div></div>
+        <button data-a="spause">${L.paused ? '再開' : '一時停止'}</button><button data-a="stop">中断</button>`;
+    } else if (st === 1) msg = `<div class="tx"><b>未調査が ${pend} 件あります。まず販売者を調べます</b><small>小さなウィンドウで fd2ppv.cc（見つからなければ fc2cmadb.com）の作品ページを順に開いて調べます。調べるだけでは移動しません。</small></div><button class="pri" data-a="slookup"${busy ? ' disabled' : ''}>販売者を調べる（${pend} 件）</button>`;
     else if (st === 2) msg = `<div class="tx"><b>${unk} 件は販売者が分かりませんでした。外部サイトで確かめて入力してください</b><small>${selPlan.length} 件中 ${selPlan.length - unk} 件は決まりました${parts ? `（${parts}）` : ''}。入力しなくても「${esc(sellerCfg().unknown)}」「${esc(sellerCfg().review)}」へまとめて移動できます。</small></div><button class="pri" data-a="sshowunk">分からない ${unk} 件を確かめる</button><button data-a="sack">このまま ③ 移動へ</button>`;
     else msg = `<div class="tx"><b>${mv ? `チェックした ${mv} 件を移動できます。下のボタンで実行します` : 'チェックの入った作品がありません'}</b><small>${selPlan.length} 件中 ${selPlan.length - unk} 件は販売者が決まりました${parts ? `（${parts}）` : ''}。まずは「先頭1件だけ試す」で動きを確かめてください。削除はしません。</small></div>${unk ? `<button data-a="sunack">② に戻る（分からない ${unk} 件）</button>` : ''}`;
     return `<section class="sl-guide" aria-label="次にやること"><div class="fl">${flow}</div><div class="msg">${msg}</div></section>`;
@@ -2455,6 +2520,12 @@
     const a = await visitAndWait(win, FD2, `${FD2}/articles/${encodeURIComponent(String(hit).split('/').pop())}`, onChallenge);
     return { ...a, src: 'fd2ppv' };
   }
+  // 調べている間の進み具合（「販売者を調べる」の枠に出す）
+  let lookupSt = { on: false, total: 0, done: 0, ok: 0, miss: 0, cur: '', site: '', paused: false, t0: 0, challenge: '' };
+  // 小さなウィンドウ：確認画面が出たら前に出し、済んだら小さくして画面の端に寄せる（ほかのサイトに埋め込めないため、完全には隠せない）
+  function parkWin(win) { try { win.resizeTo(340, 220); win.moveTo(Math.max(0, screen.availWidth - 360), Math.max(0, screen.availHeight - 260)); } catch (e) { /* 無視 */ } try { window.focus(); } catch (e) { /* 無視 */ } }
+  function showWin(win) { try { win.resizeTo(560, 720); win.moveTo(Math.max(0, (screen.availWidth - 560) / 2), Math.max(0, (screen.availHeight - 720) / 2)); win.focus(); } catch (e) { /* 無視 */ } }
+  const lookupEta = () => { const d = lookupSt.done, el = Date.now() - lookupSt.t0; if (d < 2) return '残り時間を計算中…'; return `あと約 ${fmtDur((lookupSt.total - d) * el / d)}`; };
   async function runSellerLookup() {
     if (busy) return;
     const keys = []; const seen = new Set();
@@ -2465,11 +2536,18 @@
     if (!win) { status('小さなウィンドウを開けませんでした。ブラウザのアドレスバーで、このサイトのポップアップを許可してから、もう一度押してください。'); return; }
     const cfg = sellerCfg();
     busy = true; window.__ppdupStop = false; renderNav(); renderToolbar();
-    let done = 0, ok = 0, miss = 0, stop = '';
+    let done = 0, ok = 0, miss = 0, stop = '', parked = false;
+    lookupSt = { on: true, total: keys.length, done: 0, ok: 0, miss: 0, cur: '', site: '', paused: false, t0: Date.now(), challenge: '' };
+    refreshSellerChrome();
     for (const k of keys) {
+      while (lookupSt.paused && !window.__ppdupStop) await sleep(300);
       if (window.__ppdupStop) { stop = '中断しました'; break; }
-      status(`販売者を調べています… ${done + 1}/${keys.length}：${k.label}`, done / keys.length);
-      const r = await lookupKey(win, k, (origin) => status(`${origin.replace('https://', '')} の確認画面が出ています。開いた小さなウィンドウで確認を済ませてください（済むと自動で続きます）：${k.label}`, done / keys.length));
+      lookupSt.cur = k.label; lookupSt.site = k.kind === 'fc2' ? 'fd2ppv.cc → fc2cmadb.com' : 'fd2ppv.cc'; lookupSt.challenge = '';
+      status(`販売者を調べています… ${done + 1}/${keys.length}：${k.label}`, done / keys.length, lookupEta());
+      refreshSellerChrome();
+      const r = await lookupKey(win, k, (origin) => { lookupSt.challenge = origin.replace('https://', ''); showWin(win); parked = false; refreshSellerChrome(); status(`${origin.replace('https://', '')} の確認画面が出ています。開いた小さなウィンドウで確認を済ませてください（済むと自動で続きます）：${k.label}`, done / keys.length); });
+      lookupSt.challenge = '';
+      if (!parked && r.status !== 'closed' && r.status !== 'challenge') { parkWin(win); parked = true; }
       if (r.status === 'closed') { stop = 'ウィンドウが閉じられたため止めました'; break; }
       if (r.status === 'challenge') { stop = '確認画面が済まなかったため止めました'; break; }
       if (r.status === 'timeout') { log('warn', '販売者の調査が時間切れ', k.label); miss++; }
@@ -2479,9 +2557,14 @@
         saveSellerDb();
       }
       done++;
+      Object.assign(lookupSt, { done, ok, miss });
+      // 分かった作品から順に一覧へ（3 件ごとに作り直す）
+      if (view === 'seller' && (done % 3 === 0 || done === keys.length)) { const sc = $('[data-r=main]').scrollTop; selPlan = buildSellerPlan(folders); renderSeller(); $('[data-r=main]').scrollTop = sc; }
+      else refreshSellerChrome();
       await sleep(cfg.interval * 1000);
     }
     try { win.close(); } catch (e) { /* 無視 */ }
+    lookupSt.on = false;
     busy = false; sellerAck = false; setView('seller');
     status(`${stop ? stop + '。' : ''}${done} 件を調べました（販売者が分かった ${ok} 件・分からなかった ${miss} 件）。調べた結果は保存済みです。`);
     log('info', `販売者を調べた：${done} 件（判明 ${ok}・不明 ${miss}）${stop ? '・' + stop : ''}`);
@@ -2495,7 +2578,7 @@
     const R = folders.find((d) => d.isRoot);
     const homeScan = !!R && (!R.id || R.id === 'root');
     busy = true; renderNav(); window.__ppdupStop = false;
-    let ok = 0, skip = 0;
+    let ok = 0, skip = 0; const failed = [];
     const lists = new Map(); // フォルダ → 中身（同名の確認用）
     const listOf = async (pid) => { if (!lists.has(pid)) lists.set(pid, await apiList(pid)); return lists.get(pid); };
     // ホーム直下の「販売者別」と、その中のフォルダを用意（無ければ作る）
@@ -2518,10 +2601,14 @@
       for (const p of targets) {
         if (window.__ppdupStop) break;
         status(`移動中… ${ok + skip + 1}/${targets.length}：${p.name}`, (ok + skip) / targets.length);
+        if (p.id === rootId) { skip++; continue; }
+        try {
         let dest = p.kind === 'seller' ? await ensureDir(rootId, sellerFolderName(p.seller), (nm) => nm.endsWith(`（${p.seller.sid}）`))
           : await ensureDir(rootId, p.kind === 'unknown' ? cfg.unknown : cfg.review);
         // 移動先に同じ名前があれば「要確認」へ、そこにもあれば移動しない
         const same = (pid) => listOf(pid).then((l) => l.some((x) => x.id !== p.id && x.name.toLowerCase() === p.name.toLowerCase()));
+        // 移動先がその作品フォルダ自身・その中になるときは移動しない（「販売者別」の中から読み込んだときなど）
+        if (dest === p.id || (folders.find((d) => d.id === dest) || {}).trail?.includes(p.id)) { skip++; log('warn', `移動先が作品フォルダ自身のため移動しませんでした：${p.name}`); continue; }
         if (await same(dest)) {
           const rv = await ensureDir(rootId, cfg.review);
           if (dest === rv || await same(rv)) { skip++; log('warn', `移動先に同じ名前があるため移動しませんでした：${p.name}`); continue; }
@@ -2535,12 +2622,17 @@
         const it = folders.find((d) => d.id === p.id);
         if (it) { if (homeScan && folders.some((d) => d.id === dest)) cacheMoveFolder(p.id, dest); else dropFromScan(it); }
         ok++; saveAll();
+        } catch (err) {
+          // ログイン切れ以外は、その作品だけ飛ばして続ける
+          if (err.session) throw err;
+          skip++; failed.push(p.name); log('error', `移動できませんでした：${p.name}（${err.message}）`, 'seller');
+        }
         await sleep(100);
       }
     } catch (err) { saveAll(); busy = false; setView('seller'); handleErr(err, 'seller', `停止：${err.message}（${ok} 作品完了）`); return; }
     if (meta) { meta.nfo = folders.length; meta.nfi = files.length; try { localStorage.setItem(LS_META, JSON.stringify(meta)); } catch (e) { /* 無視 */ } }
     busy = false; setView('seller');
-    status(`${ok} 作品を「${cfg.root}」へ移動しました${skip ? `（同じ名前があったため ${skip} 件は移動しませんでした）` : ''}。`);
+    status(`${ok} 作品を「${cfg.root}」へ移動しました${skip ? `（移動しなかった ${skip} 件${failed.length ? `・うち失敗 ${failed.length} 件：${failed.slice(0, 3).join('・')}${failed.length > 3 ? ' …' : ''}（ログに詳細）` : '：同じ名前があった・移動先が自分自身など'}）` : ''}。`);
     log('info', `販売者ごとに仕分け ${ok} 作品${skip ? `（移動しなかった ${skip}）` : ''}`); refreshView();
   }
 
@@ -3270,7 +3362,12 @@
       if (!hls) return;
       hls.loadSource(u); hls.attachMedia(v);
     };
-    if (x.hls && !S.nativeHls && S.H && S.H.isSupported()) viaHls();
+    // HLS は hls.js を優先する（Chrome 14x 以降は「そのまま再生できる」と答えるが、PikPak の変換画質はそのままでは再生できない）
+    if (x.hls && S.H && S.H.isSupported()) viaHls();
+    else if (x.hls && x.tsdl) {
+      (async () => { let u = x.url; try { const r = await fetch(x.url, { cache: 'no-store', credentials: 'omit' }); if (r.ok) { const txt = fixTsM3u8(await r.text()); if (txt.includes('#EXTM3U')) u = URL.createObjectURL(new Blob([txt], { type: 'application/vnd.apple.mpegurl' })); } } catch (e) { /* そのまま */ } v.src = u; })();
+      v.addEventListener('error', () => onFail(x, v.error && v.error.message), { once: true });
+    }
     else {
       v.src = x.url;
       v.addEventListener('error', () => { if (!x.hls && !x.dl && S.H && S.H.isSupported() && !opt.retried) { viaHls(); } else onFail(x, v.error && v.error.message); }, { once: true });
@@ -3694,7 +3791,7 @@
   function openTree() {
     if (busy) return;
     closeQL();
-    if (!hasScan()) { afterScan = 'tree'; setView('scan'); runScan(); return; }
+    if (!hasScan()) { afterScan = 'tree'; setView('scan'); if (!scanAsk()) runScan(); return; }
     setView('tree');
     const q = $('[data-a=tq]'); if (q) q.value = tree.q || '';
     prefetchUp();
@@ -3739,6 +3836,8 @@
     if (a === 'tqs') { tree.qs = t.dataset.v; saveTree(); syncTqs(); if (view === 'tree') renderTree(); return; }
     if (a === 'toflow') { if (!busy) { if (view === 'tree') view = 'scan'; openFlow(); } return; }
     if (a === 'rescan') { if (!busy) { afterScan = view; runScan(); } return; }
+    if (a === 'addlink') { if (!busy || view !== 'tree') { const c = view === 'tree' ? treeBase() : currentFolderId(); openAdd(isHomeId(c) ? 'DL' : c); } return; }
+    if (a === 'spause') { lookupSt.paused = !lookupSt.paused; refreshSellerChrome(); status(lookupSt.paused ? '販売者の調査を一時停止しています（「再開」で続けます）' : '販売者の調査を再開しました'); return; }
     if (a === 'stop') { window.__ppdupStop = true; status('中断しています…（いまの処理が終わったら止まります）'); return; }
     if (busy) return;
     if (a === 'scan') return runScan();
@@ -3764,6 +3863,7 @@
     const jid = e.target.dataset && e.target.dataset.jchk;
     if (jid) { junkSel.set(jid, e.target.checked); const row = e.target.closest('.pd-row'); if (row) row.classList.toggle('del', e.target.checked); renderActs(); return; }
     if (e.target.dataset && e.target.dataset.a === 'nameopt') { try { localStorage.setItem(LS_OPT_NAME, e.target.checked ? '1' : '0'); } catch (err) { /* 無視 */ } log('info', 'ファイル名の整理を' + (e.target.checked ? 'オン' : 'オフ') + 'に変更'); render(); renderNav(); return; }
+    if (e.target.dataset && e.target.dataset.a === 'scanask') { try { localStorage.setItem(LS_SCANASK, e.target.checked ? '0' : '1'); } catch (err) { /* 無視 */ } return; }
     const sid2 = e.target.dataset && e.target.dataset.schk;
     if (sid2) { sellerSel.set(sid2, e.target.checked); const row = e.target.closest('.pd-row'); if (row) row.classList.toggle('sel', e.target.checked); refreshSellerChrome(); return; }
     const sg = e.target.dataset && e.target.dataset.sgrp;
@@ -3803,7 +3903,7 @@
     else ['left', 'top', 'width', 'height'].forEach((k) => root.style.removeProperty(k));
   }
   function setWin(m) { winMode = m === 'full' ? 'full' : 'pop'; applyWin(); if (document.getElementById('pd-set')) renderSettings(); }
-  function showRoot() { if (!root.classList.contains('on')) winMode = openPref(); applyWin(); root.classList.add('on'); }
+  function showRoot() { if (!root.classList.contains('on')) winMode = isPhone() ? 'full' : openPref(); applyWin(); root.classList.add('on'); checkRotate(); }
   // 見出しをつかんで移動
   root.addEventListener('mousedown', (e) => {
     if (winMode !== 'pop' || e.button !== 0 || !e.target.closest('.brand') || e.target.closest('button,input,select,label,a,.pd-quota,.seg')) return;
@@ -3850,7 +3950,7 @@
       const to = setTimeout(() => rej(new Error('動画の読み込みが時間切れになりました')), 25000);
       v.addEventListener('loadedmetadata', () => { clearTimeout(to); res(); }, { once: true });
       v.addEventListener('error', () => { clearTimeout(to); rej(new Error('動画を読み込めませんでした')); }, { once: true });
-      if (x.hls && !S.nativeHls && S.H && S.H.isSupported()) {
+      if (x.hls && S.H && S.H.isSupported()) {
         hls = new S.H({ maxBufferLength: 4, maxMaxBufferLength: 8, enableWorker: true, startLevel: 0, capLevelToPlayerSize: false });
         hls.on(S.H.Events.ERROR, (ev, d) => { if (d && d.fatal) { clearTimeout(to); rej(new Error(d.details || 'HLS の読み込みに失敗しました')); } });
         (async () => {
@@ -4368,6 +4468,22 @@
     renderAdd(); status(addSt.msg); refreshQuota();
     if (view === 'tree' && nfile) refreshView();
   }
+  // ---------- スマホ（案 A）：縦向きのときは横向きをすすめる。横向きは左のメニューを文字なしにして詰める ----------
+  const SS_ROTATE = 'ppdup:rotate-ok';
+  const isPhone = () => { try { return matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) < 600; } catch (e) { return false; } };
+  function checkRotate() {
+    const old = root.querySelector('.pd-rotate');
+    let ok = false; try { ok = sessionStorage.getItem(SS_ROTATE) === '1'; } catch (e) { /* 無視 */ }
+    const portrait = isPhone() && innerHeight > innerWidth;
+    root.classList.toggle('phone', isPhone());
+    if (!portrait || ok || !root.classList.contains('on')) { if (old) old.remove(); return; }
+    if (old) return;
+    root.insertAdjacentHTML('beforeend', '<div class="pd-rotate"><div class="box"><div class="ic">⟲</div><b>横向きにすると見やすくなります</b><small>Dedupe は一覧や比べる画面が横に広いので、スマホは横向きがおすすめです</small><button data-a="rotateok">このまま使う</button></div></div>');
+    if (LANG === 'en') root.querySelectorAll('.pd-rotate *').forEach(trNode);
+  }
+  window.addEventListener('resize', checkRotate);
+  window.addEventListener('orientationchange', () => setTimeout(checkRotate, 300));
+  root.addEventListener('click', (e) => { if (e.target.closest('[data-a=rotateok]')) { try { sessionStorage.setItem(SS_ROTATE, '1'); } catch (err) { /* 無視 */ } checkRotate(); } });
   // ---------- フローティングメニュー ----------
   function openFlow() {
     mode = 'flow'; root.classList.remove('single'); showRoot(); updateLogBadge();
@@ -4378,7 +4494,7 @@
     mode = v === 'scan' ? 'flow' : 'single';
     root.classList.toggle('single', mode === 'single'); showRoot(); updateLogBadge();
     if (busy) return;
-    if (v !== 'scan' && !hasScan()) { afterScan = v; setView('scan'); runScan(); return; }
+    if (v !== 'scan' && !hasScan()) { afterScan = v; setView('scan'); if (!scanAsk()) runScan(); return; }
     setView(v);
   }
   function renderFab() {

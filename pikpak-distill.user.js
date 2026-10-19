@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.28.0
+// @version      3.29.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -81,7 +81,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.28.0'; // @version と合わせて更新する
+  const VER = '3.29.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1447,6 +1447,7 @@
   EN.push(...[["名前で絞り込み・検索", "Filter / search by name"], ["このフォルダ", "This folder"], ["すべて", "All"], ["行を押すとその場所を開きます", "Click a row to open its location"], ["名前とパスで探しています", "searching names and paths"], ["書き出し／読み込み", "Export / import"], ["別のブラウザやパソコンへ移すときに使います（ログイン情報は含めません）", "Use this to move to another browser or PC (login info is not included)"], ["書き出す（.json）", "Export (.json)"], ["読み込む…", "Import…"], ["販売者の調査結果と手入力", "Seller lookups and manual entries"], ["重複の判断（残す・削除の記録）", "Duplicate decisions (keep / delete)"], ["解凍パスワード", "Archive passwords"], ["読み込む内容", "What to import"], ["今のものに足す（同じものは読み込んだ方を優先）", "Add to the current data (imported wins on conflicts)"], ["置き換える", "Replace"]]);
   EN.push(...[["まず PikPak の中身を読み込みます", "First, load your PikPak contents"], ["フォルダとファイルの一覧を読み込んで、重複や不要ファイルを見つけます。", "Loads the list of folders and files to find duplicates and unneeded files. "], ["読むだけで、ファイルは何も変更しません。", "It only reads; nothing is changed."], ["読み込みを始める", "Start loading"], ["あとで", "Later"], ["次からは確認しない", "Don't ask again"], ["リンクを追加", "Add links"], ["リンク", "Links"], ["販売者を調べています", "Looking up sellers"], ["一時停止", "Pause"], ["再開", "Resume"], ["分かった ", "Found "], ["分からない ", "Unknown "], ["横向きにすると見やすくなります", "Rotate to landscape for a better view"], ["このまま使う", "Use as is"], ["残り ", "Left "]]);
   EN.push(...[["📦 解凍", "📦 Extract"], ["解凍できます", "Can be extracted"], ["パスワードが必要です", "Password required"], ["パスワードが違います", "Wrong password"], ["記録したパスワードで開けました", "Opened with a saved password"], ["解凍できたら元の圧縮ファイルをゴミ箱へ", "Move the archive to trash after extracting"], ["解凍するもの ", "To extract: "], ["件を解凍", " to extract"], ["試す", "Try"]]);
+  EN.push(...[["仕分け後の確認：置き場所が違う", "After-sort check: wrong place"], ["置き場所の修正", "Fix placement"], ["同じ品番が複数", "Same ID in several places"], ["同じ品番のフォルダが複数（確認用）", "Same ID in several folders (for review)"], ["販売者違い", "Wrong seller"], ["置き場所違い", "Wrong place"], ["販売者が判明", "Seller found"], ["重複", "Duplicate"]]);
   EN.sort((a, b) => b[0].length - a[0].length); // 長い言い回しから先に置き換える
   const EN_MAP = new Map(EN);
   const EN_UNIT = EN.filter(([a]) => a.length > 1 && /^(件|項目|組|作品|本)./.test(a));
@@ -1681,7 +1682,7 @@
       ren: buildRenamePlan(wf, folders).filter((p) => p.status === 'rename' || p.status === 'dup').length,
       dup: buildGroups(wf, 'name').length,
       clean: buildCleanPlan(files, folders).filter((p) => p.status === 'todo').length,
-      seller: sellerEnabled() ? buildSellerPlan(folders).length : 0,
+      seller: sellerEnabled() ? buildSellerPlan(folders).filter((x) => x.kind !== 'dupw').length : 0,
       cleanSkip: buildCleanPlan(files, folders).filter((p) => p.status === 'skip').length,
     };
   }
@@ -2274,39 +2275,86 @@
   // 販売者フォルダの名前（フォルダ名に使えない / や \ は置き換える）
   const sellerFolderName = (s) => `${String(s.name || s.sid).replace(/[\/\\]/g, '・').replace(/\s+/g, ' ').trim().slice(0, 80)}（${s.sid}）`;
   // 仕分けの計画：作品フォルダごとに、移動先の種類（seller / unknown / review / pending）を決める
+  // 品番の結果から、販売者が決まるか（seller）・分からないか（unknown）・判断できないか（review）・未調査か（pending）を決める
+  function resolveKeys(keys) {
+    const recs = keys.map(keyRec);
+    if (recs.some((r) => !r)) return { kind: 'pending', note: '未調査' };
+    const ok = recs.filter((r) => r.status === 'ok' && r.sid);
+    const sids = [...new Set(ok.map((r) => r.sid))];
+    if (keys.length > 1 && (sids.length > 1 || ok.length !== recs.length)) return { kind: 'review', why: 'multi', note: `品番が ${keys.length} つ（${recs.map((r) => (r.status === 'ok' ? r.name : '不明')).join('・')}）` };
+    if (sids.length === 1) return { kind: 'seller', seller: ok[0], note: ok[0].src === 'manual' ? '手入力' : ok[0].src === 'name' ? `名前の「${keys[0].sid}」から判定` : `${SRC_LABEL[ok[0].src] || ok[0].src} で確認${ok[0].studio ? '（配信元）' : ''}` };
+    return { kind: 'unknown', why: recs[0].status,
+      note: recs[0].status === 'ambiguous' ? '同じ番号の作品が複数のサイトにあります'
+        : keys[0].kind === 'other' ? '日付型の品番だけで、名前にサイト名がありません（名前に 1pon・carib などがあれば自動で決まります）'
+        : recs[0].status === 'notfound' ? (keys[0].kind === 'fc2' ? 'fd2ppv.cc・fc2cmadb.com に見つかりません' : 'fd2ppv.cc に見つかりません') : '販売者の欄がありません' };
+  }
+  const boxSidOf = (name) => (String(name || '').match(/（([^（）]+)）$/) || [])[1] || '';
+  // 仕分けの計画：作品フォルダごとに、移動先の種類（seller / unknown / review / pending）を決める。
+  // ホームから読み込んだときは、仕分け済みの「販売者別」の中も見直す（販売者違い・置き場所違い）、同じ品番のフォルダが複数あるものも知らせる
   function buildSellerPlan(ds) {
     const cfg = sellerCfg();
     const R = ds.find((d) => d.isRoot);
     const homeScan = !!R && (!R.id || R.id === 'root');
-    // 既に「販売者別」の中にあるものは対象外（ホームから読み込んだときだけ中身が見える）
+    const byId = new Map(ds.map((d) => [d.id, d]));
     const sortedRoot = homeScan ? ds.find((d) => !d.isRoot && (d.parentId === R.id || !d.parentId || d.parentId === 'root') && d.name === cfg.root) : null;
-    // 「販売者別」の中から読み込んだとき（ホーム › 販売者別 › …）は、全部が仕分け済み
+    // 「販売者別」の中から読み込んだとき（ホーム › 販売者別 › …）は、全部が仕分け済み（見直しはホームから読み込んだときだけ）
     const insideBox = !!R && !homeScan && (R.name === cfg.root || (R.trailNames || []).slice(0, 3).includes(cfg.root) || (R.trail || []).some((id) => dirLabel(id) === cfg.root));
     const inSorted = (d) => insideBox || (!!sortedRoot && (d.id === sortedRoot.id || (d.trail || []).includes(sortedRoot.id)));
-    const cand = ds.filter((d) => !d.isRoot && !inSorted(d) && workKeys(d.name).length);
-    const candIds = new Set(cand.map((d) => d.id));
+    const keysOf = new Map(); ds.forEach((d) => { if (!d.isRoot) { const k = workKeys(d.name); if (k.length) keysOf.set(d.id, k); } });
+    const resOf = new Map(); const res = (id) => { if (!resOf.has(id)) resOf.set(id, resolveKeys(keysOf.get(id))); return resOf.get(id); };
+    const sidOf = (id) => { const r = res(id); return r.kind === 'seller' ? r.seller.sid : ''; };
+    const mk = (d, r, extra) => ({ id: d.id, name: d.name, path: d.path, parentId: d.parentId, keys: keysOf.get(d.id), kind: r.kind, seller: r.seller || null, note: r.note, why: r.why || '', depth: (d.trail || []).length, ...extra });
     const plan = [];
+    // 1. まだ仕分けていない作品フォルダ
+    const cand = ds.filter((d) => keysOf.has(d.id) && !inSorted(d));
+    const candIds = new Set(cand.map((d) => d.id));
     cand.forEach((d) => {
-      // 作品フォルダの中の作品フォルダは、外側だけを動かす
-      if ((d.trail || []).slice(0, -1).some((id) => candIds.has(id))) return;
-      const keys = workKeys(d.name);
-      const recs = keys.map(keyRec);
-      const p = { id: d.id, name: d.name, path: d.path, parentId: d.parentId, keys, kind: '', seller: null, note: '', why: '' };
-      if (recs.some((r) => !r)) { p.kind = 'pending'; p.note = '未調査'; }
-      else {
-        const ok = recs.filter((r) => r.status === 'ok' && r.sid);
-        const sids = [...new Set(ok.map((r) => r.sid))];
-        if (keys.length > 1 && (sids.length > 1 || ok.length !== recs.length)) { p.kind = 'review'; p.why = 'multi'; p.note = `品番が ${keys.length} つ（${recs.map((r) => (r.status === 'ok' ? r.name : '不明')).join('・')}）`; }
-        else if (sids.length === 1) { p.kind = 'seller'; p.seller = ok[0]; p.note = ok[0].src === 'manual' ? '手入力' : ok[0].src === 'name' ? `名前の「${keys[0].sid}」から判定` : `${SRC_LABEL[ok[0].src] || ok[0].src} で確認${ok[0].studio ? '（配信元）' : ''}`; }
-        else {
-          p.kind = 'unknown'; p.why = recs[0].status;
-          p.note = recs[0].status === 'ambiguous' ? '同じ番号の作品が複数のサイトにあります'
-            : keys[0].kind === 'other' ? '日付型の品番だけで、名前にサイト名がありません（名前に 1pon・carib などがあれば自動で決まります）'
-            : recs[0].status === 'notfound' ? (keys[0].kind === 'fc2' ? 'fd2ppv.cc・fc2cmadb.com に見つかりません' : 'fd2ppv.cc に見つかりません') : '販売者の欄がありません';
-        }
+      const anc = (d.trail || []).slice(0, -1).filter((id) => candIds.has(id));
+      if (anc.length) {
+        // 作品フォルダの中の作品フォルダ：外側と同じ販売者なら一緒に動かす。違うときは、先にこれだけを外へ出す
+        const outer = anc[anc.length - 1];
+        const a = sidOf(outer), b = sidOf(d.id);
+        if (!b || a === b) return;
+        const on = dirLabel(outer) || (byId.get(outer) || {}).name || '';
+        const rr = res(d.id); plan.push(mk(d, rr, { nested: on, note: `「${on}」の中にあります（先にこれだけを外へ移します）・${rr.note}` }));
+        return;
       }
-      plan.push(p);
+      const r = res(d.id);
+      // 中に別の販売者の作品フォルダがあるときは、自動では動かさない
+      const mySid = sidOf(d.id);
+      const others = cand.filter((x) => x.id !== d.id && (x.trail || []).includes(d.id) && sidOf(x.id) && sidOf(x.id) !== mySid);
+      if (others.length && r.kind === 'seller') { plan.push(mk(d, { kind: 'review', why: 'inner', note: `中に別の販売者の作品フォルダがあります（${[...new Set(others.map((x) => res(x.id).seller.name))].slice(0, 3).join('・')}）。中の作品を先に移すと、このフォルダも移せます` })); return; }
+      plan.push(mk(d, r));
     });
+    // 2. 仕分け後の確認（ホームから読み込んだときだけ）：「販売者別」の中の作品フォルダが正しい場所にあるか
+    if (sortedRoot) {
+      ds.filter((d) => keysOf.has(d.id) && (d.trail || []).includes(sortedRoot.id) && d.parentId !== sortedRoot.id).forEach((d) => {
+        const tr = d.trail || [], bi = tr.indexOf(sortedRoot.id);
+        const box = byId.get(tr[bi + 1]); if (!box || box.id === d.id) return;
+        // 外側の作品フォルダと同じ販売者なら、外側に任せる
+        const anc = tr.slice(bi + 2, -1).filter((id) => keysOf.has(id));
+        const r = res(d.id), sid = sidOf(d.id), bsid = boxSidOf(box.name);
+        if (anc.length && sidOf(anc[anc.length - 1]) === sid && sid) return;
+        const where = (d.path || '').replace(/\/[^/]*$/, '') || '/';
+        if (r.kind === 'seller') {
+          if (bsid && sid !== bsid) plan.push(mk(d, r, { fix: 'wrong', note: `販売者が違います（今：${box.name}）・${r.note}` }));
+          else if (!bsid && (box.name === cfg.unknown || box.name === cfg.review) && !ds.some((x) => x.parentId !== d.parentId && x.name.toLowerCase() === d.name.toLowerCase() && boxSidOf((byId.get(x.parentId) || {}).name) === sid)) plan.push(mk(d, r, { fix: 'found', note: `販売者が分かりました（今：${box.name}）・${r.note}` }));
+          else if (bsid && d.parentId !== box.id) plan.push(mk(d, r, { fix: 'deep', note: `販売者フォルダの直下にありません（今：${where}/）` }));
+        } else if (r.kind === 'pending' && bsid) plan.push(mk(d, r, { fix: 'pend', note: `仕分け済みの中・未調査（今：${box.name}）` }));
+      });
+    }
+    // 3. 同じ品番のフォルダが複数（確認用。移動はしない）
+    if (homeScan) {
+      const byKey = new Map();
+      ds.forEach((d) => { const ks = keysOf.get(d.id); if (!ks || ks.length !== 1) return; const k = ks[0].key; if (!byKey.has(k)) byKey.set(k, []); byKey.get(k).push(d); });
+      byKey.forEach((list) => {
+        // 入れ子（外側と内側）は同じ作品なので除く
+        const top = list.filter((d) => !list.some((o) => o.id !== d.id && (d.trail || []).includes(o.id)));
+        if (top.length < 2) return;
+        const d = top[0];
+        plan.push({ id: 'dup:' + d.id, name: d.name, path: d.path, parentId: d.parentId, keys: keysOf.get(d.id), kind: 'dupw', seller: null, note: `同じ品番のフォルダが ${top.length} つ：${top.map((x) => (x.path || '').replace(/^\//, '')).join(' ／ ')}`, why: '', depth: 0, dupIds: top.map((x) => x.id) });
+      });
+    }
     return plan;
   }
   // 「販売者別」とその直下（販売者・不明・要確認のフォルダ）。ほかのステップで名前を変えないように使う
@@ -2319,7 +2367,7 @@
   }
   let selPlan = [];
   const sellerSel = new Map(); // 作品フォルダ → チェック（未記録は seller だけチェックあり）
-  const sellerChecked = (p) => (p.kind === 'pending' ? false : sellerSel.has(p.id) ? sellerSel.get(p.id) : p.kind === 'seller');
+  const sellerChecked = (p) => (p.kind === 'pending' || p.kind === 'dupw' ? false : sellerSel.has(p.id) ? sellerSel.get(p.id) : p.kind === 'seller' && !p.fix);
   const SELLER_KIND = { seller: '決まった', unknown: '販売者不明', review: '要確認', pending: '未調査' };
   let sellerFilter = 'all'; // 絞り込みのタブ
   let sellerAck = false; // ②「確かめる・入力」を済ませて ③ へ進んだか
@@ -2415,17 +2463,20 @@
     const cfg = sellerCfg();
     if (!sellerEnabled()) { $('[data-r=main]').innerHTML = `<div class="pd-hero"><h2>このステップはオフになっています</h2><div class="note">右上の「このステップを使う」か、設定の「整理」でオンにできます。</div></div>${nextButton()}`; if (!busy) status('販売者ごとの仕分けはオフです。'); return; }
     const by = (k) => selPlan.filter((p) => p.kind === k);
-    if (sellerFilter !== 'all' && !by(sellerFilter).length) sellerFilter = 'all';
+    if (sellerFilter !== 'all' && !(sellerFilter === 'fix' ? selPlan.some((p) => p.fix) : by(sellerFilter).length)) sellerFilter = 'all';
     const show = sellerFilter;
     const ix = buildTreeIndex();
     const R = folders.find((d) => d.isRoot);
     const homeScan = !!R && (!R.id || R.id === 'root');
     const sellers = new Map();
-    by('seller').forEach((p) => { const k = p.seller.sid; if (!sellers.has(k)) sellers.set(k, { s: p.seller, items: [] }); sellers.get(k).items.push(p); });
+    by('seller').filter((p) => !p.fix).forEach((p) => { const k = p.seller.sid; if (!sellers.has(k)) sellers.set(k, { s: p.seller, items: [] }); sellers.get(k).items.push(p); });
     const groups = [];
+    const fixes = selPlan.filter((p) => p.fix);
+    if (show === 'all' || show === 'fix') if (fixes.length) groups.push({ key: 'k:fix', title: '仕分け後の確認：置き場所が違う', dest: '', items: fixes, cls: ' warn', hint: 'チェックすると、正しい販売者フォルダへ移します（初めはチェックなし）' });
     if (show === 'all' || show === 'unknown') if (by('unknown').length) groups.push({ key: 'k:unknown', title: cfg.unknown, dest: `${cfg.root}/${cfg.unknown}/`, items: by('unknown'), cls: ' unk', hint: '入力すると、その販売者の組へ移ります' });
     if (show === 'all' || show === 'review') if (by('review').length) groups.push({ key: 'k:review', title: cfg.review, dest: `${cfg.root}/${cfg.review}/`, items: by('review'), cls: ' warn', hint: '自動では移動しません（初めはチェックなし）' });
     if (show === 'all' || show === 'pending') if (by('pending').length) groups.push({ key: 'k:pending', title: SELLER_KIND.pending, dest: '', items: by('pending'), cls: ' pend', hint: '「販売者を調べる」で調べます（調べるだけでは移動しません）' });
+    if (show === 'all' || show === 'dupw') if (by('dupw').length) groups.push({ key: 'k:dupw', title: '同じ品番のフォルダが複数（確認用）', dest: '', items: by('dupw'), cls: ' pend', hint: '移動はしません。「6. 重複を比べて削除」や「5. フォルダ名を揃える」で整理できます' });
     if (show === 'all' || show === 'seller') [...sellers.values()].sort((a, b) => b.items.length - a.items.length || String(a.s.name).localeCompare(String(b.s.name), 'ja')).forEach((g) => groups.push({ key: 's:' + g.s.sid, title: g.s.name, sid: g.s.sid, dest: `${cfg.root}/${sellerFolderName(g.s)}/`, items: g.items, cls: '' }));
     const thumb = (p) => { const f = ix.thumbOf.get(p.id); return f && f.thumb ? `<img loading="lazy" referrerpolicy="no-referrer" src="${esc(f.thumb)}" alt="">` : ''; };
     const sz = (p) => { const a = ix.agg.get(p.id); return a ? fmt(a.size) : ''; };
@@ -2433,23 +2484,23 @@
     const BADGE = { seller: ['ok', ''], unknown: ['unk', '販売者不明'], review: ['warn', '要確認'], pending: ['pend', '未調査'] };
     const row = (p) => {
       const on = sellerChecked(p);
-      const [bc, bt] = p.kind === 'seller' ? (p.seller.src === 'name' ? ['auto', '品番から判定'] : p.seller.src === 'manual' ? ['man', '手入力'] : ['ok', 'サイトで確認']) : BADGE[p.kind];
+      const [bc, bt] = p.kind === 'dupw' ? ['warn', '重複'] : p.fix ? ['warn', p.fix === 'wrong' ? '販売者違い' : p.fix === 'deep' ? '置き場所違い' : p.fix === 'found' ? '販売者が判明' : '未調査'] : p.kind === 'seller' ? (p.seller.src === 'name' ? ['auto', '品番から判定'] : p.seller.src === 'manual' ? ['man', '手入力'] : ['ok', 'サイトで確認']) : BADGE[p.kind];
       const canRedo = p.kind === 'unknown' && p.keys.some((k) => k.kind !== 'brand' && sellerDb[k.key] && sellerDb[k.key].src !== 'manual');
       const input = p.kind === 'unknown' || p.kind === 'review'
         ? `<div class="sl-in"><input type="text" data-sname list="pd-sellers" placeholder="販売者名" value="${esc(p.seller ? p.seller.name : '')}"><input type="text" data-ssid class="raw" placeholder="ID" value="${esc(p.seller ? p.seller.sid : '')}"><button data-ssave="${esc(p.id)}">保存</button><button data-sext="${esc(p.id)}">外部サイト ▾</button>${canRedo ? `<button data-sredo="${esc(p.id)}" title="調べた結果を消して、もう一度調べる対象に戻します">調べ直す</button>` : ''}<span class="err" data-serr></span></div>`
-        : p.kind === 'pending' ? '' : `<div class="pd-act" style="display:flex;gap:6px;flex-wrap:wrap"><button data-sext="${esc(p.id)}">外部サイト ▾</button><button data-sedit="${esc(p.id)}">販売者を変更</button></div>`;
-      return `<div class="pd-row sl-row${on ? ' sel' : ''}" data-srow="${esc(p.id)}"><label class="pd-chk"><input type="checkbox" data-schk="${esc(p.id)}"${on ? ' checked' : ''}${p.kind === 'pending' ? ' disabled' : ''}></label>
+: p.kind === 'pending' || p.kind === 'dupw' ? '' : p.fix ? `<div class="pd-act" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span class="note">→ ${esc(sellerCfg().root)}/${esc(sellerFolderName(p.seller))}/</span><button data-sext="${esc(p.id)}">外部サイト ▾</button><button data-sedit="${esc(p.id)}">販売者を変更</button></div>` : `<div class="pd-act" style="display:flex;gap:6px;flex-wrap:wrap"><button data-sext="${esc(p.id)}">外部サイト ▾</button><button data-sedit="${esc(p.id)}">販売者を変更</button></div>`;
+      return `<div class="pd-row sl-row${on ? ' sel' : ''}" data-srow="${esc(p.id)}"><label class="pd-chk"><input type="checkbox" data-schk="${esc(p.id)}"${on ? ' checked' : ''}${p.kind === 'pending' || p.kind === 'dupw' ? ' disabled' : ''}></label>
         <div class="pd-th" style="width:112px;height:63px">${thumb(p)}</div>
         <div class="pd-info"><div class="pd-name">${esc(p.name)}</div><div class="pd-path">今の場所：${esc((p.path || '').replace(/\/[^/]*$/, '') || '/')}/・${sz(p)}</div><div class="sl-why"><span class="sl-b ${bc}">${bt}</span><span class="note">${esc(p.note)}</span></div></div>
         ${input}</div>`;
     };
     const tagNew = (g) => { if (!g.sid) return ''; const ex = sellerFolderExists(g.sid); return `<span class="pd-tag" style="${ex ? '' : 'background:var(--pri-soft);color:var(--pri)'}">${ex ? '既にあるフォルダ' : '新しく作るフォルダ'}</span>`; };
     const body = groups.map((g) => {
-      const all = g.items.filter((p) => p.kind !== 'pending'), on = all.filter(sellerChecked);
-      return `<div class="pd-g${g.cls}"><div class="pd-gh">${g.key === 'k:pending' ? '' : `<input type="checkbox" data-sgrp="${esc(g.key)}"${all.length && on.length === all.length ? ' checked' : ''} title="この組をすべて選ぶ／外す">`}<b>${esc(g.title)}</b>${g.sid ? `<span class="note raw">（${esc(g.sid)}）</span>` : ''}${tagNew(g)}${g.dest ? `<span class="note">→ ${esc(g.dest)}</span>` : ''}<span class="sp" style="flex:1"></span>${g.hint ? `<span class="note">${esc(g.hint)}</span>` : ''}<span class="note">${g.items.length} 作品</span></div>${g.items.map(row).join('')}</div>`;
+      const all = g.items.filter((p) => p.kind !== 'pending' && p.kind !== 'dupw'), on = all.filter(sellerChecked);
+      return `<div class="pd-g${g.cls}"><div class="pd-gh">${g.key === 'k:pending' || g.key === 'k:dupw' ? '' : `<input type="checkbox" data-sgrp="${esc(g.key)}"${all.length && on.length === all.length ? ' checked' : ''} title="この組をすべて選ぶ／外す">`}<b>${esc(g.title)}</b>${g.sid ? `<span class="note raw">（${esc(g.sid)}）</span>` : ''}${tagNew(g)}${g.dest ? `<span class="note">→ ${esc(g.dest)}</span>` : ''}<span class="sp" style="flex:1"></span>${g.hint ? `<span class="note">${esc(g.hint)}</span>` : ''}<span class="note">${g.items.length} 作品</span></div>${g.items.map(row).join('')}</div>`;
     }).join('');
     const tab = (k, label, color, n) => `<button role="tab" data-sfilter="${k}" class="${show === k ? 'on' : ''}" aria-selected="${show === k}"${n || k === 'all' ? '' : ' disabled'}><i style="background:${color}"></i>${label}<b>${n}</b></button>`;
-    const tabs = selPlan.length ? `<div class="sl-tabs" role="tablist" aria-label="表示">${tab('all', 'すべて', '#c5c9d2', selPlan.length)}${tab('unknown', '販売者不明', '#8b91a1', by('unknown').length)}${tab('review', '要確認', '#c27a00', by('review').length)}${tab('pending', '未調査', '#dde0e6', by('pending').length)}${tab('seller', `決まった（${sellers.size} 販売者）`, '#306fff', by('seller').length)}</div>` : '';
+    const tabs = selPlan.length ? `<div class="sl-tabs" role="tablist" aria-label="表示">${tab('all', 'すべて', '#c5c9d2', selPlan.length)}${tab('unknown', '販売者不明', '#8b91a1', by('unknown').length)}${tab('review', '要確認', '#c27a00', by('review').length)}${tab('pending', '未調査', '#dde0e6', by('pending').length)}${fixes.length ? tab('fix', '置き場所の修正', '#c27a00', fixes.length) : ''}${by('dupw').length ? tab('dupw', '同じ品番が複数', '#8b91a1', by('dupw').length) : ''}${tab('seller', `決まった（${sellers.size} 販売者）`, '#306fff', by('seller').length)}</div>` : '';
     $('[data-r=main]').innerHTML = `${selPlan.length ? sellerGuideHtml() : ''}${tabs}
       ${homeScan ? '' : '<div class="pd-explain"><b>ホームから読み込んでいません。</b><div class="note">移動先の「' + esc(cfg.root) + '」はホームの直下に作るため、移動した作品は読み込んだ場所の外に出て、重複チェックなどの対象から外れます。ホームを開いて読み込み直すと、仕分け後もまとめて管理できます。</div></div>'}
       ${body || '<div class="empty">' + (selPlan.length ? '表示する作品はありません' : '✓ 仕分けが必要な作品フォルダはありません（FC2-PPV-品番・HEYZO・カリビアンコムなどの品番の名前のフォルダが対象です）') + '</div>'}
@@ -2591,7 +2642,8 @@
   }
   // ---- 移動 ----
   async function runSeller(onlyFirst) {
-    const targets = selPlan.filter((p) => p.kind !== 'pending' && sellerChecked(p)).slice(0, onlyFirst ? 1 : undefined);
+    // 深いフォルダから先に動かす（入れ子の作品を外へ出してから外側を動かすため）
+    const targets = selPlan.filter((p) => p.kind !== 'pending' && p.kind !== 'dupw' && sellerChecked(p)).sort((a, b) => (b.depth || 0) - (a.depth || 0)).slice(0, onlyFirst ? 1 : undefined);
     if (!targets.length) { status('チェックの入った作品がありません'); return; }
     if (!ensureSession('seller')) return;
     const cfg = sellerCfg();
@@ -3892,7 +3944,7 @@
     const sid2 = e.target.dataset && e.target.dataset.schk;
     if (sid2) { sellerSel.set(sid2, e.target.checked); const row = e.target.closest('.pd-row'); if (row) row.classList.toggle('sel', e.target.checked); refreshSellerChrome(); return; }
     const sg = e.target.dataset && e.target.dataset.sgrp;
-    if (sg) { selPlan.filter((p) => p.kind !== 'pending' && (sg === 'k:unknown' ? p.kind === 'unknown' : sg === 'k:review' ? p.kind === 'review' : p.kind === 'seller' && 's:' + p.seller.sid === sg)).forEach((p) => sellerSel.set(p.id, e.target.checked)); render(); renderActs(); return; }
+    if (sg) { selPlan.filter((p) => p.kind !== 'pending' && (sg === 'k:fix' ? !!p.fix : sg === 'k:unknown' ? p.kind === 'unknown' : sg === 'k:review' ? p.kind === 'review' : p.kind === 'seller' && !p.fix && 's:' + p.seller.sid === sg)).forEach((p) => sellerSel.set(p.id, e.target.checked)); render(); renderActs(); return; }
     if (e.target.dataset && e.target.dataset.a === 'selleropt') { try { localStorage.setItem(LS_OPT_SELLER, e.target.checked ? '1' : '0'); } catch (err) { /* 無視 */ } log('info', '販売者ごとの仕分けを' + (e.target.checked ? 'オン' : 'オフ') + 'に変更'); setView(view); return; }
     const nid = e.target.dataset && e.target.dataset.nchk;
     if (nid) { if (e.target.checked) nameOff.delete(nid); else nameOff.add(nid); const row = e.target.closest('.pd-row'); if (row) row.classList.toggle('sel', e.target.checked); return; }
@@ -4367,6 +4419,8 @@
       const j = n.match(/(?:^|[^A-Za-z0-9])([A-Za-z]{2,6})[-_ ]?(\d{3,5})(?![\d])/); if (j && !/^(FC|MP|AVI|MKV|HD|FHD|UHD|PART|CD|DISC|VOL|EP)$/i.test(j[1])) out.add('id:' + j[1].toUpperCase() + '-' + j[2]);
       workKeys(n).forEach((k) => { if (k.kind !== 'fc2') out.add(k.key.replace(/^x:(?:[a-z0-9]+-)?(?=\d{6})/, 'x:').replace(/_/g, '-')); });
     }
+    // 品番がないときは、名前（拡張子を除く）が同じものを同じとみなす
+    if (!out.size) { const nm = n.normalize('NFKC').toLowerCase().replace(/\.[a-z0-9]{2,5}$/, '').replace(/[\s._-]+/g, ' ').trim(); if (nm.length >= 6) out.add('nm:' + nm); }
     return [...out];
   }
   let libIdx = null;

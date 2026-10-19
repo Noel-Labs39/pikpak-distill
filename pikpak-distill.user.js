@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.29.0
+// @version      3.29.1
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -81,7 +81,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.29.0'; // @version と合わせて更新する
+  const VER = '3.29.1'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1074,13 +1074,13 @@
   #pd-frames .fr-acts{display:flex;gap:8px;margin-top:6px}
   #pd-frames .fr-ft{padding:8px 18px;border-top:1px solid #2c303a}
   #pd-unzip{position:fixed;inset:0;z-index:100005;background:#14161b80;display:flex;align-items:center;justify-content:center;font:13px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Meiryo","Noto Sans CJK JP",sans-serif;color:var(--fg)}
-  #pd-unzip .ad-hd,#pd-unzip .ad-ft{display:flex;align-items:center;gap:10px}
-  #pd-unzip .ad-ft{padding:12px 18px;border-top:1px solid var(--line)}
-  #pd-unzip .ad-ft .tx{flex:1;min-width:0;color:var(--mute)}
-  #pd-unzip .ad-ft .tx b{color:var(--fg)}
-  html.pd-dark #pd-unzip .ad-tag.ok{background:#17331f;color:#6fdc9a}
-  html.pd-dark #pd-unzip .ad-tag.warn{background:#3a2c12;color:#f0c46c}
-  html.pd-dark #pd-unzip .ad-tag.del{background:#3a1a1a;color:#ff8a80}
+  #pd-unzip .lk-hd,#pd-unzip .lk-ft{display:flex;align-items:center;gap:10px}
+  #pd-unzip .lk-ft{padding:12px 18px;border-top:1px solid var(--line)}
+  #pd-unzip .lk-ft .tx{flex:1;min-width:0;color:var(--mute)}
+  #pd-unzip .lk-ft .tx b{color:var(--fg)}
+  html.pd-dark #pd-unzip .lk-tag.ok{background:#17331f;color:#6fdc9a}
+  html.pd-dark #pd-unzip .lk-tag.warn{background:#3a2c12;color:#f0c46c}
+  html.pd-dark #pd-unzip .lk-tag.del{background:#3a1a1a;color:#ff8a80}
   #pd-unzip .uz-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 12px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
   #pd-unzip .uz-ext{width:34px;height:34px;flex:none;border-radius:8px;background:#fff3dc;color:#8a5600;font:700 10px ui-monospace,monospace;display:inline-flex;align-items:center;justify-content:center}
   html.pd-dark #pd-unzip .uz-ext{background:#3a2c12;color:#f0c46c}
@@ -1092,11 +1092,11 @@
   #pd-unzip .uz-bar{flex:0 0 180px;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
   #pd-unzip .uz-bar i{display:block;height:100%;background:var(--pri);transition:width .3s}
   #pd-add{position:fixed;inset:0;z-index:100005;background:#14161b80;display:flex;align-items:center;justify-content:center;font:13px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Meiryo","Noto Sans CJK JP",sans-serif;color:var(--fg)}
-  #pd-add.drop .ad-box{outline:3px dashed var(--pri);outline-offset:-8px}
-  #pd-add .ad-box,#pd-unzip .ad-box{width:min(980px,96vw);max-height:92vh;display:flex;flex-direction:column;background:var(--panel);border-radius:14px;box-shadow:0 18px 50px #0006;overflow:hidden}
-  #pd-add .ad-hd,#pd-add .ad-ft,#pd-add .ad-row,#pd-add .ad-h{display:flex;align-items:center;gap:10px}
-  #pd-add .ad-hd,#pd-unzip .ad-hd{padding:12px 18px;border-bottom:1px solid var(--line)}
-  #pd-add .ad-hd b,#pd-unzip .ad-hd b{font-size:16px}
+  #pd-add.drop .lk-box{outline:3px dashed var(--pri);outline-offset:-8px}
+  #pd-add .lk-box,#pd-unzip .lk-box{width:min(980px,96vw);max-height:92vh;display:flex;flex-direction:column;background:var(--panel);border-radius:14px;box-shadow:0 18px 50px #0006;overflow:hidden}
+  #pd-add .lk-hd,#pd-add .lk-ft,#pd-add .lk-row,#pd-add .lk-h{display:flex;align-items:center;gap:10px}
+  #pd-add .lk-hd,#pd-unzip .lk-hd{padding:12px 18px;border-bottom:1px solid var(--line)}
+  #pd-add .lk-hd b,#pd-unzip .lk-hd b{font-size:16px}
   #pd-add .sp,#pd-unzip .sp{flex:1}
   #pd-add .note,#pd-unzip .note{color:var(--mute);font-size:12px}
   #pd-add select{max-width:380px;height:32px;border:1px solid var(--ctl-line);border-radius:8px;background:var(--ctl);color:inherit;font:inherit;padding:0 8px}
@@ -1105,34 +1105,34 @@
   #pd-add button:disabled,#pd-unzip button:disabled{opacity:.45;cursor:default}
   #pd-add button.x,#pd-unzip button.x{width:32px;padding:0;border:0;background:none;display:inline-flex;align-items:center;justify-content:center;color:var(--mute)}
   #pd-add button.x svg,#pd-unzip button.x svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
-  #pd-add .ad-in{padding:12px 18px;display:flex;flex-direction:column;gap:8px;border-bottom:1px solid var(--line)}
+  #pd-add .lk-in{padding:12px 18px;display:flex;flex-direction:column;gap:8px;border-bottom:1px solid var(--line)}
   #pd-add textarea{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--ctl-line);border-radius:9px;background:var(--ctl);color:inherit;font:500 12px/1.6 ui-monospace,Menlo,Consolas,monospace;resize:vertical}
-  #pd-add .ad-msg{padding:8px 12px;border-radius:8px;background:var(--pri-soft);font-weight:600}
-  #pd-add .ad-list,#pd-unzip .ad-list{flex:1 1 auto;overflow:auto;padding:12px 18px;background:var(--bg);display:flex;flex-direction:column;gap:10px;min-height:120px}
-  #pd-add .ad-list .empty,#pd-unzip .ad-list .empty{color:var(--mute);text-align:center;padding:30px 0}
-  #pd-add .ad-it{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
-  #pd-add .ad-it.ex{border-color:#f0d9a8}
-  #pd-add .ad-h,#pd-unzip .ad-h{padding:9px 12px;background:var(--panel2)}
-  #pd-add .ad-h b,#pd-unzip .ad-h b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:50%}
-  #pd-add .ad-h .note,#pd-unzip .ad-h .note{text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  #pd-add .ad-note{padding:6px 12px;font-size:12px;color:#8a5600;background:#fff8e6}
-  html.pd-dark #pd-add .ad-note{color:#f0c46c;background:#3a2c12}
-  #pd-add .ad-f{display:flex;align-items:center;gap:10px;padding:5px 12px;border-top:1px solid var(--line);cursor:pointer}
-  #pd-add .ad-f.dis{opacity:.5;cursor:default}
-  #pd-add .ad-f .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  #pd-add .ad-f .nm i{font-style:normal;color:var(--mute)}
-  #pd-add .ad-f .sz{width:80px;text-align:right;color:var(--mute);font-size:12px}
-  #pd-add .ad-tag,#pd-unzip .ad-tag{font-size:11px;padding:1px 8px;border-radius:99px;font-weight:700;white-space:nowrap;background:var(--panel2);color:var(--mute)}
-  #pd-add .ad-tag.ok,#pd-unzip .ad-tag.ok{background:#e3f6ec;color:#17703f}
-  #pd-add .ad-tag.pri,#pd-unzip .ad-tag.pri{background:var(--pri-soft);color:var(--pri)}
-  #pd-add .ad-tag.warn,#pd-unzip .ad-tag.warn{background:#fff3dc;color:#8a5600}
-  #pd-add .ad-tag.del,#pd-unzip .ad-tag.del{background:#fde8e8;color:#b42318}
-  html.pd-dark #pd-add .ad-tag.ok{background:#17331f;color:#6fdc9a}
-  html.pd-dark #pd-add .ad-tag.warn{background:#3a2c12;color:#f0c46c}
-  html.pd-dark #pd-add .ad-tag.del{background:#3a1a1a;color:#ff8a80}
-  #pd-add .ad-ft{padding:12px 18px;border-top:1px solid var(--line)}
-  #pd-add .ad-ft .tx{flex:1;min-width:0;color:var(--mute)}
-  #pd-add .ad-ft .tx b{color:var(--fg)}
+  #pd-add .lk-msg{padding:8px 12px;border-radius:8px;background:var(--pri-soft);font-weight:600}
+  #pd-add .lk-list,#pd-unzip .lk-list{flex:1 1 auto;overflow:auto;padding:12px 18px;background:var(--bg);display:flex;flex-direction:column;gap:10px;min-height:120px}
+  #pd-add .lk-list .empty,#pd-unzip .lk-list .empty{color:var(--mute);text-align:center;padding:30px 0}
+  #pd-add .lk-it{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  #pd-add .lk-it.ex{border-color:#f0d9a8}
+  #pd-add .lk-h,#pd-unzip .lk-h{padding:9px 12px;background:var(--panel2)}
+  #pd-add .lk-h b,#pd-unzip .lk-h b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:50%}
+  #pd-add .lk-h .note,#pd-unzip .lk-h .note{text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #pd-add .lk-note{padding:6px 12px;font-size:12px;color:#8a5600;background:#fff8e6}
+  html.pd-dark #pd-add .lk-note{color:#f0c46c;background:#3a2c12}
+  #pd-add .lk-f{display:flex;align-items:center;gap:10px;padding:5px 12px;border-top:1px solid var(--line);cursor:pointer}
+  #pd-add .lk-f.dis{opacity:.5;cursor:default}
+  #pd-add .lk-f .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #pd-add .lk-f .nm i{font-style:normal;color:var(--mute)}
+  #pd-add .lk-f .sz{width:80px;text-align:right;color:var(--mute);font-size:12px}
+  #pd-add .lk-tag,#pd-unzip .lk-tag{font-size:11px;padding:1px 8px;border-radius:99px;font-weight:700;white-space:nowrap;background:var(--panel2);color:var(--mute)}
+  #pd-add .lk-tag.ok,#pd-unzip .lk-tag.ok{background:#e3f6ec;color:#17703f}
+  #pd-add .lk-tag.pri,#pd-unzip .lk-tag.pri{background:var(--pri-soft);color:var(--pri)}
+  #pd-add .lk-tag.warn,#pd-unzip .lk-tag.warn{background:#fff3dc;color:#8a5600}
+  #pd-add .lk-tag.del,#pd-unzip .lk-tag.del{background:#fde8e8;color:#b42318}
+  html.pd-dark #pd-add .lk-tag.ok{background:#17331f;color:#6fdc9a}
+  html.pd-dark #pd-add .lk-tag.warn{background:#3a2c12;color:#f0c46c}
+  html.pd-dark #pd-add .lk-tag.del{background:#3a1a1a;color:#ff8a80}
+  #pd-add .lk-ft{padding:12px 18px;border-top:1px solid var(--line)}
+  #pd-add .lk-ft .tx{flex:1;min-width:0;color:var(--mute)}
+  #pd-add .lk-ft .tx b{color:var(--fg)}
   #pd-add input[type=checkbox],#pd-unzip input[type=checkbox]{width:16px;height:16px;accent-color:var(--pri);flex:none}
   .st-bar{position:sticky;bottom:0;z-index:3;display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:14px 0 0;padding:10px 14px;background:#1c1f26;color:#fff;border-radius:12px;box-shadow:0 10px 30px #0004}
   html.pd-dark .st-bar{background:#2b3040}
@@ -4343,7 +4343,7 @@
   function renderUnzip() {
     const d = document.getElementById('pd-unzip'); if (!d || !uzSt) return;
     const typed = {}; d.querySelectorAll('[data-uzpw]').forEach((x) => { typed[x.dataset.uzpw] = x.value; });
-    const tag = (cls, t) => `<span class="ad-tag ${cls}">${esc(t)}</span>`;
+    const tag = (cls, t) => `<span class="lk-tag ${cls}">${esc(t)}</span>`;
     const row = (it, i) => {
       const ext = (it.name.match(/\.([a-z0-9]+)(?:\.\d+)?$/i) || [, ''])[1].toUpperCase();
       const st = it.st === 'new' || it.st === 'checking' ? tag('pend', '中身を確認中…') : it.st === 'ready' ? tag('ok', it.autoPw ? '記録したパスワードで開けました' : it.pw ? 'パスワードで開けました' : '解凍できます')
@@ -4355,9 +4355,9 @@
     };
     const n = uzSt.items.filter((x) => x.on && x.st === 'ready').length;
     const sz = uzSt.items.filter((x) => x.on && x.st === 'ready').reduce((s, x) => s + (x.usize || 0), 0);
-    d.innerHTML = `<div class="ad-box" role="dialog" aria-label="解凍"><div class="ad-hd"><b>解凍（${uzSt.items.length} ファイル）</b><span class="sp"></span><label class="note" style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-uztrash${uzSt.trash ? ' checked' : ''}${uzSt.busy ? ' disabled' : ''}> 解凍できたら元の圧縮ファイルをゴミ箱へ</label><button class="x" data-uzclose title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
-      <div class="ad-list">${uzSt.items.map(row).join('')}</div>
-      <div class="ad-ft"><span class="tx">${n ? `<b>解凍するもの ${n} 件</b>${sz ? `（解凍後 約 ${fmt(sz)}・PikPak の容量を使います）` : ''}　解凍先：それぞれ同じフォルダ` : '<b>解凍できるものを選んでください</b>（パスワードが必要なものは入力して「試す」）'}</span><button data-uzclose${uzSt.busy ? ' disabled' : ''}>閉じる</button><button class="pri" data-uzgo${n && !uzSt.busy ? '' : ' disabled'}>${n} 件を解凍</button></div></div>`;
+    d.innerHTML = `<div class="lk-box" role="dialog" aria-label="解凍"><div class="lk-hd"><b>解凍（${uzSt.items.length} ファイル）</b><span class="sp"></span><label class="note" style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-uztrash${uzSt.trash ? ' checked' : ''}${uzSt.busy ? ' disabled' : ''}> 解凍できたら元の圧縮ファイルをゴミ箱へ</label><button class="x" data-uzclose title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
+      <div class="lk-list">${uzSt.items.map(row).join('')}</div>
+      <div class="lk-ft"><span class="tx">${n ? `<b>解凍するもの ${n} 件</b>${sz ? `（解凍後 約 ${fmt(sz)}・PikPak の容量を使います）` : ''}　解凍先：それぞれ同じフォルダ` : '<b>解凍できるものを選んでください</b>（パスワードが必要なものは入力して「試す」）'}</span><button data-uzclose${uzSt.busy ? ' disabled' : ''}>閉じる</button><button class="pri" data-uzgo${n && !uzSt.busy ? '' : ' disabled'}>${n} 件を解凍</button></div></div>`;
     if (LANG === 'en') d.querySelectorAll('*').forEach(trNode);
   }
   async function runUnzip() {
@@ -4552,7 +4552,7 @@
   function renderAdd() {
     const d = document.getElementById('pd-add'); if (!d || !addSt) return;
     const ta = d.querySelector('textarea'); if (ta) addSt.text = ta.value;
-    const pill = (cls, t) => `<span class="ad-tag ${cls}">${esc(t)}</span>`;
+    const pill = (cls, t) => `<span class="lk-tag ${cls}">${esc(t)}</span>`;
     const item = (it, i) => {
       const mode = addMode(it);
       const tag = it.st === 'loading' ? pill('pend', '中身を確認中…') : it.st === 'new' ? pill('pend', '未確認') : it.exists ? pill('warn', 'もうあります') : it.st === 'err' ? pill('warn', '中身を確認できません') : pill(mode === 'part' ? 'pri' : 'ok', mode === 'part' ? '一部だけ保存' : 'すべて保存');
@@ -4562,20 +4562,20 @@
         const part = mode === 'part';
         const dis = part && !f.gcid && !f.on;
         const t = f.junk ? pill('del', /広告/.test(f.junk) ? '広告' : '小さいファイル') : f.exists ? pill('warn', 'もうあります') : f.sub ? pill('mute', f.sub) : !f.gcid ? pill('mute', 'キャッシュなし') : '';
-        return `<label class="ad-f${dis ? ' dis' : ''}" style="padding-left:${38 + (f.dir ? f.dir.split('/').length * 14 : 0)}px"><input type="checkbox" data-adf="${i}:${k}"${f.on ? ' checked' : ''}${dis ? ' disabled' : ''}><span class="nm" title="${esc((f.dir ? f.dir + '/' : '') + f.name)}">${f.dir ? `<i>${esc(f.dir)}/</i>` : ''}${esc(f.name)}</span>${t}<span class="sz">${fmt(f.size)}</span></label>`;
+        return `<label class="lk-f${dis ? ' dis' : ''}" style="padding-left:${38 + (f.dir ? f.dir.split('/').length * 14 : 0)}px"><input type="checkbox" data-adf="${i}:${k}"${f.on ? ' checked' : ''}${dis ? ' disabled' : ''}><span class="nm" title="${esc((f.dir ? f.dir + '/' : '') + f.name)}">${f.dir ? `<i>${esc(f.dir)}/</i>` : ''}${esc(f.name)}</span>${t}<span class="sz">${fmt(f.size)}</span></label>`;
       }).join('') : '';
-      return `<div class="ad-it${it.exists ? ' ex' : ''}"><div class="ad-h"><input type="checkbox" data-adi="${i}"${it.on ? ' checked' : ''}${it.st === 'new' || it.st === 'loading' ? ' disabled' : ''}><b title="${esc(it.url)}">${esc(it.name || it.rootName || it.url)}</b>${tag}<span class="sp"></span><span class="note">${info}</span></div>${it.note ? `<div class="ad-note">${esc(it.note)}</div>` : ''}${fl}</div>`;
+      return `<div class="lk-it${it.exists ? ' ex' : ''}"><div class="lk-h"><input type="checkbox" data-adi="${i}"${it.on ? ' checked' : ''}${it.st === 'new' || it.st === 'loading' ? ' disabled' : ''}><b title="${esc(it.url)}">${esc(it.name || it.rootName || it.url)}</b>${tag}<span class="sp"></span><span class="note">${info}</span></div>${it.note ? `<div class="lk-note">${esc(it.note)}</div>` : ''}${fl}</div>`;
     };
     const sum = addSummary();
     const checked = addSt.items.some((x) => x.st === 'ok' || x.st === 'err');
     const nLinks = parseLinks(addSt.text).length;
-    d.innerHTML = `<div class="ad-box" role="dialog" aria-label="リンク・マグネットを追加">
-      <div class="ad-hd"><b>リンク・マグネットを追加</b><span class="sp"></span><span class="note">保存先</span><select data-adpid>${addDestOptions().map(([id, l]) => `<option value="${esc(id)}"${(addSt.pid || 'DL') === id ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select><button class="x" data-adclose title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
-      <div class="ad-in"><textarea rows="4" placeholder="magnet:?xt=urn:btih:…&#10;https://…&#10;（.torrent ファイルはここにドロップ）" spellcheck="false">${esc(addSt.text)}</textarea>
-        <div class="ad-row"><span class="note">1 行に 1 つ。マグネット・http(s)・40 桁のハッシュ・.torrent（ドロップ）に対応。同じリンクと文中のほかの文字は取り除きます。${hasScan() ? '読み込んだライブラリと照らして、もうある作品を知らせます。' : '<b>まだ読み込んでいないため、もうあるかは確かめられません</b>（先に「Dedupe スキャン」で読み込むと確かめられます）。'}</span><span class="sp"></span><button class="${checked ? '' : 'pri'}" data-adcheck${addSt.busy || !nLinks ? ' disabled' : ''}>${addSt.busy ? '確認中…' : `中身を確認（${nLinks} 件）`}</button></div>
-        ${addSt.msg ? `<div class="ad-msg">${esc(addSt.msg)}</div>` : ''}</div>
-      <div class="ad-list">${addSt.items.map(item).join('') || '<div class="empty">リンクを貼り付けて「中身を確認」を押すと、ここに中身が出ます</div>'}</div>
-      <div class="ad-ft"><span class="tx">${sum.text}</span><button data-adclose>キャンセル</button><button class="${checked ? 'pri' : ''}" data-adgo${sum.n && !addSt.busy ? '' : ' disabled'}>${sum.n} 件を追加</button></div></div>`;
+    d.innerHTML = `<div class="lk-box" role="dialog" aria-label="リンク・マグネットを追加">
+      <div class="lk-hd"><b>リンク・マグネットを追加</b><span class="sp"></span><span class="note">保存先</span><select data-adpid>${addDestOptions().map(([id, l]) => `<option value="${esc(id)}"${(addSt.pid || 'DL') === id ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select><button class="x" data-adclose title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
+      <div class="lk-in"><textarea rows="4" placeholder="magnet:?xt=urn:btih:…&#10;https://…&#10;（.torrent ファイルはここにドロップ）" spellcheck="false">${esc(addSt.text)}</textarea>
+        <div class="lk-row"><span class="note">1 行に 1 つ。マグネット・http(s)・40 桁のハッシュ・.torrent（ドロップ）に対応。同じリンクと文中のほかの文字は取り除きます。${hasScan() ? '読み込んだライブラリと照らして、もうある作品を知らせます。' : '<b>まだ読み込んでいないため、もうあるかは確かめられません</b>（先に「Dedupe スキャン」で読み込むと確かめられます）。'}</span><span class="sp"></span><button class="${checked ? '' : 'pri'}" data-adcheck${addSt.busy || !nLinks ? ' disabled' : ''}>${addSt.busy ? '確認中…' : `中身を確認（${nLinks} 件）`}</button></div>
+        ${addSt.msg ? `<div class="lk-msg">${esc(addSt.msg)}</div>` : ''}</div>
+      <div class="lk-list">${addSt.items.map(item).join('') || '<div class="empty">リンクを貼り付けて「中身を確認」を押すと、ここに中身が出ます</div>'}</div>
+      <div class="lk-ft"><span class="tx">${sum.text}</span><button data-adclose>キャンセル</button><button class="${checked ? 'pri' : ''}" data-adgo${sum.n && !addSt.busy ? '' : ' disabled'}>${sum.n} 件を追加</button></div></div>`;
     if (LANG === 'en') d.querySelectorAll('*').forEach(trNode);
     const nta = d.querySelector('textarea');
     nta.addEventListener('input', () => { addSt.text = nta.value; const b = d.querySelector('[data-adcheck]'); const n = parseLinks(nta.value).length; if (b && !addSt.busy) { b.disabled = !n; b.textContent = tr(`中身を確認（${n} 件）`); } });

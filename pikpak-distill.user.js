@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.22.0
+// @version      3.23.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -81,7 +81,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.22.0'; // @version と合わせて更新する
+  const VER = '3.23.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -677,7 +677,7 @@
   #ppdup{position:fixed;inset:0;z-index:99999;background:var(--bg);color:var(--fg);font:13px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Yu Gothic","Meiryo","Noto Sans CJK JP","Noto Sans JP",sans-serif;display:none;flex-direction:column}
   html.pd-dark #ppdup,html.pd-dark #pd-set{--bg:#15171c;--panel:#1d2027;--panel2:#252932;--line:#2c303a;--fg:#e6e8ee;--mute:#8b91a1;--pri-soft:#306fff33;--keep:#17261c;--del:#2a1a1a;--ctl:#252932;--ctl-line:#3a3f4b}
   #ppdup.on{display:flex}
-  #ppdup .wbtn-full,#ppdup .wbtn-min{display:none}
+  #ppdup:not(.pop) .wbtn-full,#ppdup:not(.pop) .wbtn-min{display:none !important}
   #ppdup.pop .wbtn-full,#ppdup.pop .wbtn-min{display:inline-flex}
   #ppdup.pop{inset:auto;box-sizing:border-box;border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 60px #0006,0 2px 8px #0003;overflow:hidden;resize:both;min-width:560px;min-height:380px;max-width:100vw;max-height:100vh;padding-left:58px}
   #ppdup.pop .rail{width:58px;padding-top:10px}
@@ -903,6 +903,23 @@
   #pd-ext .gr small{font-size:10px;color:#8b91a1}
   #pd-ext .ft{margin-top:10px;font-size:11px;color:#8b91a1}
   .sl-chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+  .st-bar{position:sticky;bottom:0;z-index:3;display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:14px 0 0;padding:10px 14px;background:#1c1f26;color:#fff;border-radius:12px;box-shadow:0 10px 30px #0004}
+  html.pd-dark .st-bar{background:#2b3040}
+  .st-bar.hide{display:none}
+  .st-bar .tx{flex:1 1 280px;min-width:0;display:flex;flex-direction:column}
+  .st-bar .tx small{color:#b6bbc7;font-size:12px}
+  .st-bar .acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .st-bar button:not(.pri):not(.danger){background:transparent !important;color:#fff !important;border-color:#5a6070 !important}
+  .st-bar .okbadge{color:#6fdc9a}
+  .st-res{display:flex;align-items:center;gap:10px;margin:0 0 12px;padding:10px 14px;border-radius:10px;background:#e3f6ec;color:#17703f;font-weight:600}
+  .st-res.warn{background:#fff3dc;color:#8a5600}
+  html.pd-dark .st-res{background:#17331f;color:#6fdc9a}
+  html.pd-dark .st-res.warn{background:#3a2c12;color:#f0c46c}
+  .st-res .ic{width:22px;height:22px;flex:none;border-radius:50%;background:currentColor;display:inline-flex;align-items:center;justify-content:center}
+  .st-res .ic{color:inherit}
+  .st-res .tx{flex:1;min-width:0}
+  .st-res button{width:28px;height:28px;padding:0 !important;border:0 !important;background:none !important;color:inherit !important;display:inline-flex;align-items:center;justify-content:center}
+  .st-res button svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
   .sl-chip{display:flex;flex-direction:column;gap:2px;min-width:150px;padding:8px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--line)}
   .sl-chip span,.sl-chip small{font-size:12px;color:var(--mute)}
   .sl-chip b{font-size:22px;line-height:1.1}
@@ -997,6 +1014,8 @@
   #pd-ql.playing .ql-wait{display:none}
   #pd-ql .ql-acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
   #pd-ql .ql-acts button{border:1px solid #fff3;background:#fff1;color:#eee;border-radius:8px;padding:6px 12px;font:inherit;cursor:pointer}
+  #pd-ql .ql-acts select{border:1px solid #fff3;background:#fff1;color:#eee;border-radius:8px;padding:6px 8px;font:inherit}
+  #pd-ql .ql-acts select option{color:#1c1f26}
   #pd-ql .ql-acts button.pri{background:#306fff;border-color:#306fff;color:#fff;font-weight:700}
   #pd-ql .ql-acts button:hover{filter:brightness(1.15)}
   #pd-dlg .pset{display:flex;flex-direction:column;gap:6px;margin:12px 0;padding:10px 12px;border:1px solid #c5c9d288;border-radius:8px}
@@ -1188,6 +1207,7 @@
   EN.push(...[["fc2cmadb.com で確認", "Confirmed on fc2cmadb.com"], ["fd2ppv.cc で確認（配信元）", "Confirmed on fd2ppv.cc (studio)"], ["fd2ppv.cc・fc2cmadb.com に見つかりません", "Not found on fd2ppv.cc or fc2cmadb.com"], ["fd2ppv.cc に見つかりません", "Not found on fd2ppv.cc"], ["fc2cmadb.com で開く", "Open on fc2cmadb.com"], ["fd2ppv.cc で探す（", "Search on fd2ppv.cc ("], ["同じ番号の作品が複数のサイトにあります（名前にサイト名を入れるか、販売者を入力）", "The same number exists on several sites (add the site name to the folder name, or enter the seller)"], ["販売者名（配信元。例：カリビアンコム）", "Seller name (studio, e.g. Caribbeancom)"], ["販売者ID（英数字。例：carib）", "Seller ID (letters/digits, e.g. carib)"], ["✓ 仕分けが必要な作品フォルダはありません（FC2-PPV-品番・HEYZO・カリビアンコムなどの品番の名前のフォルダが対象です）", "✓ No work folders to sort (folders named with an FC2-PPV, HEYZO, Caribbeancom or similar ID are targets)"]]);
   EN.push(...[["全画面で開く", "Open full screen"], ["ポップアップに戻す", "Back to popup"], ["次から全画面で開く", "Always open full screen"], ["PikPak の画面を Dedupe に切り替えて使うこともできます。一覧が広くなり、キー操作やドラッグも使いやすくなります。", "You can also switch the PikPak screen to Dedupe. Lists get wider, and keys and dragging are easier to use."], ["開き方", "How to open"], ["ポップアップ（おすすめ）", "Popup (recommended)"], ["全画面", "Full screen"], ["PikPak の画面の上に重ねて開きます。動かしたり大きさを変えたりでき、後ろの PikPak もそのまま使えます", "Opens on top of PikPak. You can move and resize it, and keep using PikPak behind it"], ["PikPak の画面を Dedupe に切り替えます（今までの開き方）", "Switches the PikPak screen to Dedupe (the previous way)"], ["次からは全画面で開きます（設定の「表示」→「開き方」で戻せます）", "Will open full screen from now on (change it in Settings → Display → How to open)"]]);
   EN.push(...[["品番から判定", "From the ID"], ["サイトで確認", "Confirmed on a site"], ["名前の「", "From \""], ["」から判定", "\" in the name"], ["日付型の品番だけで、名前にサイト名がありません（名前に 1pon・carib などがあれば自動で決まります）", "Only a date-style ID and no site name (names containing 1pon, carib, etc. are decided automatically)"], ["同じ番号の作品が複数のサイトにあります", "The same number exists on several sites"], ["外部サイトで確かめる", "Check on other sites"], ["外部サイト ▾", "Other sites ▾"], ["分かったら、行の入力欄に販売者名と ID を入れて「保存」", "When you find it, enter the seller name and ID in the row and press Save"], ["調べ直す", "Look up again"], ["販売者を調べる", "Look up sellers"], ["確かめる・入力", "Check & enter"], ["移動", "Move"], ["未調査はありません", "Nothing left to look up"], ["分からないものはありません", "Nothing unknown"], ["件は販売者が分かりませんでした。外部サイトで確かめて入力してください", " could not be identified. Check other sites and enter the seller"], ["このまま ③ 移動へ", "Go to ③ Move as is"], ["② に戻る", "Back to ②"], ["移動するもの ", "To move: "], ["チェックの入った作品がありません", "No works are checked"], ["先頭1件だけ試す", "Try the first one"], ["決まった", "Decided"], ["自動では移動しません（初めはチェックなし）", "Not moved automatically (unchecked at first)"], ["入力すると、その販売者の組へ移ります", "Enter a seller to move it to that group"], ["販売者名と販売者ID（英数字）を入れてください", "Enter the seller name and seller ID (letters/digits)"], ["件を確かめる", " to check"], ["分からない ", "Unknown: "]]);
+  EN.push(...[["残り時間を計算中…", "Estimating time left…"], ["まもなく完了", "Almost done"], ["あと約 ", "About "], ["（目安・前回 ", "(estimate, last time "], ["（目安）", "(estimate)"], ["実行中…", "Running…"], ["中断すると、そこまでの分は反映されます", "If you stop, what has been done so far is kept"], ["削除するもの ", "To delete: "], ["PikPak のゴミ箱へ移動します", "Moves to the PikPak trash"], ["チェックの入ったファイルがありません", "No files are checked"], ["削除するものにチェックを入れてください", "Check the files to delete"], ["表示中 ", "Showing "], ["チェックした（削除の）ファイルを PikPak のゴミ箱へ移動します", "Moves the checked (delete) files to the PikPak trash"], ["対象 ", "Targets: "], ["まずは「先頭1件だけ試す」で動きを確かめてください", "First check how it works with \"Try the first one\""], ["下の「画質」で別の画質を試せます。", "Try another quality from the quality menu below."]]);
   EN.sort((a, b) => b[0].length - a[0].length); // 長い言い回しから先に置き換える
   const EN_MAP = new Map(EN);
   const EN_UNIT = EN.filter(([a]) => a.length > 1 && /^(件|項目|組|作品|本)./.test(a));
@@ -1495,13 +1515,29 @@
       <label><input type="checkbox" data-a="nearonly"> サイズが近い組だけ</label>
       <input type="text" data-a="q" placeholder="絞り込み（品番・名前）" size="16">
       <span class="sep"></span>`;
-    $('[data-r=tb]').innerHTML = html ? html + '<span data-r="acts" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"></span>' : '';
+    $('[data-r=tb]').innerHTML = html ? html + (STEPV.includes(view) ? '' : '<span data-r="acts" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"></span>') : '';
     renderActs();
   }
   function renderActs() {
     const el = $('[data-r=acts]'); if (!el) return;
-    if (busy) { el.innerHTML = '<button data-a="stop">中断</button>'; return; }
+    const bar = $('[data-r=stbar]'), btx = $('[data-r=stbartx]');
+    if (bar) bar.classList.remove('done');
+    if (busy) { el.innerHTML = '<button data-a="stop">中断</button>'; if (btx) btx.innerHTML = '<b>実行中…</b><small>中断すると、そこまでの分は反映されます</small>'; return; }
     const c = counts();
+    if (bar) {
+      // 帯の左：何件を実行するか／押せない理由
+      const main = $('[data-r=main]');
+      const hasNext = !!(main && main.querySelector('.pd-next, .pd-hero .acts'));
+      let tx = '';
+      if (view === 'junk') { const n = jplan.filter(junkChecked).length; tx = !junkEnabled() || !jplan.length ? '' : n ? `<b>削除するもの ${n} 件</b><small>PikPak のゴミ箱へ移動します</small>` : '<b>チェックの入ったファイルがありません</b><small>削除するものにチェックを入れてください</small>'; }
+      else if (view === 'dup') { const g = visibleGroups(); tx = g.length ? `<b>表示中 ${g.length} 組</b><small>チェックした（削除の）ファイルを PikPak のゴミ箱へ移動します</small>` : ''; }
+      else { const n = remaining(view, c); tx = n > 0 ? `<b>対象 ${n} ${UNIT_OF[view] || '件'}</b><small>まずは「先頭1件だけ試す」で動きを確かめてください</small>` : ''; }
+      if (btx) btx.innerHTML = tx;
+      if (!tx) { bar.classList.add('done'); if (hasNext) { el.innerHTML = ''; bar.classList.add('hide'); return; } }
+      bar.classList.remove('hide');
+      // 青い大きなボタンは 1 つだけ：実行が残っている間は「次へ」を控えめにする
+      if (main) main.querySelectorAll('.pd-next .pri').forEach((b) => b.classList.remove('pri'));
+    }
     const label = { name: 'チェックしたものを変更', sort: 'すべて仕分け', ren: 'すべて変更', clean: 'チェックしたものを実行' };
     if (view === 'seller') {
       // 実行ボタンは一覧の下の帯（.sl-bar）に置く
@@ -1539,7 +1575,29 @@
     renderQuota(); refreshQuota();
     if (v === 'tree') prefetchUp();
   }
+  // 案M：ステップ 2〜7 は、実行ボタンを一覧の下の帯に固定し、終わった結果を一覧の上に出す
+  const STEPV = ['junk', 'name', 'sort', 'ren', 'dup', 'clean'];
+  const lastResult = {}; // ステップ → { text, at }
+  function ensureStepChrome() {
+    if (!STEPV.includes(view)) return;
+    const main = $('[data-r=main]'); if (!main) return;
+    if (!main.querySelector('.st-bar')) main.insertAdjacentHTML('beforeend', '<div class="st-bar" data-r="stbar"><span class="tx" data-r="stbartx"></span><span class="acts" data-r="acts"></span></div>');
+    const r = lastResult[view];
+    if (r && !main.querySelector('.st-res')) main.insertAdjacentHTML('afterbegin', `<div class="st-res${/失敗|できません|停止|エラー/.test(r.text) ? ' warn' : ''}" role="status"><span class="ic">${/失敗|できません|停止|エラー/.test(r.text) ? '!' : '✓'}</span><span class="tx">${esc(r.text)}</span><button data-a="resclose" title="閉じる" aria-label="閉じる">${IC.x}</button></div>`);
+  }
+  // 実行が終わったら、下の帯の文を「結果」として一覧の上に残す
+  function captureResult(v) {
+    const t = ($('[data-r=status]') || {}).textContent || '';
+    if (!t || busy) return;
+    lastResult[v] = { text: t, at: Date.now() };
+    if (view === v) { const old = $('[data-r=main] .st-res'); if (old) old.remove(); ensureStepChrome(); if (LANG === 'en') root.querySelectorAll('[data-r=main] .st-res *').forEach(trNode); }
+  }
   function render() {
+    const out = renderBody();
+    if (STEPV.includes(view)) { ensureStepChrome(); renderActs(); }
+    return out;
+  }
+  function renderBody() {
     if (view === 'scan') return renderScan();
     if (view === 'ren') return renderRen();
     if (view === 'sort') return renderSort();
@@ -1590,6 +1648,40 @@
     </div>`;
     if (!busy) status(meta ? '読み込み済みです。カードから作業を選べます（操作したら再スキャンで最新にできます）。' : 'まずは「スキャン開始」を押してください。');
   }
+  // 読み込みの残り時間（目安）：同じ場所を前に読み込んだときのフォルダ数・時間と、今の速さから見積もる
+  const LS_SCANSTAT = 'ppdup:scanstat:v1';
+  const fmtDur = (ms) => { const s = Math.max(0, Math.round(ms / 1000)); return s < 60 ? `${s} 秒` : `${Math.floor(s / 60)} 分 ${String(s % 60).padStart(2, '0')} 秒`; };
+  function scanEta(trail) {
+    const key = String(trail[trail.length - 1] || 'root');
+    let all = {}; try { all = JSON.parse(localStorage.getItem(LS_SCANSTAT) || '{}') || {}; } catch (e) { all = {}; }
+    const prev = all[key] && all[key].folders > 0 && all[key].ms > 0 ? all[key] : null;
+    const t0 = Date.now();
+    let shown = null, lastAt = t0;
+    return {
+      tick(d, known) {
+        const now = Date.now(), el = now - t0;
+        const expected = Math.max(known, prev ? prev.folders : 0, d);
+        let est = null;
+        const rate = d / Math.max(el, 1); // フォルダ／ミリ秒
+        const byRate = d >= 3 && el >= 1500 ? (expected - d) / rate : null;
+        const byPrev = prev ? Math.max(0, prev.ms * (expected / prev.folders) - el) : null;
+        if (byRate != null && byPrev != null) { const w = Math.min(1, d / Math.max(40, expected * 0.25)); est = w * byRate + (1 - w) * byPrev; }
+        else est = byRate != null ? byRate : byPrev;
+        // 数字が跳ねないようにならす（経過した分は減らしてから混ぜる）
+        if (est != null) { shown = shown == null ? est : Math.max(0, shown - (now - lastAt)) * 0.7 + est * 0.3; }
+        lastAt = now;
+        const tail = prev ? `（目安・前回 ${fmtDur(prev.ms)}）` : '（目安）';
+        const text = shown == null ? '残り時間を計算中…' : shown < 5000 ? `まもなく完了${tail}` : `あと約 ${fmtDur(shown)}${tail}`;
+        return { text, frac: d / Math.max(expected, 1), expectedLabel: prev || known > d ? `約 ${expected}` : `${expected}` };
+      },
+      done(nfo, nfi) {
+        if (window.__ppdupStop) return;
+        all[key] = { folders: nfo, files: nfi, ms: Date.now() - t0, at: Date.now() };
+        const keys = Object.keys(all); if (keys.length > 30) keys.sort((a, b) => (all[a].at || 0) - (all[b].at || 0)).slice(0, keys.length - 30).forEach((k) => delete all[k]);
+        try { localStorage.setItem(LS_SCANSTAT, JSON.stringify(all)); } catch (e) { /* 無視 */ }
+      },
+    };
+  }
   async function runScan() {
     if (busy) return;
     if (!ensureSession('scan')) return;
@@ -1597,7 +1689,9 @@
     status('読み込み中…', 0);
     try {
       const where = crumbs().map((c) => c.name).filter(Boolean).join(' › ') || 'ホーム';
-      const r = await scanApi(currentTrail(), { onProgress: (d, total, n) => status(`読み込み中… フォルダ ${d}/${total} ／ ファイル ${n} 件`, d / Math.max(total, 1)) });
+      const eta = scanEta(currentTrail());
+      const r = await scanApi(currentTrail(), { onProgress: (d, total, n) => { const e = eta.tick(d, total); status(`読み込み中… フォルダ ${d} / ${e.expectedLabel} ／ ファイル ${n} 件　${e.text}`, e.frac); } });
+      eta.done(r.folders.length, r.files.length);
       files = r.files; folders = r.folders; saveAll();
       meta = { at: Date.now(), where, nfo: folders.length, nfi: files.length };
       try { localStorage.setItem(LS_META, JSON.stringify(meta)); } catch (e) { /* 無視 */ }
@@ -2593,11 +2687,10 @@
     const info = r.kind === 'folder' ? `${r.n} 項目（中のファイル ${ix.agg.get(r.id).files} 件）・${fmt(r.size)}` : `${esc(kindOf(r))}・${fmt(r.size)}`;
     const jr = r.kind === 'file' && junkEnabled() ? (prepJunk(files, folders), junkInfo(r.f)) : null;
     d.innerHTML = `<div class="ql"><div class="ql-h"><button data-qlclose title="閉じる（スペース / Esc）">✕</button><b>${esc(r.name)}</b></div><div class="ql-b">${big}</div>
-      <div class="ql-f"><div>${info}</div><div class="note">${esc((r.kind === 'folder' ? r.path : r.path + '/').replace(/^\/?/, '/').replace(/\/+$/, '') || '/')}</div>${jr ? `<div style="color:#ff6b6b">不要ファイルの判定：${esc(jr.reason)}</div>` : ''}${isVideoRow(r) ? `<div class="ql-acts"><button data-qlplay class="pri" title="このプレビューの中で再生">▶ ここで再生</button><button data-qlwin title="プレーヤー画面で再生（画質の切り替え・前後のビデオ）">⤢ プレーヤー</button><button data-qlfull title="全画面で再生">⛶ 全画面</button><button data-qlext title="外部プレーヤーで開く">↗ ${esc(EXT_PLAYERS[playPref().ext].short)}</button><button data-qlset title="再生のしかたの設定（ダブルクリック時の動作・外部プレーヤー）">⚙</button></div>` : ''}</div></div>`;
+      <div class="ql-f"><div>${info}</div><div class="note">${esc((r.kind === 'folder' ? r.path : r.path + '/').replace(/^\/?/, '/').replace(/\/+$/, '') || '/')}</div>${jr ? `<div style="color:#ff6b6b">不要ファイルの判定：${esc(jr.reason)}</div>` : ''}${isVideoRow(r) ? `<div class="ql-acts"><button data-qlplay class="pri" title="このプレビューの中で再生">▶ ここで再生</button><button data-qlfull title="全画面で再生">⛶ 全画面</button><button data-qlext title="外部プレーヤーで開く">↗ ${esc(EXT_PLAYERS[playPref().ext].short)}</button><button data-qlset title="再生のしかたの設定（ダブルクリック時の動作・外部プレーヤー）">⚙</button></div>` : ''}</div></div>`;
     d.classList.remove('playing'); killHls(qlHls); qlHls = null;
     const on = (sel, fn) => { const b = d.querySelector(sel); if (b) b.onclick = fn; };
     on('[data-qlplay]', () => qlPlay(r.id));
-    on('[data-qlwin]', () => playFile(r.id));
     on('[data-qlfull]', () => playFile(r.id, { full: true }));
     on('[data-qlext]', () => { const v = d.querySelector('video'); if (v) v.pause(); openExternal(r.id); });
     on('[data-qlset]', () => openSettings('play'));
@@ -2924,10 +3017,10 @@
     copy: { short: 'リンクをコピー', name: 'リンクをコピー（プレーヤーの「URL を開く」に貼り付け）', os: ['mac', 'win', 'linux'] },
   };
   const extList = () => Object.keys(EXT_PLAYERS).filter((k) => EXT_PLAYERS[k].os.includes(OS));
-  const MODES = { inline: 'プレビューの中で再生', window: 'プレーヤー画面で再生', full: '全画面で再生', external: '外部プレーヤーで再生' };
+  const MODES = { inline: 'プレビューの中で再生', full: '全画面で再生', external: '外部プレーヤーで再生' };
   function playPref() {
     let p = {}; try { p = JSON.parse(localStorage.getItem(LS_PLAY) || '{}'); } catch (e) { p = {}; }
-    if (!MODES[p.mode]) p.mode = 'window';
+    if (!MODES[p.mode]) p.mode = 'inline'; // 以前の「プレーヤー画面」はプレビューでの再生にまとめた
     if (!extList().includes(p.ext)) p.ext = IS_MAC ? 'iina' : OS === 'win' ? 'potplayer' : 'm3u';
     return p;
   }
@@ -3112,8 +3205,25 @@
       const S = await loadSources(id);
       if (!document.body.contains(box) || treeCur !== id) return;
       if (!S.src.length) { box.innerHTML = '<div class="pl-msg">再生用リンクを取得できませんでした</div>'; return; }
-      const fail = (x, why) => { box.insertAdjacentHTML('beforeend', `<div class="pl-msg pl-err">「${esc(x.label)}」は再生できませんでした${why ? `（${esc(why)}）` : ''}。⤢ のプレーヤー画面で別の画質を試せます。</div>`); log('warn', `再生できない画質：${x.label}`, f.name); };
-      const m = mountVideo(box, S.src[S.first], S, fail);
+      const fail = (x, why) => { box.insertAdjacentHTML('beforeend', `<div class="pl-msg pl-err">「${esc(x.label)}」は再生できませんでした${why ? `（${esc(why)}）` : ''}。下の「画質」で別の画質を試せます。</div>`); log('warn', `再生できない画質：${x.label}`, f.name); };
+      // 画質の切り替えと解像度の表示（以前の「プレーヤー画面」の機能をプレビューにまとめた）
+      const acts = d.querySelector('.ql-acts'), inf = d.querySelector('.ql-f > div');
+      const base = inf ? inf.textContent : '';
+      const meta = (v) => { if (inf) inf.textContent = base + (v.videoWidth ? ` ・ ${v.videoWidth}×${v.videoHeight}` : ''); };
+      const load = (k) => {
+        const x = S.src[k];
+        try { localStorage.setItem(LS_PLQ, x.origin ? 'orig' : 'trans'); } catch (e) { /* 無視 */ }
+        const cur = (box.querySelector('video') || {}).currentTime || 0;
+        killHls(qlHls); qlHls = null;
+        if (!S.playable(x)) { box.innerHTML = '<div class="pl-msg">この画質（HLS）はこのブラウザの中では再生できません。別の画質か外部プレーヤーを選んでください。</div>'; return; }
+        const m = mountVideo(box, x, S, fail, { t: cur, onMeta: meta });
+        setTimeout(() => { qlHls = m.hls; }, 0);
+      };
+      if (acts && S.src.length > 1 && !acts.querySelector('[data-qlq]')) {
+        acts.insertAdjacentHTML('afterbegin', `<select data-qlq title="画質">${S.src.map((x, k) => `<option value="${k}"${k === S.first ? ' selected' : ''}>${esc(x.label)}${x.hls ? '・変換' : ''}${S.playable(x) ? '' : '（このブラウザでは再生不可）'}</option>`).join('')}</select>`);
+        acts.querySelector('[data-qlq]').onchange = (e) => load(+e.target.value);
+      }
+      const m = mountVideo(box, S.src[S.first], S, fail, { onMeta: meta });
       setTimeout(() => { qlHls = m.hls; }, 0);
       d.classList.add('playing');
       log('info', 'プレビューで再生：' + f.name);
@@ -3419,11 +3529,12 @@
     if (a === 'stop') { window.__ppdupStop = true; status('中断しています…（いまの処理が終わったら止まります）'); return; }
     if (busy) return;
     if (a === 'scan') return runScan();
-    if (a === 'delall') return runDelete(visibleGroups());
-    if (a === 'junkdel') return runJunk();
+    if (a === 'resclose') { delete lastResult[view]; const r = t.closest('.st-res'); if (r) r.remove(); return; }
+    if (a === 'delall') return Promise.resolve(runDelete(visibleGroups())).then(() => captureResult('dup'));
+    if (a === 'junkdel') return Promise.resolve(runJunk()).then(() => captureResult('junk'));
     if (a === 'jall' || a === 'jnone') { const lv = t.dataset.lv; jplan.filter((p) => p.level === lv).forEach((p) => junkSel.set(p.id, a === 'jall')); render(); renderActs(); return; }
     const m = /^(name|sort|ren|clean|seller)(1|all)$/.exec(a || '');
-    if (m) { if (m[2] === '1') RUN[m[1]](true); else if (confirm(tr(CONFIRM[m[1]]))) RUN[m[1]](false); return; }
+    if (m) { const v0 = view; if (m[2] === '1') Promise.resolve(RUN[m[1]](true)).then(() => captureResult(v0)); else if (confirm(tr(CONFIRM[m[1]]))) Promise.resolve(RUN[m[1]](false)).then(() => captureResult(v0)); return; }
     if (a === 'csv') {
       const rows = [['判定', 'ファイル名', '場所', 'サイズ(MB)']];
       visibleGroups().forEach((g) => g.items.forEach((f, i) => rows.push([stateOf(f, i) === 'keep' ? '残す' : '削除する', f.name, f.path, (f.size / UNIT.MB).toFixed(2)])));

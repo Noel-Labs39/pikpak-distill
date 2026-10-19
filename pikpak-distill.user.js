@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.30.0
+// @version      3.31.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -81,7 +81,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.30.0'; // @version と合わせて更新する
+  const VER = '3.31.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -533,7 +533,7 @@
               if (f.kind === 'drive#folder') {
                 const fo = { id: f.id, name: f.name, parentId: cur.id, path: cur.path + '/' + f.name, trail: [...cur.trail, f.id] };
                 outFolders.push(fo); queue.push({ id: f.id, path: fo.path, trail: fo.trail });
-              } else outFiles.push({ id: f.id, name: f.name, size: +f.size || 0, thumb: f.thumbnail_link || '', parentId: cur.id, path: cur.path || '/' });
+              } else outFiles.push({ id: f.id, name: f.name, size: +f.size || 0, thumb: f.thumbnail_link || '', ct: f.created_time || '', parentId: cur.id, path: cur.path || '/' });
             });
           }).catch((e) => { err = e; }).finally(() => { active--; done++; if (opt.onProgress) opt.onProgress(done, done + queue.length + active, outFiles.length); pump(); });
         }
@@ -740,9 +740,9 @@
   #ppdup-fab .err button{width:auto;padding:0;background:none;color:#ffb4b4;font-weight:700}
   #ppdup-fab .err button:hover{background:none;text-decoration:underline}
   #ppdup.single nav,#ppdup.treev nav{display:none}
-  #ppdup,#pd-set,#pd-add,#pd-unzip{--bg:#f5f6f8;--panel:#fff;--panel2:#eef0f4;--line:#dde0e6;--fg:#1c1f26;--mute:#6a7080;--pri:#306fff;--pri-soft:#306fff1f;--ok:#1f9d55;--danger:#d64545;--keep:#f0faf2;--del:#fff5f5;--ctl:#fff;--ctl-line:#c5c9d2}
+  #ppdup,#pd-set,#pd-add,#pd-unzip,#pd-lib{--bg:#f5f6f8;--panel:#fff;--panel2:#eef0f4;--line:#dde0e6;--fg:#1c1f26;--mute:#6a7080;--pri:#306fff;--pri-soft:#306fff1f;--ok:#1f9d55;--danger:#d64545;--keep:#f0faf2;--del:#fff5f5;--ctl:#fff;--ctl-line:#c5c9d2}
   #ppdup{position:fixed;inset:0;z-index:99999;background:var(--bg);color:var(--fg);font:13px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Yu Gothic","Meiryo","Noto Sans CJK JP","Noto Sans JP",sans-serif;display:none;flex-direction:column}
-  html.pd-dark #ppdup,html.pd-dark #pd-set,html.pd-dark #pd-add,html.pd-dark #pd-unzip{--bg:#15171c;--panel:#1d2027;--panel2:#252932;--line:#2c303a;--fg:#e6e8ee;--mute:#8b91a1;--pri-soft:#306fff33;--keep:#17261c;--del:#2a1a1a;--ctl:#252932;--ctl-line:#3a3f4b}
+  html.pd-dark #ppdup,html.pd-dark #pd-set,html.pd-dark #pd-add,html.pd-dark #pd-unzip,html.pd-dark #pd-lib{--bg:#15171c;--panel:#1d2027;--panel2:#252932;--line:#2c303a;--fg:#e6e8ee;--mute:#8b91a1;--pri-soft:#306fff33;--keep:#17261c;--del:#2a1a1a;--ctl:#252932;--ctl-line:#3a3f4b}
   #ppdup.on{display:flex}
   #ppdup:not(.pop) .wbtn-full,#ppdup:not(.pop) .wbtn-min{display:none !important}
   #ppdup.pop .wbtn-full,#ppdup.pop .wbtn-min{display:inline-flex}
@@ -1073,48 +1073,77 @@
   #pd-frames .fr-msg{min-height:18px;margin-top:6px}
   #pd-frames .fr-acts{display:flex;gap:8px;margin-top:6px}
   #pd-frames .fr-ft{padding:8px 18px;border-top:1px solid #2c303a}
-  #pd-unzip{position:fixed;inset:0;z-index:100005;background:#14161b80;display:flex;align-items:center;justify-content:center;font:13px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Meiryo","Noto Sans CJK JP",sans-serif;color:var(--fg)}
-  #pd-unzip .lk-hd,#pd-unzip .lk-ft{display:flex;align-items:center;gap:10px}
-  #pd-unzip .lk-ft{padding:12px 18px;border-top:1px solid var(--line)}
-  #pd-unzip .lk-ft .tx{flex:1;min-width:0;color:var(--mute)}
-  #pd-unzip .lk-ft .tx b{color:var(--fg)}
-  html.pd-dark #pd-unzip .lk-tag.ok{background:#17331f;color:#6fdc9a}
-  html.pd-dark #pd-unzip .lk-tag.warn{background:#3a2c12;color:#f0c46c}
-  html.pd-dark #pd-unzip .lk-tag.del{background:#3a1a1a;color:#ff8a80}
-  #pd-unzip .uz-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 12px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
-  #pd-unzip .uz-ext{width:34px;height:34px;flex:none;border-radius:8px;background:#fff3dc;color:#8a5600;font:700 10px ui-monospace,monospace;display:inline-flex;align-items:center;justify-content:center}
-  html.pd-dark #pd-unzip .uz-ext{background:#3a2c12;color:#f0c46c}
-  #pd-unzip .uz-t{flex:1 1 260px;min-width:0;display:flex;flex-direction:column}
-  #pd-unzip .uz-t b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  #pd-unzip .uz-t small{color:var(--mute);font-size:12px}
-  #pd-unzip .uz-pw{display:flex;gap:6px}
-  #pd-unzip .uz-pw input{width:160px;height:32px;box-sizing:border-box;padding:0 10px;border:1px solid var(--ctl-line);border-radius:7px;background:var(--ctl);color:inherit;font:inherit}
-  #pd-unzip .uz-bar{flex:0 0 180px;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
-  #pd-unzip .uz-bar i{display:block;height:100%;background:var(--pri);transition:width .3s}
+  #pd-unzip,  #pd-lib{position:fixed;inset:0;z-index:100005;background:#14161b80;display:flex;align-items:center;justify-content:center;font:13px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Meiryo","Noto Sans CJK JP",sans-serif;color:var(--fg)}
+  #pd-unzip .lk-hd,#pd-unzip .lk-ft,  #pd-lib .lk-hd,#pd-lib .lk-ft{display:flex;align-items:center;gap:10px}
+  #pd-unzip .lk-ft,  #pd-lib .lk-ft{padding:12px 18px;border-top:1px solid var(--line)}
+  #pd-unzip .lk-ft .tx,  #pd-lib .lk-ft .tx{flex:1;min-width:0;color:var(--mute)}
+  #pd-unzip .lk-ft .tx b,  #pd-lib .lk-ft .tx b{color:var(--fg)}
+  html.pd-dark #pd-unzip .lk-tag.ok,  html.pd-dark #pd-lib .lk-tag.ok{background:#17331f;color:#6fdc9a}
+  html.pd-dark #pd-unzip .lk-tag.warn,  html.pd-dark #pd-lib .lk-tag.warn{background:#3a2c12;color:#f0c46c}
+  html.pd-dark #pd-unzip .lk-tag.del,  html.pd-dark #pd-lib .lk-tag.del{background:#3a1a1a;color:#ff8a80}
+  #pd-unzip .uz-row,  #pd-lib .uz-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 12px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+  #pd-unzip .uz-ext,  #pd-lib .uz-ext{width:34px;height:34px;flex:none;border-radius:8px;background:#fff3dc;color:#8a5600;font:700 10px ui-monospace,monospace;display:inline-flex;align-items:center;justify-content:center}
+  html.pd-dark #pd-unzip .uz-ext,  html.pd-dark #pd-lib .uz-ext{background:#3a2c12;color:#f0c46c}
+  #pd-unzip .uz-t,  #pd-lib .uz-t{flex:1 1 260px;min-width:0;display:flex;flex-direction:column}
+  #pd-unzip .uz-t b,  #pd-lib .uz-t b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #pd-unzip .uz-t small,  #pd-lib .uz-t small{color:var(--mute);font-size:12px}
+  #pd-unzip .uz-pw,  #pd-lib .uz-pw{display:flex;gap:6px}
+  #pd-unzip .uz-pw input,  #pd-lib .uz-pw input{width:160px;height:32px;box-sizing:border-box;padding:0 10px;border:1px solid var(--ctl-line);border-radius:7px;background:var(--ctl);color:inherit;font:inherit}
+  #pd-unzip .uz-bar,  #pd-lib .uz-bar{flex:0 0 180px;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+  #pd-unzip .uz-bar i,  #pd-lib .uz-bar i{display:block;height:100%;background:var(--pri);transition:width .3s}
+  #pd-lib .lb-tabs{display:flex;gap:4px;padding:8px 14px 0;border-bottom:1px solid var(--line);overflow-x:auto}
+  #pd-lib .lb-tab{height:auto!important;display:flex;align-items:center;gap:6px;padding:8px 12px!important;border:0!important;border-bottom:2px solid transparent!important;border-radius:0!important;background:none!important;color:var(--mute)!important}
+  #pd-lib .lb-tab.on{color:var(--pri)!important;border-bottom-color:var(--pri)!important}
+  #pd-lib .lb-tab svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  #pd-lib .lb-tab i{font-style:normal;font-size:11px;padding:0 6px;border-radius:99px;background:var(--pri-soft);color:var(--pri)}
+  #pd-lib .lb-note{padding:8px 18px;color:var(--mute);font-size:12px;border-bottom:1px solid var(--line)}
+  #pd-lib .lk-list{gap:6px}
+  #pd-lib .lb-row{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+  #pd-lib .lb-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+  #pd-lib .lb-t b,#pd-lib .lb-t small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #pd-lib .lb-t small{color:var(--mute);font-size:12px}
+  #pd-lib .lb-t .uz-bar{flex:none;width:100%;max-width:320px}
+  #pd-lib .lb-all{display:flex;gap:6px;align-items:center}
+  #pd-lib .lk-ft{display:flex;align-items:center;gap:8px;padding:12px 18px;border-top:1px solid var(--line);flex-wrap:wrap}
+  #pd-lib .lk-ft .tx{flex:1;min-width:0;color:var(--mute)}
+  #pd-lib button.dng{border-color:var(--danger);color:var(--danger)}
+  #pd-lib .seg{display:inline-flex;gap:4px}
+  #pd-lib .seg button.on{background:var(--pri-soft);border-color:var(--pri);color:var(--pri)}
+  html.pd-dark #pd-lib .lk-tag.ok{background:#17331f;color:#6fdc9a}
+  html.pd-dark #pd-lib .lk-tag.del{background:#3a1a1a;color:#ff8a80}
+  #ppdup .rail{overflow-y:auto;scrollbar-width:none}
+  #ppdup .rail .rb{position:absolute;top:3px;right:6px;font-style:normal;font-size:10px;line-height:15px;min-width:15px;padding:0 4px;box-sizing:border-box;border-radius:99px;background:var(--pri);color:#fff}
+  #ppdup .rail .rb:empty{display:none}
+  #ppdup .pd-upd{display:flex;align-items:center;gap:12px;padding:8px 18px;background:#e8f0ff;color:#1c3d8f;border-bottom:1px solid #c6d6ff;font-size:13px}
+  #ppdup .pd-upd[hidden]{display:none}
+  #ppdup .pd-upd span{flex:1;min-width:0}
+  #ppdup .pd-upd a{color:inherit;font-weight:700}
+  #ppdup .pd-upd button{border:0;background:none;color:inherit;cursor:pointer;text-decoration:underline}
+  html.pd-dark #ppdup .pd-upd{background:#1f2a44;color:#bcd0ff;border-color:#2f4a8a}
   #pd-add{position:fixed;inset:0;z-index:100005;background:#14161b80;display:flex;align-items:center;justify-content:center;font:13px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Meiryo","Noto Sans CJK JP",sans-serif;color:var(--fg)}
   #pd-add.drop .lk-box{outline:3px dashed var(--pri);outline-offset:-8px}
-  #pd-add .lk-box,#pd-unzip .lk-box{width:min(980px,96vw);max-height:92vh;display:flex;flex-direction:column;background:var(--panel);border-radius:14px;box-shadow:0 18px 50px #0006;overflow:hidden}
+  #pd-add .lk-box,#pd-unzip .lk-box,#pd-lib .lk-box{width:min(980px,96vw);max-height:92vh;display:flex;flex-direction:column;background:var(--panel);border-radius:14px;box-shadow:0 18px 50px #0006;overflow:hidden}
   #pd-add .lk-hd,#pd-add .lk-ft,#pd-add .lk-row,#pd-add .lk-h{display:flex;align-items:center;gap:10px}
-  #pd-add .lk-hd,#pd-unzip .lk-hd{padding:12px 18px;border-bottom:1px solid var(--line)}
-  #pd-add .lk-hd b,#pd-unzip .lk-hd b{font-size:16px}
-  #pd-add .sp,#pd-unzip .sp{flex:1}
-  #pd-add .note,#pd-unzip .note{color:var(--mute);font-size:12px}
+  #pd-add .lk-hd,#pd-unzip .lk-hd,#pd-lib .lk-hd{padding:12px 18px;border-bottom:1px solid var(--line)}
+  #pd-add .lk-hd b,#pd-unzip .lk-hd b,#pd-lib .lk-hd b{font-size:16px}
+  #pd-add .sp,#pd-unzip .sp,#pd-lib .sp{flex:1}
+  #pd-add .note,#pd-unzip .note,#pd-lib .note{color:var(--mute);font-size:12px}
   #pd-add select{max-width:380px;height:32px;border:1px solid var(--ctl-line);border-radius:8px;background:var(--ctl);color:inherit;font:inherit;padding:0 8px}
-  #pd-add button,#pd-unzip button{white-space:nowrap;height:34px;padding:0 14px;border:1px solid var(--ctl-line);border-radius:8px;background:var(--ctl);color:inherit;font:inherit;font-weight:600;cursor:pointer}
-  #pd-add button.pri,#pd-unzip button.pri{background:var(--pri);border-color:var(--pri);color:#fff;font-weight:700}
-  #pd-add button:disabled,#pd-unzip button:disabled{opacity:.45;cursor:default}
-  #pd-add button.x,#pd-unzip button.x{width:32px;padding:0;border:0;background:none;display:inline-flex;align-items:center;justify-content:center;color:var(--mute)}
-  #pd-add button.x svg,#pd-unzip button.x svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+  #pd-add button,#pd-unzip button,#pd-lib button{white-space:nowrap;height:34px;padding:0 14px;border:1px solid var(--ctl-line);border-radius:8px;background:var(--ctl);color:inherit;font:inherit;font-weight:600;cursor:pointer}
+  #pd-add button.pri,#pd-unzip button.pri,#pd-lib button.pri{background:var(--pri);border-color:var(--pri);color:#fff;font-weight:700}
+  #pd-add button:disabled,#pd-unzip button:disabled,#pd-lib button:disabled{opacity:.45;cursor:default}
+  #pd-add button.x,#pd-unzip button.x,#pd-lib button.x{width:32px;padding:0;border:0;background:none;display:inline-flex;align-items:center;justify-content:center;color:var(--mute)}
+  #pd-add button.x svg,#pd-unzip button.x svg,#pd-lib button.x svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
   #pd-add .lk-in{padding:12px 18px;display:flex;flex-direction:column;gap:8px;border-bottom:1px solid var(--line)}
   #pd-add textarea{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--ctl-line);border-radius:9px;background:var(--ctl);color:inherit;font:500 12px/1.6 ui-monospace,Menlo,Consolas,monospace;resize:vertical}
   #pd-add .lk-msg{padding:8px 12px;border-radius:8px;background:var(--pri-soft);font-weight:600}
-  #pd-add .lk-list,#pd-unzip .lk-list{flex:1 1 auto;overflow:auto;padding:12px 18px;background:var(--bg);display:flex;flex-direction:column;gap:10px;min-height:120px}
-  #pd-add .lk-list .empty,#pd-unzip .lk-list .empty{color:var(--mute);text-align:center;padding:30px 0}
+  #pd-add .lk-list,#pd-unzip .lk-list,#pd-lib .lk-list{flex:1 1 auto;overflow:auto;padding:12px 18px;background:var(--bg);display:flex;flex-direction:column;gap:10px;min-height:120px}
+  #pd-add .lk-list .empty,#pd-unzip .lk-list .empty,#pd-lib .lk-list .empty{color:var(--mute);text-align:center;padding:30px 0}
   #pd-add .lk-it{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
   #pd-add .lk-it.ex{border-color:#f0d9a8}
-  #pd-add .lk-h,#pd-unzip .lk-h{padding:9px 12px;background:var(--panel2)}
-  #pd-add .lk-h b,#pd-unzip .lk-h b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:50%}
-  #pd-add .lk-h .note,#pd-unzip .lk-h .note{text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #pd-add .lk-h,#pd-unzip .lk-h,#pd-lib .lk-h{padding:9px 12px;background:var(--panel2)}
+  #pd-add .lk-h b,#pd-unzip .lk-h b,#pd-lib .lk-h b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:50%}
+  #pd-add .lk-h .note,#pd-unzip .lk-h .note,#pd-lib .lk-h .note{text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   #pd-add .lk-note{padding:6px 12px;font-size:12px;color:#8a5600;background:#fff8e6}
   html.pd-dark #pd-add .lk-note{color:#f0c46c;background:#3a2c12}
   #pd-add .lk-f{display:flex;align-items:center;gap:10px;padding:5px 12px;border-top:1px solid var(--line);cursor:pointer}
@@ -1122,18 +1151,18 @@
   #pd-add .lk-f .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   #pd-add .lk-f .nm i{font-style:normal;color:var(--mute)}
   #pd-add .lk-f .sz{width:80px;text-align:right;color:var(--mute);font-size:12px}
-  #pd-add .lk-tag,#pd-unzip .lk-tag{font-size:11px;padding:1px 8px;border-radius:99px;font-weight:700;white-space:nowrap;background:var(--panel2);color:var(--mute)}
-  #pd-add .lk-tag.ok,#pd-unzip .lk-tag.ok{background:#e3f6ec;color:#17703f}
-  #pd-add .lk-tag.pri,#pd-unzip .lk-tag.pri{background:var(--pri-soft);color:var(--pri)}
-  #pd-add .lk-tag.warn,#pd-unzip .lk-tag.warn{background:#fff3dc;color:#8a5600}
-  #pd-add .lk-tag.del,#pd-unzip .lk-tag.del{background:#fde8e8;color:#b42318}
+  #pd-add .lk-tag,#pd-unzip .lk-tag,#pd-lib .lk-tag{font-size:11px;padding:1px 8px;border-radius:99px;font-weight:700;white-space:nowrap;background:var(--panel2);color:var(--mute)}
+  #pd-add .lk-tag.ok,#pd-unzip .lk-tag.ok,#pd-lib .lk-tag.ok{background:#e3f6ec;color:#17703f}
+  #pd-add .lk-tag.pri,#pd-unzip .lk-tag.pri,#pd-lib .lk-tag.pri{background:var(--pri-soft);color:var(--pri)}
+  #pd-add .lk-tag.warn,#pd-unzip .lk-tag.warn,#pd-lib .lk-tag.warn{background:#fff3dc;color:#8a5600}
+  #pd-add .lk-tag.del,#pd-unzip .lk-tag.del,#pd-lib .lk-tag.del{background:#fde8e8;color:#b42318}
   html.pd-dark #pd-add .lk-tag.ok{background:#17331f;color:#6fdc9a}
   html.pd-dark #pd-add .lk-tag.warn{background:#3a2c12;color:#f0c46c}
   html.pd-dark #pd-add .lk-tag.del{background:#3a1a1a;color:#ff8a80}
   #pd-add .lk-ft{padding:12px 18px;border-top:1px solid var(--line)}
   #pd-add .lk-ft .tx{flex:1;min-width:0;color:var(--mute)}
   #pd-add .lk-ft .tx b{color:var(--fg)}
-  #pd-add input[type=checkbox],#pd-unzip input[type=checkbox]{width:16px;height:16px;accent-color:var(--pri);flex:none}
+  #pd-add input[type=checkbox],#pd-unzip input[type=checkbox],#pd-lib input[type=checkbox]{width:16px;height:16px;accent-color:var(--pri);flex:none}
   .st-bar{position:sticky;bottom:0;z-index:3;display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:14px 0 0;padding:10px 14px;background:#1c1f26;color:#fff;border-radius:12px;box-shadow:0 10px 30px #0004}
   html.pd-dark .st-bar{background:#2b3040}
   .st-bar.hide{display:none}
@@ -1404,6 +1433,11 @@
     <aside class="rail" data-r="rail">
       <button data-a="toflow" data-rail="flow" title="整理（1〜7のステップ）"><svg viewBox="0 0 24 24"><path d="M4 6h10M4 12h16M4 18h7" /><circle cx="18" cy="6" r="2"/><circle cx="15" cy="18" r="2"/></svg><span>整理</span></button>
       <button data-a="tree" data-rail="tree" title="フォルダ一覧（Finder やエクスプローラーのように、フォルダを開いて中身を見られます）"><svg viewBox="0 0 24 24"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/><path d="M7 11h10M7 15h6"/></svg><span>フォルダ​一覧</span></button>
+      <button data-a="lib" data-v="dl" data-rail="lib-dl" title="ダウンロード中（クラウドダウンロードの進み具合・失敗）"><svg viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 7.97"/><path d="M12 11v9M8.8 17l3.2 3 3.2-3"/></svg><span>クラウド​DL</span><i class="rb" data-r="rb-dl"></i></button>
+      <button data-a="lib" data-v="recent" data-rail="lib-recent" title="最近追加したもの（追加日の新しい順）"><svg viewBox="0 0 24 24"><circle cx="11" cy="12" r="7.5"/><path d="M11 8v4.2l2.6 1.6"/><path d="M19.5 3.5v4M17.5 5.5h4"/></svg><span>最近の追加</span><i class="rb" data-r="rb-recent"></i></button>
+      <button data-a="lib" data-v="hist" data-rail="lib-hist" title="再生した履歴"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/><path d="M10.5 9.2v5.6l4.4-2.8z"/></svg><span>再生履歴</span><i class="rb" data-r="rb-hist"></i></button>
+      <button data-a="lib" data-v="star" data-rail="lib-star" title="スター付き"><svg viewBox="0 0 24 24"><path d="M12 3.8l2.5 5.1 5.6.8-4 3.9.9 5.6-5-2.6-5 2.6.9-5.6-4-3.9 5.6-.8z"/></svg><span>スター</span><i class="rb" data-r="rb-star"></i></button>
+      <button data-a="lib" data-v="trash" data-rail="lib-trash" title="ゴミ箱（中身を見る・元に戻す・完全に削除）"><svg viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V4.8h5V7"/><path d="M6 7l1 12.2A1.5 1.5 0 0 0 8.5 20.6h7a1.5 1.5 0 0 0 1.5-1.4L18 7"/><path d="M10 11v6M14 11v6"/></svg><span>ゴミ箱</span><i class="rb" data-r="rb-trash"></i></button>
       <button data-a="addlink" data-rail="add" title="リンク・マグネットを追加"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.2 1.2"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.2-1.2"/></svg><span>リンク</span></button>
       <button data-a="rescan" data-rail="scan" title="最新の状態を読み込み直す"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg><span>再読み込み</span></button>
     </aside>
@@ -1421,6 +1455,7 @@
       </div>
       <nav data-r="nav"></nav>
     </header>
+    <div class="pd-upd" data-r="upd" hidden></div>
     <div class="pd-popban" data-r="popban"><span>PikPak の画面を Dedupe に切り替えて使うこともできます。一覧が広くなり、キー操作やドラッグも使いやすくなります。</span><button class="pri" data-a="tofull">全画面で開く</button><button data-a="fullnext">次から全画面で開く</button><button data-a="banclose">閉じる</button></div>
     <div class="tb" data-r="tb"></div>
     <div class="tsel" data-r="tsel"></div>
@@ -1691,9 +1726,10 @@
   function renderRail() {
     root.querySelectorAll('.rail [data-rail]').forEach((b) => {
       const k = b.dataset.rail;
-      b.classList.toggle('on', k === 'tree' ? view === 'tree' : k === 'flow' ? view !== 'tree' && mode === 'flow' : false);
+      b.classList.toggle('on', libSt ? k === 'lib-' + libSt.tab : k === 'tree' ? view === 'tree' : k === 'flow' ? view !== 'tree' && mode === 'flow' : false);
       if (k === 'tree' || k === 'scan' || k === 'flow') b.disabled = busy;
     });
+    [['dl', libBadge.dl], ['trash', libBadge.trash]].forEach(([k, n]) => { const e = root.querySelector(`[data-r=rb-${k}]`); if (e) e.textContent = n ? (n > 99 ? '99+' : n) : ''; });
   }
   function renderNav() {
     renderRail();
@@ -3909,6 +3945,9 @@
     if (a === 'theme') { setTheme(t.dataset.v); return; }
     if (a === 'lang') { if (!busy) setLang(LANG === 'en' ? 'ja' : 'en'); return; }
     if (a === 'tree') { if (!busy) openTree(); return; }
+    if (a === 'lib') { openLib(t.dataset.v); return; }
+    if (a === 'updskip') { const u = updRead(); u.skip = u.latest; updWrite(u); renderUpdate(); return; }
+    if (a === 'updget') { status('インストール画面で「更新」（または「再インストール」）を押したあと、この画面を再読み込みすると新しいバージョンになります'); return; }
     if (a === 'texpand' || a === 'tcollapse') { if (!busy) treeAll(a === 'texpand'); return; }
     if (a === 'tview') { if (!busy) treeView(t.dataset.v); return; }
     if (a === 'tqs') { tree.qs = t.dataset.v; saveTree(); syncTqs(); if (view === 'tree') renderTree(); return; }
@@ -3981,7 +4020,7 @@
     else ['left', 'top', 'width', 'height'].forEach((k) => root.style.removeProperty(k));
   }
   function setWin(m) { winMode = m === 'full' ? 'full' : 'pop'; applyWin(); if (document.getElementById('pd-set')) renderSettings(); }
-  function showRoot() { if (!root.classList.contains('on')) winMode = isPhone() ? 'full' : openPref(); applyWin(); root.classList.add('on'); checkRotate(); }
+  function showRoot() { if (!root.classList.contains('on')) winMode = isPhone() ? 'full' : openPref(); applyWin(); root.classList.add('on'); checkRotate(); checkUpdate(); libPeek(); }
   // 見出しをつかんで移動
   root.addEventListener('mousedown', (e) => {
     if (winMode !== 'pop' || e.button !== 0 || !e.target.closest('.brand') || e.target.closest('button,input,select,label,a,.pd-quota,.seg')) return;
@@ -4218,6 +4257,186 @@
     const row = $(`[data-r=main] [data-tid="${CSS.escape(id)}"]`);
     if (row) { row.scrollIntoView({ block: 'center' }); flash(row); }
     const t = $('[data-r=tree]'); if (t) t.focus({ preventScroll: true });
+  }
+  const LIB_IC = { dl: '<svg viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 7.97"/><path d="M12 11v9M8.8 17l3.2 3 3.2-3"/></svg>', recent: '<svg viewBox="0 0 24 24"><circle cx="11" cy="12" r="7.5"/><path d="M11 8v4.2l2.6 1.6"/><path d="M19.5 3.5v4M17.5 5.5h4"/></svg>', hist: '<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/><path d="M10.5 9.2v5.6l4.4-2.8z"/></svg>', star: '<svg viewBox="0 0 24 24"><path d="M12 3.8l2.5 5.1 5.6.8-4 3.9.9 5.6-5-2.6-5 2.6.9-5.6-4-3.9 5.6-.8z"/></svg>', trash: '<svg viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V4.8h5V7"/><path d="M6 7l1 12.2A1.5 1.5 0 0 0 8.5 20.6h7a1.5 1.5 0 0 0 1.5-1.4L18 7"/><path d="M10 11v6M14 11v6"/></svg>' };
+  // ---------- 左メニュー：ダウンロード中・最近追加したもの・再生した履歴・スター付き・ゴミ箱 ----------
+  const LIB_TABS = [['dl', 'ダウンロード中'], ['recent', '最近追加したもの'], ['hist', '再生した履歴'], ['star', 'スター付き'], ['trash', 'ゴミ箱']];
+  let libSt = null, libBadge = { dl: 0, trash: 0 };
+  const encF = (o) => encodeURIComponent(JSON.stringify(o));
+  const phaseTxt = { PHASE_TYPE_RUNNING: 'ダウンロード中', PHASE_TYPE_PENDING: '順番待ち', PHASE_TYPE_ERROR: '失敗', PHASE_TYPE_COMPLETE: '完了' };
+  async function libFetch(tab) {
+    if (tab === 'dl') {
+      const d = await api(`/tasks?type=offline&limit=100&thumbnail_size=SIZE_SMALL&filters=${encF({ phase: { in: 'PHASE_TYPE_RUNNING,PHASE_TYPE_PENDING,PHASE_TYPE_ERROR,PHASE_TYPE_COMPLETE' } })}`);
+      return (d.tasks || []).map((t) => ({ id: t.id, fid: t.file_id || '', name: t.name || t.file_name || '', size: +t.file_size || 0, phase: t.phase, pct: +t.progress || 0, msg: t.message || '', at: t.created_time || '' }));
+    }
+    if (tab === 'hist') {
+      const d = await api(`/events?thumbnail_size=SIZE_SMALL&limit=100&filters=${encF({ type: { in: 'TYPE_PLAY' } })}`);
+      const seen = new Set(), out = [];
+      (d.events || []).forEach((e) => {
+        const r = e.reference_resource || {}; const id = String(e.file_id || r.id || '');
+        if (!id || seen.has(id) || r.trashed) return; seen.add(id);
+        out.push({ id, name: r.name || e.file_name || id, size: +(r.size || e.file_size) || 0, at: e.event_time || e.created_time || e.updated_time || '' });
+      });
+      return out;
+    }
+    if (tab === 'star' || tab === 'trash') {
+      const fl = tab === 'star' ? { trashed: { eq: false }, system_tag: { in: 'STAR' } } : { trashed: { eq: true } };
+      const out = []; let tk = '', n = 0;
+      do {
+        const d = await api(`/files?thumbnail_size=SIZE_SMALL&limit=500&parent_id=*&filters=${encF(fl)}${tk ? '&page_token=' + encodeURIComponent(tk) : ''}`);
+        (d.files || []).forEach((f) => out.push({ id: f.id, name: f.name, size: +f.size || 0, folder: f.kind === 'drive#folder', at: f.modified_time || f.created_time || '' }));
+        tk = d.next_page_token || '';
+      } while (tk && ++n < 20);
+      return out;
+    }
+    // 最近追加したもの：読み込んだ内容から（追加日の新しい順）
+    if (!hasScan()) return null;
+    const lim = Date.now() - libSt.days * 864e5;
+    return files.filter((f) => f.ct && Date.parse(f.ct) >= lim).sort((a, b) => Date.parse(b.ct) - Date.parse(a.ct)).slice(0, 500)
+      .map((f) => ({ id: f.id, name: f.name, size: f.size, at: f.ct, path: f.path }));
+  }
+  function openLib(tab) {
+    if (!ensureSession(view)) return;
+    closeCtx(); closeQL();
+    libSt = { tab: tab || 'trash', items: [], sel: new Set(), loading: false, err: '', days: 7, busy: false };
+    let d = document.getElementById('pd-lib');
+    if (!d) {
+      d = document.createElement('div'); d.id = 'pd-lib'; document.body.appendChild(d);
+      d.addEventListener('mousedown', (e) => { if (e.target === d && !libSt.busy) closeLib(); });
+      d.addEventListener('click', (e) => {
+        const b = e.target.closest('button'); if (!b || b.disabled || !libSt) return;
+        const x = b.dataset;
+        if (x.lbclose !== undefined) { if (!libSt.busy) closeLib(); }
+        else if (x.lbtab) { if (!libSt.busy) libLoad(x.lbtab); }
+        else if (x.lbdays) { libSt.days = +x.lbdays; libLoad('recent'); }
+        else if (x.lbreload !== undefined) libLoad(libSt.tab);
+        else if (x.lbopen) libReveal(x.lbopen);
+        else if (x.lbdo) libDo(x.lbdo);
+      });
+      d.addEventListener('change', (e) => {
+        const t = e.target; if (!libSt) return;
+        if (t.dataset.lbi !== undefined) { if (t.checked) libSt.sel.add(t.dataset.lbi); else libSt.sel.delete(t.dataset.lbi); renderLib(); }
+        else if (t.dataset.lball !== undefined) { libSt.sel = new Set(t.checked ? libSt.items.map((i) => i.id) : []); renderLib(); }
+      });
+    }
+    libLoad(libSt.tab);
+  }
+  function closeLib() { const d = document.getElementById('pd-lib'); if (d) d.remove(); libSt = null; renderRail(); }
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.getElementById('pd-lib') && libSt && !libSt.busy) { e.preventDefault(); e.stopImmediatePropagation(); closeLib(); } }, true);
+  async function libLoad(tab) {
+    libSt.tab = tab; libSt.items = []; libSt.sel.clear(); libSt.err = ''; libSt.loading = true; renderLib(); renderRail();
+    const my = libSt;
+    try {
+      const r = await libFetch(tab);
+      if (libSt !== my || my.tab !== tab) return;
+      if (r === null) my.err = 'scan'; else my.items = r;
+      if (tab === 'dl') libBadge.dl = r.filter((t) => t.phase === 'PHASE_TYPE_RUNNING' || t.phase === 'PHASE_TYPE_PENDING').length;
+      if (tab === 'trash') libBadge.trash = r.length;
+    } catch (e) { if (libSt === my) my.err = e.message || String(e); }
+    if (libSt !== my) return;
+    my.loading = false; renderLib(); renderRail();
+  }
+  function libReveal(id) {
+    if (!fileById(id) && !dirById(id)) { status('この項目は、読み込んだ範囲の外にあるか、読み込んだあとに追加されたものです。「再読み込み」すると場所を開けます'); return; }
+    closeLib(); if (view !== 'tree') openTree(); revealInTree(id);
+  }
+  async function libDo(op) {
+    const ids = [...libSt.sel]; const my = libSt;
+    const n = ids.length;
+    const chunk = async (fn) => { for (let i = 0; i < ids.length; i += 100) await fn(ids.slice(i, i + 100)); };
+    let msg = '';
+    if (op === 'empty') { if (!confirm(`ゴミ箱の ${my.items.length} 項目を完全に削除します。元に戻せません。よろしいですか？`)) return; }
+    else if (op === 'del') { if (!n || !confirm(`選んだ ${n} 項目を完全に削除します。元に戻せません。よろしいですか？`)) return; }
+    else if (!n) return;
+    my.busy = true; renderLib();
+    try {
+      if (op === 'restore') { await chunk((c) => api('/files:batchUntrash', { method: 'POST', body: JSON.stringify({ ids: c }) })); msg = `${n} 項目を元の場所に戻しました（Dedupe の一覧に出すには「再読み込み」）`; }
+      else if (op === 'del') { await chunk((c) => api('/files:batchDelete', { method: 'POST', body: JSON.stringify({ ids: c }) })); msg = `${n} 項目を完全に削除しました`; }
+      else if (op === 'empty') { await api('/files/trash:empty', { method: 'PATCH' }); msg = 'ゴミ箱を空にしました'; }
+      else if (op === 'unstar') { await chunk((c) => api('/files:unstar', { method: 'POST', body: JSON.stringify({ ids: c }) })); msg = `${n} 項目のスターを外しました`; }
+      else if (op === 'cancel') { await chunk((c) => api(`/tasks?task_ids=${c.join(',')}&delete_files=false`, { method: 'DELETE' })); msg = `${n} 件をダウンロードの一覧から外しました（ダウンロード済みのファイルは残ります）`; }
+      log('info', msg); status(msg);
+    } catch (e) { if (e.session) { my.busy = false; closeLib(); throw e; } status('うまくいきませんでした：' + (e.message || e)); log('warn', '左メニューの操作に失敗：' + (e.message || e), op); }
+    my.busy = false;
+    if (libSt === my) { if (op === 'empty' || op === 'del' || op === 'restore') refreshQuota(true); libLoad(my.tab); }
+  }
+  function renderLib() {
+    const d = document.getElementById('pd-lib'); if (!d || !libSt) return;
+    const S = libSt, tab = S.tab;
+    const when = (t) => { const v = Date.parse(t); return v ? new Date(v).toLocaleString(loc(), { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''; };
+    const tabs = LIB_TABS.map(([k, l]) => `<button class="lb-tab${k === tab ? ' on' : ''}" data-lbtab="${k}">${LIB_IC[k]}<span>${l}</span>${k === 'dl' && libBadge.dl ? `<i>${libBadge.dl}</i>` : k === 'trash' && libBadge.trash ? `<i>${libBadge.trash}</i>` : ''}</button>`).join('');
+    const selectable = tab !== 'recent' && tab !== 'hist';
+    const row = (it) => {
+      let tag = '', info = [it.size ? fmt(it.size) : '', when(it.at)];
+      if (tab === 'dl') {
+        const cls = it.phase === 'PHASE_TYPE_ERROR' ? 'del' : it.phase === 'PHASE_TYPE_COMPLETE' ? 'ok' : 'pri';
+        tag = `<span class="lk-tag ${cls}">${phaseTxt[it.phase] || it.phase}${it.phase === 'PHASE_TYPE_RUNNING' ? ` ${it.pct}%` : ''}</span>`;
+        if (it.phase === 'PHASE_TYPE_ERROR' && it.msg) info.push(it.msg);
+      }
+      if (tab === 'recent' && it.path) info.unshift(it.path);
+      const openId = tab === 'dl' ? it.fid : tab === 'trash' ? '' : it.id;
+      const bar = tab === 'dl' && it.phase === 'PHASE_TYPE_RUNNING' ? `<span class="uz-bar"><i style="width:${it.pct}%"></i></span>` : '';
+      return `<div class="lb-row">${selectable ? `<input type="checkbox" data-lbi="${esc(it.id)}"${S.sel.has(it.id) ? ' checked' : ''}${S.busy ? ' disabled' : ''}>` : ''}<span class="lb-t"><b title="${esc(it.name)}">${it.folder ? '📁 ' : ''}${esc(it.name)}</b><small>${esc(info.filter(Boolean).join('・'))}</small>${bar}</span>${tag}${openId && (tab !== 'dl' || it.phase === 'PHASE_TYPE_COMPLETE') ? `<button data-lbopen="${esc(openId)}" title="フォルダ一覧でこの項目の場所を開く">場所を開く</button>` : ''}</div>`;
+    };
+    let body;
+    if (S.loading) body = '<div class="empty">読み込み中…</div>';
+    else if (S.err === 'scan') body = '<div class="empty">「最近追加したもの」は、読み込んだ内容から作ります。先に左の「再読み込み」で PikPak の中身を読み込んでください。</div>';
+    else if (S.err) body = `<div class="empty">読み込めませんでした：${esc(S.err)}</div>`;
+    else if (!S.items.length) body = `<div class="empty">${{ dl: 'ダウンロードのタスクはありません', recent: `この ${S.days} 日間に追加したものはありません`, hist: '再生した履歴はありません', star: 'スター付きの項目はありません', trash: 'ゴミ箱は空です' }[tab]}</div>`;
+    else body = S.items.map(row).join('');
+    const n = S.sel.size, dis = S.busy || S.loading ? ' disabled' : '';
+    const acts = {
+      dl: `<button data-lbdo="cancel"${n ? '' : ' disabled'}${dis}>一覧から外す（${n}）</button>`,
+      recent: `<span class="seg">${[7, 30].map((x) => `<button data-lbdays="${x}" class="${S.days === x ? 'on' : ''}"${dis}>直近 ${x} 日</button>`).join('')}</span>`,
+      hist: '', star: `<button data-lbdo="unstar"${n ? '' : ' disabled'}${dis}>スターを外す（${n}）</button>`,
+      trash: `<button data-lbdo="restore"${n ? '' : ' disabled'}${dis}>元に戻す（${n}）</button><button class="dng" data-lbdo="del"${n ? '' : ' disabled'}${dis}>完全に削除（${n}）</button><button class="dng" data-lbdo="empty"${S.items.length ? '' : ' disabled'}${dis}>ゴミ箱を空にする</button>`,
+    }[tab];
+    const note = { dl: 'クラウドダウンロード（リンク・マグネットの追加）の状況。「一覧から外す」はタスクを消すだけで、ダウンロード済みのファイルは消しません。', recent: '追加日の新しい順。読み込んだ範囲（' + esc(dirLabel((scanRoot() || {}).id) || '—') + '）のファイルだけが出ます。', hist: 'PikPak で再生した動画（新しい順）。', star: 'PikPak でスターを付けた項目。', trash: `ゴミ箱の中身${quota ? `（${fmtCap(quota.trash)}）` : ''}。「完全に削除」「空にする」は元に戻せません。` }[tab];
+    const all = selectable && S.items.length ? `<label class="note lb-all"><input type="checkbox" data-lball${n && n === S.items.length ? ' checked' : ''}${dis}> すべて選ぶ</label>` : '';
+    d.innerHTML = `<div class="lk-box" role="dialog" aria-label="${esc(LIB_TABS.find((x) => x[0] === tab)[1])}"><div class="lk-hd"><b>${LIB_TABS.find((x) => x[0] === tab)[1]}</b><span class="note">${S.items.length && !S.loading ? S.items.length + ' 項目' : ''}</span><span class="sp"></span><button data-lbreload title="読み込み直す"${dis}>更新</button><button class="x" data-lbclose aria-label="閉じる">${IC.x}</button></div>
+      <div class="lb-tabs">${tabs}</div>
+      <div class="lb-note">${note}</div>
+      <div class="lk-list">${all}${body}</div>
+      <div class="lk-ft"><span class="tx">${S.busy ? '処理しています…' : ''}</span>${acts}</div></div>`;
+  }
+  // ---------- 新しいバージョンのお知らせ（12 時間に 1 回、GitHub の最新版の番号だけを確かめる） ----------
+  const LS_UPD = 'ppdup:update:v1';
+  const REPO_RAW = 'https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js';
+  const REPO_REL = 'https://github.com/Noel-Labs39/pikpak-distill/releases';
+  const verNum = (v) => String(v || '').split('.').map((x) => +x || 0);
+  const verNewer = (a, b) => { const x = verNum(a), y = verNum(b); for (let i = 0; i < 3; i++) { if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) > (y[i] || 0); } return false; };
+  function updRead() { try { return JSON.parse(localStorage.getItem(LS_UPD) || '{}') || {}; } catch (e) { return {}; } }
+  function updWrite(o) { try { localStorage.setItem(LS_UPD, JSON.stringify(o)); } catch (e) { /* 無視 */ } }
+  async function checkUpdate(force) {
+    const u = updRead();
+    if (!force && u.at && Date.now() - u.at < 12 * 3600e3) { renderUpdate(); return u.latest; }
+    try {
+      const res = await fetch(REPO_RAW + '?t=' + Math.floor(Date.now() / 600e3), { cache: 'no-store', credentials: 'omit' });
+      const txt = res.ok ? (await res.text()).slice(0, 2000) : '';
+      const m = /@version\s+([\d.]+)/.exec(txt);
+      if (m) { u.latest = m[1]; u.at = Date.now(); updWrite(u); }
+    } catch (e) { log('info', '新しいバージョンの確認ができませんでした：' + (e.message || e)); }
+    renderUpdate();
+    return u.latest;
+  }
+  // 左メニューのバッジ（ダウンロード中の件数・ゴミ箱の項目数）。開いたときに 1 回だけ軽く確かめる
+  let libPeekAt = 0;
+  async function libPeek() {
+    if (Date.now() - libPeekAt < 60e3 || !sessionValid()) return; libPeekAt = Date.now();
+    try {
+      const d = await api(`/tasks?type=offline&limit=100&filters=${encF({ phase: { in: 'PHASE_TYPE_RUNNING,PHASE_TYPE_PENDING' } })}`);
+      libBadge.dl = (d.tasks || []).length;
+      const t = await api(`/files?limit=100&parent_id=*&filters=${encF({ trashed: { eq: true } })}`);
+      libBadge.trash = (t.files || []).length + (t.next_page_token ? 1 : 0);
+    } catch (e) { if (e.session) return; }
+    renderRail();
+  }
+  function renderUpdate() {
+    const el = $('[data-r=upd]'); if (!el) return;
+    const u = updRead();
+    const show = u.latest && verNewer(u.latest, VER) && u.skip !== u.latest;
+    el.hidden = !show;
+    el.innerHTML = show ? `<span>新しいバージョン <b>v${esc(u.latest)}</b> が出ています（いまは v${VER}）</span><a href="${REPO_RAW}" target="_blank" rel="noopener" data-a="updget">更新する</a><a href="${REPO_REL}" target="_blank" rel="noopener">変更点</a><button data-a="updskip" title="このバージョンのお知らせを出さない">閉じる</button>` : '';
   }
   // ---------- 書き出し／読み込み（設定・販売者の調査結果・重複の判断・解凍パスワード） ----------
   const EXPORT_GROUPS = {

@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.25.0
+// @version      3.26.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -81,7 +81,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.25.0'; // @version と合わせて更新する
+  const VER = '3.26.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -806,6 +806,22 @@
   #ppdup .thm button{display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:36px;box-sizing:border-box;padding:0 10px;font-size:12px;font-weight:700}
   #ppdup .hq{display:none;align-items:center;gap:6px;height:36px;box-sizing:border-box;padding:0 10px;border:1px solid var(--ctl-line);border-radius:9px;background:var(--ctl);color:var(--mute)}
   #ppdup.treev .hq{display:inline-flex}
+  #ppdup .hqs{display:none}
+  #ppdup.treev .hqs{display:inline-flex}
+  #ppdup .hqs button{height:36px;padding:0 10px;font-size:12px}
+  #ppdup .hqs button.on{background:var(--pri) !important;color:#fff !important;border-color:var(--pri) !important}
+  #ppdup.pop .hqs{display:none}
+  .sr{display:flex;flex-direction:column}
+  .sr-row{display:flex;align-items:center;gap:12px;padding:7px 18px;border-bottom:1px solid var(--line);cursor:pointer}
+  .sr-row:hover{background:var(--pri-soft)}
+  .sr-th{width:64px;height:36px;flex:none;border-radius:5px;overflow:hidden;background:var(--panel2);display:flex;align-items:center;justify-content:center}
+  .sr-th img{width:100%;height:100%;object-fit:cover}
+  .sr-th svg{width:22px;height:22px}
+  .sr-t{flex:1;min-width:0;display:flex;flex-direction:column}
+  .sr-n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sr-p{color:var(--mute);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sr mark{background:#ffe08a;color:#1c1f26;border-radius:2px;padding:0 1px}
+  .sr-s{color:var(--mute);font-size:12px;white-space:nowrap}
   #ppdup .hq svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
   #ppdup .hq input{border:0 !important;background:none !important;padding:0 !important;outline:none;width:180px;color:var(--fg)}
   .pd-quota{display:flex;flex-direction:column;gap:4px;width:310px;padding:5px 12px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);box-sizing:border-box;cursor:default}
@@ -1330,7 +1346,7 @@
     </aside>
     <header>
       <div class="brand">${LOGO}<h1 class="wm" aria-label="PikPak Distill – Dedupe"><small>PIKPAK DISTILL</small><span class="gw"><i aria-hidden="true">Dedupe</i><i aria-hidden="true">Dedupe</i><b>Dedupe</b></span></h1><span class="ver" title="いま動いているバージョン">v${VER}</span><span class="sp"></span>
-        <label class="hq" title="名前で絞り込み">${IC.search}<input type="text" data-a="tq" placeholder="名前で絞り込み"></label>
+        <label class="hq" title="名前で絞り込み">${IC.search}<input type="text" data-a="tq" placeholder="名前で絞り込み・検索"></label><span class="seg hqs" data-r="tqs" title="探す範囲"><button data-a="tqs" data-v="here">このフォルダ</button><button data-a="tqs" data-v="all">すべて</button></span>
         <div class="pd-quota" data-r="quota"></div>
         <span class="seg thm" data-r="theme" role="group" aria-label="テーマ"></span>
         <button class="hbtn" data-a="lang" title="表示言語を切り替える">${IC.globe}<span class="raw" data-r="langname"></span></button>
@@ -1364,6 +1380,7 @@
   EN.push(...[["残り時間を計算中…", "Estimating time left…"], ["まもなく完了", "Almost done"], ["あと約 ", "About "], ["（目安・前回 ", "(estimate, last time "], ["（目安）", "(estimate)"], ["実行中…", "Running…"], ["中断すると、そこまでの分は反映されます", "If you stop, what has been done so far is kept"], ["削除するもの ", "To delete: "], ["PikPak のゴミ箱へ移動します", "Moves to the PikPak trash"], ["チェックの入ったファイルがありません", "No files are checked"], ["削除するものにチェックを入れてください", "Check the files to delete"], ["表示中 ", "Showing "], ["チェックした（削除の）ファイルを PikPak のゴミ箱へ移動します", "Moves the checked (delete) files to the PikPak trash"], ["対象 ", "Targets: "], ["まずは「先頭1件だけ試す」で動きを確かめてください", "First check how it works with \"Try the first one\""], ["下の「画質」で別の画質を試せます。", "Try another quality from the quality menu below."]]);
   EN.push(...[["（残り ", "(left "], ["リンク・マグネットを追加", "Add links / magnets"], ["追加する前に、もうあるか確かめる", "Checks whether you already have it before adding"], ["中身を確認", "Check contents"], ["もうあります", "Already have"], ["すべて保存", "Save all"], ["一部だけ保存", "Save selected only"], ["キャッシュなし", "No cache"], ["中身を確認中…", "Checking contents…"], ["中身を確認できません", "Can't check contents"], ["追加するもの ", "To add: "], ["追加するものがありません", "Nothing to add"], ["PikPak の既定の保存先（My Pack）", "PikPak default location (My Pack)"], ["保存先", "Save to"], ["🔗 リンクを追加", "🔗 Add links"], ["ここにリンクを追加…", "Add links here…"], ["リンク・マグネットを追加…", "Add links / magnets…"]]);
   EN.push(...[["▦ コマ一覧", "▦ Frames"], ["▦ コマで比べる", "▦ Compare frames"], ["▦ 2 本をコマで比べる", "▦ Compare 2 videos by frames"], ["コマ一覧", "Frames"], ["同じ位置のコマを左右に並べています", "Frames at the same positions, side by side"], ["▶ 選んだコマから再生", "▶ Play from selected frame"], ["画像で保存", "Save as image"], ["動画を読み込んでいます…", "Loading video…"], ["コマを作っています… ", "Making frames… "], ["コマを作れませんでした：", "Could not make frames: "], ["この動画はブラウザの制限でコマを作れません", "The browser does not allow frames for this video"], ["再生速度：", "Speed: "], ["残す", "Keep"], [" コマ", " frames"]]);
+  EN.push(...[["名前で絞り込み・検索", "Filter / search by name"], ["このフォルダ", "This folder"], ["すべて", "All"], ["行を押すとその場所を開きます", "Click a row to open its location"], ["名前とパスで探しています", "searching names and paths"], ["書き出し／読み込み", "Export / import"], ["別のブラウザやパソコンへ移すときに使います（ログイン情報は含めません）", "Use this to move to another browser or PC (login info is not included)"], ["書き出す（.json）", "Export (.json)"], ["読み込む…", "Import…"], ["販売者の調査結果と手入力", "Seller lookups and manual entries"], ["重複の判断（残す・削除の記録）", "Duplicate decisions (keep / delete)"], ["解凍パスワード", "Archive passwords"], ["読み込む内容", "What to import"], ["今のものに足す（同じものは読み込んだ方を優先）", "Add to the current data (imported wins on conflicts)"], ["置き換える", "Replace"]]);
   EN.sort((a, b) => b[0].length - a[0].length); // 長い言い回しから先に置き換える
   const EN_MAP = new Map(EN);
   const EN_UNIT = EN.filter(([a]) => a.length > 1 && /^(件|項目|組|作品|本)./.test(a));
@@ -2542,7 +2559,7 @@
   try { tree = { ...tree, ...JSON.parse(localStorage.getItem(LS_TREE) || '{}') }; } catch (e) { /* 無視 */ }
   if (!tree.view) tree.view = tree.thumb ? 'thumb' : 'list'; // 表示：list（リスト）／thumb（サムネイル付きリスト）／tile（タイル）
   const treeOpen = new Set(tree.open || []);
-  const saveTree = () => { try { localStorage.setItem(LS_TREE, JSON.stringify({ open: [...treeOpen].slice(-2000), sort: tree.sort, dir: tree.dir, base: tree.base || '', view: tree.view, hover: tree.hover !== false })); } catch (e) { /* 無視 */ } };
+  const saveTree = () => { try { localStorage.setItem(LS_TREE, JSON.stringify({ qs: tree.qs, open: [...treeOpen].slice(-2000), sort: tree.sort, dir: tree.dir, base: tree.base || '', view: tree.view, hover: tree.hover !== false })); } catch (e) { /* 無視 */ } };
   const treeSel = new Set();
   let treeCur = '', treeAnchor = '', treeRowsCache = [], treeIdx = null, qlOpen = false, renaming = '';
   const VIDEO_EXT = new Set(['mp4', 'mkv', 'avi', 'mov', 'wmv', 'flv', 'ts', 'm4v', 'webm', 'rmvb', 'mpg', 'mpeg']);
@@ -2714,13 +2731,13 @@
   function treeRows() {
     const ix = treeIdx = buildTreeIndex();
     const base = treeBase();
-    const q = (tree.q || '').trim().toLowerCase();
+    const terms = qTerms(), hit = (name) => { const n = normQ(name); return terms.every((t) => n.includes(t)); };
     let keep = null;
-    if (q) {
+    if (terms.length) {
       keep = new Set();
       const up = (pid) => { let cur = pid; for (let k = 0; k < 200 && cur !== undefined && cur !== null && !keep.has(cur) && cur !== base; k++) { keep.add(cur); cur = parentOf(cur); } };
-      ix.byId.forEach((d) => { if (!d.home && d.id !== base && d.name.toLowerCase().includes(q)) { keep.add(d.id); up(parentOf(d.id)); } });
-      [...files, ...outer.files.values()].forEach((f) => { if (f.name.toLowerCase().includes(q)) { keep.add(f.id); up(f.parentId); } });
+      ix.byId.forEach((d) => { if (!d.home && d.id !== base && hit(d.name)) { keep.add(d.id); up(parentOf(d.id)); } });
+      [...files, ...outer.files.values()].forEach((f) => { if (hit(f.name)) { keep.add(f.id); up(f.parentId); } });
     }
     const coll = new Intl.Collator('ja', { numeric: true, sensitivity: 'base' });
     const cmp = (a, b) => {
@@ -2760,6 +2777,7 @@
   const subOf = (r) => (r.kind === 'folder' ? (r.unloaded ? '未スキャン' : r.n + ' 項目・' + (r.unk ? '—' : r.nf ? fmt(r.size) : '空')) : kindOf(r) + '・' + fmt(r.size));
   const tagOf = (r) => (r.unloaded ? '<span class="ot">未スキャン</span>' : r.isScanRoot ? '<span class="ot" style="color:var(--pri)">読み込み済み</span>' : '');
   function renderTree() {
+    if (qTerms().length && tree.qs === 'all') { if (!$('[data-r=tpath]')) renderTreeToolbar(); return renderSearch(); }
     if (!$('[data-r=tpath]')) renderTreeToolbar();
     const rows = treeRowsCache = treeRows();
     if (treeCur && !rows.some((r) => r.id === treeCur)) treeCur = '';
@@ -3333,15 +3351,16 @@
         ${sec('org') ? `<h3>整理</h3>
         <label class="row"><span><b>作品と関係ないファイルを除外する</b><small>広告・宣伝のファイルや 10MB 以下のファイルなどを、ほかの作業の対象から外します</small></span><input type="checkbox" data-s="junk"${junkEnabled() ? ' checked' : ''}></label>
         <label class="row"><span><b>ファイル名を整える</b><small>オフにすると、このステップを使わず次へ進みます</small></span><input type="checkbox" data-s="name"${nameEnabled() ? ' checked' : ''}></label>` : ''}
-        <h3>販売者ごとに仕分け</h3>
+        ${sec('org') ? `<h3>販売者ごとに仕分け</h3>
         <label class="row"><span><b>このステップを使う</b><small>オフにすると「8. 販売者ごとに仕分け」を使いません</small></span><input type="checkbox" data-s="seller"${sellerEnabled() ? ' checked' : ''}></label>
         <div class="row"><span><b>まとめるフォルダ</b><small>ホームの直下に作ります</small></span><input type="text" data-s="scfg" data-k="root" value="${esc(sellerCfg().root)}" style="width:150px;font:inherit;padding:6px 10px;border:1px solid var(--ctl-line);border-radius:8px;background:var(--ctl);color:inherit"></div>
         <div class="row"><span><b>販売者が分からないとき</b></span><input type="text" data-s="scfg" data-k="unknown" value="${esc(sellerCfg().unknown)}" style="width:150px;font:inherit;padding:6px 10px;border:1px solid var(--ctl-line);border-radius:8px;background:var(--ctl);color:inherit"></div>
         <div class="row"><span><b>判断できないとき</b></span><input type="text" data-s="scfg" data-k="review" value="${esc(sellerCfg().review)}" style="width:150px;font:inherit;padding:6px 10px;border:1px solid var(--ctl-line);border-radius:8px;background:var(--ctl);color:inherit"></div>
         <div class="row"><span><b>調べる間隔</b><small>短くしすぎると、相手のサイトに断られることがあります</small></span><select data-s="scfg" data-k="interval">${[1, 1.5, 3].map((v) => `<option value="${v}"${sellerCfg().interval === v ? ' selected' : ''}>${v} 秒</option>`).join('')}</select></div>
-        <div class="row"><span><b>調べた結果</b><small>${Object.keys(sellerDb).length} 件（手入力 ${Object.values(sellerDb).filter((r) => r.src === 'manual').length} 件を含む）。このブラウザにだけ保存</small></span><button data-s="sclear"${Object.keys(sellerDb).length ? '' : ' disabled'}>消去</button></div>
+        <div class="row"><span><b>調べた結果</b><small>${Object.keys(sellerDb).length} 件（手入力 ${Object.values(sellerDb).filter((r) => r.src === 'manual').length} 件を含む）。このブラウザにだけ保存</small></span><button data-s="sclear"${Object.keys(sellerDb).length ? '' : ' disabled'}>消去</button></div>` : ''}
         ${sec('info') ? `<h3>情報</h3>
         <div class="row"><span><b>PikPak Distill – Dedupe</b><small class="ver">v${VER} · Noel Labs</small></span><button data-s="changelog">更新履歴</button></div>
+        <div class="row col"><b>書き出し／読み込み</b><small class="note" style="display:block">別のブラウザやパソコンへ移すときに使います（ログイン情報は含めません）</small>${Object.keys(EXPORT_GROUPS).map((g) => `<label><input type="checkbox" data-s="expg" value="${g}"${exportSel[g] ? ' checked' : ''}> ${EXPORT_GROUPS[g].label}<small style="color:var(--mute)">（${groupCount(g)} 件）</small></label>`).join('')}<span style="display:flex;gap:8px;margin-top:6px"><button data-s="export">書き出す（.json）</button><button data-s="import">読み込む…</button></span></div>
         <div class="row"><span><b>ログ</b><small>エラーや処理の記録</small></span><button data-s="log">ログを表示${errs ? `<span class="badge">${errs}</span>` : ''}</button></div>` : ''}
       </div></aside>`;
     d.querySelector('.bd').scrollTop = scroll;
@@ -3354,11 +3373,14 @@
     else if (k === 'theme') setTheme(b.dataset.v);
     else if (k === 'log') { closeSettings(); showLog(); }
     else if (k === 'sclear') { if (confirm(tr('調べた販売者の結果（手入力を含む）をすべて消去しますか？'))) { sellerDb = {}; saveSellerDb(); sellerSel.clear(); log('info', '販売者の調査結果を消去'); renderSettings(); if (root.classList.contains('on') && !busy) setView(view); } }
+    else if (k === 'export') exportData();
+    else if (k === 'import') importData();
     else if (k === 'changelog') window.open('https://github.com/Noel-Labs39/pikpak-distill/blob/main/CHANGELOG.md', '_blank', 'noopener');
   }
   function onSettingsChange(e) {
     const t = e.target, k = t.dataset.s;
     if (k === 'lang') { setLang(t.value); return; }
+    if (k === 'expg') { exportSel[t.value] = t.checked; return; }
     if (k === 'openmode') { setOpenPref(t.value); if (root.classList.contains('on')) setWin(t.value); return; }
     if (k === 'tview') { tree.view = t.value; saveTree(); if (view === 'tree') treeView(t.value); return; }
     if (k === 'hover') { tree.hover = t.checked; saveTree(); hideHover(); return; }
@@ -3714,6 +3736,7 @@
     if (a === 'tree') { if (!busy) openTree(); return; }
     if (a === 'texpand' || a === 'tcollapse') { if (!busy) treeAll(a === 'texpand'); return; }
     if (a === 'tview') { if (!busy) treeView(t.dataset.v); return; }
+    if (a === 'tqs') { tree.qs = t.dataset.v; saveTree(); syncTqs(); if (view === 'tree') renderTree(); return; }
     if (a === 'toflow') { if (!busy) { if (view === 'tree') view = 'scan'; openFlow(); } return; }
     if (a === 'rescan') { if (!busy) { afterScan = view; runScan(); } return; }
     if (a === 'stop') { window.__ppdupStop = true; status('中断しています…（いまの処理が終わったら止まります）'); return; }
@@ -3753,6 +3776,9 @@
     if (['mode', 'nearonly', 'renfilter'].includes(e.target.dataset.a)) render();
   });
   root.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.matches && e.target.matches('.sl-in input')) { e.preventDefault(); const b = e.target.closest('.sl-row'); if (b && !busy) saveRowSeller(b.dataset.srow); } });
+  root.addEventListener('click', (e) => { const r = e.target.closest('[data-sr]'); if (r && view === 'tree' && !busy) revealInTree(r.dataset.sr); });
+  const syncTqs = () => root.querySelectorAll('[data-a=tqs]').forEach((b) => b.classList.toggle('on', (tree.qs || 'here') === b.dataset.v));
+  syncTqs();
   root.addEventListener('input', (e) => { if (e.target.dataset.a === 'q') render(); if (e.target.dataset.a === 'tq') { tree.q = e.target.value; renderTree(); } });
   // ---------- 開き方（ポップアップ／全画面） ----------
   // ポップアップは PikPak の画面の上に重ねる小さな画面。見出しをつかんで移動、右下で大きさを変える。位置と大きさは覚えておく
@@ -3963,6 +3989,116 @@
       g.font = '600 12px ui-monospace,monospace'; g.fillStyle = '#000a'; g.fillRect(cx + 4, cy + h - 20, g.measureText(t).width + 8, 16); g.fillStyle = '#fff'; g.fillText(t, cx + 8, cy + h - 8);
     });
     c.toBlob((b) => { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name.replace(/\.[^.]+$/, '') + '_コマ一覧.jpg'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000); }, 'image/jpeg', 0.9);
+  }
+  // ---------- 全体検索（名前とパス・スペース区切りはすべてを含むもの） ----------
+  const normQ = (s) => String(s || '').normalize('NFKC').toLowerCase();
+  const qTerms = () => normQ(tree.q).trim().split(/\s+/).filter(Boolean);
+  // 一致した部分を <mark> で強調。長い名前は、最初に一致した周りを優先して見せる
+  function hlText(text, terms, max) {
+    let s = String(text || '');
+    const low = normQ(s);
+    if (max && s.length > max) {
+      const p = Math.min(...terms.map((t) => low.indexOf(t)).filter((i) => i >= 0), s.length);
+      const st = Math.max(0, Math.min(p - Math.floor(max / 3), s.length - max));
+      s = (st > 0 ? '…' : '') + s.slice(st, st + max) + (st + max < s.length ? '…' : '');
+    }
+    const l2 = normQ(s), marks = new Array(s.length).fill(false);
+    terms.forEach((t) => { let i = 0; while (t && (i = l2.indexOf(t, i)) >= 0) { for (let k = i; k < i + t.length && k < s.length; k++) marks[k] = true; i += t.length; } });
+    let out = '', on = false;
+    for (let i = 0; i < s.length; i++) { if (marks[i] !== on) { out += marks[i] ? '<mark>' : '</mark>'; on = marks[i]; } out += esc(s[i]); }
+    return out + (on ? '</mark>' : '');
+  }
+  function renderSearch() {
+    const terms = qTerms();
+    treeRowsCache = []; treeSel.clear(); treeCur = '';
+    const hits = [];
+    const add = (kind, x, path) => {
+      const nm = normQ(x.name), hay = nm + ' ' + normQ(path);
+      if (!terms.every((t) => hay.includes(t))) return;
+      hits.push({ kind, id: x.id, name: x.name, path, size: kind === 'file' ? x.size : 0, thumb: x.thumb || '', score: terms.filter((t) => nm.includes(t)).length });
+    };
+    folders.forEach((d) => { if (!d.isRoot) add('folder', d, (d.path || '').replace(/\/[^/]*$/, '') || '/'); });
+    outer.dirs.forEach((d) => { if (!folders.some((x) => x.id === d.id)) add('folder', d, fullPath(d.parentId)); });
+    files.forEach((f) => add('file', f, (f.path || '/').replace(/\/$/, '') || '/'));
+    outer.files.forEach((f) => add('file', f, fullPath(f.parentId)));
+    hits.sort((a, b) => b.score - a.score || (a.kind === b.kind ? 0 : a.kind === 'folder' ? -1 : 1) || a.name.localeCompare(b.name, 'ja', { numeric: true }));
+    const shown = hits.slice(0, 400);
+    const nF = files.length + outer.files.size, nD = folders.length + outer.dirs.size;
+    $('[data-r=main]').innerHTML = `<div class="sr">${shown.map((h) => `<div class="sr-row" data-sr="${esc(h.id)}" title="押すとその場所を開きます"><span class="sr-th">${h.thumb ? `<img loading="lazy" referrerpolicy="no-referrer" src="${esc(h.thumb)}" alt="">` : h.kind === 'folder' ? ICON_DIR : ICON_FILE({ name: h.name, ext: extOf(h.name) })}</span><span class="sr-t"><span class="sr-n">${hlText(h.name, terms, 90)}</span><small class="sr-p">${hlText(h.path, terms, 120)}</small></span><span class="sr-s">${h.kind === 'folder' ? 'フォルダ' : fmt(h.size)}</span></div>`).join('') || '<div class="empty">一致するものはありません</div>'}</div>`;
+    status(`${hits.length} 件${hits.length > shown.length ? `（先頭 ${shown.length} 件を表示）` : ''}（読み込んだ ${nF} ファイル・${nD} フォルダから。名前とパスで探しています）。行を押すとその場所を開きます`);
+  }
+  // 検索結果から、その場所をフォルダ一覧で開いて選ぶ
+  function revealInTree(id) {
+    const f = fileById(id);
+    const pid = f ? f.parentId : id;
+    tree.q = ''; const qi = $('[data-a=tq]'); if (qi) qi.value = '';
+    tree.base = ''; saveTree();
+    [pid, ...ancestorsOf(pid)].forEach((x) => { if (x && (!f || x !== id)) treeOpen.add(x); });
+    if (!f) treeOpen.delete(id);
+    treeSel.clear(); treeSel.add(id); treeCur = id; treeAnchor = id;
+    renderTree();
+    const row = $(`[data-r=main] [data-tid="${CSS.escape(id)}"]`);
+    if (row) { row.scrollIntoView({ block: 'center' }); flash(row); }
+    const t = $('[data-r=tree]'); if (t) t.focus({ preventScroll: true });
+  }
+  // ---------- 書き出し／読み込み（設定・販売者の調査結果・重複の判断・解凍パスワード） ----------
+  const EXPORT_GROUPS = {
+    settings: { label: '設定', keys: ['ppdup:theme:v1', 'ppdup:lang:v1', 'ppdup:open:v1', 'ppdup:popban:v1', 'ppdup:popgeom:v1', 'ppdup:opt:junk:v1', 'ppdup:opt:cleanname:v1', 'ppdup:opt:seller:v1', 'ppdup:player:v1', 'ppdup:player:q:v1', 'ppdup:rate:v1', 'ppdup:frames:v1', 'ppdup:tree:v1', 'ppdup:seller:cfg:v1', 'ppdup:scanstat:v1'] },
+    seller: { label: '販売者の調査結果と手入力', keys: ['ppdup:seller:v1'], merge: true },
+    decision: { label: '重複の判断（残す・削除の記録）', keys: ['ppdup:decision:v1'], merge: true },
+    unzip: { label: '解凍パスワード', keys: ['ppdup:unzippw:v1'], merge: true },
+  };
+  let exportSel = { settings: true, seller: true, decision: true, unzip: true };
+  const lsGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const groupCount = (g, src) => {
+    let n = 0;
+    EXPORT_GROUPS[g].keys.forEach((k) => { const v = src ? src[k] : lsGet(k); if (v == null) return; if (!EXPORT_GROUPS[g].merge) { n++; return; } try { const o = JSON.parse(v); n += Array.isArray(o) ? o.length : Object.keys(o || {}).length; } catch (e) { n++; } });
+    return n;
+  };
+  function exportData() {
+    const data = {};
+    Object.keys(EXPORT_GROUPS).forEach((g) => { if (!exportSel[g]) return; EXPORT_GROUPS[g].keys.forEach((k) => { const v = lsGet(k); if (v != null) data[k] = v; }); });
+    const blob = new Blob([JSON.stringify({ app: 'pikpak-distill', ver: VER, at: new Date().toISOString(), data }, null, 1)], { type: 'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    const d = new Date(); a.download = `pikpak-distill_${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}.json`;
+    a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    status(`書き出しました（${Object.keys(data).length} 項目）。ログイン情報は含まれていません。`); log('info', '設定などを書き出し', Object.keys(data).join(','));
+  }
+  function importData() {
+    const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.json,application/json';
+    inp.onchange = async () => {
+      const f = inp.files && inp.files[0]; if (!f) return;
+      let j = null; try { j = JSON.parse(await f.text()); } catch (e) { j = null; }
+      if (!j || j.app !== 'pikpak-distill' || !j.data || typeof j.data !== 'object') { status('このファイルは読み込めません（PikPak Distill で書き出した .json を選んでください）'); return; }
+      const allowed = new Set(Object.values(EXPORT_GROUPS).flatMap((g) => g.keys));
+      const src = {}; Object.keys(j.data).forEach((k) => { if (allowed.has(k) && typeof j.data[k] === 'string') src[k] = j.data[k]; });
+      const gs = Object.keys(EXPORT_GROUPS).filter((g) => EXPORT_GROUPS[g].keys.some((k) => k in src));
+      if (!gs.length) { status('読み込める項目がありませんでした'); return; }
+      closeSettings();
+      const d = document.createElement('div'); d.id = 'pd-dlg';
+      d.innerHTML = `<div class="box" style="width:min(520px,94vw)"><h3>読み込む内容</h3><div class="note">${esc(f.name)}（v${esc(j.ver || '?')}・${esc(String(j.at || '').slice(0, 10))}）</div>
+        <div style="margin:12px 0;display:flex;flex-direction:column;gap:6px">${gs.map((g) => `<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" data-ig="${g}" checked> <span>${esc(EXPORT_GROUPS[g].label)}：${groupCount(g, src)} 件${EXPORT_GROUPS[g].merge ? `（今は ${groupCount(g)} 件）` : ''}</span></label>`).join('')}</div>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px"><label><input type="radio" name="pdim" value="merge" checked> 今のものに足す（同じものは読み込んだ方を優先）</label><label><input type="radio" name="pdim" value="replace"> 置き換える</label></div>
+        <div class="note">読み込んだあと、画面を読み込み直して反映します。</div>
+        <div class="acts" style="margin-top:14px"><button data-no>キャンセル</button><button class="danger" data-yes style="background:#306fff;border-color:#306fff">読み込む</button></div></div>`;
+      document.body.appendChild(d);
+      if (LANG === 'en') d.querySelectorAll('*').forEach(trNode);
+      d.querySelector('[data-no]').onclick = () => d.remove();
+      d.querySelector('[data-yes]').onclick = () => {
+        const mode = d.querySelector('input[name=pdim]:checked').value;
+        let n = 0;
+        gs.filter((g) => d.querySelector(`[data-ig="${g}"]`).checked).forEach((g) => EXPORT_GROUPS[g].keys.forEach((k) => {
+          if (!(k in src)) return;
+          let v = src[k];
+          if (mode === 'merge' && EXPORT_GROUPS[g].merge) { try { const cur = JSON.parse(lsGet(k) || 'null'); const inc = JSON.parse(v); if (Array.isArray(cur) && Array.isArray(inc)) v = JSON.stringify([...new Set([...inc, ...cur])]); else if (cur && typeof cur === 'object' && inc && typeof inc === 'object') v = JSON.stringify({ ...cur, ...inc }); } catch (e) { /* そのまま */ } }
+          try { localStorage.setItem(k, v); n++; } catch (e) { /* 無視 */ }
+        }));
+        d.remove(); log('info', `設定などを読み込み（${mode === 'merge' ? '足す' : '置き換え'}・${n} 項目）`);
+        status(`読み込みました（${n} 項目）。画面を読み込み直します…`);
+        setTimeout(() => location.reload(), 900);
+      };
+    };
+    inp.click();
   }
   // ---------- リンク・マグネットを追加（追加する前に、もうあるか確かめる） ----------
   // ・中身の確認：PikPak の resource/list で、マグネットの中のファイル一覧（とキャッシュの有無）を取る

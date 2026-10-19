@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.24.0
+// @version      3.24.1
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -81,7 +81,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.24.0'; // @version と合わせて更新する
+  const VER = '3.24.1'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -389,16 +389,50 @@
   // ログイン中のPikPak画面が保存している認証情報を、このブラウザ内でだけ使います（外部へは送りません）。
   const API = 'https://api-drive.mypikpak.com/drive/v1';
   // ログイン情報（PikPak画面が保存しているもの）。有効期限は約2時間で、PikPak画面が動いている間だけ更新される
+  // ---- ログイン情報 ----
+  // PikPak の画面が実際に送っている Authorization・x-captcha-token を横から覚えておく（PikPak は新しいログイン情報を
+  // ブラウザの保存領域に書き戻さないことがあるため、保存領域の「有効期限」だけを見ると、何度読み込み直しても切れたままに見える）
+  const cap = { auth: '', authAt: 0, captcha: '', captchaAt: 0 };
+  let ownCall = false; // 自分の通信は覚えない
+  const noteHeader = (k, v) => {
+    if (ownCall) return;
+    k = String(k || '').toLowerCase(); v = String(v || '');
+    if (k === 'authorization' && /^Bearer\s+\S{20,}/i.test(v) && v !== cap.auth) { cap.auth = v; cap.authAt = Date.now(); }
+    else if (k === 'x-captcha-token' && v.length > 20) { cap.captcha = v; cap.captchaAt = Date.now(); }
+  };
+  if (!window.__ppdupCapHooked) {
+    window.__ppdupCapHooked = true;
+    try {
+      const oSet = XMLHttpRequest.prototype.setRequestHeader;
+      XMLHttpRequest.prototype.setRequestHeader = function (k, v) { try { noteHeader(k, v); } catch (e) { /* 無視 */ } return oSet.apply(this, arguments); };
+      const oFetch = window.fetch;
+      window.fetch = function (input, init) {
+        try {
+          const h = (init && init.headers) || (input && input.headers);
+          if (h) { if (typeof h.forEach === 'function' && !Array.isArray(h)) h.forEach((v, k) => noteHeader(k, v)); else if (Array.isArray(h)) h.forEach(([k, v]) => noteHeader(k, v)); else Object.keys(h).forEach((k) => noteHeader(k, h[k])); }
+        } catch (e) { /* 無視 */ }
+        return oFetch.apply(this, arguments);
+      };
+    } catch (e) { /* 無視 */ }
+  }
+  // アクセストークン（JWT）の中の有効期限
+  const jwtExp = (tok) => { try { const p = String(tok).replace(/^Bearer\s+/i, '').split('.')[1]; const j = JSON.parse(atob(p.replace(/-/g, '+').replace(/_/g, '/'))); return j && j.exp ? j.exp * 1000 : 0; } catch (e) { return 0; } };
   function readCred() {
+    const list = [];
+    if (cap.auth) list.push({ auth: cap.auth, expiresAt: jwtExp(cap.auth), at: cap.authAt, from: 'page' });
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
       if (!k || !k.startsWith('credentials')) continue;
       try {
         const v = JSON.parse(localStorage.getItem(k));
-        if (v && v.access_token) return { auth: (v.token_type || 'Bearer') + ' ' + v.access_token, expiresAt: v.expires_at ? Date.parse(v.expires_at) : 0 };
+        if (v && v.access_token) { const auth = (v.token_type || 'Bearer') + ' ' + v.access_token; list.push({ auth, expiresAt: jwtExp(auth) || (v.expires_at ? Date.parse(v.expires_at) : 0), at: 0, from: 'storage' }); }
       } catch (e) { /* 次へ */ }
     }
-    return null;
+    if (!list.length) return null;
+    // 切れていないもの → 画面が最近使ったもの → 期限が先のもの の順に選ぶ
+    const now = Date.now(), dead = (x) => (x.expiresAt && x.expiresAt <= now ? 1 : 0);
+    list.sort((a, b) => dead(a) - dead(b) || b.at - a.at || (b.expiresAt || 0) - (a.expiresAt || 0));
+    return list[0];
   }
   // PikPak画面はログイン情報を「期限が切れてから」更新するため、期限前に切れた扱いにすると再読み込みしても更新されない。
   // そのため余裕は30秒だけにして、期限ぎりぎりまで使う
@@ -408,16 +442,41 @@
   function apiHeaders() {
     const c = readCred();
     if (!c) throw sessionError('ログイン情報を取得できません');
-    if (c.expiresAt && c.expiresAt - Date.now() <= SESSION_MARGIN) throw sessionError('ログインの有効期限が切れています');
-    return { 'Content-Type': 'application/json', Authorization: c.auth, 'x-device-id': localStorage.getItem('deviceid') || '' };
+    // 期限が切れて見えても送ってみる（PikPak 側で更新済みのことがある。切れていれば 401 が返り、api() が新しいログイン情報を待って再試行する）
+    const h = { 'Content-Type': 'application/json', Authorization: c.auth, 'x-device-id': localStorage.getItem('deviceid') || '' };
+    if (cap.captcha) h['x-captcha-token'] = cap.captcha;
+    return h;
   }
   // 通信はPikPakの画面と同じ方法（ページ上の fetch）で行う。
   // ※ Tampermonkey の GM_xmlhttpRequest 経由だと、PikPak側で「認証コードが無効です」と拒否されるため使わない
-  const http = (url, opt) => fetch(url, opt);
+  const http = (url, opt) => { ownCall = true; try { return fetch(url, opt); } finally { ownCall = false; } };
+  // 操作ごとの確認用トークン（captcha）。PikPak の画面が保存した meta（署名つき）を使って、その操作用のものをもらう。
+  // クラウドダウンロードの追加などは、これがないと拒否される
+  const capCache = new Map();
+  async function getCaptcha(action, fresh) {
+    const c = capCache.get(action);
+    if (!fresh && c && c.until > Date.now()) return c.token;
+    let key = '', rec = null;
+    for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith('captcha_')) { try { const v = JSON.parse(localStorage.getItem(k)); if (v && v.meta) { key = k; rec = v; break; } } catch (e) { /* 次へ */ } } }
+    if (!rec) return cap.captcha || '';
+    const dev = localStorage.getItem('deviceid') || '';
+    const body = { client_id: key.slice('captcha_'.length), action, device_id: dev, meta: rec.meta };
+    ownCall = true;
+    let r; try { r = fetch('https://user.mypikpak.com/v1/shield/captcha/init', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-device-id': dev }, body: JSON.stringify(body) }); } finally { ownCall = false; }
+    const res = await r; const d = await res.json().catch(() => ({}));
+    if (!res.ok || !d.captcha_token) { log('warn', '確認用トークンを取得できませんでした：' + (d.error_description || d.error || res.status), action); return cap.captcha || ''; }
+    capCache.set(action, { token: d.captcha_token, until: Date.now() + Math.max(30, (+d.expires_in || 300) - 30) * 1000 });
+    return d.captcha_token;
+  }
   async function api(path, opt = {}) {
     for (let tries = 0; ; tries++) {
       let res;
-      try { res = await http(API + path, { ...opt, headers: apiHeaders() }); }
+      try {
+        const hd = apiHeaders();
+        if (opt.captcha) { const ct = await getCaptcha(opt.captcha, tries > 0); if (ct) hd['x-captcha-token'] = ct; }
+        const { captcha: _c, ...o2 } = opt;
+        res = await http(API + path, { ...o2, headers: hd });
+      }
       catch (e) {
         if (e.session) throw e;
         if (tries < 2) { await sleep(1500); continue; }
@@ -427,10 +486,17 @@
       }
       if ((res.status === 429 || res.status >= 500) && tries < 5) { await sleep(1500 * (tries + 1)); continue; }
       const data = await res.json().catch(() => ({}));
+      if (!res.ok && opt.captcha && /captcha/i.test(String(data.error || '')) && tries < 2) continue; // 確認用トークンを取り直してやり直す
       if (!res.ok) {
         const msg = data.error_description || data.error || 'API ' + res.status;
         const where = (opt.method || 'GET') + ' ' + path.split('?')[0] + ' → HTTP ' + res.status;
         // ログイン切れ・認証コードの期限切れは、画面の再読み込みで自動回復するため warn として記録する
+        if ((res.status === 401 || /unauthenticated|token/i.test(String(data.error || ''))) && tries < 3) {
+          // PikPak の画面が新しいログイン情報で通信するまで少し待って、やり直す
+          const used = (readCred() || {}).auth, t0 = Date.now();
+          while (Date.now() - t0 < 8000 && (readCred() || {}).auth === used) await sleep(500);
+          if ((readCred() || {}).auth !== used) { tries = Math.max(tries, 2); continue; }
+        }
         if (res.status === 401 || /unauthenticated|token/i.test(String(data.error || ''))) { log('warn', msg + '（自動で回復します）', where); throw sessionError('ログインの有効期限が切れています'); }
         if (/captcha/i.test(String(data.error || '')) || /認証コード/.test(msg)) { log('warn', msg + '（自動で回復します）', where); throw sessionError('認証の確認が必要です（' + msg + '）'); }
         log('error', msg, where);
@@ -1398,8 +1464,11 @@
   // 放置してPikPakのログイン情報の期限が切れたら、画面を再読み込みして更新させ、Distillを開き直す
   function reloadForSession(resume) {
     let prev = null; try { prev = JSON.parse(sessionStorage.getItem(SS_RESUME) || 'null'); } catch (e) { prev = null; }
-    const count = prev && Date.now() - prev.at < 5 * 60 * 1000 ? (prev.count || 0) + 1 : 1;
-    if (count > 2) { // 再読み込みしても直らない場合はループさせない
+    let g = null; try { g = JSON.parse(localStorage.getItem('ppdup:reloadguard:v1') || 'null'); } catch (e) { g = null; }
+    const recent = g && Date.now() - g.at < 10 * 60 * 1000 ? g.n : 0;
+    const count = Math.max(prev && Date.now() - prev.at < 5 * 60 * 1000 ? (prev.count || 0) + 1 : 1, recent + 1);
+    try { localStorage.setItem('ppdup:reloadguard:v1', JSON.stringify({ at: Date.now(), n: count })); } catch (e) { /* 無視 */ }
+    if (count > 2) { // 再読み込みしても直らない場合はループさせない（10 分の間に 2 回まで）
       log('error', '再読み込み後もログイン情報が更新されません', JSON.stringify(resume));
       status('PikPakへの再ログインが必要な可能性があります。PikPakの画面で一度ログインし直してから、もう一度お試しください。');
       try { sessionStorage.removeItem(SS_RESUME); } catch (e) { /* 無視 */ }
@@ -1412,7 +1481,7 @@
   }
   // 操作の前にログインの有効期限を確認（切れていれば再読み込みして続きから）
   function ensureSession(action) {
-    if (sessionValid()) return true;
+    if (sessionValid() || readCred()) return true; // 期限が切れて見えても、まずは通信してみる（切れていれば PikPak の返事で分かる）
     reloadForSession({ view, action, mode });
     return false;
   }
@@ -1434,20 +1503,20 @@
     const t0 = Date.now();
     const c0 = readCred();
     const limit = Math.min(4 * 60 * 1000, Math.max(30 * 1000, c0 && c0.expiresAt ? c0.expiresAt - t0 + 30 * 1000 : 0));
-    while (!sessionValid() && Date.now() - t0 < limit) {
+    while (!sessionValid() && !cap.auth && Date.now() - t0 < limit) {
       const left = Math.ceil((limit - (Date.now() - t0)) / 1000);
       status(`画面を再読み込みしました。ログイン情報の更新を待っています…（最大 あと ${left} 秒）`, (Date.now() - t0) / limit);
       await sleep(1000);
     }
-    if (!sessionValid()) { reloadForSession(r); return; }
-    try { sessionStorage.removeItem(SS_RESUME); } catch (e) { /* 無視 */ }
+    if (!sessionValid() && !readCred()) { reloadForSession(r); return; }
+    try { sessionStorage.removeItem(SS_RESUME); localStorage.removeItem('ppdup:reloadguard:v1'); } catch (e) { /* 無視 */ }
     log('info', 'ログイン情報を更新して再開', JSON.stringify(r));
     if (r.action === 'scan') { runScan(); return; } // 読み込みは読み取りだけなので自動で再開
     setView(r.view || 'scan');
     status(r.action ? 'ログイン情報を更新しました。途中まで完了した分は保存済みです。もう一度ボタンを押すと続きから実行します。' : 'ログイン情報を更新しました。');
   }
   // 画面を開いたまま放置した場合も、期限切れを検知したら自動で再読み込み
-  setInterval(() => { if (root.classList.contains('on') && !busy && !sessionValid() && readCred()) reloadForSession({ view, mode }); }, 60 * 1000);
+  // （以前は 1 分ごとに期限を確かめて自動で再読み込みしていたが、PikPak が保存領域を更新しないと止まらなくなるためやめた）
 
   // ---------- ログ表示 ----------
   function updateLogBadge() {
@@ -3049,6 +3118,9 @@
   const LS_PLQ = 'ppdup:player:q:v1'; // 前回選んだ画質の種類（orig＝オリジナル／trans＝変換画質）
   const LS_PLAY = 'ppdup:player:v1'; // 再生のしかた { mode: inline|window|full|external, ext }
   let curHls = null, qlHls = null;
+  const TS_DL = 'https://web-vod-xdrive.mypikpak.com/ts_downloader', TS_CLIENT = 'UElLUEFLX1dFQg';
+  // ts_downloader の一覧（m3u8）を hls.js で読める形に直す（BYTERANGE と EXTINF の順番）
+  const fixTsM3u8 = (t) => { t = String(t || '').replace(/\r\n/g, '\n'); if (!t.includes('#EXTM3U')) return t; return t.replace(/(#EXT-X-BYTERANGE:[^\n]+)\n(#EXTINF:[^\n]+)\n/g, '$2\n$1\n'); };
   const isHlsUrl = (u) => /\.m3u8(\?|#|$)|ts_downloader|[?&](format|type)=(hls|m3u8)\b|\/hls(\/|$)/i.test(String(u || ''));
   function getHls() {
     const H = window.Hls || (typeof Hls !== 'undefined' ? Hls : null); // eslint-disable-line no-undef
@@ -3095,7 +3167,10 @@
       const nm = m.media_name || m.resolution_name || '';
       const v = m.video || {};
       const h = parseInt(v.height || m.height || (String(nm).match(/(\d{3,4})\s*p/i) || [])[1] || 0, 10);
-      src.push({ label: origin ? 'オリジナル画質' + (nm && !/orig/i.test(nm) ? `（${nm}）` : '') : (nm || (h ? h + 'P' : '変換画質')), url, origin, h, hls: isHlsUrl(url) });
+      // 変換画質（480P・720P など）は MPEG-TS のままなので、PikPak の画面と同じく ts_downloader を通して HLS にする
+      const ts = !origin && (/[?&]ext=\.m3u8/i.test(url) || String(v.video_type || m.video_type || '').toLowerCase() === 'mpegts');
+      const purl = ts && !/ts_downloader/.test(url) ? `${TS_DL}?client_id=${TS_CLIENT}&url=${encodeURIComponent(url.replace('&ext=.m3u8', '').replace('?ext=.m3u8&', '?').replace('?ext=.m3u8', ''))}` : url;
+      src.push({ label: origin ? 'オリジナル画質' + (nm && !/orig/i.test(nm) ? `（${nm}）` : '') : (nm || (h ? h + 'P' : '変換画質')), url: purl, origin, h, hls: ts || isHlsUrl(purl), tsdl: ts });
     });
     if (info.web_content_link) src.push({ label: '元ファイル（ダウンロード用リンク）', url: info.web_content_link, origin: true, h: 0, dl: true, hls: false });
     // 並び：オリジナル → 変換画質（高い順） → 元ファイル
@@ -3117,10 +3192,15 @@
     const v = box.querySelector('video');
     v.addEventListener('loadedmetadata', () => { if (t) v.currentTime = t; if (opt.onMeta) opt.onMeta(v); }, { once: true });
     let hls = null;
-    const viaHls = () => {
+    const viaHls = async () => {
       hls = new S.H({ maxBufferLength: 60, enableWorker: true });
       hls.on(S.H.Events.ERROR, (ev, data) => { if (data && data.fatal) { onFail(x, data.details || data.type); killHls(hls); } });
-      hls.loadSource(x.url); hls.attachMedia(v);
+      let u = x.url;
+      if (x.tsdl) {
+        try { const r = await fetch(x.url, { cache: 'no-store', credentials: 'omit' }); if (r.ok) { const txt = fixTsM3u8(await r.text()); if (txt.includes('#EXTM3U')) u = URL.createObjectURL(new Blob([txt], { type: 'application/vnd.apple.mpegurl' })); } } catch (e) { /* そのまま読む */ }
+      }
+      if (!hls) return;
+      hls.loadSource(u); hls.attachMedia(v);
     };
     if (x.hls && !S.nativeHls && S.H && S.H.isSupported()) viaHls();
     else {
@@ -3771,7 +3851,7 @@
       if (it.kind !== 'magnet') { it.st = 'ok'; it.exists = ex; it.on = !ex; renderAdd(); continue; }
       it.st = 'loading'; renderAdd();
       try {
-        const r = flatResources(await api('/resource/list', { method: 'POST', body: JSON.stringify({ urls: it.url }) }));
+        const r = flatResources(await api('/resource/list', { method: 'POST', captcha: 'POST:/drive/v1/resource/list', body: JSON.stringify({ urls: it.url }) }));
         it.rootName = r.rootName || it.name; if (!it.name) it.name = it.rootName;
         prepJunk(files, folders);
         it.files = r.files.map((f) => { const j = junkInfo({ name: f.name, size: f.size, parentId: '' }); const fx = findInLib(f.name); return { ...f, junk: j && j.level === 'del' ? j.reason : '', sub: j && j.level === 'review' ? j.reason : '', exists: fx, on: !(j && j.level === 'del') && !fx }; });
@@ -3906,13 +3986,13 @@
           for (const f of it.files.filter((x) => x.on)) {
             let cur = '', p = top;
             for (const part of (f.dir ? f.dir.split('/') : [])) { cur = cur ? cur + '/' + part : part; if (!dirs.has(cur)) dirs.set(cur, await apiMkdir(p, part)); p = dirs.get(cur); }
-            await api('/files', { method: 'POST', body: JSON.stringify({ kind: 'drive#file', name: f.name, size: String(f.size), hash: f.gcid.toUpperCase(), upload_type: 'UPLOAD_TYPE_RESUMABLE', folder_type: 'NORMAL', objProvider: { provider: 'UPLOAD_TYPE_UNKNOWN' }, parent_id: p }) });
+            await api('/files', { method: 'POST', captcha: 'POST:/drive/v1/files', body: JSON.stringify({ kind: 'drive#file', name: f.name, size: String(f.size), hash: f.gcid.toUpperCase(), upload_type: 'UPLOAD_TYPE_RESUMABLE', folder_type: 'NORMAL', objProvider: { provider: 'UPLOAD_TYPE_UNKNOWN' }, parent_id: p }) });
             nfile++;
           }
         } else {
           const body = { kind: 'drive#file', upload_type: 'UPLOAD_TYPE_URL', url: { url: it.url }, params: { with_thumbnail: 'true', from: 'manual' } };
           if (pid) body.parent_id = pid; else body.folder_type = 'DOWNLOAD';
-          await api('/files', { method: 'POST', body: JSON.stringify(body) });
+          await api('/files', { method: 'POST', captcha: 'POST:/drive/v1/files', body: JSON.stringify(body) });
         }
         ok++; it.on = false; it.done = true;
         log('info', `リンクを追加（${addMode(it) === 'part' ? '一部だけ保存' : 'クラウドダウンロード'}）：${it.name || it.url}`);

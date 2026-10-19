@@ -7,16 +7,32 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.18.0
+// @version      3.19.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
+// @match        https://fd2ppv.cc/articles/*
 // @grant        none
 // @require      https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js
 // @run-at       document-idle
 // ==/UserScript==
 (function () {
   'use strict';
+  // fd2ppv.cc の作品ページ：「販売者を調べる」で開いたときだけ、販売者を読み取って PikPak の画面へ知らせる（ほかには何もしない）
+  if (location.hostname === 'fd2ppv.cc') {
+    if (!/#ppdup-lookup\b/.test(location.hash) || !window.opener) return;
+    const num = (location.pathname.match(/\/articles\/(\d+)/) || [])[1] || '';
+    const send = (d) => { try { window.opener.postMessage({ type: 'ppdup-seller', num, ...d }, 'https://mypikpak.com'); } catch (e) { /* 無視 */ } };
+    if (/しばらくお待ちください|Just a moment|Attention Required/i.test(document.title) || document.querySelector('#challenge-form,.cf-turnstile,[id^="cf-chl"]')) { send({ status: 'challenge' }); return; }
+    if (/(^|\s)404(\s|$)|Not Found/i.test(document.title)) { send({ status: 'notfound' }); return; }
+    const lab = [...document.querySelectorAll('.work-meta-label')].find((l) => /^(販売者|賣家|卖家|Sellers?|판매자)$/i.test(l.textContent.trim()));
+    let a = lab && lab.nextElementSibling ? lab.nextElementSibling.querySelector('a[href*="/channels/"]') : null;
+    if (!a) { const all = [...document.querySelectorAll('.work-meta a[href*="/channels/"]')]; if (new Set(all.map((x) => x.getAttribute('href'))).size === 1) a = all[0]; }
+    if (!a) { send({ status: 'noseller' }); return; }
+    const sid = decodeURIComponent((a.getAttribute('href').match(/\/channels\/([^/?#]+)/) || [])[1] || '');
+    send(sid ? { status: 'ok', name: a.textContent.trim(), sid } : { status: 'noseller' });
+    return;
+  }
   if (window.__ppdupLoaded) return;
   window.__ppdupLoaded = true;
 
@@ -33,7 +49,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.18.0'; // @version と合わせて更新する
+  const VER = '3.19.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -99,6 +115,7 @@
     folders.forEach((f) => { if (!kids.has(f.parentId)) kids.set(f.parentId, []); kids.get(f.parentId).push(f); });
     const taken = new Map(); // parentId -> Set(小文字の名前) ※「そのまま残るフォルダ」と確定済みの新名
     const add = (pid, n) => { if (!taken.has(pid)) taken.set(pid, new Set()); taken.get(pid).add(n.toLowerCase()); };
+    const keep = sellerBoxIds(folders);
     const plan = folders.map((fo) => {
       // 品番の入ったファイルだけを見る（広告など品番のないファイルの名前をフォルダ名にしない）
       const fs = (direct.get(fo.id) || []).filter((f) => hasWorkId(f.name));
@@ -110,6 +127,7 @@
       }
       const p = { id: fo.id, parentId: fo.parentId, trail: fo.trail, path: fo.path, cur: fo.name, target: '', status: 'skip', note: '' };
       if (fo.isRoot || fo.parentId === 'root' || fo.parentId === '') p.note = '最上位・スキャン起点のフォルダは変更しません';
+      else if (keep.has(fo.id)) p.note = '「販売者ごとに仕分け」のフォルダは変更しません';
       else if (!bases.length) p.note = (direct.get(fo.id) || []).length ? '品番の入ったファイルがないため変更しません' : '直下にファイルなし';
       else if (bases.length > 1) { p.note = (fromSub ? '中に品番の異なるフォルダが複数: ' : '直下に名前の異なるファイルが複数: ') + bases.slice(0, 3).join(' / '); p.cands = bases; }
       else { p.target = bases[0]; if (fromSub) p.why = '中のフォルダの品番に揃えます'; }
@@ -683,10 +701,10 @@
   #ppdup .note{color:var(--mute);font-size:12px}
   /* ステップ */
   #ppdup nav{display:flex;gap:0;margin-top:12px;overflow-x:auto}
-  #ppdup nav .st{flex:1;min-width:150px;display:flex;align-items:center;gap:10px;padding:10px 12px 12px;border:0;border-bottom:3px solid transparent;border-radius:0;background:none;text-align:left;position:relative}
+  #ppdup nav .st{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:7px;padding:10px 14px 12px 6px;border:0;border-bottom:3px solid transparent;border-radius:0;background:none;text-align:left;position:relative}
   #ppdup nav .st:not(:last-child)::after{content:'›';position:absolute;right:2px;top:50%;transform:translateY(-50%);color:var(--mute);font-size:18px}
-  #ppdup nav .st .n{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;background:var(--panel2);color:var(--mute);flex:none}
-  #ppdup nav .st .t{font-weight:700;display:block;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #ppdup nav .st .n{width:24px;height:24px;font-size:12px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;background:var(--panel2);color:var(--mute);flex:none}
+  #ppdup nav .st .t{font-weight:700;font-size:12.5px;display:block;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   #ppdup nav .st > span:last-child{min-width:0}
   #ppdup nav .st .c{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   #ppdup nav .st .c{font-size:11px;color:var(--mute);display:block}
@@ -761,6 +779,14 @@
   .sc.next .sc-s{color:var(--pri);font-weight:700}
   @media (max-width:760px){.sv-hero{grid-template-columns:1fr}.sv-badge{display:none}}
   .pd-next{display:flex;justify-content:flex-end;margin:16px 0 4px}
+  .sl-chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+  .sl-chip{display:flex;flex-direction:column;gap:2px;min-width:150px;padding:8px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--line)}
+  .sl-chip span,.sl-chip small{font-size:12px;color:var(--mute)}
+  .sl-chip b{font-size:22px;line-height:1.1}
+  .pd-g.warn{border-color:#e9c98a}.pd-g.warn .pd-gh{background:#fff6e3}
+  html.pd-dark .pd-g.warn{border-color:#6b5426}html.pd-dark .pd-g.warn .pd-gh{background:#2e2716}
+  .pd-g.pend{opacity:.85}
+  .pd-th img{width:100%;height:100%;object-fit:cover}
   /* 一覧 */
   .pd-g{background:var(--panel);border:1px solid var(--line);border-radius:10px;margin-bottom:12px;overflow:hidden}
   .pd-gh{padding:8px 12px;background:var(--panel2);font-weight:600;display:flex;gap:10px;align-items:center}
@@ -978,6 +1004,7 @@
     { v: 'ren', t: 'フォルダ名を揃える', d: 'フォルダ名を中のファイル名（品番）に揃えます。同名があれば (1) を付けます。' },
     { v: 'dup', t: '重複を比べて削除', d: '同じファイルをサムネイルとサイズで比べ、チェックしたものを削除します。' },
     { v: 'clean', t: '(1)を外す・片付け', d: '重複を削除したあとに残った空フォルダをゴミ箱へ移し、同じ名前で入れ子になったフォルダをまとめ、不要になった (1) を外します。' },
+    { v: 'seller', t: '販売者ごとに仕分け', d: '作品フォルダの品番から販売者を調べ、ホーム/販売者別/販売者名（販売者ID）/ へ移動します。調べるだけでは何も動かしません（使うかどうかを選べます）。' },
   ];
 
   // 線のアイコン（currentColor で色を合わせる）
@@ -1029,6 +1056,7 @@
   const loc = () => (LANG === 'en' ? 'en-US' : 'ja-JP');
   const EN = [["読み込んだファイルのうち、作品と関係ないものを見分けて削除します。オンの間は、ここで見つけたファイルを「ファイル名を整える」「作品ごとに仕分け」「フォルダ名を揃える」「重複を比べて削除」の対象から外すので、広告ファイルの名前でフォルダが作られたり、フォルダ名が広告の名前になったりしません（削除しなくても外れます）。","Finds scanned files that are not part of any work and deletes them. While this is on, those files are excluded from \"Clean file names\", \"Sort by work\", \"Align folder names\" and \"Compare duplicates\", so ad files never become folder names (they are excluded even if you don't delete them)."],["「要確認」は最初はチェックなしです。削除はPikPakのゴミ箱へ移動します（確認画面で完全削除も選べます）。削除したあとに空になったフォルダは、「7. (1)を外す・片付け」でまとめて片付けられます。使わない場合は、右上の「このステップを使う」のチェックを外してください。","\"Needs review\" items start unchecked. Deleting moves files to the PikPak trash (you can choose permanent deletion in the confirmation). Folders left empty can be cleaned up in \"7. Remove (1) / tidy up\". To skip this step, uncheck \"Use this step\" at the top right."],["の形にそろえます。名前がそろうと、「重複を比べて削除」で同じ動画が同じ組にまとまり、フォルダ名との対応もそろいます。Enhancement Master の「FC2 クリーン命名」と同じ考え方です。",". With consistent names, \"Compare duplicates\" groups the same video together and folder names line up. Same idea as Enhancement Master's \"FC2 clean naming\"."],["PotPlayer はアプリが入っていれば直接起動します。GOM Player・VLC などは「既定のアプリで開く」を選び、.m3u ファイルを開くアプリにそのプレーヤーを設定してください。","PotPlayer launches directly if installed. For GOM Player, VLC etc., choose \"Open with default app\" and set that player as the app for .m3u files."],["再生用リンクをコピーしました。プレーヤーの「URL を開く」（GOM Player なら Ctrl+U）に貼り付けてください。リンクはしばらくすると無効になります。","Playback link copied. Paste it into your player's \"Open URL\" (Ctrl+U in GOM Player). The link expires after a while."],["再生リストファイル（.m3u）を保存しました。開くと、OS で .m3u に設定しているプレーヤー（GOM Player・VLC など）で再生されます。","Saved a playlist file (.m3u). Opening it plays the video in the player your OS uses for .m3u (GOM Player, VLC, etc.)."],["：品番がなく、宣伝によく使われる文字だけの名前。小さいファイルは削除の対象、50MB 以上や品番が入ったものは作品の可能性があるため「要確認」に回します",": names without a work ID made only of typical promo text. Small files are deleted; files of 50 MB or more, or with a work ID, may be real works and go to \"Needs review\""],["広告・宣伝のファイルや 10MB 以下のファイルなど、作品と関係ないものを削除します。ほかのステップでは対象から外します（使うかどうかを選べます）。","Deletes files that are not part of any work, such as ads and files of 10 MB or less. Other steps ignore them (optional)."],["エラーや主な処理の記録です。このブラウザの中にだけ保存されます（ログイン情報は記録しません）。不具合の報告にはコピーして貼り付けてください。","A record of errors and main actions, stored only in this browser (no login data). Copy and paste it when reporting a problem."],["VLC・mpv・Celluloid などは「既定のアプリで開く」を選び、.m3u ファイルを開くアプリにそのプレーヤーを設定してください。","For VLC, mpv, Celluloid etc., choose \"Open with default app\" and set that player as the app for .m3u files."],["オンにすると、作品と関係ないファイルを、仕分け・名前の変更・重複比較の対象から外します（「2. 不要ファイルを削除」で確認・削除できます）","When on, files unrelated to any work are excluded from sorting, renaming and duplicate checks (review and delete them in \"2. Delete junk files\")"],["ホームか My Pack を開いた状態で実行してください。読み込みはバックグラウンドで行い、PikPak の画面は切り替わりません。","Run this with Home or My Pack open. Scanning runs in the background; the PikPak page does not change."],["同じ名前のものが移動先にある場合は (1) を付けて移動します。グレーのフォルダ（移動するフォルダ自身とその中）へは移動できません。","If the destination already has the same name, (1) is added. Grey folders (the folders being moved and their contents) can't be chosen."],["FC2のファイル名から、サイト名や広告などの余計な文字を消して「FC2-PPV-品番」の形にそろえます（使うかどうかを選べます）。","Strips site names, ads and other extra text from FC2 file names to the form \"FC2-PPV-ID\" (optional)."],["重複を削除したあとに残った空フォルダをゴミ箱へ移し、同じ名前で入れ子になったフォルダをまとめ、不要になった (1) を外します。","Moves folders left empty after deleting duplicates to the trash, flattens nested same-name folders and removes (1) suffixes that are no longer needed."],["PikPakへの再ログインが必要な可能性があります。PikPakの画面で一度ログインし直してから、もう一度お試しください。","You may need to log in to PikPak again. Log in on the PikPak page, then try again."],["すべてのステップが完了しました。PikPakで操作したあとは、「1. 読み込む」で読み込み直すと最新の状態を確認できます。","All steps are complete. After changing things in PikPak, run \"1. Scan\" again to see the latest state."],["チェックの入ったものを実行します。重複を削除したあとは、先に「1. 読み込む」で読み込み直してから使ってください。","Runs the checked items. After deleting duplicates, run \"1. Scan\" again first."],["使わない場合は、右上の「このステップを使う」のチェックを外してください。次回以降もこの設定を覚えておきます。","To skip this step, uncheck \"Use this step\" at the top right. The setting is remembered."],["「X の中に X だけ」のフォルダの中身を 1 つ上へ出します（オムニバスなど複数作品のフォルダは対象外）","Moves the contents of \"X containing only X\" up one level (folders with several works, like omnibus sets, are left alone)"],["この画質（HLS）はこのブラウザの中では再生できません。別の画質か「↗ 外部プレーヤー」を選んでください。","This quality (HLS) can't play in this browser. Choose another quality or \"↗ External player\"."],["チェックの入った空フォルダをゴミ箱へ移し、入れ子のフォルダをまとめ、(1) を外します。よろしいですか？","Move the checked empty folders to the trash, flatten nested folders and remove (1)? "],["ログイン情報を更新しました。途中まで完了した分は保存済みです。もう一度ボタンを押すと続きから実行します。","Login refreshed. Completed work has been saved. Press the button again to continue."],["同じ名前のファイルがあるため (n) を付けます（重複の可能性：「重複を比べて削除」で確認できます）","A file with the same name exists, so (n) is added (possible duplicate: check in \"Compare duplicates\")"],["既定のアプリで開く（.m3u を保存して開く：GOM Player・VLC・MPC・mpv など）","Open with default app (save and open an .m3u: GOM Player, VLC, MPC, mpv, etc.)"],["・右クリックの「再生」で使う方法です。プレビュー（スペース）の中の ▶ からはいつでも選べます。"," and right-click \"Play\". You can always pick a method from ▶ inside the preview (Space)."],["このファイルの再生用リンクを取得できませんでした（PikPak 側で変換中の可能性があります）","Couldn't get a playback link for this file (PikPak may still be converting it)"],["対象はチェックの入ったファイルだけです。通常はPikPakのゴミ箱へ移動し、あとから戻せます。","Only checked files are affected. They normally go to the PikPak trash and can be restored."],["で戻る）・ダブルクリックで再生・ドラッグで移動・右クリックでメニュー・スペースでプレビュー・"," to go back) · double-click to play · drag to move · right-click for menu · Space to preview · "],["作品の可能性があるもの。削除する場合はチェックしてください（ほかのステップの対象のままです）","May be real works. Check to delete (they stay included in other steps)"],["などのファイル、品番がなく「最新地址」「广告」「福利」などの宣伝の言葉やサイトのアドレス（"," files, and names without a work ID containing promo words or site addresses ("],["フォルダ一覧（Finder やエクスプローラーのように、フォルダを開いて中身を見られます）","Folders (browse folders like Finder or Explorer)"],["開いているフォルダ以下のファイルとフォルダを読み込みます。ほかの機能はこのあとで使えます。","Scans all files and folders under the open folder. Other features become available afterwards."],["オフにすると、不要ファイルの判定を使わず、すべてのファイルをほかのステップの対象にします","When off, junk detection is skipped and every file is included in the other steps"],["内容を確認して、まずは「先頭1件だけ試す」で動きを確かめてください。削除はしません。","Review the plan and try \"Try the first one\" first. Nothing is deleted."],["広告・宣伝のファイルや 10MB 以下のファイルなどを、ほかの作業の対象から外します","Excludes ads and files of 10 MB or less from the other tasks"],["読み込み済みです。カードから作業を選べます（操作したら再スキャンで最新にできます）。","Scanned. Pick a task from the cards (rescan after making changes)."],["PikPak でファイルを追加・操作したら、再スキャンで最新の状態を確認できます。","After adding or changing files in PikPak, rescan to see the latest state."],["中身が空のフォルダです。実行直前にも空であることを確認します（ゴミ箱から戻せます）","These folders are empty. Emptiness is re-checked right before running (restorable from trash)"],["フォルダ名を中のファイル名（品番）に揃えます。同名があれば (1) を付けます。","Renames folders after the file (work ID) inside. Adds (1) if the name is taken."],["中身のある同名フォルダが複数あります（「重複を比べて削除」で整理してください）","Several non-empty folders share this name (sort them out in \"Compare duplicates\")"],["FC2 以外のファイルは変更しません。ファイルの中身や置き場所は変わりません","Non-FC2 files are not changed. File contents and locations stay the same"],["そのフォルダへは移動できません（移動するフォルダ自身やその中へは移せません）","Can't move there (a folder can't be moved into itself or its contents)"],["強制削除：全件にチェックが入っている組も、すべて削除する（広告ファイルなど）","Force delete: also delete groups where every file is checked (e.g. ad files)"],["複数の作品が入ったフォルダの中に品番フォルダを作り、ファイルを振り分けます。","Creates work-ID folders inside folders holding several works and sorts the files into them."],["：画像・説明ファイル・短い宣伝動画など（字幕ファイルは「要確認」に回します）",": images, info files, short promo videos, etc. (subtitles go to \"Needs review\")"],["ログインの有効期限が切れていたため、PikPakの画面を再読み込みします…","Your login expired, reloading the PikPak page…"],["画面を再読み込みしました。ログイン情報の更新を待っています…（最大 あと","Page reloaded. Waiting for the login to refresh… (up to"],["表示中の作品をすべて仕分け（フォルダ作成・移動）します。よろしいですか？","Sort all listed works (create folders and move files)?"],[" キーで使う方法です。プレビュー（スペース）の中からはいつでも選べます。"," key. You can always choose from inside the preview (Space)."],["※各組の一番大きいファイルは最初からチェックなし（残す）になっています","* The largest file in each group starts unchecked (kept)"],["再生のしかたの設定（プレビュー内・プレーヤー・全画面・外部プレーヤー）","Playback settings (preview, player, full screen, external player)"],["同じファイルをサムネイルとサイズで比べ、チェックしたものを削除します。","Compares identical files by thumbnail and size, and deletes the checked ones."],["1〜7 の整理ステップの画面へ移ります（左メニューの「整理」と同じ）","Go to the 1–7 organizing steps (same as \"Organize\" in the left menu)"],["PikPak Distill – Dedupe（クリックでメニュー）","PikPak Distill – Dedupe (click for menu)"],["1〜7 のステップをすべて表示します（左メニューの「整理」と同じ）","Show all steps 1–7 (same as \"Organize\" in the left menu)"],["を起動しています。ブラウザの確認が出たら「開く」を押してください（"," is launching. If the browser asks, click \"Open\" ("],["フォルダを作成しました。名前を入力して Enter で確定します。","Folder created. Type a name and press Enter."],["変更内容を確認して、まずは「先頭1件だけ試す」で確かめてください。","Review the changes and try \"Try the first one\" first."],["外側のフォルダにほかのフォルダが増えていたため、まとめませんでした","Not flattened because the outer folder now contains other folders"],["。上の画質を切り替えるか「↗ 外部プレーヤー」を試してください。",". Switch quality above or try \"↗ External player\"."],["同じ名前のフォルダが入れ子になっているため、中身を 1 つ上の「","Nested folders share the same name, so the contents are moved up into \""],["IINA・Infuse はアプリが入っていれば直接起動します。","IINA and Infuse launch directly if installed."],["全画面にできませんでした。プレーヤーの ⛶ を押してください。","Couldn't go full screen. Press ⛶ in the player."],["タイル表示。フォルダごとに見出しを付けて並べます（3 キー）","Tile view, grouped under a heading per folder (key 3)"],["下のカードから作業を選ぶか、おすすめの作業へ進んでください。","Pick a task from the cards below, or go to the suggested one."],["再生のしかたの設定（ダブルクリック時の動作・外部プレーヤー）","Playback settings (double-click action, external player)"],["削除を確認できませんでした（PikPak側で処理中の可能性）","Couldn't confirm the deletion (PikPak may still be processing)"],["画面を再読み込みしました。ログイン情報の更新を待っています…","Page reloaded. Waiting for the login to refresh…"],["移動を確認できませんでした（PikPak側で処理中の可能性）","Couldn't confirm the move (PikPak may still be processing)"],["」が残っています（「重複を比べて削除」で整理してください）","\" still exists here (sort it out in \"Compare duplicates\")"],["ここを最上位にする（ドラッグして離すとこのフォルダへ移動）","Make this the top level (drop items here to move them into this folder)"],["チェックの入ったファイルの名前を整えます。よろしいですか？","Clean up the names of the checked files?"],["リンクをコピー（プレーヤーの「URL を開く」に貼り付け）","Copy link (paste into your player's \"Open URL\")"],["一部のファイルが見つかりません（再スキャンしてください）:","Some files are missing (please rescan):"],["場所の情報がありません（ホームから読み込み直してください）","Location unknown (scan again from Home)"],["広告・宣伝（作品フォルダの中の、品番のない小さなファイル）","Ad (small file without a work ID inside a work folder)"],["を付けます（重複の可能性があるため、あとで比べられます）"," is added (possible duplicate, compare later)"],["サイト名・広告など、品番の前後にある余計な文字は消します","Site names, ads and other text around the work ID are removed"],["件）は、組ごと消えてしまうため通常は対象外にしています（"," files) are normally skipped because the whole group would be deleted ("],["」の中身を表示しています（見出しの「⤒ 一覧へ戻る」か","\" is shown (go back to the top with the heading's \"⤒ Back to overview\" or the"],["表示中のフォルダ名をすべて変更します。よろしいですか？","Rename all listed folders?"],["プレーヤー画面で再生（画質の切り替え・前後のビデオ）","Play in the player (switch quality, previous/next video)"],["中断しています…（いまの処理が終わったら止まります）","Stopping… (after the current item finishes)"],["名前の変更は不要です。次のステップへ進んでください。","No renaming needed. Go to the next step."],["すべてのファイルを、ほかのステップの対象にします。","All files are included in the other steps."],["広告・宣伝（品番がなく、複数のフォルダに同じ名前）","Ad (no work ID, same name in several folders)"],["でゴミ箱へ・1 / 2 / 3 で表示の切り替え"," to trash · 1 / 2 / 3 to switch views"],["ゴミ箱を経由せず完全に削除する（元に戻せません）","Delete permanently without the trash (cannot be undone)"],["マウスを乗せたときにサムネイルを大きく表示します","Shows a large thumbnail when you hover"],["仕分けは不要です。次のステップへ進んでください。","No sorting needed. Go to the next step."],["外部プレーヤー用のリンクを取得できませんでした：","Couldn't get a link for the external player: "],["選んだフォルダを最上位にして、その中だけを表示（","Make the selected folder the top level and show only its contents ("],["オフにすると、このステップを使わず次へ進みます","When off, this step is skipped"],["作品と関係ないファイルは見つかりませんでした。","No files unrelated to works were found."],["最新の状態を読み込んでから、この作業を続けます","Rescans, then continues this task"],["画質（カクつく場合は変換画質を選んでください）","Quality (choose a converted quality if playback stutters)"],["PikPakのサーバーに接続できませんでした","Couldn't connect to the PikPak server"],["✓ このステップの作業はすべて完了しています","✓ Everything in this step is done"],["。⤢ のプレーヤー画面で別の画質を試せます。",". Try another quality in the ⤢ player."],["最上位・スキャン起点のフォルダは変更しません","Top-level and scan-root folders are not changed"],["（ログイン切れとして再読み込みで回復します）"," (treated as an expired login; recovering by reloading)"],["」が既にあります（再スキャンしてください）","\" already exists (please rescan)"],["」へ出して、空になったフォルダを片付けます","\" and the emptied folder is removed"],["再読み込み後もログイン情報が更新されません","Login did not refresh even after reloading"],["同じ品番でまとめる（-1/-2違いも含む）","Group by work ID (including -1/-2 parts)"],["同じ場所に同じ名前のファイルができる場合は","If the same name already exists in the folder,"],["品番の入ったファイルがないため変更しません","Not changed: no file with a work ID"],["見つかりません（読み込み直してください）:","Not found (please rescan):"],["まずは「スキャン開始」を押してください。","Press \"Start scan\" to begin."],["件は実行直前の確認で対象外になりました）"," were skipped by the last-moment check)"],["空の同名フォルダを片付けたあとに外します","Removed after the empty same-name folders are cleaned up"],["✓ 仕分けが必要なフォルダはありません","✓ No folders need sorting"],["が入っていない場合は何も起きません）。"," isn't installed, nothing happens)."],["ログイン期限切れのため画面を再読み込み","Reloading the page because the login expired"],["中身が入っているため削除しませんでした","Not deleted because it isn't empty"],["作品フォルダの中の、品番のないファイル","File without a work ID inside a work folder"],["元フォルダにファイルが見つかりません:","File not found in the source folder:"],["品番あり・作品の可能性（念のため確認）","Has a work ID, may be a real work (please check)"],["広告・宣伝（品番のない宣伝向けの名前）","Ad (promo-style name without a work ID)"],["ダブルクリック・右クリックの「再生」・","Used for double-click, right-click \"Play\" and the "],["このステップでは処理できないものです","Items this step can't handle"],["ほかのステップの対象から外しています","Excluded from the other steps"],["チェックの入ったファイルがありません","No files are checked"],["再生用リンクを取得できませんでした：","Couldn't get a playback link: "],["絞り込みに該当する重複はありません。","No duplicates match the filter."],["」が残っているため外せませんでした","\" still exists, so it couldn't be removed"],["サムネイル付きのリスト（2 キー）","List with thumbnails (key 2)"],["チェックを外したものは変更しません","Unchecked items are not changed"],["件。次のステップを選んでください。",". Choose the next step."],["元ファイル（ダウンロード用リンク）","Original file (download link)"],["再生用リンクを取得できませんでした","Couldn't get a playback link"],["名前に / や \\\\ は使えません","Names can't contain / or \\\\"],["名前の変更は完了しています（要確認","Renaming is done (needs review: "],["品番のないファイル（作品の可能性）","File without a work ID (may be a real work)"],["外部プレーヤー用のリンクを取得中…","Getting a link for the external player…"],["直下に名前の異なるファイルが複数:","Several different files directly inside:"],["閉じる（PikPakの画面に戻る）","Close (back to PikPak)"],["✓ すべて完了（読み込み画面へ）","✓ All done (to the scan screen)"],["✓ 外せる (1) はありません","✓ No (1) to remove"],["」を最上位にして表示しています（","\" is now the top level ("],["このステップはオフになっています","This step is turned off"],["すでにそのフォルダの中にあります","Already in that folder"],["の操作：▶ / ← → で開閉（"," controls: ▶ / ← → open/close ("],["フォルダを作成できませんでした:","Couldn't create the folder:"],["フォルダを作成できませんでした：","Couldn't create the folder: "],["ログインの有効期限が切れています","Your login has expired"],["中に品番の異なるフォルダが複数:","Several folders with different work IDs inside:"],["件は「要確認」で確認できます）。"," items to check under \"Needs review\")."],["作品と関係ないファイルを除外する","Exclude files unrelated to works"],["入れ子のフォルダをまとめています","Flattening nested folders"],["移動（ドラッグでも移動できます）","Move (you can also drag)"],["要確認の項目を確認してください。","Please check the items that need review."],["読み込んだ場所から表示しています","Showing from the scanned location"],["／ 同名のため (1) を付ける"," / (1) added for same names "],["1 つ上の階層を最上位にする（","Make the parent the top level ("],["このフォルダを最上位にして表示","Show this folder as the top level"],["ログ（新しい順・最新300件）","Log (newest first, last 300)"],["不要ファイルの除外はオフです。","Junk file exclusion is off."],["件のフォルダ名を変更しました。"," folders renamed."],["広告・宣伝（広告フォルダの中）","Ad (inside an ad folder)"],["次のステップへ進んでください。","Go to the next step."],["閉じる（スペース / Esc）","Close (Space / Esc)"],["いま最上位にしているフォルダ","Current top-level folder"],["すべてのフォルダを閉じました","All folders collapsed"],["すべてのフォルダを開きました","All folders expanded"],["まずはフォルダを読み込みます","Start by scanning your folders"],["ファイル名の整理はオフです。","File-name cleanup is off."],["ファイル名はそろっています。","File names are already clean."],["フォルダ一覧で新規フォルダ：","New folder in Folders: "],["ログイン情報を取得できません","Can't read login information"],["ログイン情報を更新しました。","Login refreshed."],["一致するフォルダはありません","No matching folders"],["中のフォルダの品番に揃えます","Named after the work ID of the folder inside"],["件に (n) を付けました）"," got (n) added)"],["全件にチェックが入っている組","groups with every file checked"],["名前を変更できませんでした：","Couldn't rename: "],["最新の状態を読み込み直します","Rescan to get the latest state"],["現在の名前が想定と違います:","The current name is not what was expected:"],["組 ／ チェック（削除する）"," groups / checked (to delete) "],["項目の移動先を選んでください"," items: choose where to move them"],["（このブラウザでは再生不可）"," (can't play in this browser)"],["（読み込んだフォルダの直下）","(directly in the scanned folder)"],["1〜7の流れで順番に進める","Go through steps 1–7 in order"],["✓ 空フォルダはありません","✓ No empty folders"],["このフォルダを最上位にする","Make this folder the top level"],["すべてのフォルダを閉じる（","Collapse all folders ("],["または上のパスで戻れます）"," or the path above to go back)"],["キー／マウスの戻るボタン）"," key / mouse back button)"],["ファイル名は変更しません。","File names are not changed."],["フォルダを読み込み済みです","Folders scanned"],["フォルダ一覧で名前を変更：","Renamed in Folders: "],["ログイン情報を更新して再開","Login refreshed, resuming"],["件のファイル名を整えました"," file names cleaned up"],["入れ子のフォルダをまとめる","Flatten nested folders"],["再生用リンクの取得に失敗：","Failed to get playback link: "],["同名フォルダがあるため (","(same-name folder exists, adding ("],["整理はすべて完了しています","Everything is organized"],["空フォルダを片付けています","Removing empty folders"],["読み込んだフォルダは空です","The scanned folder is empty"],["（中で一番大きいファイル：","(largest file inside: "],["（再スキャンしてください）","(please rescan)"],["」は再生できませんでした","\" couldn't be played"],["いま動いているバージョン","Running version"],["このステップでできること","What this step does"],["このプレビューの中で再生","Play inside this preview"],["すべてのフォルダを開く（","Expand all folders ("],["キーで一番上へ戻れます）"," key)"],["チェックしたものを削除（","Delete checked ("],["一致するものはありません","Nothing matches"],["仕分けは完了しています。","Sorting is done."],["同じファイル名でまとめる","Group by identical file name"],["名前を変更（Enter）","Rename (Enter)"],["整理（1〜7のステップ）","Organize (steps 1–7)"],["最新の状態を読み込み直す","Rescan for the latest state"],["片付けは完了しています。","Tidying up is done."],["読み込みに失敗しました：","Scan failed: "],["（パスをコピーしました）","(path copied)"],["🔍 フォルダ名で絞り込み","🔍 Filter by folder name"],["いま開いているフォルダ","Current folder"],["この組のチェックを削除","Delete checked in this group"],["でフォルダを最上位に（"," makes a folder the top level ("],["など）が入ったファイル"," etc.)"],["の中身 → 1 つ上の"," contents → up into"],["シリーズ／分割の番号（","Series / part numbers ("],["チェックしたものを削除","Delete checked"],["チェックしたものを変更","Rename checked"],["チェックしたものを実行","Run checked"],["リスト表示（1 キー）","List view (key 1)"],["中身が空の同名フォルダ","Empty same-name folder"],["作品と関係ないファイル","Files unrelated to works"],["作品を仕分けしました。"," works sorted."],["場所をコピーしました：","Location copied: "],["外部プレーヤーで再生：","Played in external player: "],["絞り込み（品番・名前）","Filter (work ID, name)"],["認証の確認が必要です（","Verification needed ("],["読み込み中… フォルダ","Scanning… folders"],["読み込み完了：フォルダ","Scan complete: folders"],["（同じ名前があったため"," (same names existed, so"],["(1)を外しています","Removing (1)"],["(1)を外す・片付け","Remove (1) / tidy up"],["/ ダブルクリック）","/ double-click)"],["1〜7 をすべて表示","Show steps 1–7"],["1〜7の流れで続ける","Continue with steps 1–7"],["FC2-PPV-品番","FC2-PPV-ID"],["FC2のファイル名を","FC2 file names are aligned to "],["↗ 外部プレーヤー（","↗ External player ("],["オフ（使わない設定）","Off (not used)"],["チェック（削除する）","Checked (to delete)"],["ファイルマネージャー","File manager"],["ファイル名を変更中…","Renaming files…"],["プレビューの中で再生","Play in the preview"],["プレーヤー画面で再生","Play in the player"],["ログを消去しますか？","Clear the log?"],["一番上の一覧へ戻る（","Back to the overview ("],["不要ファイルの判定：","Junk detection: "],["不要ファイルの除外を","Junk exclusion: "],["再生のしかたの設定…","Playback settings…"],["削除を停止しました（","Deletion stopped ("],["削除を停止しました：","Deletion stopped: "],["名前を変更しました：","Renamed: "],["外部プレーヤーで再生","Play in external player"],["外部プレーヤーで開く","Open in external player"],["本 ／ 新規フォルダ"," files / new folders "],["移動を停止しました：","Move stopped: "],["空フォルダをゴミ箱へ","Empty folders to trash"],["読み込み後に使えます","Available after scanning"],["（自動で回復します）"," (recovering automatically)"],["⤓ ここを最上位に","⤓ Make top level"],["このステップを使う","Use this step"],["エラーや処理の記録","Errors and activity log"],["サイズが近い組あり","Has near-size matches"],["サイズが近い組だけ","Near-size groups only"],["チェック＝削除する","Checked = delete"],["ファイル名の整理を","File-name cleanup: "],["ファイル名を整える","Clean file names"],["フォルダを作成中…","Creating folder…"],["フォルダ一覧で削除","Deleted in Folders"],["フォルダ一覧で移動","Moved in Folders"],["フォルダ名を揃える","Align folder names"],["プレビューで再生：","Played in preview: "],["ホバーでサムネイル","Hover thumbnails"],["不要ファイルの削除","Junk file deletion"],["不要ファイルを削除","Delete junk files"],["中身が空のフォルダ","Empty folder"],["再生できない画質：","Unplayable quality: "],["再生のしかたの設定","Playback settings"],["最大＝高画質の候補","Largest = best quality candidate"],["直下にファイルなし","No files directly inside"],["重複はありません。","No duplicates."],["項目（中のファイル"," items (files inside: "],["🔍 名前で絞り込み","🔍 Filter by name"],["⛶ 全画面で再生","⛶ Play full screen"],["、タイトル末尾の",", title-end "],["」が既にあります","\" already exists"],["」へ移動しました","\""],["で中もすべて）・"," for all inside) · "],["で新規フォルダ・"," new folder · "],["エクスプローラー","Explorer"],["ゴミ箱に入れる（","Move to trash ("],["ダブルクリックや","double-click, "],["ファイル名の整理","File-name cleanup"],["フォルダ名の変更","Folder renames"],["件を削除します（"," files will be deleted ("],["件を実行しました"," done"],["作品ごとに仕分け","Sort by work"],["作業を選んで開く","Open a single task"],["先頭1件だけ試す","Try the first one"],["再生のしかたを「","Playback set to \""],["名前を変更中…：","Renaming…: "],["変更するファイル","Files to rename"],["変更（重複回避）","Rename (avoid clash)"],["外部プレーヤー（","External player ("],["整理（1〜7）へ","Organize (1–7)"],["記録はありません","No entries"],["重複を比べて削除","Compare duplicates"],["閉じる（Esc）","Close (Esc)"],["（空のフォルダ）","(empty folder)"],["＋ 新規フォルダ","＋ New folder"],["↻ 再スキャン","↻ Rescan"],["▤ サムネイル","▤ Thumbnails"],["▶ ここで再生","▶ Play here"],["✎ 名前を変更","✎ Rename"],["⤒ 一覧へ戻る","⤒ Back to overview"],["⤢ プレーヤー","⤢ Player"],["すべてチェック","Check all"],["で名前の変更・"," rename · "],["の形で残します"," form"],["まずはここから","Start here"],["コピーしました","Copied"],["ゴミ箱に入れる","Move to trash"],["サイズ(MB)","Size (MB)"],["リンクをコピー","Copy link"],["再生の準備中…","Preparing playback…"],["名前を変更中…","Renaming…"],["完了（閉じる）","Done (close)"],["宣伝向けの名前","Promo-style names"],["新規フォルダ（","New folder ("],["既存フォルダへ","Into existing folder"],["最上位を変更中","Custom top level"],["要確認・対象外","Needs review / skipped"],["読み込み画面へ","To the scan screen"],["読み込んでから","Scan first"],["項目・ファイル"," items · files"],["(1)を外す","Remove (1)"],["10MB以下","10 MB or less"],["✓ 該当なし","✓ None"],["」にしました","\""],["おまかせ整理","Guided organize"],["すべて仕分け","Sort all"],["ゴミ箱へ移動","moved to trash"],["スキャン起点","Scan root"],["スキャン開始","Start scan"],["テキスト保存","Save as text"],["フォルダ一覧","Folders"],["使わない設定","Not used"],["全画面で再生","Play full screen"],["全画面（F）","Full screen (F)"],["再生のしかた","Playback"],["前のビデオ（","Previous video ("],["同じ場所に「","Same location already has \""],["場所をコピー","Copy location"],["変更するもの","To rename"],["字幕ファイル","Subtitle file"],["広告・宣伝（","Ad ("],["強制削除する","Force delete"],["新規フォルダ","New folder"],["既定のアプリ","Default app"],["次のビデオ（","Next video ("],["読み込み中…","Scanning…"],["読み込み済み","scanned"],["項目を選択（"," items selected ("],["項目完了）："," items done): "],["（フォルダ）"," (folder)"],["／ ファイル"," / files"],["／ 一致済み"," / already matching"],["／ 重複回避"," / clash avoided"],["🗑 ゴミ箱へ","🗑 To trash"],[") を付与",")"],["CSV保存","Save CSV"],["↪ 移動…","↪ Move…"],["⊞ 全展開","⊞ Expand all"],["⊟ 全格納","⊟ Collapse all"],["▦ タイル","▦ Tiles"],["▶ 再生（","▶ Play ("],["☰ リスト","☰ List"],["⛶ 全画面","⛶ Full screen"],["おすすめ：","Suggested: "],["ここへ移動","Move here"],["しました。","."],["すべて変更","Rename all"],["すべて外す","Uncheck all"],["キャンセル","Cancel"],["コピー失敗","Copy failed"],["ファイル名","File name"],["ファイル）"," files)"],["プレビュー","Preview"],["・おすすめ"," · suggested"],["・強制削除"," · force delete"],["仕分け中…","Sorting…"],["件・対象外"," · skipped"],["作品完了）"," works done)"],["再読み込み","Rescan"],["名前を変更","Rename"],["場所を開く","Open location"],["完全に削除","permanently deleted"],["広告・宣伝","Ads"],["最大比 -","vs. largest -"],["未読み込み","Not scanned"],["組を含む）"," groups)"],["読み込み：","Scanned: "],["（強制削除"," (force delete"],["▶ 再生","▶ Play"],["✓ 完了","✓ Done"],["おすすめ","Suggested"],["など）は"," etc.) "],["まとめ方","Grouping"],["イメージ","Image"],["エラー：","Error: "],["ドラッグ","Drag"],["ファイル","Files"],["フォルダ","Folders"],["件完了）"," done)"],["作業あり","To do"],["削除する","Delete"],["削除中…","Deleting…"],["変更なし","Unchanged"],["完全削除","permanent"],["対象なし","Nothing to do"],["移動中…","Moving…"],["読み込む","Scan"],["項目 →"," items →"],["項目を「"," items to \""],["（変換）"," (converted)"],["（未定）","(undecided)"],["（要確認"," (needs review"],["表示言語","Language"],["しました",""],["すべて","All"],["に変更"," changed"],["エラー","Error"],["コピー","Copy"],["ゴミ箱","Trash"],["サイズ","Size"],["ビデオ","Video"],["ホーム","Home"],["・変換"," · converted"],["仕分け","Sorting"],["件）・"," files) · "],["停止：","Stopped: "],["再生：","Play: "],["場所：","Location: "],["外部：","External: "],["次へ：","Next: "],["片付け","Tidy up"],["移動…","Move…"],["要確認","Needs review"],["閉じる","Close"],["項目・"," items · "],["項目（"," items ("],["項目）"," items)"],["項目を"," items were "],["オフ","Off"],["オン","On"],["ログ","Log"],["一覧","Overview"],["不要","Junk"],["中断","Stop"],["作品","work"],["保存","Save"],["削除","Delete"],["前回","Last"],["名前","Name"],["場所","Location"],["変更","Rename"],["字幕","Subtitles"],["整理","Organize"],["書類","Document"],["残す","Keep"],["残り","Remaining"],["消去","Clear"],["移動","Move"],["種類","Kind"],["重複","Duplicates"],["開く","Open"],["項目","Items"],[" 風","-style"],["件を"," items were "],["未","Not yet"],["風","-style"]];
   EN.push(...[["テーマ", "Theme"], ["ライト", "Light"], ["ダーク", "Dark"], ["自動", "Auto"], ["自動（OS の設定に合わせる）", "Auto (follow the OS setting)"], ["設定", "Settings"], ["設定（表示・再生・整理・情報）", "Settings (display, playback, organizing, about)"], ["名前で絞り込み", "Filter by name"], ["使用中", "used"], ["その他", "Other"], ["契約容量", "Plan capacity"], [" 使用 / 上限 ", " used / limit "], ["未スキャン", "Not scanned"], ["内の割合", "share"], ["使用量に占める割合", "Share of usage"], ["使用量全体に対する割合（まだ読み込んでいないフォルダがあるため）", "Share of total usage (some folders are not scanned yet)"], ["表示中のフォルダの中での割合", "Share within the shown folder"], ["1 つ上の階層へ（", "Up one level ("], ["1 つ上の階層へ", "Up one level"], ["（未スキャンのフォルダを除く）", " (excluding unscanned folders)"], ["契約容量比 ", "of plan "], ["・全体比 ", " · of total "], ["選択中", "Selected"], ["項目を選ぶと、再生・名前の変更・移動・ゴミ箱が使えます（右クリックでもメニューを開けます）", "Select items to play, rename, move or trash them (right-click also opens the menu)"], ["読み込んだ場所とその上のフォルダは、ここでは移動できません", "The scanned folder and the folders above it can't be moved here"], ["読み込んだ場所とその上のフォルダは、ここではゴミ箱に入れられません", "The scanned folder and the folders above it can't be trashed here"], ["上の階層を確認しています…", "Checking parent folders…"], ["上の階層を読み込めませんでした：", "Couldn't load parent folders: "], ["これより上の階層はありません", "There is no level above this"], ["表示", "Display"], ["再生", "Playback"], ["情報", "About"], ["右上のボタンと同じ設定です", "Same as the buttons at the top right"], ["自動（ブラウザ）", "Auto (browser)"], ["フォルダ一覧の表示", "Folders view"], ["フォルダ一覧の操作", "Folders controls"], ["▶ 再生ボタン・ダブルクリックのとき", "▶ Play button / double-click"], ["更新履歴", "Changelog"], ["ログを表示", "Show log"], ["見る・再生・名前の変更・移動", "Browse · play · rename · move"], ["Dedupe スキャン", "Dedupe scan"], ["重複・不要ファイルを読み込んで整理", "Scan, then clean up duplicates and junk files"], ["前回の操作でエラーが ", "Errors in recent actions: "], ["件あります", ""], ["確認", "Review"], ["閉じる（Esc）", "Close (Esc)"]]);
+  EN.push(...[["販売者ごとに仕分け", "Sort by seller"], ["作品フォルダの品番から販売者を調べ、ホーム/販売者別/販売者名（販売者ID）/ へ移動します。調べるだけでは何も動かしません（使うかどうかを選べます）。", "Looks up the seller of each work folder by its ID and moves it to Home/By seller/Seller (ID)/. Looking up alone moves nothing (optional)."], ["販売者が決まった", "Seller found"], ["販売者不明", "Unknown seller"], ["未調査", "Not looked up"], ["販売者を調べる（未調査 ", "Look up sellers (not looked up: "], ["販売者を変更", "Change seller"], ["販売者を入力", "Enter seller"], ["fd2ppv.cc で開く", "Open on fd2ppv.cc"], ["今の場所：", "Now in: "], ["新しく作るフォルダ", "New folder"], ["既にあるフォルダ", "Existing folder"], ["チェックしたものを移動（", "Move checked ("], ["手入力できます", "Can be entered manually"], ["品番が複数・同名あり", "Several IDs / same name"], ["「販売者を調べる」で調べます", "Use \"Look up sellers\""], ["販売者名", "Seller name"], ["入力を消す", "Clear input"], ["まとめるフォルダ", "Container folder"], ["ホームの直下に作ります", "Created directly under Home"], ["販売者が分からないとき", "When the seller is unknown"], ["判断できないとき", "When it can't be decided"], ["調べる間隔", "Lookup interval"], ["調べた結果", "Lookup results"], ["手入力", "manual"], ["fd2ppv.cc で確認", "Confirmed on fd2ppv.cc"], ["fd2ppv.cc にページがありません", "No page on fd2ppv.cc"], ["販売者の欄がありません", "No seller field"], ["ホームから読み込んでいません。", "Not scanned from Home."]]);
   EN.sort((a, b) => b[0].length - a[0].length); // 長い言い回しから先に置き換える
   const EN_MAP = new Map(EN);
   const EN_UNIT = EN.filter(([a]) => a.length > 1 && /^(件|項目|組|作品|本)./.test(a));
@@ -1253,11 +1281,12 @@
       ren: buildRenamePlan(wf, folders).filter((p) => p.status === 'rename' || p.status === 'dup').length,
       dup: buildGroups(wf, 'name').length,
       clean: buildCleanPlan(files, folders).filter((p) => p.status === 'todo').length,
+      seller: sellerEnabled() ? buildSellerPlan(folders).length : 0,
       cleanSkip: buildCleanPlan(files, folders).filter((p) => p.status === 'skip').length,
     };
   }
-  const UNIT_OF = { junk: '件', name: '件', sort: '作品', ren: '件', dup: '組', clean: '件' };
-  const WORK = ['junk', 'name', 'sort', 'ren', 'dup', 'clean'];
+  const UNIT_OF = { junk: '件', name: '件', sort: '作品', ren: '件', dup: '組', clean: '件', seller: '作品' };
+  const WORK = ['junk', 'name', 'sort', 'ren', 'dup', 'clean', 'seller'];
   function renderRail() {
     root.querySelectorAll('.rail [data-rail]').forEach((b) => {
       const k = b.dataset.rail;
@@ -1275,6 +1304,7 @@
       else if (!c) sub = '読み込み後に使えます';
       else if (s.v === 'name' && !nameEnabled()) { sub = 'オフ（使わない設定）'; cls = 'done'; }
       else if (s.v === 'junk' && !junkEnabled()) { sub = 'オフ（使わない設定）'; cls = 'done'; }
+      else if (s.v === 'seller' && !sellerEnabled()) { sub = 'オフ（使わない設定）'; cls = 'done'; }
       else if (s.v === 'junk' && c.junk === 0 && c.junkReview) sub = `要確認 ${c.junkReview} 件`;
       else if (s.v === 'clean' && c.clean === 0 && c.cleanSkip) sub = `要確認 ${c.cleanSkip} 件`;
       else if (c[s.v] === 0) { sub = '対象なし'; cls = 'done'; }
@@ -1323,6 +1353,12 @@
     const head = `<div class="head"><b>${mode === 'single' ? '' : STEPS.indexOf(s) + 1 + '. '}${esc(s.t)}</b><span class="note">${esc(s.d)}</span></div><span class="sp"></span>${single}`;
     let html = '';
     if (view === 'sort' || view === 'clean') html = head;
+    if (view === 'seller') {
+      const pend = selPlan.filter((p) => p.kind === 'pending').length;
+      html = head + `<label class="optsw" title="オフにすると、このステップを使わず次へ進みます"><input type="checkbox" data-a="selleropt"${sellerEnabled() ? ' checked' : ''}> このステップを使う</label><span class="sep"></span>
+        <select data-a="selfilter" title="表示"><option value="all">すべて</option><option value="seller">販売者が決まった</option><option value="unknown">販売者不明</option><option value="review">要確認</option><option value="pending">未調査</option></select>
+        <button data-a="slookup"${pend && !busy && sellerEnabled() ? '' : ' disabled'} title="小さなウィンドウで fd2ppv.cc の作品ページを順に開き、販売者を調べます（移動はしません）" style="border-color:var(--pri);color:var(--pri);font-weight:700">販売者を調べる（未調査 ${pend} 件）</button>`;
+    }
     if (view === 'junk') html = head + `<label class="optsw" title="オフにすると、不要ファイルの判定を使わず、すべてのファイルをほかのステップの対象にします"><input type="checkbox" data-a="junkopt"${junkEnabled() ? ' checked' : ''}> このステップを使う</label><span class="sep"></span>`;
     if (view === 'name') html = head + `<label class="optsw" title="オフにすると、このステップを使わず次へ進みます"><input type="checkbox" data-a="nameopt"${nameEnabled() ? ' checked' : ''}> このステップを使う</label><span class="sep"></span>`;
     if (view === 'ren') html = head + `<select data-a="renfilter"><option value="todo">変更するもの</option><option value="skip">要確認</option><option value="same">変更なし</option><option value="all">すべて</option></select>`;
@@ -1339,6 +1375,11 @@
     if (busy) { el.innerHTML = '<button data-a="stop">中断</button>'; return; }
     const c = counts();
     const label = { name: 'チェックしたものを変更', sort: 'すべて仕分け', ren: 'すべて変更', clean: 'チェックしたものを実行' };
+    if (view === 'seller') {
+      const n = selPlan.filter((p) => p.kind !== 'pending' && sellerChecked(p)).length;
+      el.innerHTML = sellerEnabled() && selPlan.length ? `<button data-a="seller1"${n ? '' : ' disabled'}>先頭1件だけ試す</button><button class="pri" data-a="sellerall"${n ? '' : ' disabled'}>チェックしたものを移動（${n} 件）</button>` : `<span class="okbadge">✓ 完了</span>${nextHtml(c)}`;
+      return;
+    }
     if (view === 'junk') {
       const n = jplan.filter(junkChecked).length;
       el.innerHTML = junkEnabled() && jplan.length ? `<button class="danger" data-a="junkdel"${n ? '' : ' disabled'}>チェックしたものを削除（${n} 件）</button>` : `<span class="okbadge">✓ 完了</span>${nextHtml(c)}`;
@@ -1360,6 +1401,7 @@
     if (v === 'name') nplan = buildNamePlan(workFiles(), folders);
     if (v === 'ren') rplan = buildRenamePlan(workFiles(), folders);
     if (v === 'sort') splan = buildSortPlan(workFiles(), folders);
+    if (v === 'seller') selPlan = sellerEnabled() ? buildSellerPlan(folders) : [];
     if (v !== 'tree') { closeQL(); closeCtx(); closePlayer(); hideHover(); }
     root.classList.toggle('treev', v === 'tree'); // フォルダ一覧ではステップの表示を隠す
     if (v !== 'tree') { renderTreeActs(); $('[data-r=pright]').textContent = ''; }
@@ -1373,6 +1415,7 @@
     if (view === 'ren') return renderRen();
     if (view === 'sort') return renderSort();
     if (view === 'clean') return renderClean();
+    if (view === 'seller') return renderSeller();
     if (view === 'name') return renderName();
     if (view === 'junk') return renderJunk();
     if (view === 'tree') return renderTree();
@@ -1385,7 +1428,7 @@
     const c = counts();
     const next = c && (WORK.find((k) => c[k] > 0));
     const val = (k) => {
-      if ((k === 'name' && !nameEnabled()) || (k === 'junk' && !junkEnabled())) return { v: 'オフ', cls: 'off' };
+      if ((k === 'name' && !nameEnabled()) || (k === 'junk' && !junkEnabled()) || (k === 'seller' && !sellerEnabled())) return { v: 'オフ', cls: 'off' };
       if (c[k]) return { v: c[k], u: UNIT_OF[k], cls: 'todo' };
       if (k === 'clean' && c.cleanSkip) return { v: c.cleanSkip, u: '件', sub: '要確認', cls: 'warn' };
       if (k === 'junk' && c.junkReview) return { v: c.junkReview, u: '件', sub: '要確認', cls: 'warn' };
@@ -1693,6 +1736,249 @@
   //   Windows / Linux：エクスプローラーやファイルマネージャーと同じ（Ctrl キー・F2 で名前の変更・Delete でゴミ箱）
   // ※ ブラウザ自体が使うショートカット（⌘1〜3・Ctrl+1〜3＝タブ切り替え、⇧⌘N・Ctrl+Shift+N＝シークレットウィンドウ、
   //    ⌥⌘← →＝タブ移動 など）はページ側で止められないため使わない
+  // ---------- 8. 販売者ごとに仕分け ----------
+  // 作品フォルダ（FC2-PPV-品番）の品番から販売者を調べ、ホーム/販売者別/販売者名（販売者ID）/ へ移動する。
+  // 販売者は fd2ppv.cc の作品ページで調べる。PikPak の画面からは別サイトを読めないため、小さなウィンドウで作品ページを順に開き、
+  // そのページの上で動くこのスクリプト（下の fd2Lookup）が販売者を読み取って、こちらへ知らせる（Cloudflare の確認が出たら、そのウィンドウで済ませてもらう）
+  const LS_SELLER = 'ppdup:seller:v1'; // 品番 → { name, sid, src: 'fd2ppv' | 'manual', status: 'ok' | 'notfound' | 'noseller', at }
+  const LS_SELLER_CFG = 'ppdup:seller:cfg:v1';
+  const LS_OPT_SELLER = 'ppdup:opt:seller:v1';
+  const FD2 = 'https://fd2ppv.cc';
+  let sellerDb = {};
+  try { sellerDb = JSON.parse(localStorage.getItem(LS_SELLER) || '{}') || {}; } catch (e) { sellerDb = {}; }
+  const saveSellerDb = () => { try { localStorage.setItem(LS_SELLER, JSON.stringify(sellerDb)); } catch (e) { /* 無視 */ } };
+  const sellerEnabled = () => { try { return localStorage.getItem(LS_OPT_SELLER) !== '0'; } catch (e) { return true; } };
+  function sellerCfg() {
+    let c = {}; try { c = JSON.parse(localStorage.getItem(LS_SELLER_CFG) || '{}') || {}; } catch (e) { c = {}; }
+    const nm = (v, d) => (typeof v === 'string' && v.trim() && !/[\/\\]/.test(v) ? v.trim() : d);
+    return { root: nm(c.root, '販売者別'), unknown: nm(c.unknown, '販売者不明'), review: nm(c.review, '要確認'), interval: [1, 1.5, 3].includes(+c.interval) ? +c.interval : 1.5 };
+  }
+  const saveSellerCfg = (c) => { try { localStorage.setItem(LS_SELLER_CFG, JSON.stringify(c)); } catch (e) { /* 無視 */ } };
+  // 名前に入っている FC2 の品番（同じ品番は 1 つにまとめる）。「FC2 〇〇 collection 1234567 2345678」のような複数作品の名前も拾う
+  const fc2Ids = (name) => { const n = String(name); if (!/FC2/i.test(n)) return []; return [...new Set([...n.matchAll(/(?:^|[^\d])(\d{6,8})(?!\d)/g)].map((m) => m[1]))]; };
+  // 販売者フォルダの名前（フォルダ名に使えない / や \ は置き換える）
+  const sellerFolderName = (s) => `${String(s.name || s.sid).replace(/[\/\\]/g, '・').replace(/\s+/g, ' ').trim().slice(0, 80)}（${s.sid}）`;
+  // 仕分けの計画：作品フォルダごとに、移動先の種類（seller / unknown / review / pending）を決める
+  function buildSellerPlan(ds) {
+    const cfg = sellerCfg();
+    const R = ds.find((d) => d.isRoot);
+    const homeScan = !!R && (!R.id || R.id === 'root');
+    // 既に「販売者別」の中にあるものは対象外（ホームから読み込んだときだけ中身が見える）
+    const sortedRoot = homeScan ? ds.find((d) => !d.isRoot && (d.parentId === R.id || !d.parentId || d.parentId === 'root') && d.name === cfg.root) : null;
+    const inSorted = (d) => !!sortedRoot && (d.id === sortedRoot.id || (d.trail || []).includes(sortedRoot.id));
+    const cand = ds.filter((d) => !d.isRoot && !inSorted(d) && fc2Ids(d.name).length);
+    const candIds = new Set(cand.map((d) => d.id));
+    const plan = [];
+    cand.forEach((d) => {
+      // 作品フォルダの中の作品フォルダは、外側だけを動かす
+      if ((d.trail || []).slice(0, -1).some((id) => candIds.has(id))) return;
+      const ids = fc2Ids(d.name);
+      const recs = ids.map((n) => sellerDb[n]);
+      const p = { id: d.id, name: d.name, path: d.path, parentId: d.parentId, nums: ids, kind: '', seller: null, note: '' };
+      if (recs.some((r) => !r)) { p.kind = 'pending'; p.note = '未調査'; }
+      else {
+        const ok = recs.filter((r) => r.status === 'ok' && r.sid);
+        const sids = [...new Set(ok.map((r) => r.sid))];
+        if (ids.length > 1 && (sids.length > 1 || ok.length !== recs.length)) { p.kind = 'review'; p.note = `品番が ${ids.length} つ（${recs.map((r) => (r.status === 'ok' ? r.name : '不明')).join('・')}）`; }
+        else if (sids.length === 1) { p.kind = 'seller'; p.seller = ok[0]; p.note = ok[0].src === 'manual' ? '手入力' : 'fd2ppv.cc で確認'; }
+        else { p.kind = 'unknown'; p.note = recs[0].status === 'notfound' ? 'fd2ppv.cc にページがありません' : '販売者の欄がありません'; }
+      }
+      plan.push(p);
+    });
+    return plan;
+  }
+  // 「販売者別」とその直下（販売者・不明・要確認のフォルダ）。ほかのステップで名前を変えないように使う
+  function sellerBoxIds(ds) {
+    const cfg = sellerCfg();
+    const R = ds.find((d) => d.isRoot);
+    const top = (d) => d.parentId === '' || d.parentId === 'root' || (R && (!R.id || R.id === 'root') && d.parentId === R.id);
+    const box = ds.find((d) => !d.isRoot && top(d) && d.name === cfg.root);
+    return new Set(box ? [box.id, ...ds.filter((d) => d.parentId === box.id).map((d) => d.id)] : []);
+  }
+  let selPlan = [];
+  const sellerSel = new Map(); // 作品フォルダ → チェック（未記録は seller だけチェックあり）
+  const sellerChecked = (p) => (p.kind === 'pending' ? false : sellerSel.has(p.id) ? sellerSel.get(p.id) : p.kind === 'seller');
+  const SELLER_KIND = { seller: '販売者が決まった', unknown: '販売者不明', review: '要確認', pending: '未調査' };
+  function renderSeller() {
+    const cfg = sellerCfg();
+    if (!sellerEnabled()) { $('[data-r=main]').innerHTML = `<div class="pd-hero"><h2>このステップはオフになっています</h2><div class="note">右上の「このステップを使う」か、設定の「整理」でオンにできます。</div></div>${nextButton()}`; if (!busy) status('販売者ごとの仕分けはオフです。'); return; }
+    const show = $('[data-a=selfilter]') ? $('[data-a=selfilter]').value : 'all';
+    const by = (k) => selPlan.filter((p) => p.kind === k);
+    const ix = buildTreeIndex();
+    const R = folders.find((d) => d.isRoot);
+    const homeScan = !!R && (!R.id || R.id === 'root');
+    const chip = (k, color, sub) => `<div class="sl-chip" style="border-left-color:${color}"><span>${SELLER_KIND[k]}</span><b>${by(k).length}</b><small>${esc(sub)}</small></div>`;
+    const sellers = new Map();
+    by('seller').forEach((p) => { const k = p.seller.sid; if (!sellers.has(k)) sellers.set(k, { s: p.seller, items: [] }); sellers.get(k).items.push(p); });
+    const groups = [];
+    if (show === 'all' || show === 'seller') [...sellers.values()].sort((a, b) => b.items.length - a.items.length || String(a.s.name).localeCompare(String(b.s.name), 'ja')).forEach((g) => groups.push({ key: 's:' + g.s.sid, title: g.s.name, sid: g.s.sid, dest: `${cfg.root}/${sellerFolderName(g.s)}/`, items: g.items, cls: '' }));
+    if (show === 'all' || show === 'unknown') if (by('unknown').length) groups.push({ key: 'k:unknown', title: cfg.unknown, dest: `${cfg.root}/${cfg.unknown}/`, items: by('unknown'), cls: '', hint: '販売者を入力すると、その販売者の組へ移ります' });
+    if (show === 'all' || show === 'review') if (by('review').length) groups.push({ key: 'k:review', title: cfg.review, dest: `${cfg.root}/${cfg.review}/`, items: by('review'), cls: ' warn', hint: '初めはチェックなし' });
+    if (show === 'all' || show === 'pending') if (by('pending').length) groups.push({ key: 'k:pending', title: SELLER_KIND.pending, dest: '', items: by('pending'), cls: ' pend', hint: '「販売者を調べる」で調べます（調べるだけでは移動しません）' });
+    const thumb = (p) => { const f = ix.thumbOf.get(p.id); return f && f.thumb ? `<img loading="lazy" referrerpolicy="no-referrer" src="${esc(f.thumb)}" alt="">` : ''; };
+    const sz = (p) => { const a = ix.agg.get(p.id); return a ? fmt(a.size) : ''; };
+    const row = (p) => {
+      const on = sellerChecked(p);
+      const acts = p.kind === 'pending' ? '' : `<button data-sedit="${esc(p.id)}">${p.kind === 'seller' ? '販売者を変更' : '販売者を入力'}</button>`;
+      const open = p.nums.map((n) => `<a href="${FD2}/articles/${esc(n)}" target="_blank" rel="noopener noreferrer">fd2ppv.cc で開く${p.nums.length > 1 ? `（${esc(n)}）` : ''}</a>`).join(' ');
+      return `<div class="pd-row${on ? ' sel' : ''}"><label class="pd-chk"><input type="checkbox" data-schk="${esc(p.id)}"${on ? ' checked' : ''}${p.kind === 'pending' ? ' disabled' : ''}></label>
+        <div class="pd-th" style="width:112px;height:63px">${thumb(p)}</div>
+        <div class="pd-info"><div class="pd-name">${esc(p.name)}</div><div class="pd-path">今の場所：${esc((p.path || '').replace(/\/[^/]*$/, '') || '/')}/・${sz(p)}</div><div class="note">${esc(p.note)}　${open}</div></div>
+        <div class="pd-act" style="display:flex;gap:6px;flex-wrap:wrap">${acts}</div></div>`;
+    };
+    const tagNew = (g) => { if (!g.sid) return ''; const ex = sellerFolderExists(g.sid); return `<span class="pd-tag" style="${ex ? '' : 'background:var(--pri-soft);color:var(--pri)'}">${ex ? '既にあるフォルダ' : '新しく作るフォルダ'}</span>`; };
+    const body = groups.map((g) => {
+      const all = g.items.filter((p) => p.kind !== 'pending'), on = all.filter(sellerChecked);
+      return `<div class="pd-g${g.cls}"><div class="pd-gh">${g.key === 'k:pending' ? '' : `<input type="checkbox" data-sgrp="${esc(g.key)}"${all.length && on.length === all.length ? ' checked' : ''} title="この組をすべて選ぶ／外す">`}<b>${esc(g.title)}</b>${g.sid ? `<span class="note raw">（${esc(g.sid)}）</span>` : ''}${tagNew(g)}${g.dest ? `<span class="note">→ ${esc(g.dest)}</span>` : ''}<span class="sp" style="flex:1"></span>${g.hint ? `<span class="note">${esc(g.hint)}</span>` : ''}<span class="note">${g.items.length} 作品</span></div>${g.items.map(row).join('')}</div>`;
+    }).join('');
+    $('[data-r=main]').innerHTML = `<div class="sl-chips">${chip('seller', '#306fff', `${sellers.size} 販売者`)}${chip('unknown', '#8b91a1', '手入力できます')}${chip('review', '#c27a00', '品番が複数・同名あり')}${chip('pending', '#c5c9d2', '「販売者を調べる」で調べます')}</div>
+      ${homeScan ? '' : '<div class="pd-explain"><b>ホームから読み込んでいません。</b><div class="note">移動先の「' + esc(cfg.root) + '」はホームの直下に作るため、移動した作品は読み込んだ場所の外に出て、重複チェックなどの対象から外れます。ホームを開いて読み込み直すと、仕分け後もまとめて管理できます。</div></div>'}
+      ${body || '<div class="empty">' + (selPlan.length ? '表示する作品はありません' : '✓ 仕分けが必要な作品フォルダはありません（FC2-PPV-品番 の名前のフォルダが対象です）') + '</div>'}${nextButton()}`;
+    if (!busy) status(by('pending').length ? `未調査 ${by('pending').length} 件。「販売者を調べる」を押すと、小さなウィンドウで fd2ppv.cc の作品ページを順に開いて販売者を調べます（移動はしません）。` : '内容を確認して、まずは「先頭1件だけ試す」で動きを確かめてください。削除はしません。');
+  }
+  // 「販売者別」の中に、その販売者ID のフォルダが既にあるか（ホームから読み込んだときだけ分かる）
+  function sellerFolderExists(sid) {
+    const cfg = sellerCfg();
+    const R = folders.find((d) => d.isRoot); if (!R || (R.id && R.id !== 'root')) return false;
+    const root = folders.find((d) => !d.isRoot && (d.parentId === R.id || !d.parentId || d.parentId === 'root') && d.name === cfg.root);
+    return !!root && folders.some((d) => d.parentId === root.id && d.name.endsWith(`（${sid}）`));
+  }
+  // 販売者の入力（不明・要確認・変更）
+  function askSeller(p) {
+    return new Promise((resolve) => {
+      const cur = p.seller || {};
+      const d = document.createElement('div'); d.id = 'pd-dlg';
+      d.innerHTML = `<div class="box" style="width:min(520px,94vw)"><h3>販売者を入力</h3>
+        <div class="note raw" style="margin-bottom:8px">${esc(p.name)}</div>
+        <label style="display:block;margin:8px 0 4px">販売者名</label><input type="text" data-sn value="${esc(cur.name || '')}" style="width:100%;box-sizing:border-box;font:inherit;padding:6px 10px;border:1px solid #c5c9d2;border-radius:8px">
+        <label style="display:block;margin:10px 0 4px">販売者ID（FC2 の販売者ページ adult.contents.fc2.com/users/〇〇/ の 〇〇）</label><input type="text" data-si value="${esc(cur.sid || '')}" style="width:100%;box-sizing:border-box;font:inherit;padding:6px 10px;border:1px solid #c5c9d2;border-radius:8px">
+        <div class="note" style="margin-top:8px">既に同じ ID のフォルダがあれば、そこへ入れます。入力した内容は調べた結果より優先します。</div>
+        <div class="acts" style="margin-top:14px">${p.seller ? '<button data-clear>入力を消す</button>' : ''}<span style="flex:1"></span><button data-no>キャンセル</button><button class="danger" data-yes style="background:#306fff;border-color:#306fff">保存</button></div></div>`;
+      document.body.appendChild(d);
+      const done = (v) => { d.remove(); resolve(v); };
+      d.querySelector('[data-no]').onclick = () => done(null);
+      const c = d.querySelector('[data-clear]'); if (c) c.onclick = () => done({ clear: true });
+      d.querySelector('[data-yes]').onclick = () => {
+        const name = d.querySelector('[data-sn]').value.trim(), sid = d.querySelector('[data-si]').value.trim().replace(/^.*\/users\//, '').replace(/[\/?#].*$/, '');
+        if (!name || !sid || !/^[A-Za-z0-9_.-]{1,64}$/.test(sid)) { d.querySelector('.note:last-of-type').textContent = '販売者名と販売者ID（英数字）を入れてください'; return; }
+        done({ name, sid });
+      };
+      d.addEventListener('keydown', (e) => { if (e.key === 'Escape') done(null); });
+      d.querySelector('[data-sn]').focus();
+    });
+  }
+  async function editSeller(id) {
+    const p = selPlan.find((x) => x.id === id); if (!p) return;
+    const v = await askSeller(p); if (!v) return;
+    if (v.clear) p.nums.forEach((n) => { if (sellerDb[n] && sellerDb[n].src === 'manual') delete sellerDb[n]; });
+    else p.nums.forEach((n) => { sellerDb[n] = { name: v.name, sid: v.sid, src: 'manual', status: 'ok', at: Date.now() }; });
+    saveSellerDb(); sellerSel.delete(id); log('info', `販売者を手入力：${p.name} → ${v.clear ? '（消去）' : v.name + '（' + v.sid + '）'}`);
+    setView('seller');
+  }
+  // ---- 販売者を調べる（fd2ppv.cc の作品ページを小さなウィンドウで順に開く） ----
+  function waitSeller(win, num, onChallenge) {
+    return new Promise((resolve) => {
+      let limit = 30000, timer = null, challenged = false;
+      const off = () => { clearTimeout(timer); clearInterval(watch); window.removeEventListener('message', on); };
+      const arm = () => { clearTimeout(timer); timer = setTimeout(() => { off(); resolve({ status: challenged ? 'challenge' : 'timeout' }); }, limit); };
+      const on = (e) => {
+        if (e.origin !== FD2 || !e.data || e.data.type !== 'ppdup-seller' || String(e.data.num) !== String(num)) return;
+        if (e.data.status === 'challenge') { if (!challenged) { challenged = true; limit = 5 * 60 * 1000; arm(); onChallenge(); } return; } // 確認を済ませると作品ページに切り替わり、もう一度知らせが来る
+        off(); resolve(e.data);
+      };
+      const watch = setInterval(() => { if (win.closed) { off(); resolve({ status: 'closed' }); } }, 500);
+      window.addEventListener('message', on); arm();
+      try { win.location.href = `${FD2}/articles/${encodeURIComponent(num)}#ppdup-lookup`; } catch (err) { off(); resolve({ status: 'closed' }); }
+    });
+  }
+  async function runSellerLookup() {
+    if (busy) return;
+    const nums = [...new Set(selPlan.filter((p) => p.kind === 'pending').flatMap((p) => p.nums).filter((n) => !sellerDb[n]))];
+    if (!nums.length) { status('未調査の作品はありません。'); return; }
+    // ポップアップを止められないよう、押した直後に開く
+    const win = window.open('about:blank', 'ppdup-lookup', 'width=560,height=720');
+    if (!win) { status('小さなウィンドウを開けませんでした。ブラウザのアドレスバーで、このサイトのポップアップを許可してから、もう一度押してください。'); return; }
+    const cfg = sellerCfg();
+    busy = true; window.__ppdupStop = false; renderNav(); renderToolbar();
+    let done = 0, ok = 0, miss = 0, stop = '';
+    for (const n of nums) {
+      if (window.__ppdupStop) { stop = '中断しました'; break; }
+      status(`販売者を調べています… ${done + 1}/${nums.length}：FC2-PPV-${n}`, done / nums.length);
+      const r = await waitSeller(win, n, () => status(`fd2ppv.cc の確認画面が出ています。開いた小さなウィンドウで確認を済ませてください（済むと自動で続きます）：FC2-PPV-${n}`, done / nums.length));
+      if (r.status === 'closed') { stop = 'ウィンドウが閉じられたため止めました'; break; }
+      if (r.status === 'challenge') { stop = 'fd2ppv.cc の確認が済まなかったため止めました'; break; }
+      if (r.status === 'timeout') { log('warn', '販売者の調査が時間切れ', 'FC2-PPV-' + n); miss++; }
+      else {
+        sellerDb[n] = r.status === 'ok' ? { name: String(r.name || '').slice(0, 120), sid: String(r.sid || '').slice(0, 64), src: 'fd2ppv', status: 'ok', at: Date.now() } : { status: r.status === 'notfound' ? 'notfound' : 'noseller', src: 'fd2ppv', at: Date.now() };
+        if (r.status === 'ok') ok++; else miss++;
+        saveSellerDb();
+      }
+      done++;
+      await sleep(cfg.interval * 1000);
+    }
+    try { win.close(); } catch (e) { /* 無視 */ }
+    busy = false; setView('seller');
+    status(`${stop ? stop + '。' : ''}${done} 件を調べました（販売者が分かった ${ok} 件・分からなかった ${miss} 件）。調べた結果は保存済みです。`);
+    log('info', `販売者を調べた：${done} 件（判明 ${ok}・不明 ${miss}）${stop ? '・' + stop : ''}`);
+  }
+  // ---- 移動 ----
+  async function runSeller(onlyFirst) {
+    const targets = selPlan.filter((p) => p.kind !== 'pending' && sellerChecked(p)).slice(0, onlyFirst ? 1 : undefined);
+    if (!targets.length) { status('チェックの入った作品がありません'); return; }
+    if (!ensureSession('seller')) return;
+    const cfg = sellerCfg();
+    const R = folders.find((d) => d.isRoot);
+    const homeScan = !!R && (!R.id || R.id === 'root');
+    busy = true; renderNav(); window.__ppdupStop = false;
+    let ok = 0, skip = 0;
+    const lists = new Map(); // フォルダ → 中身（同名の確認用）
+    const listOf = async (pid) => { if (!lists.has(pid)) lists.set(pid, await apiList(pid)); return lists.get(pid); };
+    // ホーム直下の「販売者別」と、その中のフォルダを用意（無ければ作る）
+    const addCache = (id, name, pid) => {
+      if (!homeScan || folders.some((d) => d.id === id)) return;
+      const np = folders.find((d) => d.id === pid) || R;
+      folders.push({ id, name, parentId: pid, path: ((np && !np.isRoot && np.path) || '') + '/' + name, trail: [...((np && np.trail) || [pid]), id] });
+    };
+    const ensureDir = async (pid, name, match) => {
+      const l = await listOf(pid);
+      const ex = l.find((x) => x.kind === 'drive#folder' && (match ? match(x.name) : x.name === name));
+      if (ex) { addCache(ex.id, ex.name, homeScan && pid === '' ? R.id : pid); return ex.id; }
+      const id = await apiMkdir(pid, name);
+      l.push({ id, name, kind: 'drive#folder' }); lists.set(id, []);
+      addCache(id, name, homeScan && pid === '' ? R.id : pid);
+      return id;
+    };
+    try {
+      const rootId = await ensureDir('', cfg.root);
+      for (const p of targets) {
+        if (window.__ppdupStop) break;
+        status(`移動中… ${ok + skip + 1}/${targets.length}：${p.name}`, (ok + skip) / targets.length);
+        let dest = p.kind === 'seller' ? await ensureDir(rootId, sellerFolderName(p.seller), (nm) => nm.endsWith(`（${p.seller.sid}）`))
+          : await ensureDir(rootId, p.kind === 'unknown' ? cfg.unknown : cfg.review);
+        // 移動先に同じ名前があれば「要確認」へ、そこにもあれば移動しない
+        const same = (pid) => listOf(pid).then((l) => l.some((x) => x.id !== p.id && x.name.toLowerCase() === p.name.toLowerCase()));
+        if (await same(dest)) {
+          const rv = await ensureDir(rootId, cfg.review);
+          if (dest === rv || await same(rv)) { skip++; log('warn', `移動先に同じ名前があるため移動しませんでした：${p.name}`); continue; }
+          dest = rv;
+        }
+        // 実行の直前に、移動元にまだあるかを確認
+        const src = await apiList(p.parentId);
+        if (!src.some((x) => x.id === p.id)) throw new Error('見つかりません（読み込み直してください）: ' + p.name);
+        await apiMove([p.id], dest);
+        (lists.get(dest) || []).push({ id: p.id, name: p.name, kind: 'drive#folder' });
+        const it = folders.find((d) => d.id === p.id);
+        if (it) { if (homeScan && folders.some((d) => d.id === dest)) cacheMoveFolder(p.id, dest); else dropFromScan(it); }
+        ok++; saveAll();
+        await sleep(100);
+      }
+    } catch (err) { saveAll(); busy = false; setView('seller'); handleErr(err, 'seller', `停止：${err.message}（${ok} 作品完了）`); return; }
+    if (meta) { meta.nfo = folders.length; meta.nfi = files.length; try { localStorage.setItem(LS_META, JSON.stringify(meta)); } catch (e) { /* 無視 */ } }
+    busy = false; setView('seller');
+    status(`${ok} 作品を「${cfg.root}」へ移動しました${skip ? `（同じ名前があったため ${skip} 件は移動しませんでした）` : ''}。`);
+    log('info', `販売者ごとに仕分け ${ok} 作品${skip ? `（移動しなかった ${skip}）` : ''}`); refreshView();
+  }
+
   const OS = (() => {
     const p = String((navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || navigator.userAgent || '');
     return /mac|iphone|ipad/i.test(p) ? 'mac' : /win/i.test(p) ? 'win' : 'linux';
@@ -1791,7 +2077,7 @@
   const inScan = (id) => { const R = scanRoot(); return !!R && (id === R.id || folders.some((d) => d.id === id) || files.some((f) => f.id === id)); };
   // 読み込んだ場所そのものと、その上のフォルダ（ここでは移動・削除しない）
   const isRootOrAbove = (id) => { const R = scanRoot(); return !!R && (id === R.id || ancestorsOf(R.id).includes(id)); };
-  const dirLabel = (id) => (isHomeId(id) && (upKnown() || !scanRoot() || scanRoot().id !== id) ? 'ホーム' : ((dirById(id) || {}).name || ''));
+  const dirLabel = (id) => (isHomeId(id) ? 'ホーム' : ((dirById(id) || {}).name || ''));
   const fullPath = (id) => '/' + [id, ...ancestorsOf(id)].filter((x) => !isHomeId(x)).reverse().map(dirLabel).join('/');
   const pctTxt = (r) => (!isFinite(r) || r < 0 ? '—' : r > 0 && r < 0.001 ? '<0.1%' : (r * 100).toFixed(1) + '%');
 
@@ -2480,6 +2766,13 @@
         ${sec('org') ? `<h3>整理</h3>
         <label class="row"><span><b>作品と関係ないファイルを除外する</b><small>広告・宣伝のファイルや 10MB 以下のファイルなどを、ほかの作業の対象から外します</small></span><input type="checkbox" data-s="junk"${junkEnabled() ? ' checked' : ''}></label>
         <label class="row"><span><b>ファイル名を整える</b><small>オフにすると、このステップを使わず次へ進みます</small></span><input type="checkbox" data-s="name"${nameEnabled() ? ' checked' : ''}></label>` : ''}
+        <h3>販売者ごとに仕分け</h3>
+        <label class="row"><span><b>このステップを使う</b><small>オフにすると「8. 販売者ごとに仕分け」を使いません</small></span><input type="checkbox" data-s="seller"${sellerEnabled() ? ' checked' : ''}></label>
+        <div class="row"><span><b>まとめるフォルダ</b><small>ホームの直下に作ります</small></span><input type="text" data-s="scfg" data-k="root" value="${esc(sellerCfg().root)}" style="width:150px;font:inherit;padding:6px 10px;border:1px solid var(--ctl-line);border-radius:8px;background:var(--ctl);color:inherit"></div>
+        <div class="row"><span><b>販売者が分からないとき</b></span><input type="text" data-s="scfg" data-k="unknown" value="${esc(sellerCfg().unknown)}" style="width:150px;font:inherit;padding:6px 10px;border:1px solid var(--ctl-line);border-radius:8px;background:var(--ctl);color:inherit"></div>
+        <div class="row"><span><b>判断できないとき</b></span><input type="text" data-s="scfg" data-k="review" value="${esc(sellerCfg().review)}" style="width:150px;font:inherit;padding:6px 10px;border:1px solid var(--ctl-line);border-radius:8px;background:var(--ctl);color:inherit"></div>
+        <div class="row"><span><b>調べる間隔</b><small>短くしすぎると、相手のサイトに断られることがあります</small></span><select data-s="scfg" data-k="interval">${[1, 1.5, 3].map((v) => `<option value="${v}"${sellerCfg().interval === v ? ' selected' : ''}>${v} 秒</option>`).join('')}</select></div>
+        <div class="row"><span><b>調べた結果</b><small>${Object.keys(sellerDb).length} 件（手入力 ${Object.values(sellerDb).filter((r) => r.src === 'manual').length} 件を含む）。このブラウザにだけ保存</small></span><button data-s="sclear"${Object.keys(sellerDb).length ? '' : ' disabled'}>消去</button></div>
         ${sec('info') ? `<h3>情報</h3>
         <div class="row"><span><b>PikPak Distill – Dedupe</b><small class="ver">v${VER} · Noel Labs</small></span><button data-s="changelog">更新履歴</button></div>
         <div class="row"><span><b>ログ</b><small>エラーや処理の記録</small></span><button data-s="log">ログを表示${errs ? `<span class="badge">${errs}</span>` : ''}</button></div>` : ''}
@@ -2493,6 +2786,7 @@
     else if (k === 'tab') { setTab = b.dataset.v; renderSettings(); }
     else if (k === 'theme') setTheme(b.dataset.v);
     else if (k === 'log') { closeSettings(); showLog(); }
+    else if (k === 'sclear') { if (confirm(tr('調べた販売者の結果（手入力を含む）をすべて消去しますか？'))) { sellerDb = {}; saveSellerDb(); sellerSel.clear(); log('info', '販売者の調査結果を消去'); renderSettings(); if (root.classList.contains('on') && !busy) setView(view); } }
     else if (k === 'changelog') window.open('https://github.com/Noel-Labs39/pikpak-distill/blob/main/CHANGELOG.md', '_blank', 'noopener');
   }
   function onSettingsChange(e) {
@@ -2504,6 +2798,14 @@
       const p = playPref();
       savePlayPref({ mode: k === 'mode' ? t.value : p.mode, ext: k === 'ext' ? t.value : p.ext });
       status('再生のしかたを「' + prefLabel() + '」にしました'); if (view === 'tree') renderTreeActs(); if (qlOpen) showQL();
+      return;
+    }
+    if (k === 'seller') { try { localStorage.setItem(LS_OPT_SELLER, t.checked ? '1' : '0'); } catch (err) { /* 無視 */ } if (root.classList.contains('on') && !busy) setView(view); return; }
+    if (k === 'scfg') {
+      const c = sellerCfg(), key = t.dataset.k;
+      const v = key === 'interval' ? +t.value : t.value.trim();
+      if (key !== 'interval' && (!v || /[\/\\]/.test(v))) { t.value = c[key]; status('フォルダ名に / や \\ は使えません'); return; }
+      c[key] = v; saveSellerCfg(c); if (root.classList.contains('on') && !busy && view === 'seller') setView('seller');
       return;
     }
     if (k === 'junk' || k === 'name') {
@@ -2790,8 +3092,8 @@
   }
 
   // ---------- 操作 ----------
-  const CONFIRM = { name: 'チェックの入ったファイルの名前を整えます。よろしいですか？', sort: '表示中の作品をすべて仕分け（フォルダ作成・移動）します。よろしいですか？', ren: '表示中のフォルダ名をすべて変更します。よろしいですか？', clean: 'チェックの入った空フォルダをゴミ箱へ移し、入れ子のフォルダをまとめ、(1) を外します。よろしいですか？' };
-  const RUN = { name: runName, sort: runSort, ren: runRen, clean: runClean };
+  const CONFIRM = { name: 'チェックの入ったファイルの名前を整えます。よろしいですか？', sort: '表示中の作品をすべて仕分け（フォルダ作成・移動）します。よろしいですか？', ren: '表示中のフォルダ名をすべて変更します。よろしいですか？', clean: 'チェックの入った空フォルダをゴミ箱へ移し、入れ子のフォルダをまとめ、(1) を外します。よろしいですか？' , seller: 'チェックの入った作品フォルダを「販売者別」の中へ移動します（削除はしません）。よろしいですか？' };
+  const RUN = { name: runName, sort: runSort, ren: runRen, clean: runClean, seller: runSeller };
   root.addEventListener('click', async (e) => {
     const t = e.target.closest('button'); if (!t || t.disabled) return;
     const a = t.dataset.a;
@@ -2807,6 +3109,8 @@
     if (a === 'close') { root.classList.remove('on'); return; }
     if (a === 'log') { showLog(); return; }
     if (a === 'settings') { openSettings(); return; }
+    if (a === 'slookup') { runSellerLookup(); return; }
+    if (t.dataset.sedit) { if (!busy) editSeller(t.dataset.sedit); return; }
     if (a === 'theme') { setTheme(t.dataset.v); return; }
     if (a === 'lang') { if (!busy) setLang(LANG === 'en' ? 'ja' : 'en'); return; }
     if (a === 'tree') { if (!busy) openTree(); return; }
@@ -2820,7 +3124,7 @@
     if (a === 'delall') return runDelete(visibleGroups());
     if (a === 'junkdel') return runJunk();
     if (a === 'jall' || a === 'jnone') { const lv = t.dataset.lv; jplan.filter((p) => p.level === lv).forEach((p) => junkSel.set(p.id, a === 'jall')); render(); renderActs(); return; }
-    const m = /^(name|sort|ren|clean)(1|all)$/.exec(a || '');
+    const m = /^(name|sort|ren|clean|seller)(1|all)$/.exec(a || '');
     if (m) { if (m[2] === '1') RUN[m[1]](true); else if (confirm(tr(CONFIRM[m[1]]))) RUN[m[1]](false); return; }
     if (a === 'csv') {
       const rows = [['判定', 'ファイル名', '場所', 'サイズ(MB)']];
@@ -2838,6 +3142,12 @@
     const jid = e.target.dataset && e.target.dataset.jchk;
     if (jid) { junkSel.set(jid, e.target.checked); const row = e.target.closest('.pd-row'); if (row) row.classList.toggle('del', e.target.checked); renderActs(); return; }
     if (e.target.dataset && e.target.dataset.a === 'nameopt') { try { localStorage.setItem(LS_OPT_NAME, e.target.checked ? '1' : '0'); } catch (err) { /* 無視 */ } log('info', 'ファイル名の整理を' + (e.target.checked ? 'オン' : 'オフ') + 'に変更'); render(); renderNav(); return; }
+    const sid2 = e.target.dataset && e.target.dataset.schk;
+    if (sid2) { sellerSel.set(sid2, e.target.checked); render(); renderActs(); return; }
+    const sg = e.target.dataset && e.target.dataset.sgrp;
+    if (sg) { selPlan.filter((p) => p.kind !== 'pending' && (sg === 'k:unknown' ? p.kind === 'unknown' : sg === 'k:review' ? p.kind === 'review' : p.kind === 'seller' && 's:' + p.seller.sid === sg)).forEach((p) => sellerSel.set(p.id, e.target.checked)); render(); renderActs(); return; }
+    if (e.target.dataset && e.target.dataset.a === 'selleropt') { try { localStorage.setItem(LS_OPT_SELLER, e.target.checked ? '1' : '0'); } catch (err) { /* 無視 */ } log('info', '販売者ごとの仕分けを' + (e.target.checked ? 'オン' : 'オフ') + 'に変更'); setView(view); return; }
+    if (e.target.dataset && e.target.dataset.a === 'selfilter') { render(); return; }
     const nid = e.target.dataset && e.target.dataset.nchk;
     if (nid) { if (e.target.checked) nameOff.delete(nid); else nameOff.add(nid); const row = e.target.closest('.pd-row'); if (row) row.classList.toggle('sel', e.target.checked); return; }
     const cid = e.target.dataset && e.target.dataset.cchk;

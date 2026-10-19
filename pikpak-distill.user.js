@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.16.0
+// @version      3.17.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTQiIGZpbGw9IiMzMDZmZmYiLz48cmVjdCB4PSIxMiIgeT0iMTYiIHdpZHRoPSIyNCIgaGVpZ2h0PSIzMiIgcng9IjQiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii41NSIvPjxyZWN0IHg9IjI2IiB5PSIxMiIgd2lkdGg9IjI2IiBoZWlnaHQ9IjM0IiByeD0iNCIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik0zMiAyNGgxNE0zMiAzMGgxNE0zMiAzNmg5IiBzdHJva2U9IiMzMDZmZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGNpcmNsZSBjeD0iNDQiIGN5PSI0NiIgcj0iOSIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiLz48cGF0aCBkPSJNNDAgNDZsMyAzIDUtNiIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -33,7 +33,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.16.0'; // @version と合わせて更新する
+  const VER = '3.17.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -431,6 +431,8 @@
     return { files: outFiles, folders: outFolders };
   }
   const apiGet = (id) => api('/files/' + id);
+  // 契約容量（上限・使用量・ゴミ箱の使用量）
+  async function apiQuota() { const d = await api('/about'); const q = d.quota || {}; return { limit: +q.limit || 0, usage: +q.usage || 0, trash: +q.usage_in_trash || 0 }; }
   const apiRename = (id, name) => api('/files/' + id, { method: 'PATCH', body: JSON.stringify({ name }) });
   async function apiMkdir(pid, name) {
     const d = await api('/files', { method: 'POST', body: JSON.stringify({ kind: 'drive#folder', parent_id: apiPid(pid), name }) });
@@ -582,6 +584,7 @@
       try { localStorage.setItem(LS_SCAN, JSON.stringify(files)); } catch (e) { /* 無視 */ } saveDecision();
       done += ids.length; if (onProgress) onProgress(done, list.length);
     }
+    refreshQuota(true);
     return done;
   }
 
@@ -592,7 +595,7 @@
   #ppdup-btn{position:fixed;right:20px;bottom:76px;z-index:99998;display:flex;align-items:center;gap:8px;padding:6px 14px 6px 6px;border:0;border-radius:999px;background:#306fff;color:#fff;font:700 13px system-ui,sans-serif;cursor:pointer;box-shadow:0 4px 14px #0005}
   #ppdup-btn svg{width:30px;height:30px;border-radius:9px;box-shadow:0 0 0 2px #ffffff80}
   #ppdup-btn:hover{filter:brightness(1.08)}
-  #ppdup-fab{position:fixed;right:20px;bottom:128px;z-index:99998;width:290px;background:#1d2027;color:#e6e8ee;border:1px solid #2c303a;border-radius:14px;box-shadow:0 12px 40px #0008;padding:8px;font:13px/1.4 system-ui,"Hiragino Sans","Yu Gothic",sans-serif;display:none}
+  #ppdup-fab{position:fixed;right:20px;bottom:128px;z-index:99998;width:320px;box-sizing:border-box;background:#1d2027;color:#e6e8ee;border:1px solid #2c303a;border-radius:14px;box-shadow:0 12px 40px #0008;padding:8px;font:13px/1.4 system-ui,"Hiragino Sans","Yu Gothic",sans-serif;display:none}
   #ppdup-fab.on{display:block;animation:pdfab .12s ease-out}
   @keyframes pdfab{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
   #ppdup-fab .hd{font-size:11px;color:#8b91a1;padding:6px 10px 4px}
@@ -607,10 +610,22 @@
   #ppdup-fab .b.todo{color:#8fb0ff;font-weight:700}
   #ppdup-fab .b.ok{color:#3fb96f}
   #ppdup-fab hr{border:0;border-top:1px solid #2c303a;margin:6px 4px}
+  #ppdup-fab button.it{gap:14px;padding:12px;border-radius:12px}
+  #ppdup-fab button.it.pri{background:#306fff;color:#fff}
+  #ppdup-fab button.it.pri:hover{background:#3d7bff}
+  #ppdup-fab .ic{width:42px;height:42px;flex:none;border-radius:11px;background:#22325c;color:#8fb0ff;display:flex;align-items:center;justify-content:center}
+  #ppdup-fab .it.pri .ic{background:#ffffff2e;color:#fff}
+  #ppdup-fab .ic svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  #ppdup-fab .it b{display:block;font-size:14px}
+  #ppdup-fab .it small{display:block;font-size:12px;opacity:.75;margin-top:2px;font-weight:400}
+  #ppdup-fab .err{display:flex;align-items:center;gap:8px;margin:6px 4px 2px;padding:7px 10px;border-radius:8px;background:#3a2226;color:#ff9a9a;font-size:12px}
+  #ppdup-fab .err span{flex:1}
+  #ppdup-fab .err button{width:auto;padding:0;background:none;color:#ffb4b4;font-weight:700}
+  #ppdup-fab .err button:hover{background:none;text-decoration:underline}
   #ppdup.single nav,#ppdup.treev nav{display:none}
-  #ppdup{--bg:#f5f6f8;--panel:#fff;--panel2:#eef0f4;--line:#dde0e6;--fg:#1c1f26;--mute:#6a7080;--pri:#306fff;--pri-soft:#306fff1f;--ok:#1f9d55;--danger:#d64545;--keep:#f0faf2;--del:#fff5f5;--ctl:#fff;--ctl-line:#c5c9d2;
-    position:fixed;inset:0;z-index:99999;background:var(--bg);color:var(--fg);font:13px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Yu Gothic","Meiryo","Noto Sans CJK JP","Noto Sans JP",sans-serif;display:none;flex-direction:column}
-  @media (prefers-color-scheme:dark){#ppdup{--bg:#15171c;--panel:#1d2027;--panel2:#252932;--line:#2c303a;--fg:#e6e8ee;--mute:#8b91a1;--pri-soft:#306fff33;--keep:#17261c;--del:#2a1a1a;--ctl:#252932;--ctl-line:#3a3f4b}}
+  #ppdup,#pd-set{--bg:#f5f6f8;--panel:#fff;--panel2:#eef0f4;--line:#dde0e6;--fg:#1c1f26;--mute:#6a7080;--pri:#306fff;--pri-soft:#306fff1f;--ok:#1f9d55;--danger:#d64545;--keep:#f0faf2;--del:#fff5f5;--ctl:#fff;--ctl-line:#c5c9d2}
+  #ppdup{position:fixed;inset:0;z-index:99999;background:var(--bg);color:var(--fg);font:13px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Yu Gothic","Meiryo","Noto Sans CJK JP","Noto Sans JP",sans-serif;display:none;flex-direction:column}
+  html.pd-dark #ppdup,html.pd-dark #pd-set{--bg:#15171c;--panel:#1d2027;--panel2:#252932;--line:#2c303a;--fg:#e6e8ee;--mute:#8b91a1;--pri-soft:#306fff33;--keep:#17261c;--del:#2a1a1a;--ctl:#252932;--ctl-line:#3a3f4b}
   #ppdup.on{display:flex}
   #ppdup{padding-left:78px}
   #ppdup .rail{position:absolute;left:0;top:0;bottom:0;width:78px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 0 10px;background:var(--panel2);border-right:1px solid var(--line);z-index:2}
@@ -619,16 +634,38 @@
   #ppdup .rail button.on{background:var(--pri-soft);color:var(--pri)}
   #ppdup .rail svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
   #ppdup .rail .sp{flex:1}
-  #ppdup .rail .rv{font:600 10px ui-monospace,Menlo,monospace;color:var(--mute)}
-  #ppdup .rail [data-r=logbadge]:empty{display:none}
-  #ppdup .rail [data-r=logbadge]{position:absolute;top:4px;right:10px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--danger);color:#fff;font:700 10px/16px system-ui,sans-serif;font-style:normal}
-  #ppdup header{padding:12px 18px 0;background:var(--panel);border-bottom:1px solid var(--line)}
-  #ppdup .brand{display:flex;align-items:center;gap:12px}
-  #ppdup .brand svg{width:44px;height:44px;flex:none}
-  #ppdup .brand h1{margin:0;font:800 24px/1.1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Yu Gothic","Meiryo","Noto Sans CJK JP","Noto Sans JP",sans-serif}
+  #ppdup [data-r=logbadge]:empty{display:none}
+  #ppdup [data-r=logbadge]{position:absolute;top:-6px;right:-6px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--danger);color:#fff;font:700 10px/16px system-ui,sans-serif;font-style:normal}
+  #ppdup header{padding:10px 18px 0;background:var(--panel);border-bottom:1px solid var(--line)}
+  #ppdup .brand{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding-bottom:10px}
+  #ppdup .brand > svg{width:34px;height:34px;flex:none}
+  #ppdup .brand h1{margin:0;font:800 19px/1.1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Yu Gothic","Meiryo","Noto Sans CJK JP","Noto Sans JP",sans-serif}
   #ppdup .brand .chip{font:700 12px system-ui,sans-serif;padding:3px 10px;border-radius:999px;background:var(--pri-soft);color:var(--pri)}
   #ppdup .brand .ver{font:700 12px ui-monospace,Menlo,monospace;color:var(--mute);border:1px solid var(--line);border-radius:6px;padding:1px 7px;align-self:center}
-  #ppdup .brand .by{font-size:12px;color:var(--mute);align-self:flex-end;margin-bottom:4px}
+  /* ヘッダー右上：容量・テーマ・言語・設定・閉じる */
+  #ppdup .hbtn{position:relative;display:inline-flex;align-items:center;gap:6px;height:36px;box-sizing:border-box;padding:0 12px;border-radius:9px;font-weight:700}
+  #ppdup .hbtn svg,#ppdup .thm svg,#ppdup .hx svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+  #ppdup .hx{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;padding:0;border:0;background:none;color:var(--mute);border-radius:9px}
+  #ppdup .hx:hover{background:var(--panel2);color:var(--fg)}
+  #ppdup .thm{display:inline-flex;height:36px}
+  #ppdup .thm button{display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:36px;box-sizing:border-box;padding:0 10px;font-size:12px;font-weight:700}
+  #ppdup .hq{display:none;align-items:center;gap:6px;height:36px;box-sizing:border-box;padding:0 10px;border:1px solid var(--ctl-line);border-radius:9px;background:var(--ctl);color:var(--mute)}
+  #ppdup.treev .hq{display:inline-flex}
+  #ppdup .hq svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+  #ppdup .hq input{border:0 !important;background:none !important;padding:0 !important;outline:none;width:180px;color:var(--fg)}
+  .pd-quota{display:flex;flex-direction:column;gap:4px;width:310px;padding:5px 12px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);box-sizing:border-box;cursor:default}
+  .pd-quota:empty{display:none}
+  .pd-quota .qt{display:flex;align-items:baseline;gap:6px;font-size:12px;white-space:nowrap}
+  .pd-quota .qt i{font-style:normal;color:var(--mute)}
+  .pd-quota .qt .sp{flex:1}
+  .pd-quota .qb{display:flex;height:6px;border-radius:99px;overflow:hidden;background:var(--line)}
+  .pd-quota .qb span{display:block;height:100%}
+  .pd-quota .ql{display:flex;gap:10px;font-size:11px;color:var(--mute);white-space:nowrap;overflow:hidden}
+  .pd-quota .ql b{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;vertical-align:0}
+  .q-cur{background:#1d4fd6}.q-oth{background:#8fb0ff}.q-tr{background:#f2a33a}
+  html.pd-dark .q-cur{background:#5b8cff}html.pd-dark .q-oth{background:#3a4b78}
+  @media (max-width:1280px){.pd-quota .ql{display:none}.pd-quota{width:210px}#ppdup .hq input{width:110px}}
+  @media (max-width:1200px){#ppdup .brand .chip{display:none}#ppdup [data-r=langname]{display:none}#ppdup .brand{gap:8px}}
   #ppdup .sp{flex:1}
   #ppdup button,#ppdup select,#ppdup input[type=text]{font:inherit;padding:6px 12px;border:1px solid var(--ctl-line);border-radius:8px;background:var(--ctl);color:inherit;cursor:pointer}
   #ppdup button:disabled{opacity:.45;cursor:not-allowed}
@@ -664,7 +701,9 @@
   .pd-explain ul{margin:6px 0 0;padding-left:18px}
   .pd-explain code{background:var(--panel2);padding:1px 6px;border-radius:5px}
   /* 進捗 */
-  #ppdup .prog{padding:6px 18px;font-size:12px;color:var(--mute);background:var(--bg);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
+  #ppdup .prog{padding:7px 18px;font-size:12px;color:var(--mute);background:var(--panel2);border-top:1px solid var(--line);display:flex;align-items:center;gap:12px}
+  #ppdup .prog [data-r=status]{flex:1;min-width:0}
+  #ppdup .prog [data-r=pright]{white-space:nowrap}
   #ppdup .prog .pb{flex:0 0 180px;height:6px;border-radius:3px;background:var(--line);overflow:hidden;display:none}
   #ppdup .prog .pb i{display:block;height:100%;width:0;background:var(--pri);transition:width .2s}
   #ppdup .prog.busy .pb{display:block}
@@ -739,7 +778,13 @@
   /* フォルダ一覧（Finder / エクスプローラーのリスト表示風） */
   #ppdup main:has(.tr){padding:0}
   .tr{outline:none;font:13px/1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Yu Gothic","Meiryo","Noto Sans CJK JP","Noto Sans JP",sans-serif;min-height:100%;background:var(--panel);user-select:none}
-  .tr-h,.tr-row{display:grid;grid-template-columns:minmax(0,1fr) 110px 120px 90px;align-items:center}
+  .tr-h,.tr-row{display:grid;grid-template-columns:minmax(0,1fr) 110px 120px 90px 170px;align-items:center}
+  .tr-row .c-pct{display:flex;align-items:center;gap:8px;color:var(--mute);font-size:12px}
+  .tr-row .c-pct .pb{flex:1;height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+  .tr-row .c-pct .pb i{display:block;height:100%;background:var(--pri);border-radius:99px}
+  .tr-row .c-pct em{width:44px;text-align:right;font-style:normal}
+  .tr:focus .tr-row.sel .c-pct{color:#fff}.tr:focus .tr-row.sel .c-pct .pb{background:#ffffff55}.tr:focus .tr-row.sel .c-pct .pb i{background:#fff}
+  .tr .ot{flex:none;font-size:10px;line-height:15px;padding:0 6px;border-radius:99px;background:var(--panel2);color:var(--mute);margin-left:6px}
   .tr-h{position:sticky;top:0;z-index:1;background:var(--panel);border-bottom:1px solid var(--line);height:28px;color:var(--mute);font-size:12px}
   .tr-h span{padding:0 10px;cursor:pointer;border-left:1px solid var(--line);line-height:28px;white-space:nowrap}
   .tr-h span:first-child{border-left:0;padding-left:34px}
@@ -776,10 +821,10 @@
   .tr .tx .nm{font-size:13px}
   .tr .tx .sub{font-size:11px;color:var(--mute)}
   .tr:focus .tr-row.sel .tx .sub{color:#ffffffcc}
-  @media (prefers-color-scheme:dark){.tr .th{background:#3a3f4b}.tr .th.dir{background:#2a3a4f}}
+  html.pd-dark .tr .th{background:#3a3f4b}html.pd-dark .tr .th.dir{background:#2a3a4f}
   .tr .jk{flex:none;font-size:10px;line-height:14px;padding:0 5px;border-radius:7px;background:#ff6b6b;color:#fff;margin-left:4px}
   .tr-ren{font:inherit;padding:1px 4px !important;border:2px solid #4b8df8 !important;border-radius:3px !important;flex:1;min-width:120px;cursor:text !important}
-  @media (prefers-color-scheme:dark){.tr-row.sel{background:#3a3f4b}}
+  html.pd-dark .tr-row.sel{background:#3a3f4b}
   #pd-ql{position:fixed;inset:0;z-index:100002;display:flex;align-items:center;justify-content:center;background:#0004}
   #pd-ql .ql{background:#2b2d31ee;color:#eee;border-radius:12px;box-shadow:0 20px 60px #000a;width:min(820px,90vw);overflow:hidden;font:13px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Yu Gothic","Meiryo","Noto Sans CJK JP","Noto Sans JP",sans-serif;backdrop-filter:blur(20px)}
   #pd-ql .ql-h{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#0003}
@@ -800,21 +845,22 @@
   #pd-dlg .pset{display:flex;flex-direction:column;gap:6px;margin:12px 0;padding:10px 12px;border:1px solid #c5c9d288;border-radius:8px}
   #pd-dlg .pset label{display:flex;gap:8px;align-items:center;cursor:pointer}
   #pd-ql .note{color:#aaa;font-size:12px;word-break:break-all}
-  .tr-path{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:2px;overflow-x:auto;white-space:nowrap;height:30px;box-sizing:border-box;padding:0 10px;background:var(--panel2);border-bottom:1px solid var(--line);font-size:12px}
+  .tr-path{display:flex;align-items:center;gap:2px;overflow-x:auto;white-space:nowrap;min-width:0;flex:1 1 260px;font-size:14px}
   .tr-path button{border:0 !important;background:none !important;padding:2px 6px !important;border-radius:5px !important;color:var(--mute);font:inherit;cursor:pointer}
   .tr-path button:hover:not(:disabled){background:var(--panel) !important;color:var(--fg)}
   .tr-path button.on{color:var(--fg);font-weight:700}
   .tr-path button.drop{outline:2px solid #4b8df8;background:#4b8df833 !important}
-  .tr-path [data-tup]{font-weight:800;margin-right:4px}
-  .tr-path .sep{color:var(--mute)}
-  .tr.has-path .tr-h{top:30px}
+  #ppdup .tr-path [data-tup]{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;padding:0 !important;margin-right:6px;border:1px solid var(--ctl-line) !important;background:var(--ctl) !important;border-radius:8px !important;color:var(--fg);font-weight:800}
+  #ppdup .tr-path [data-tup] svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .tr-path .csep{color:var(--mute);padding:0 2px}
+  .tr.has-path .tr-h{top:0}
   .tr.tl .tr-body{padding:6px 12px 20px}
   .tl-sec{margin-bottom:10px}
   .tl-top{position:fixed;right:28px;bottom:24px;z-index:5;padding:8px 16px !important;border-radius:999px !important;background:var(--pri) !important;color:#fff !important;border:0 !important;font-weight:700;box-shadow:0 6px 18px #0004;opacity:0;pointer-events:none;transition:opacity .15s}
   .tl-top.on{opacity:1;pointer-events:auto}
   @keyframes pdflash{0%,40%{background:#ffd54aaa;box-shadow:0 0 0 3px #ffd54a}20%,60%{background:#ffd54a55;box-shadow:0 0 0 3px #ffd54a88}100%{background:transparent;box-shadow:0 0 0 3px transparent}}
   .flash{animation:pdflash 2.4s ease-out}
-  .tl-h{position:sticky;top:30px;z-index:1;display:flex;align-items:center;gap:8px;padding:8px 6px;background:var(--panel);border-bottom:1px solid var(--line);font-size:13px}
+  .tl-h{position:sticky;top:0;z-index:1;display:flex;align-items:center;gap:8px;padding:8px 6px;background:var(--panel);border-bottom:1px solid var(--line);font-size:13px}
   .tl-h .ic svg{width:18px;height:16px;display:block}
   .tl-h b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .tl-h .pp{color:var(--mute);font-weight:500}
@@ -834,15 +880,20 @@
   .tr:focus .tr-row.tile.sel{background:#0a64d6}
   .tr:focus .tr-row.tile.sel .sub{color:#ffffffcc}
   .tr .tr-row.tile.drop{outline:2px solid #4b8df8}
-  @media (prefers-color-scheme:dark){.tr .tr-row.tile.sel{background:#3a3f4b}}
+  html.pd-dark .tr .tr-row.tile.sel{background:#3a3f4b}
   #pd-hover{position:fixed;z-index:100002;width:340px;background:var(--hv-bg,#fff);color:#1c1f26;border-radius:10px;box-shadow:0 10px 32px #0005;padding:8px;pointer-events:none;font:12px/1.4 system-ui,"Segoe UI","Hiragino Sans","Yu Gothic UI","Meiryo","Noto Sans CJK JP",sans-serif;animation:pdhv .12s ease-out}
   @keyframes pdhv{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
   #pd-hover img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:6px;display:block;background:#d8dbe2}
   #pd-hover .hv-n{display:flex;gap:6px;align-items:center;margin-top:6px;font-weight:600;word-break:break-all}
   #pd-hover .hv-n svg{width:16px;height:14px;flex:none}
   #pd-hover .hv-s{color:#6a7080;margin-top:2px;word-break:break-all}
-  @media (prefers-color-scheme:dark){#pd-hover{background:#252932;color:#e6e8ee}#pd-hover .hv-s{color:#8b91a1}}
-  .tacts{display:flex;gap:6px;flex-wrap:wrap;width:100%;padding-top:4px;border-top:1px dashed var(--line);margin-top:2px}
+  html.pd-dark #pd-hover{background:#252932;color:#e6e8ee}html.pd-dark #pd-hover .hv-s{color:#8b91a1}
+  #ppdup .tsel{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 18px;background:var(--panel);border-bottom:1px solid var(--line);min-height:34px}
+  #ppdup .tsel:empty{display:none}
+  #ppdup .tsel.on{background:var(--pri-soft);border-bottom-color:#306fff55}
+  #ppdup .tsel .cnt{font-weight:700;color:var(--pri);margin-right:6px}
+  #ppdup .tsel .hint{color:var(--mute);font-size:12px}
+  #ppdup .tsel button.red{color:var(--danger);border-color:#d6454566;font-weight:700}
   .tr-row.drop{outline:2px solid #4b8df8;outline-offset:-2px;background:#4b8df833 !important}
   #pd-drag{position:fixed;z-index:100005;pointer-events:none;background:#306fff;color:#fff;font:600 12px system-ui,sans-serif;padding:4px 10px;border-radius:6px;box-shadow:0 4px 14px #0005;max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   #pd-drag.ng{background:#6a7080}
@@ -853,7 +904,7 @@
   #pd-ctx button.red:not(:hover){color:#d93025}
   #pd-ctx kbd{font:12px system-ui,sans-serif;opacity:.6}
   #pd-ctx hr{border:0;border-top:1px solid #0001;margin:4px 6px}
-  @media (prefers-color-scheme:dark){#pd-ctx{background:#2b2d31f2;color:#eee;border-color:#fff2}#pd-ctx hr{border-color:#fff2}}
+  html.pd-dark #pd-ctx{background:#2b2d31f2;color:#eee;border-color:#fff2}html.pd-dark #pd-ctx hr{border-color:#fff2}
   #pd-dlg .mv{max-height:50vh;overflow:auto;border:1px solid #c5c9d288;border-radius:8px;margin:10px 0 6px}
   #pd-dlg .mv-r{display:flex;align-items:center;gap:6px;padding:5px 8px;cursor:pointer;font-size:13px}
   #pd-dlg .mv-r svg{width:18px;height:15px;flex:none}
@@ -871,6 +922,33 @@
   #pd-player .pl-msg{padding:40px;color:#bbb;text-align:center}
   #pd-player .pl-f{padding:6px 12px;color:#999;display:flex;gap:4px}
   #pd-player .pl-err{position:absolute;left:0;right:0;bottom:56px;padding:10px 16px;background:#000c;color:#ffb4b4}
+  #pd-set{position:fixed;inset:0;z-index:100006;background:#14161b59;font:13px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Meiryo","Noto Sans CJK JP",sans-serif;color:var(--fg)}
+  #pd-set .dr{position:absolute;top:0;right:0;bottom:0;width:min(460px,100vw);background:var(--panel);box-shadow:-12px 0 40px #0004;display:flex;flex-direction:column;animation:pdset .16s ease-out}
+  @keyframes pdset{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
+  #pd-set .hd{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid var(--line)}
+  #pd-set .hd h2{margin:0;font-size:17px;flex:1}
+  #pd-set svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+  #pd-set button,#pd-set select{font:inherit;color:inherit;padding:6px 12px;border:1px solid var(--ctl-line);border-radius:8px;background:var(--ctl);cursor:pointer}
+  #pd-set .x{border:0;background:none;width:34px;height:34px;padding:0;display:inline-flex;align-items:center;justify-content:center;color:var(--mute)}
+  #pd-set .tabs{display:flex;gap:2px;padding:6px 16px 0;border-bottom:1px solid var(--line)}
+  #pd-set .tabs button{border:0;border-radius:0;background:none;padding:8px 10px;color:var(--mute);border-bottom:2px solid transparent;font-weight:600}
+  #pd-set .tabs button.on{color:var(--pri);border-bottom-color:var(--pri)}
+  #pd-set .bd{flex:1;overflow:auto;padding:4px 20px 24px}
+  #pd-set h3{margin:20px 0 4px;font-size:12px;letter-spacing:.04em;color:var(--mute)}
+  #pd-set .row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+  #pd-set .row > span:first-child{flex:1;min-width:0}
+  #pd-set .row b{display:block;font-weight:600}
+  #pd-set .row small{display:block;color:var(--mute);font-size:12px;margin-top:2px}
+  #pd-set .row.col{flex-direction:column;align-items:stretch;gap:4px}
+  #pd-set .row.col label{display:flex;align-items:center;gap:8px;padding:3px 0;cursor:pointer}
+  #pd-set input[type=radio],#pd-set input[type=checkbox]{width:16px;height:16px;accent-color:var(--pri);margin:0}
+  #pd-set .seg{display:inline-flex}
+  #pd-set .seg button{border-radius:0;margin-left:-1px}
+  #pd-set .seg button:first-child{border-radius:8px 0 0 8px;margin-left:0}
+  #pd-set .seg button:last-child{border-radius:0 8px 8px 0}
+  #pd-set .seg button.on{background:var(--pri);border-color:var(--pri);color:#fff}
+  #pd-set .ver{font:600 12px ui-monospace,Menlo,monospace;color:var(--mute)}
+  #pd-set .badge{display:inline-block;min-width:16px;padding:0 5px;border-radius:8px;background:var(--danger);color:#fff;font:700 10px/16px system-ui,sans-serif;margin-left:6px}
   #pd-dlg{font:13px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Meiryo","Noto Sans CJK JP",sans-serif}
   #pd-dlg{position:fixed;inset:0;z-index:100001;background:#0007;display:flex;align-items:center;justify-content:center}
   #pd-dlg .box{background:#fff;color:#1c1f26;border-radius:12px;padding:24px;width:min(460px,92vw);box-shadow:0 10px 40px #0006}
@@ -880,7 +958,7 @@
   #pd-dlg .acts{display:flex;justify-content:flex-end;gap:10px}
   #pd-dlg button{font:inherit;padding:6px 14px;border:1px solid #c5c9d2;border-radius:8px;background:#fff;color:inherit;cursor:pointer}
   #pd-dlg button.danger{background:#d64545;color:#fff;border-color:#d64545;font-weight:700}
-  @media (prefers-color-scheme:dark){#pd-dlg .box{background:#1d2027;color:#e6e8ee}#pd-dlg button{background:#252932;border-color:#3a3f4b}}
+  html.pd-dark #pd-dlg .box{background:#1d2027;color:#e6e8ee}html.pd-dark #pd-dlg button{background:#252932;border-color:#3a3f4b}
   `;
   const style = document.createElement('style'); style.textContent = css; document.head.appendChild(style);
 
@@ -894,6 +972,20 @@
     { v: 'clean', t: '(1)を外す・片付け', d: '重複を削除したあとに残った空フォルダをゴミ箱へ移し、同じ名前で入れ子になったフォルダをまとめ、不要になった (1) を外します。' },
   ];
 
+  // 線のアイコン（currentColor で色を合わせる）
+  const SVG = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+  const IC = {
+    gear: SVG('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'),
+    sun: SVG('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'),
+    moon: SVG('<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>'),
+    globe: SVG('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9M12 3C9.5 5.6 8.2 8.6 8.2 12s1.3 6.4 3.8 9"/>'),
+    x: SVG('<path d="M6 6l12 12M18 6L6 18"/>'),
+    search: SVG('<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>'),
+    up: SVG('<path d="M12 19V5M5 12l7-7 7 7"/>'),
+    folder: SVG('<path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/>'),
+    dedupe: SVG('<rect x="3" y="4" width="11" height="13" rx="2"/><path d="M8 8h11a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H10"/>'),
+    alert: SVG('<circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/>'),
+  };
   const btn = document.createElement('button'); btn.id = 'ppdup-btn'; btn.innerHTML = LOGO + '<span>Distill</span>'; btn.title = 'PikPak Distill – Dedupe（クリックでメニュー）'; document.body.appendChild(btn);
   const fab = document.createElement('div'); fab.id = 'ppdup-fab'; document.body.appendChild(fab);
   const root = document.createElement('div'); root.id = 'ppdup';
@@ -902,19 +994,22 @@
       <button data-a="toflow" data-rail="flow" title="整理（1〜7のステップ）"><svg viewBox="0 0 24 24"><path d="M4 6h10M4 12h16M4 18h7" /><circle cx="18" cy="6" r="2"/><circle cx="15" cy="18" r="2"/></svg><span>整理</span></button>
       <button data-a="tree" data-rail="tree" title="フォルダ一覧（Finder やエクスプローラーのように、フォルダを開いて中身を見られます）"><svg viewBox="0 0 24 24"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/><path d="M7 11h10M7 15h6"/></svg><span>フォルダ​一覧</span></button>
       <button data-a="rescan" data-rail="scan" title="最新の状態を読み込み直す"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg><span>再読み込み</span></button>
-      <button data-a="log" data-rail="log" title="エラーや処理の記録"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7M9 7h3"/></svg><span>ログ</span><i data-r="logbadge"></i></button>
-      <span class="sp"></span>
-      <button data-a="lang" class="raw" title="Switch to English"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9M12 3C9.5 5.6 8.2 8.6 8.2 12s1.3 6.4 3.8 9"/></svg><span class="raw">English</span></button>
-      <button data-a="close" data-rail="close" title="閉じる（PikPakの画面に戻る）"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg><span>閉じる</span></button>
-      <span class="rv">v${VER}</span>
     </aside>
     <header>
-      <div class="brand">${LOGO}<h1>PikPak Distill</h1><span class="chip">Dedupe</span><span class="ver" title="いま動いているバージョン">v${VER}</span><span class="by">by Noel Labs</span><span class="sp"></span></div>
+      <div class="brand">${LOGO}<h1>PikPak Distill</h1><span class="chip">Dedupe</span><span class="ver" title="いま動いているバージョン">v${VER}</span><span class="sp"></span>
+        <label class="hq" title="名前で絞り込み">${IC.search}<input type="text" data-a="tq" placeholder="名前で絞り込み"></label>
+        <div class="pd-quota" data-r="quota"></div>
+        <span class="seg thm" data-r="theme" role="group" aria-label="テーマ"></span>
+        <button class="hbtn" data-a="lang" title="表示言語を切り替える">${IC.globe}<span class="raw" data-r="langname"></span></button>
+        <button class="hbtn" data-a="settings" title="設定（表示・再生・整理・情報）">${IC.gear}<span>設定</span><i data-r="logbadge"></i></button>
+        <button class="hx" data-a="close" title="閉じる（PikPakの画面に戻る）" aria-label="閉じる">${IC.x}</button>
+      </div>
       <nav data-r="nav"></nav>
     </header>
     <div class="tb" data-r="tb"></div>
-    <div class="prog" data-r="prog"><span data-r="status"></span><span class="pb"><i data-r="pbar"></i></span></div>
-    <main data-r="main"></main>`;
+    <div class="tsel" data-r="tsel"></div>
+    <main data-r="main"></main>
+    <div class="prog" data-r="prog"><span data-r="status"></span><span class="pb"><i data-r="pbar"></i></span><span data-r="pright"></span></div>`;
   document.body.appendChild(root);
 
   // ---------- 表示言語（日本語／英語） ----------
@@ -925,6 +1020,8 @@
   let LANG = resolveLang();
   const loc = () => (LANG === 'en' ? 'en-US' : 'ja-JP');
   const EN = [["読み込んだファイルのうち、作品と関係ないものを見分けて削除します。オンの間は、ここで見つけたファイルを「ファイル名を整える」「作品ごとに仕分け」「フォルダ名を揃える」「重複を比べて削除」の対象から外すので、広告ファイルの名前でフォルダが作られたり、フォルダ名が広告の名前になったりしません（削除しなくても外れます）。","Finds scanned files that are not part of any work and deletes them. While this is on, those files are excluded from \"Clean file names\", \"Sort by work\", \"Align folder names\" and \"Compare duplicates\", so ad files never become folder names (they are excluded even if you don't delete them)."],["「要確認」は最初はチェックなしです。削除はPikPakのゴミ箱へ移動します（確認画面で完全削除も選べます）。削除したあとに空になったフォルダは、「7. (1)を外す・片付け」でまとめて片付けられます。使わない場合は、右上の「このステップを使う」のチェックを外してください。","\"Needs review\" items start unchecked. Deleting moves files to the PikPak trash (you can choose permanent deletion in the confirmation). Folders left empty can be cleaned up in \"7. Remove (1) / tidy up\". To skip this step, uncheck \"Use this step\" at the top right."],["の形にそろえます。名前がそろうと、「重複を比べて削除」で同じ動画が同じ組にまとまり、フォルダ名との対応もそろいます。Enhancement Master の「FC2 クリーン命名」と同じ考え方です。",". With consistent names, \"Compare duplicates\" groups the same video together and folder names line up. Same idea as Enhancement Master's \"FC2 clean naming\"."],["PotPlayer はアプリが入っていれば直接起動します。GOM Player・VLC などは「既定のアプリで開く」を選び、.m3u ファイルを開くアプリにそのプレーヤーを設定してください。","PotPlayer launches directly if installed. For GOM Player, VLC etc., choose \"Open with default app\" and set that player as the app for .m3u files."],["再生用リンクをコピーしました。プレーヤーの「URL を開く」（GOM Player なら Ctrl+U）に貼り付けてください。リンクはしばらくすると無効になります。","Playback link copied. Paste it into your player's \"Open URL\" (Ctrl+U in GOM Player). The link expires after a while."],["再生リストファイル（.m3u）を保存しました。開くと、OS で .m3u に設定しているプレーヤー（GOM Player・VLC など）で再生されます。","Saved a playlist file (.m3u). Opening it plays the video in the player your OS uses for .m3u (GOM Player, VLC, etc.)."],["：品番がなく、宣伝によく使われる文字だけの名前。小さいファイルは削除の対象、50MB 以上や品番が入ったものは作品の可能性があるため「要確認」に回します",": names without a work ID made only of typical promo text. Small files are deleted; files of 50 MB or more, or with a work ID, may be real works and go to \"Needs review\""],["広告・宣伝のファイルや 10MB 以下のファイルなど、作品と関係ないものを削除します。ほかのステップでは対象から外します（使うかどうかを選べます）。","Deletes files that are not part of any work, such as ads and files of 10 MB or less. Other steps ignore them (optional)."],["エラーや主な処理の記録です。このブラウザの中にだけ保存されます（ログイン情報は記録しません）。不具合の報告にはコピーして貼り付けてください。","A record of errors and main actions, stored only in this browser (no login data). Copy and paste it when reporting a problem."],["VLC・mpv・Celluloid などは「既定のアプリで開く」を選び、.m3u ファイルを開くアプリにそのプレーヤーを設定してください。","For VLC, mpv, Celluloid etc., choose \"Open with default app\" and set that player as the app for .m3u files."],["オンにすると、作品と関係ないファイルを、仕分け・名前の変更・重複比較の対象から外します（「2. 不要ファイルを削除」で確認・削除できます）","When on, files unrelated to any work are excluded from sorting, renaming and duplicate checks (review and delete them in \"2. Delete junk files\")"],["ホームか My Pack を開いた状態で実行してください。読み込みはバックグラウンドで行い、PikPak の画面は切り替わりません。","Run this with Home or My Pack open. Scanning runs in the background; the PikPak page does not change."],["同じ名前のものが移動先にある場合は (1) を付けて移動します。グレーのフォルダ（移動するフォルダ自身とその中）へは移動できません。","If the destination already has the same name, (1) is added. Grey folders (the folders being moved and their contents) can't be chosen."],["FC2のファイル名から、サイト名や広告などの余計な文字を消して「FC2-PPV-品番」の形にそろえます（使うかどうかを選べます）。","Strips site names, ads and other extra text from FC2 file names to the form \"FC2-PPV-ID\" (optional)."],["重複を削除したあとに残った空フォルダをゴミ箱へ移し、同じ名前で入れ子になったフォルダをまとめ、不要になった (1) を外します。","Moves folders left empty after deleting duplicates to the trash, flattens nested same-name folders and removes (1) suffixes that are no longer needed."],["PikPakへの再ログインが必要な可能性があります。PikPakの画面で一度ログインし直してから、もう一度お試しください。","You may need to log in to PikPak again. Log in on the PikPak page, then try again."],["すべてのステップが完了しました。PikPakで操作したあとは、「1. 読み込む」で読み込み直すと最新の状態を確認できます。","All steps are complete. After changing things in PikPak, run \"1. Scan\" again to see the latest state."],["チェックの入ったものを実行します。重複を削除したあとは、先に「1. 読み込む」で読み込み直してから使ってください。","Runs the checked items. After deleting duplicates, run \"1. Scan\" again first."],["使わない場合は、右上の「このステップを使う」のチェックを外してください。次回以降もこの設定を覚えておきます。","To skip this step, uncheck \"Use this step\" at the top right. The setting is remembered."],["「X の中に X だけ」のフォルダの中身を 1 つ上へ出します（オムニバスなど複数作品のフォルダは対象外）","Moves the contents of \"X containing only X\" up one level (folders with several works, like omnibus sets, are left alone)"],["この画質（HLS）はこのブラウザの中では再生できません。別の画質か「↗ 外部プレーヤー」を選んでください。","This quality (HLS) can't play in this browser. Choose another quality or \"↗ External player\"."],["チェックの入った空フォルダをゴミ箱へ移し、入れ子のフォルダをまとめ、(1) を外します。よろしいですか？","Move the checked empty folders to the trash, flatten nested folders and remove (1)? "],["ログイン情報を更新しました。途中まで完了した分は保存済みです。もう一度ボタンを押すと続きから実行します。","Login refreshed. Completed work has been saved. Press the button again to continue."],["同じ名前のファイルがあるため (n) を付けます（重複の可能性：「重複を比べて削除」で確認できます）","A file with the same name exists, so (n) is added (possible duplicate: check in \"Compare duplicates\")"],["既定のアプリで開く（.m3u を保存して開く：GOM Player・VLC・MPC・mpv など）","Open with default app (save and open an .m3u: GOM Player, VLC, MPC, mpv, etc.)"],["・右クリックの「再生」で使う方法です。プレビュー（スペース）の中の ▶ からはいつでも選べます。"," and right-click \"Play\". You can always pick a method from ▶ inside the preview (Space)."],["このファイルの再生用リンクを取得できませんでした（PikPak 側で変換中の可能性があります）","Couldn't get a playback link for this file (PikPak may still be converting it)"],["対象はチェックの入ったファイルだけです。通常はPikPakのゴミ箱へ移動し、あとから戻せます。","Only checked files are affected. They normally go to the PikPak trash and can be restored."],["で戻る）・ダブルクリックで再生・ドラッグで移動・右クリックでメニュー・スペースでプレビュー・"," to go back) · double-click to play · drag to move · right-click for menu · Space to preview · "],["作品の可能性があるもの。削除する場合はチェックしてください（ほかのステップの対象のままです）","May be real works. Check to delete (they stay included in other steps)"],["などのファイル、品番がなく「最新地址」「广告」「福利」などの宣伝の言葉やサイトのアドレス（"," files, and names without a work ID containing promo words or site addresses ("],["フォルダ一覧（Finder やエクスプローラーのように、フォルダを開いて中身を見られます）","Folders (browse folders like Finder or Explorer)"],["開いているフォルダ以下のファイルとフォルダを読み込みます。ほかの機能はこのあとで使えます。","Scans all files and folders under the open folder. Other features become available afterwards."],["オフにすると、不要ファイルの判定を使わず、すべてのファイルをほかのステップの対象にします","When off, junk detection is skipped and every file is included in the other steps"],["内容を確認して、まずは「先頭1件だけ試す」で動きを確かめてください。削除はしません。","Review the plan and try \"Try the first one\" first. Nothing is deleted."],["広告・宣伝のファイルや 10MB 以下のファイルなどを、ほかの作業の対象から外します","Excludes ads and files of 10 MB or less from the other tasks"],["読み込み済みです。カードから作業を選べます（操作したら再スキャンで最新にできます）。","Scanned. Pick a task from the cards (rescan after making changes)."],["PikPak でファイルを追加・操作したら、再スキャンで最新の状態を確認できます。","After adding or changing files in PikPak, rescan to see the latest state."],["中身が空のフォルダです。実行直前にも空であることを確認します（ゴミ箱から戻せます）","These folders are empty. Emptiness is re-checked right before running (restorable from trash)"],["フォルダ名を中のファイル名（品番）に揃えます。同名があれば (1) を付けます。","Renames folders after the file (work ID) inside. Adds (1) if the name is taken."],["中身のある同名フォルダが複数あります（「重複を比べて削除」で整理してください）","Several non-empty folders share this name (sort them out in \"Compare duplicates\")"],["FC2 以外のファイルは変更しません。ファイルの中身や置き場所は変わりません","Non-FC2 files are not changed. File contents and locations stay the same"],["そのフォルダへは移動できません（移動するフォルダ自身やその中へは移せません）","Can't move there (a folder can't be moved into itself or its contents)"],["強制削除：全件にチェックが入っている組も、すべて削除する（広告ファイルなど）","Force delete: also delete groups where every file is checked (e.g. ad files)"],["複数の作品が入ったフォルダの中に品番フォルダを作り、ファイルを振り分けます。","Creates work-ID folders inside folders holding several works and sorts the files into them."],["：画像・説明ファイル・短い宣伝動画など（字幕ファイルは「要確認」に回します）",": images, info files, short promo videos, etc. (subtitles go to \"Needs review\")"],["ログインの有効期限が切れていたため、PikPakの画面を再読み込みします…","Your login expired, reloading the PikPak page…"],["画面を再読み込みしました。ログイン情報の更新を待っています…（最大 あと","Page reloaded. Waiting for the login to refresh… (up to"],["表示中の作品をすべて仕分け（フォルダ作成・移動）します。よろしいですか？","Sort all listed works (create folders and move files)?"],[" キーで使う方法です。プレビュー（スペース）の中からはいつでも選べます。"," key. You can always choose from inside the preview (Space)."],["※各組の一番大きいファイルは最初からチェックなし（残す）になっています","* The largest file in each group starts unchecked (kept)"],["再生のしかたの設定（プレビュー内・プレーヤー・全画面・外部プレーヤー）","Playback settings (preview, player, full screen, external player)"],["同じファイルをサムネイルとサイズで比べ、チェックしたものを削除します。","Compares identical files by thumbnail and size, and deletes the checked ones."],["1〜7 の整理ステップの画面へ移ります（左メニューの「整理」と同じ）","Go to the 1–7 organizing steps (same as \"Organize\" in the left menu)"],["PikPak Distill – Dedupe（クリックでメニュー）","PikPak Distill – Dedupe (click for menu)"],["1〜7 のステップをすべて表示します（左メニューの「整理」と同じ）","Show all steps 1–7 (same as \"Organize\" in the left menu)"],["を起動しています。ブラウザの確認が出たら「開く」を押してください（"," is launching. If the browser asks, click \"Open\" ("],["フォルダを作成しました。名前を入力して Enter で確定します。","Folder created. Type a name and press Enter."],["変更内容を確認して、まずは「先頭1件だけ試す」で確かめてください。","Review the changes and try \"Try the first one\" first."],["外側のフォルダにほかのフォルダが増えていたため、まとめませんでした","Not flattened because the outer folder now contains other folders"],["。上の画質を切り替えるか「↗ 外部プレーヤー」を試してください。",". Switch quality above or try \"↗ External player\"."],["同じ名前のフォルダが入れ子になっているため、中身を 1 つ上の「","Nested folders share the same name, so the contents are moved up into \""],["IINA・Infuse はアプリが入っていれば直接起動します。","IINA and Infuse launch directly if installed."],["全画面にできませんでした。プレーヤーの ⛶ を押してください。","Couldn't go full screen. Press ⛶ in the player."],["タイル表示。フォルダごとに見出しを付けて並べます（3 キー）","Tile view, grouped under a heading per folder (key 3)"],["下のカードから作業を選ぶか、おすすめの作業へ進んでください。","Pick a task from the cards below, or go to the suggested one."],["再生のしかたの設定（ダブルクリック時の動作・外部プレーヤー）","Playback settings (double-click action, external player)"],["削除を確認できませんでした（PikPak側で処理中の可能性）","Couldn't confirm the deletion (PikPak may still be processing)"],["画面を再読み込みしました。ログイン情報の更新を待っています…","Page reloaded. Waiting for the login to refresh…"],["移動を確認できませんでした（PikPak側で処理中の可能性）","Couldn't confirm the move (PikPak may still be processing)"],["」が残っています（「重複を比べて削除」で整理してください）","\" still exists here (sort it out in \"Compare duplicates\")"],["ここを最上位にする（ドラッグして離すとこのフォルダへ移動）","Make this the top level (drop items here to move them into this folder)"],["チェックの入ったファイルの名前を整えます。よろしいですか？","Clean up the names of the checked files?"],["リンクをコピー（プレーヤーの「URL を開く」に貼り付け）","Copy link (paste into your player's \"Open URL\")"],["一部のファイルが見つかりません（再スキャンしてください）:","Some files are missing (please rescan):"],["場所の情報がありません（ホームから読み込み直してください）","Location unknown (scan again from Home)"],["広告・宣伝（作品フォルダの中の、品番のない小さなファイル）","Ad (small file without a work ID inside a work folder)"],["を付けます（重複の可能性があるため、あとで比べられます）"," is added (possible duplicate, compare later)"],["サイト名・広告など、品番の前後にある余計な文字は消します","Site names, ads and other text around the work ID are removed"],["件）は、組ごと消えてしまうため通常は対象外にしています（"," files) are normally skipped because the whole group would be deleted ("],["」の中身を表示しています（見出しの「⤒ 一覧へ戻る」か","\" is shown (go back to the top with the heading's \"⤒ Back to overview\" or the"],["表示中のフォルダ名をすべて変更します。よろしいですか？","Rename all listed folders?"],["プレーヤー画面で再生（画質の切り替え・前後のビデオ）","Play in the player (switch quality, previous/next video)"],["中断しています…（いまの処理が終わったら止まります）","Stopping… (after the current item finishes)"],["名前の変更は不要です。次のステップへ進んでください。","No renaming needed. Go to the next step."],["すべてのファイルを、ほかのステップの対象にします。","All files are included in the other steps."],["広告・宣伝（品番がなく、複数のフォルダに同じ名前）","Ad (no work ID, same name in several folders)"],["でゴミ箱へ・1 / 2 / 3 で表示の切り替え"," to trash · 1 / 2 / 3 to switch views"],["ゴミ箱を経由せず完全に削除する（元に戻せません）","Delete permanently without the trash (cannot be undone)"],["マウスを乗せたときにサムネイルを大きく表示します","Shows a large thumbnail when you hover"],["仕分けは不要です。次のステップへ進んでください。","No sorting needed. Go to the next step."],["外部プレーヤー用のリンクを取得できませんでした：","Couldn't get a link for the external player: "],["選んだフォルダを最上位にして、その中だけを表示（","Make the selected folder the top level and show only its contents ("],["オフにすると、このステップを使わず次へ進みます","When off, this step is skipped"],["作品と関係ないファイルは見つかりませんでした。","No files unrelated to works were found."],["最新の状態を読み込んでから、この作業を続けます","Rescans, then continues this task"],["画質（カクつく場合は変換画質を選んでください）","Quality (choose a converted quality if playback stutters)"],["PikPakのサーバーに接続できませんでした","Couldn't connect to the PikPak server"],["✓ このステップの作業はすべて完了しています","✓ Everything in this step is done"],["。⤢ のプレーヤー画面で別の画質を試せます。",". Try another quality in the ⤢ player."],["最上位・スキャン起点のフォルダは変更しません","Top-level and scan-root folders are not changed"],["（ログイン切れとして再読み込みで回復します）"," (treated as an expired login; recovering by reloading)"],["」が既にあります（再スキャンしてください）","\" already exists (please rescan)"],["」へ出して、空になったフォルダを片付けます","\" and the emptied folder is removed"],["再読み込み後もログイン情報が更新されません","Login did not refresh even after reloading"],["同じ品番でまとめる（-1/-2違いも含む）","Group by work ID (including -1/-2 parts)"],["同じ場所に同じ名前のファイルができる場合は","If the same name already exists in the folder,"],["品番の入ったファイルがないため変更しません","Not changed: no file with a work ID"],["見つかりません（読み込み直してください）:","Not found (please rescan):"],["まずは「スキャン開始」を押してください。","Press \"Start scan\" to begin."],["件は実行直前の確認で対象外になりました）"," were skipped by the last-moment check)"],["空の同名フォルダを片付けたあとに外します","Removed after the empty same-name folders are cleaned up"],["✓ 仕分けが必要なフォルダはありません","✓ No folders need sorting"],["が入っていない場合は何も起きません）。"," isn't installed, nothing happens)."],["ログイン期限切れのため画面を再読み込み","Reloading the page because the login expired"],["中身が入っているため削除しませんでした","Not deleted because it isn't empty"],["作品フォルダの中の、品番のないファイル","File without a work ID inside a work folder"],["元フォルダにファイルが見つかりません:","File not found in the source folder:"],["品番あり・作品の可能性（念のため確認）","Has a work ID, may be a real work (please check)"],["広告・宣伝（品番のない宣伝向けの名前）","Ad (promo-style name without a work ID)"],["ダブルクリック・右クリックの「再生」・","Used for double-click, right-click \"Play\" and the "],["このステップでは処理できないものです","Items this step can't handle"],["ほかのステップの対象から外しています","Excluded from the other steps"],["チェックの入ったファイルがありません","No files are checked"],["再生用リンクを取得できませんでした：","Couldn't get a playback link: "],["絞り込みに該当する重複はありません。","No duplicates match the filter."],["」が残っているため外せませんでした","\" still exists, so it couldn't be removed"],["サムネイル付きのリスト（2 キー）","List with thumbnails (key 2)"],["チェックを外したものは変更しません","Unchecked items are not changed"],["件。次のステップを選んでください。",". Choose the next step."],["元ファイル（ダウンロード用リンク）","Original file (download link)"],["再生用リンクを取得できませんでした","Couldn't get a playback link"],["名前に / や \\\\ は使えません","Names can't contain / or \\\\"],["名前の変更は完了しています（要確認","Renaming is done (needs review: "],["品番のないファイル（作品の可能性）","File without a work ID (may be a real work)"],["外部プレーヤー用のリンクを取得中…","Getting a link for the external player…"],["直下に名前の異なるファイルが複数:","Several different files directly inside:"],["閉じる（PikPakの画面に戻る）","Close (back to PikPak)"],["✓ すべて完了（読み込み画面へ）","✓ All done (to the scan screen)"],["✓ 外せる (1) はありません","✓ No (1) to remove"],["」を最上位にして表示しています（","\" is now the top level ("],["このステップはオフになっています","This step is turned off"],["すでにそのフォルダの中にあります","Already in that folder"],["の操作：▶ / ← → で開閉（"," controls: ▶ / ← → open/close ("],["フォルダを作成できませんでした:","Couldn't create the folder:"],["フォルダを作成できませんでした：","Couldn't create the folder: "],["ログインの有効期限が切れています","Your login has expired"],["中に品番の異なるフォルダが複数:","Several folders with different work IDs inside:"],["件は「要確認」で確認できます）。"," items to check under \"Needs review\")."],["作品と関係ないファイルを除外する","Exclude files unrelated to works"],["入れ子のフォルダをまとめています","Flattening nested folders"],["移動（ドラッグでも移動できます）","Move (you can also drag)"],["要確認の項目を確認してください。","Please check the items that need review."],["読み込んだ場所から表示しています","Showing from the scanned location"],["／ 同名のため (1) を付ける"," / (1) added for same names "],["1 つ上の階層を最上位にする（","Make the parent the top level ("],["このフォルダを最上位にして表示","Show this folder as the top level"],["ログ（新しい順・最新300件）","Log (newest first, last 300)"],["不要ファイルの除外はオフです。","Junk file exclusion is off."],["件のフォルダ名を変更しました。"," folders renamed."],["広告・宣伝（広告フォルダの中）","Ad (inside an ad folder)"],["次のステップへ進んでください。","Go to the next step."],["閉じる（スペース / Esc）","Close (Space / Esc)"],["いま最上位にしているフォルダ","Current top-level folder"],["すべてのフォルダを閉じました","All folders collapsed"],["すべてのフォルダを開きました","All folders expanded"],["まずはフォルダを読み込みます","Start by scanning your folders"],["ファイル名の整理はオフです。","File-name cleanup is off."],["ファイル名はそろっています。","File names are already clean."],["フォルダ一覧で新規フォルダ：","New folder in Folders: "],["ログイン情報を取得できません","Can't read login information"],["ログイン情報を更新しました。","Login refreshed."],["一致するフォルダはありません","No matching folders"],["中のフォルダの品番に揃えます","Named after the work ID of the folder inside"],["件に (n) を付けました）"," got (n) added)"],["全件にチェックが入っている組","groups with every file checked"],["名前を変更できませんでした：","Couldn't rename: "],["最新の状態を読み込み直します","Rescan to get the latest state"],["現在の名前が想定と違います:","The current name is not what was expected:"],["組 ／ チェック（削除する）"," groups / checked (to delete) "],["項目の移動先を選んでください"," items: choose where to move them"],["（このブラウザでは再生不可）"," (can't play in this browser)"],["（読み込んだフォルダの直下）","(directly in the scanned folder)"],["1〜7の流れで順番に進める","Go through steps 1–7 in order"],["✓ 空フォルダはありません","✓ No empty folders"],["このフォルダを最上位にする","Make this folder the top level"],["すべてのフォルダを閉じる（","Collapse all folders ("],["または上のパスで戻れます）"," or the path above to go back)"],["キー／マウスの戻るボタン）"," key / mouse back button)"],["ファイル名は変更しません。","File names are not changed."],["フォルダを読み込み済みです","Folders scanned"],["フォルダ一覧で名前を変更：","Renamed in Folders: "],["ログイン情報を更新して再開","Login refreshed, resuming"],["件のファイル名を整えました"," file names cleaned up"],["入れ子のフォルダをまとめる","Flatten nested folders"],["再生用リンクの取得に失敗：","Failed to get playback link: "],["同名フォルダがあるため (","(same-name folder exists, adding ("],["整理はすべて完了しています","Everything is organized"],["空フォルダを片付けています","Removing empty folders"],["読み込んだフォルダは空です","The scanned folder is empty"],["（中で一番大きいファイル：","(largest file inside: "],["（再スキャンしてください）","(please rescan)"],["」は再生できませんでした","\" couldn't be played"],["いま動いているバージョン","Running version"],["このステップでできること","What this step does"],["このプレビューの中で再生","Play inside this preview"],["すべてのフォルダを開く（","Expand all folders ("],["キーで一番上へ戻れます）"," key)"],["チェックしたものを削除（","Delete checked ("],["一致するものはありません","Nothing matches"],["仕分けは完了しています。","Sorting is done."],["同じファイル名でまとめる","Group by identical file name"],["名前を変更（Enter）","Rename (Enter)"],["整理（1〜7のステップ）","Organize (steps 1–7)"],["最新の状態を読み込み直す","Rescan for the latest state"],["片付けは完了しています。","Tidying up is done."],["読み込みに失敗しました：","Scan failed: "],["（パスをコピーしました）","(path copied)"],["🔍 フォルダ名で絞り込み","🔍 Filter by folder name"],["いま開いているフォルダ","Current folder"],["この組のチェックを削除","Delete checked in this group"],["でフォルダを最上位に（"," makes a folder the top level ("],["など）が入ったファイル"," etc.)"],["の中身 → 1 つ上の"," contents → up into"],["シリーズ／分割の番号（","Series / part numbers ("],["チェックしたものを削除","Delete checked"],["チェックしたものを変更","Rename checked"],["チェックしたものを実行","Run checked"],["リスト表示（1 キー）","List view (key 1)"],["中身が空の同名フォルダ","Empty same-name folder"],["作品と関係ないファイル","Files unrelated to works"],["作品を仕分けしました。"," works sorted."],["場所をコピーしました：","Location copied: "],["外部プレーヤーで再生：","Played in external player: "],["絞り込み（品番・名前）","Filter (work ID, name)"],["認証の確認が必要です（","Verification needed ("],["読み込み中… フォルダ","Scanning… folders"],["読み込み完了：フォルダ","Scan complete: folders"],["（同じ名前があったため"," (same names existed, so"],["(1)を外しています","Removing (1)"],["(1)を外す・片付け","Remove (1) / tidy up"],["/ ダブルクリック）","/ double-click)"],["1〜7 をすべて表示","Show steps 1–7"],["1〜7の流れで続ける","Continue with steps 1–7"],["FC2-PPV-品番","FC2-PPV-ID"],["FC2のファイル名を","FC2 file names are aligned to "],["↗ 外部プレーヤー（","↗ External player ("],["オフ（使わない設定）","Off (not used)"],["チェック（削除する）","Checked (to delete)"],["ファイルマネージャー","File manager"],["ファイル名を変更中…","Renaming files…"],["プレビューの中で再生","Play in the preview"],["プレーヤー画面で再生","Play in the player"],["ログを消去しますか？","Clear the log?"],["一番上の一覧へ戻る（","Back to the overview ("],["不要ファイルの判定：","Junk detection: "],["不要ファイルの除外を","Junk exclusion: "],["再生のしかたの設定…","Playback settings…"],["削除を停止しました（","Deletion stopped ("],["削除を停止しました：","Deletion stopped: "],["名前を変更しました：","Renamed: "],["外部プレーヤーで再生","Play in external player"],["外部プレーヤーで開く","Open in external player"],["本 ／ 新規フォルダ"," files / new folders "],["移動を停止しました：","Move stopped: "],["空フォルダをゴミ箱へ","Empty folders to trash"],["読み込み後に使えます","Available after scanning"],["（自動で回復します）"," (recovering automatically)"],["⤓ ここを最上位に","⤓ Make top level"],["このステップを使う","Use this step"],["エラーや処理の記録","Errors and activity log"],["サイズが近い組あり","Has near-size matches"],["サイズが近い組だけ","Near-size groups only"],["チェック＝削除する","Checked = delete"],["ファイル名の整理を","File-name cleanup: "],["ファイル名を整える","Clean file names"],["フォルダを作成中…","Creating folder…"],["フォルダ一覧で削除","Deleted in Folders"],["フォルダ一覧で移動","Moved in Folders"],["フォルダ名を揃える","Align folder names"],["プレビューで再生：","Played in preview: "],["ホバーでサムネイル","Hover thumbnails"],["不要ファイルの削除","Junk file deletion"],["不要ファイルを削除","Delete junk files"],["中身が空のフォルダ","Empty folder"],["再生できない画質：","Unplayable quality: "],["再生のしかたの設定","Playback settings"],["最大＝高画質の候補","Largest = best quality candidate"],["直下にファイルなし","No files directly inside"],["重複はありません。","No duplicates."],["項目（中のファイル"," items (files inside: "],["🔍 名前で絞り込み","🔍 Filter by name"],["⛶ 全画面で再生","⛶ Play full screen"],["、タイトル末尾の",", title-end "],["」が既にあります","\" already exists"],["」へ移動しました","\""],["で中もすべて）・"," for all inside) · "],["で新規フォルダ・"," new folder · "],["エクスプローラー","Explorer"],["ゴミ箱に入れる（","Move to trash ("],["ダブルクリックや","double-click, "],["ファイル名の整理","File-name cleanup"],["フォルダ名の変更","Folder renames"],["件を削除します（"," files will be deleted ("],["件を実行しました"," done"],["作品ごとに仕分け","Sort by work"],["作業を選んで開く","Open a single task"],["先頭1件だけ試す","Try the first one"],["再生のしかたを「","Playback set to \""],["名前を変更中…：","Renaming…: "],["変更するファイル","Files to rename"],["変更（重複回避）","Rename (avoid clash)"],["外部プレーヤー（","External player ("],["整理（1〜7）へ","Organize (1–7)"],["記録はありません","No entries"],["重複を比べて削除","Compare duplicates"],["閉じる（Esc）","Close (Esc)"],["（空のフォルダ）","(empty folder)"],["＋ 新規フォルダ","＋ New folder"],["↻ 再スキャン","↻ Rescan"],["▤ サムネイル","▤ Thumbnails"],["▶ ここで再生","▶ Play here"],["✎ 名前を変更","✎ Rename"],["⤒ 一覧へ戻る","⤒ Back to overview"],["⤢ プレーヤー","⤢ Player"],["すべてチェック","Check all"],["で名前の変更・"," rename · "],["の形で残します"," form"],["まずはここから","Start here"],["コピーしました","Copied"],["ゴミ箱に入れる","Move to trash"],["サイズ(MB)","Size (MB)"],["リンクをコピー","Copy link"],["再生の準備中…","Preparing playback…"],["名前を変更中…","Renaming…"],["完了（閉じる）","Done (close)"],["宣伝向けの名前","Promo-style names"],["新規フォルダ（","New folder ("],["既存フォルダへ","Into existing folder"],["最上位を変更中","Custom top level"],["要確認・対象外","Needs review / skipped"],["読み込み画面へ","To the scan screen"],["読み込んでから","Scan first"],["項目・ファイル"," items · files"],["(1)を外す","Remove (1)"],["10MB以下","10 MB or less"],["✓ 該当なし","✓ None"],["」にしました","\""],["おまかせ整理","Guided organize"],["すべて仕分け","Sort all"],["ゴミ箱へ移動","moved to trash"],["スキャン起点","Scan root"],["スキャン開始","Start scan"],["テキスト保存","Save as text"],["フォルダ一覧","Folders"],["使わない設定","Not used"],["全画面で再生","Play full screen"],["全画面（F）","Full screen (F)"],["再生のしかた","Playback"],["前のビデオ（","Previous video ("],["同じ場所に「","Same location already has \""],["場所をコピー","Copy location"],["変更するもの","To rename"],["字幕ファイル","Subtitle file"],["広告・宣伝（","Ad ("],["強制削除する","Force delete"],["新規フォルダ","New folder"],["既定のアプリ","Default app"],["次のビデオ（","Next video ("],["読み込み中…","Scanning…"],["読み込み済み","scanned"],["項目を選択（"," items selected ("],["項目完了）："," items done): "],["（フォルダ）"," (folder)"],["／ ファイル"," / files"],["／ 一致済み"," / already matching"],["／ 重複回避"," / clash avoided"],["🗑 ゴミ箱へ","🗑 To trash"],[") を付与",")"],["CSV保存","Save CSV"],["↪ 移動…","↪ Move…"],["⊞ 全展開","⊞ Expand all"],["⊟ 全格納","⊟ Collapse all"],["▦ タイル","▦ Tiles"],["▶ 再生（","▶ Play ("],["☰ リスト","☰ List"],["⛶ 全画面","⛶ Full screen"],["おすすめ：","Suggested: "],["ここへ移動","Move here"],["しました。","."],["すべて変更","Rename all"],["すべて外す","Uncheck all"],["キャンセル","Cancel"],["コピー失敗","Copy failed"],["ファイル名","File name"],["ファイル）"," files)"],["プレビュー","Preview"],["・おすすめ"," · suggested"],["・強制削除"," · force delete"],["仕分け中…","Sorting…"],["件・対象外"," · skipped"],["作品完了）"," works done)"],["再読み込み","Rescan"],["名前を変更","Rename"],["場所を開く","Open location"],["完全に削除","permanently deleted"],["広告・宣伝","Ads"],["最大比 -","vs. largest -"],["未読み込み","Not scanned"],["組を含む）"," groups)"],["読み込み：","Scanned: "],["（強制削除"," (force delete"],["▶ 再生","▶ Play"],["✓ 完了","✓ Done"],["おすすめ","Suggested"],["など）は"," etc.) "],["まとめ方","Grouping"],["イメージ","Image"],["エラー：","Error: "],["ドラッグ","Drag"],["ファイル","Files"],["フォルダ","Folders"],["件完了）"," done)"],["作業あり","To do"],["削除する","Delete"],["削除中…","Deleting…"],["変更なし","Unchanged"],["完全削除","permanent"],["対象なし","Nothing to do"],["移動中…","Moving…"],["読み込む","Scan"],["項目 →"," items →"],["項目を「"," items to \""],["（変換）"," (converted)"],["（未定）","(undecided)"],["（要確認"," (needs review"],["表示言語","Language"],["しました",""],["すべて","All"],["に変更"," changed"],["エラー","Error"],["コピー","Copy"],["ゴミ箱","Trash"],["サイズ","Size"],["ビデオ","Video"],["ホーム","Home"],["・変換"," · converted"],["仕分け","Sorting"],["件）・"," files) · "],["停止：","Stopped: "],["再生：","Play: "],["場所：","Location: "],["外部：","External: "],["次へ：","Next: "],["片付け","Tidy up"],["移動…","Move…"],["要確認","Needs review"],["閉じる","Close"],["項目・"," items · "],["項目（"," items ("],["項目）"," items)"],["項目を"," items were "],["オフ","Off"],["オン","On"],["ログ","Log"],["一覧","Overview"],["不要","Junk"],["中断","Stop"],["作品","work"],["保存","Save"],["削除","Delete"],["前回","Last"],["名前","Name"],["場所","Location"],["変更","Rename"],["字幕","Subtitles"],["整理","Organize"],["書類","Document"],["残す","Keep"],["残り","Remaining"],["消去","Clear"],["移動","Move"],["種類","Kind"],["重複","Duplicates"],["開く","Open"],["項目","Items"],[" 風","-style"],["件を"," items were "],["未","Not yet"],["風","-style"]];
+  EN.push(...[["テーマ", "Theme"], ["ライト", "Light"], ["ダーク", "Dark"], ["自動", "Auto"], ["自動（OS の設定に合わせる）", "Auto (follow the OS setting)"], ["設定", "Settings"], ["設定（表示・再生・整理・情報）", "Settings (display, playback, organizing, about)"], ["名前で絞り込み", "Filter by name"], ["使用中", "used"], ["その他", "Other"], ["契約容量", "Plan capacity"], [" 使用 / 上限 ", " used / limit "], ["未スキャン", "Not scanned"], ["内の割合", "share"], ["使用量に占める割合", "Share of usage"], ["使用量全体に対する割合（まだ読み込んでいないフォルダがあるため）", "Share of total usage (some folders are not scanned yet)"], ["表示中のフォルダの中での割合", "Share within the shown folder"], ["1 つ上の階層へ（", "Up one level ("], ["1 つ上の階層へ", "Up one level"], ["（未スキャンのフォルダを除く）", " (excluding unscanned folders)"], ["契約容量比 ", "of plan "], ["・全体比 ", " · of total "], ["選択中", "Selected"], ["項目を選ぶと、再生・名前の変更・移動・ゴミ箱が使えます（右クリックでもメニューを開けます）", "Select items to play, rename, move or trash them (right-click also opens the menu)"], ["読み込んだ場所とその上のフォルダは、ここでは移動できません", "The scanned folder and the folders above it can't be moved here"], ["読み込んだ場所とその上のフォルダは、ここではゴミ箱に入れられません", "The scanned folder and the folders above it can't be trashed here"], ["上の階層を確認しています…", "Checking parent folders…"], ["上の階層を読み込めませんでした：", "Couldn't load parent folders: "], ["これより上の階層はありません", "There is no level above this"], ["表示", "Display"], ["再生", "Playback"], ["情報", "About"], ["右上のボタンと同じ設定です", "Same as the buttons at the top right"], ["自動（ブラウザ）", "Auto (browser)"], ["フォルダ一覧の表示", "Folders view"], ["フォルダ一覧の操作", "Folders controls"], ["▶ 再生ボタン・ダブルクリックのとき", "▶ Play button / double-click"], ["更新履歴", "Changelog"], ["ログを表示", "Show log"], ["見る・再生・名前の変更・移動", "Browse · play · rename · move"], ["Dedupe スキャン", "Dedupe scan"], ["重複・不要ファイルを読み込んで整理", "Scan, then clean up duplicates and junk files"], ["前回の操作でエラーが ", "Errors in recent actions: "], ["件あります", ""], ["確認", "Review"], ["閉じる（Esc）", "Close (Esc)"]]);
+  EN.sort((a, b) => b[0].length - a[0].length); // 長い言い回しから先に置き換える
   const EN_MAP = new Map(EN);
   const EN_UNIT = EN.filter(([a]) => a.length > 1 && /^(件|項目|組|作品|本)./.test(a));
   // 1 語だけで表示される単位・見出し（文の途中では訳さない）
@@ -953,7 +1050,7 @@
   }
   // ファイル名・フォルダ名など、利用者のデータを表示している場所は訳さない
   const RAW_SEL = '.nm,.pd-name,.pd-path,.hv-n span,.ql-h b,.pl-h b,.mv-r span,.tl-h b,.tl-h .pp,.tr-path [data-tbase]:not([data-root]),.raw,textarea,option[data-raw]';
-  const UI_SEL = '#ppdup,#ppdup-fab,#ppdup-btn,#pd-dlg,#pd-ctx,#pd-ql,#pd-player,#pd-hover,#pd-drag';
+  const UI_SEL = '#ppdup,#ppdup-fab,#ppdup-btn,#pd-dlg,#pd-ctx,#pd-ql,#pd-player,#pd-hover,#pd-drag,#pd-set';
   const ATTRS = ['title', 'placeholder', 'aria-label'];
   function trNode(n) {
     if (n.nodeType === 3) {
@@ -998,12 +1095,28 @@
         c = w.nextNode();
       }
     });
-    renderRailLang();
+    renderLangBtn(); renderThemeSeg(); if (document.getElementById('pd-set')) renderSettings();
     if (LANG === 'en') document.querySelectorAll(UI_SEL).forEach(trNode);
-    if (root.classList.contains('on') && !busy) { if (view === 'tree') { treeHeadHtml = ''; } setView(view); }
+    if (root.classList.contains('on') && !busy) setView(view);
     if (fab.classList.contains('on')) renderFab();
   }
-  function renderRailLang() { const b = root.querySelector('[data-a=lang]'); if (b) { b.querySelector('span').textContent = LANG === 'en' ? '日本語' : 'English'; b.title = LANG === 'en' ? '表示を日本語にする' : 'Switch to English'; } }
+  function renderLangBtn() { const n = root.querySelector('[data-r=langname]'); if (n) n.textContent = LANG === 'en' ? 'English' : '日本語'; const b = root.querySelector('[data-a=lang]'); if (b) { b.removeAttribute('title'); b.title = LANG === 'en' ? 'Display language (switch to Japanese)' : '表示言語（English に切り替え）'; } }
+  // ---------- テーマ（ライト／ダーク／自動＝OS に合わせる） ----------
+  const LS_THEME = 'ppdup:theme:v1';
+  const themePref = () => { try { const v = localStorage.getItem(LS_THEME); return v === 'light' || v === 'dark' ? v : 'auto'; } catch (e) { return 'auto'; } };
+  const darkMQ = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  function renderThemeSeg() {
+    const el = root.querySelector('[data-r=theme]'); if (!el) return;
+    const p = themePref();
+    el.innerHTML = [['light', IC.sun, 'ライト'], ['dark', IC.moon, 'ダーク'], ['auto', '', '自動']].map(([k, ic, l]) => `<button data-a="theme" data-v="${k}" class="${p === k ? 'on' : ''}" aria-pressed="${p === k}" title="${k === 'auto' ? '自動（OS の設定に合わせる）' : l}">${ic || l}</button>`).join('');
+  }
+  function applyTheme() {
+    const p = themePref();
+    document.documentElement.classList.toggle('pd-dark', p === 'dark' || (p === 'auto' && !!(darkMQ && darkMQ.matches)));
+    renderThemeSeg();
+  }
+  function setTheme(t) { try { localStorage.setItem(LS_THEME, t); } catch (e) { /* 無視 */ } applyTheme(); if (document.getElementById('pd-set')) renderSettings(); }
+  if (darkMQ) { try { darkMQ.addEventListener('change', applyTheme); } catch (e) { if (darkMQ.addListener) darkMQ.addListener(applyTheme); } }
   const $ = (s) => root.querySelector(s);
   // 状態表示（ratio を渡すと進捗バーを出す）
   const status = (t, ratio) => {
@@ -1241,8 +1354,11 @@
     if (v === 'sort') splan = buildSortPlan(workFiles(), folders);
     if (v !== 'tree') { closeQL(); closeCtx(); closePlayer(); hideHover(); }
     root.classList.toggle('treev', v === 'tree'); // フォルダ一覧ではステップの表示を隠す
+    if (v !== 'tree') { renderTreeActs(); $('[data-r=pright]').textContent = ''; }
     renderToolbar(); render(); renderNav();
     $('[data-r=main]').scrollTop = 0;
+    renderQuota(); refreshQuota();
+    if (v === 'tree') prefetchUp();
   }
   function render() {
     if (view === 'scan') return renderScan();
@@ -1594,25 +1710,140 @@
   const ICON_DIR = '<svg viewBox="0 0 20 16"><path d="M1 3.2C1 2 2 1 3.2 1h4.3l1.8 2h7.5C18 3 19 4 19 5.2v7.6c0 1.2-1 2.2-2.2 2.2H3.2C2 15 1 14 1 12.8z" fill="#5aa9f6"/><path d="M1 5.5h18v7.3c0 1.2-1 2.2-2.2 2.2H3.2C2 15 1 14 1 12.8z" fill="#7cc0fb"/></svg>';
   const ICON_FILE = (r) => `<svg viewBox="0 0 16 20"><path d="M2 1h8l4 4v13a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z" fill="#f4f5f7" stroke="#b9bec8"/><path d="M10 1v4h4" fill="none" stroke="#b9bec8"/>${VIDEO_EXT.has(r.ext) ? '<path d="M6 9.5v5l4-2.5z" fill="#6b7280"/>' : ''}</svg>`;
 
-  // 親子関係と、フォルダごとの合計サイズ・項目数
+  // ---------- 読み込んだ場所より上の階層（必要になったときにその場で読み込む。整理の対象には含めない） ----------
+  const HOME = 'root';
+  const isHomeId = (id) => !id || id === HOME;
+  const outer = { dirs: new Map(), files: new Map(), loaded: new Set(), loading: new Set(), rootPid: undefined, rootKey: '' };
+  const HOME_DIR = { id: HOME, name: 'ホーム', parentId: null, outer: true, home: true };
+  const scanRoot = () => folders.find((d) => d.isRoot);
+  // 読み込み直したら、上の階層の情報も作り直す
+  function syncOuter() {
+    const R = scanRoot(); const k = R ? R.id + ':' + (meta ? meta.at : '') : '';
+    if (k === outer.rootKey) return;
+    outer.dirs.clear(); outer.files.clear(); outer.loaded.clear(); outer.rootPid = undefined; outer.rootKey = k;
+  }
+  const upKnown = () => { syncOuter(); return outer.rootPid !== undefined && outer.rootPid !== null; };
+  // 読み込んだ場所から親をたどって、ホームまでの道筋を調べる
+  async function ensureUp() {
+    syncOuter();
+    const R = scanRoot(); if (!R || outer.rootPid !== undefined) return;
+    if (isHomeId(R.id)) { outer.rootPid = null; return; }
+    const g = await apiGet(R.id);
+    if (g.name && (!R.name || R.name === 'スキャン起点')) { R.name = g.name; saveAll(); }
+    const chain = new Map();
+    let pid = g.parent_id || HOME;
+    for (let k = 0; k < 32 && !isHomeId(pid); k++) { const p = await apiGet(pid); chain.set(pid, { id: pid, name: p.name || '', parentId: p.parent_id || HOME, outer: true }); pid = p.parent_id || HOME; }
+    chain.forEach((v, k) => { if (!outer.dirs.has(k)) outer.dirs.set(k, v); });
+    outer.rootPid = g.parent_id || HOME;
+  }
+  // 読み込んだ場所の外のフォルダは、直下だけをその場で読み込む
+  async function loadOuter(pid) {
+    if (outer.loading.has(pid)) return;
+    outer.loading.add(pid);
+    try {
+      const list = await apiList(isHomeId(pid) ? '' : pid);
+      const R = scanRoot();
+      [...outer.dirs.values()].forEach((d) => { if (d.parentId === pid && !list.some((x) => x.id === d.id)) outer.dirs.delete(d.id); });
+      [...outer.files.values()].forEach((f) => { if (f.parentId === pid) outer.files.delete(f.id); });
+      list.forEach((x) => {
+        if (R && x.id === R.id) return;
+        if (x.kind === 'drive#folder') outer.dirs.set(x.id, { ...(outer.dirs.get(x.id) || {}), id: x.id, name: x.name, parentId: pid, outer: true });
+        else outer.files.set(x.id, { id: x.id, name: x.name, size: +x.size || 0, thumb: x.thumbnail_link || '', parentId: pid, path: '', outer: true });
+      });
+      outer.loaded.add(pid);
+    } finally { outer.loading.delete(pid); }
+  }
+  const needLoad = (id) => !!id && ((isHomeId(id) && upKnown()) || outer.dirs.has(id)) && !outer.loaded.has(id);
+  async function loadAndRender(ids, after) {
+    const need = ids.filter(needLoad);
+    if (!need.length) { if (after) after(); return; }
+    if (!sessionValid()) { status('ログインの有効期限が切れています'); return; }
+    status('読み込み中…', 0.5);
+    try { for (const id of need) await loadOuter(id); } catch (err) { if (view === 'tree') renderTree(); status('読み込みに失敗しました：' + err.message); return; }
+    if (view === 'tree') { treeIdx = null; renderTree(); if (after) after(); }
+  }
+  // 画面を開いたときに、上の階層の道筋を先に調べておく（失敗しても ↑ を押したときにもう一度試す）
+  async function prefetchUp() {
+    syncOuter();
+    if (outer.rootPid !== undefined || !sessionValid()) return;
+    try { await ensureUp(); } catch (e) { return; }
+    if (view !== 'tree' || busy) return;
+    treeIdx = null; renderTree();
+    if (needLoad(treeBase())) loadAndRender([treeBase()]);
+  }
+  const dirById = (id) => (treeIdx && treeIdx.byId.get(id)) || folders.find((d) => d.id === id) || outer.dirs.get(id) || (isHomeId(id) && upKnown() ? HOME_DIR : null);
+  const fileById = (id) => files.find((x) => x.id === id) || outer.files.get(id) || null;
+  const parentOf = (id) => { const R = scanRoot(); if (R && id === R.id) return outer.rootPid; if (isHomeId(id)) return null; const d = dirById(id) || fileById(id); return d ? d.parentId : undefined; };
+  // 親を近い順にたどった一覧
+  function ancestorsOf(id) {
+    const out = []; let p = parentOf(id);
+    for (let k = 0; k < 200 && p !== undefined && p !== null && p !== ''; k++) { out.push(p); if (isHomeId(p)) break; p = parentOf(p); }
+    return out;
+  }
+  const inScan = (id) => { const R = scanRoot(); return !!R && (id === R.id || folders.some((d) => d.id === id) || files.some((f) => f.id === id)); };
+  // 読み込んだ場所そのものと、その上のフォルダ（ここでは移動・削除しない）
+  const isRootOrAbove = (id) => { const R = scanRoot(); return !!R && (id === R.id || ancestorsOf(R.id).includes(id)); };
+  const dirLabel = (id) => (isHomeId(id) && (upKnown() || !scanRoot() || scanRoot().id !== id) ? 'ホーム' : ((dirById(id) || {}).name || ''));
+  const fullPath = (id) => '/' + [id, ...ancestorsOf(id)].filter((x) => !isHomeId(x)).reverse().map(dirLabel).join('/');
+  const pctTxt = (r) => (!isFinite(r) || r < 0 ? '—' : r > 0 && r < 0.001 ? '<0.1%' : (r * 100).toFixed(1) + '%');
+
+  // ---------- 契約容量（ヘッダーのメーター） ----------
+  let quota = null, quotaAt = 0, quotaLoading = false;
+  const fmtCap = (b) => (b >= UNIT.TB ? (b / UNIT.TB).toFixed(2) + ' TB' : fmt(b));
+  async function refreshQuota(force) {
+    if (quotaLoading || (!force && quota && Date.now() - quotaAt < 60 * 1000) || !sessionValid()) return;
+    quotaLoading = true;
+    try { quota = await apiQuota(); quotaAt = Date.now(); renderQuota(); if (view === 'tree' && !busy && root.classList.contains('on')) renderTree(); } catch (e) { /* 表示できなくても処理は続ける */ }
+    quotaLoading = false;
+  }
+  // 表示中のフォルダ（フォルダ一覧では最上位にしているフォルダ、それ以外は読み込んだ場所）
+  function curFolderInfo() {
+    if (!hasScan()) return null;
+    const ix = treeIdx || buildTreeIndex();
+    const id = view === 'tree' ? treeBase() : ix.rootId;
+    const a = ix.agg.get(id);
+    return a && !a.unk ? { name: dirLabel(id) || ix.rootName, size: a.size } : null;
+  }
+  function renderQuota() {
+    const el = $('[data-r=quota]'); if (!el) return;
+    if (!quota || !quota.usage) { el.innerHTML = ''; return; }
+    const L = quota.limit, cur = curFolderInfo();
+    const w = (b) => (L > 0 ? Math.max(0, Math.min(100, (b / L) * 100)) : 0).toFixed(2) + '%';
+    const curB = cur ? Math.min(cur.size, quota.usage) : 0;
+    const other = Math.max(0, quota.usage - curB - quota.trash);
+    el.title = `契約容量：${fmtCap(quota.usage)} 使用 / 上限 ${L > 0 ? fmtCap(L) : '—'}（ゴミ箱 ${fmtCap(quota.trash)}）`;
+    el.innerHTML = `<span class="qt"><b>${fmtCap(quota.usage)}</b><i>/ ${L > 0 ? fmtCap(L) : '—'} 使用中</i><span class="sp"></span><b>${L > 0 ? Math.round((quota.usage / L) * 100) + '%' : ''}</b></span>
+      <span class="qb">${cur ? `<span class="q-cur" style="width:${w(curB)}"></span>` : ''}<span class="q-oth" style="width:${w(other)}"></span><span class="q-tr" style="width:${w(quota.trash)}"></span></span>
+      <span class="ql">${cur ? `<span><b class="q-cur"></b><span class="raw">${esc(cur.name)}</span> ${fmtCap(cur.size)}</span>` : ''}<span><b class="q-oth"></b>その他</span><span><b class="q-tr"></b>ゴミ箱 ${fmtCap(quota.trash)}</span></span>`;
+  }
+
+  // 親子関係と、フォルダごとの合計サイズ・項目数（読み込んだ場所の外は、読み込んだフォルダの直下だけ）
   function buildTreeIndex() {
+    syncOuter();
     const kd = new Map(), kf = new Map();
-    folders.forEach((d) => { if (d.isRoot) return; if (!kd.has(d.parentId)) kd.set(d.parentId, []); kd.get(d.parentId).push(d); });
-    files.forEach((f) => { if (!kf.has(f.parentId)) kf.set(f.parentId, []); kf.get(f.parentId).push(f); });
+    const R = scanRoot();
+    const addD = (pid, d) => { if (!kd.has(pid)) kd.set(pid, []); kd.get(pid).push(d); };
+    const addF = (f) => { if (!kf.has(f.parentId)) kf.set(f.parentId, []); kf.get(f.parentId).push(f); };
+    folders.forEach((d) => { if (d.isRoot) { if (upKnown()) addD(outer.rootPid, d); return; } addD(d.parentId, d); });
+    outer.dirs.forEach((d) => addD(d.parentId, d));
+    files.forEach(addF); outer.files.forEach(addF);
     const agg = new Map();
     const sum = (id, seen) => {
       if (agg.has(id)) return agg.get(id);
       if (seen.has(id)) return { size: 0, n: 0, files: 0 };
       seen.add(id);
-      const a = { size: 0, n: (kd.get(id) || []).length + (kf.get(id) || []).length, files: 0 };
+      const isOut = R && id === R.id ? false : isHomeId(id) ? upKnown() : outer.dirs.has(id);
+      if (isOut && !outer.loaded.has(id)) { const a = { size: 0, n: 0, files: 0, unk: true, unloaded: true }; agg.set(id, a); return a; }
+      const a = { size: 0, n: (kd.get(id) || []).length + (kf.get(id) || []).length, files: 0, unk: false };
       (kf.get(id) || []).forEach((f) => { a.size += f.size; a.files++; });
-      (kd.get(id) || []).forEach((d) => { const s = sum(d.id, seen); a.size += s.size; a.files += s.files; });
+      (kd.get(id) || []).forEach((d) => { const s = sum(d.id, seen); a.size += s.size; a.files += s.files; if (s.unk) a.unk = true; });
       agg.set(id, a); return a;
     };
-    const rootF = folders.find((d) => d.isRoot);
-    const rootId = rootF ? rootF.id : (folders[0] ? folders[0].parentId : 'root');
+    const rootId = R ? R.id : (folders[0] ? folders[0].parentId : 'root');
     sum(rootId, new Set());
-    const byId = new Map(); folders.forEach((d) => byId.set(d.id, d));
+    if (upKnown()) { sum(HOME, new Set()); outer.dirs.forEach((d) => sum(d.id, new Set())); }
+    const byId = new Map(); folders.forEach((d) => byId.set(d.id, d)); outer.dirs.forEach((d) => byId.set(d.id, d));
+    if (upKnown() && !byId.has(HOME)) byId.set(HOME, HOME_DIR);
     // フォルダのサムネイル＝中で一番大きい（＝本編の可能性が高い）ファイルのサムネイル
     const thumbOf = new Map();
     const pick = (id, seen) => {
@@ -1623,10 +1854,9 @@
       (kd.get(id) || []).forEach((d) => { const b = pick(d.id, seen); if (b && (!best || b.size > best.size)) best = b; });
       thumbOf.set(id, best); return best;
     };
-    folders.forEach((d) => pick(d.id, new Set()));
-    return { kd, kf, agg, thumbOf, rootId, rootName: rootF ? rootF.name : 'ホーム', byId };
+    byId.forEach((d) => pick(d.id, new Set()));
+    return { kd, kf, agg, thumbOf, rootId, rootName: R ? R.name : 'ホーム', byId };
   }
-  // 表示する行（開いているフォルダの中だけ）。絞り込み中は、一致したものとその上のフォルダを開いて表示
   // 表示の起点（最上位として表示するフォルダ）。未設定・見つからないときは読み込んだ場所
   function treeBase() { const ix = treeIdx || buildTreeIndex(); return tree.base && ix.byId.has(tree.base) ? tree.base : ix.rootId; }
   function setBase(id) {
@@ -1635,17 +1865,20 @@
     treeSel.clear(); treeCur = ''; treeAnchor = ''; closeQL();
     if (tree.base) treeOpen.add(tree.base);
     renderTree(); $('[data-r=main]').scrollTop = 0;
-    status(tree.base ? `「${(ix.byId.get(id) || {}).name}」を最上位にして表示しています（${KEY.up} または上のパスで戻れます）` : '読み込んだ場所から表示しています');
+    status(tree.base ? `「${dirLabel(id)}」を最上位にして表示しています（${KEY.up} または上のパスで戻れます）` : '読み込んだ場所から表示しています');
+    if (needLoad(tree.base)) loadAndRender([tree.base]);
   }
+  // 表示する行（開いているフォルダの中だけ）。絞り込み中は、一致したものとその上のフォルダを開いて表示
   function treeRows() {
     const ix = treeIdx = buildTreeIndex();
+    const base = treeBase();
     const q = (tree.q || '').trim().toLowerCase();
     let keep = null;
     if (q) {
       keep = new Set();
-      const up = (pid) => { let cur = ix.byId.get(pid); while (cur && !keep.has(cur.id) && cur.id !== treeBase()) { keep.add(cur.id); cur = ix.byId.get(cur.parentId); } };
-      folders.forEach((d) => { if (!d.isRoot && d.name.toLowerCase().includes(q)) { keep.add(d.id); up(d.parentId); } });
-      files.forEach((f) => { if (f.name.toLowerCase().includes(q)) { keep.add(f.id); up(f.parentId); } });
+      const up = (pid) => { let cur = pid; for (let k = 0; k < 200 && cur !== undefined && cur !== null && !keep.has(cur) && cur !== base; k++) { keep.add(cur); cur = parentOf(cur); } };
+      ix.byId.forEach((d) => { if (!d.home && d.id !== base && d.name.toLowerCase().includes(q)) { keep.add(d.id); up(parentOf(d.id)); } });
+      [...files, ...outer.files.values()].forEach((f) => { if (f.name.toLowerCase().includes(q)) { keep.add(f.id); up(f.parentId); } });
     }
     const coll = new Intl.Collator('ja', { numeric: true, sensitivity: 'base' });
     const cmp = (a, b) => {
@@ -1653,11 +1886,12 @@
       const v = tree.sort === 'size' ? (a.size - b.size) : tree.sort === 'kind' ? coll.compare(kindOf(a), kindOf(b)) : 0;
       return (v || coll.compare(a.name, b.name)) * tree.dir;
     };
+    const R = scanRoot();
     const rows = [];
     const walk = (pid, depth) => {
       const items = [
-        ...(ix.kd.get(pid) || []).map((d) => ({ id: d.id, kind: 'folder', name: d.name, parentId: pid, depth, size: ix.agg.get(d.id).size, n: ix.agg.get(d.id).n, nf: ix.agg.get(d.id).files, path: d.path, ext: '' })),
-        ...(ix.kf.get(pid) || []).map((f) => ({ id: f.id, kind: 'file', name: f.name, parentId: pid, depth, size: f.size, path: f.path, ext: extOf(f.name), thumb: f.thumb, f })),
+        ...(ix.kd.get(pid) || []).map((d) => { const a = ix.agg.get(d.id) || { size: 0, n: 0, files: 0, unk: true }; return { id: d.id, kind: 'folder', name: d.name, parentId: pid, depth, size: a.size, n: a.n, nf: a.files, unk: !!a.unk, unloaded: !!a.unloaded, outer: !!d.outer, isScanRoot: !!(R && d.id === R.id), path: d.outer || d.isRoot ? fullPath(d.id) : d.path, ext: '' }; }),
+        ...(ix.kf.get(pid) || []).map((f) => ({ id: f.id, kind: 'file', name: f.name, parentId: pid, depth, size: f.size, path: f.outer ? fullPath(pid) : f.path, ext: extOf(f.name), thumb: f.thumb, outer: !!f.outer, f })),
       ].filter((r) => !keep || keep.has(r.id)).sort(cmp);
       items.forEach((r) => {
         r.open = r.kind === 'folder' && (treeOpen.has(r.id) || (!!keep && keep.has(r.id)));
@@ -1665,73 +1899,84 @@
         if (r.open) walk(r.id, depth + 1);
       });
     };
-    walk(treeBase(), 0);
+    walk(base, 0);
     return rows;
   }
   function renderTreeToolbar() {
-    const arrow = (k) => (tree.sort === k ? (tree.dir > 0 ? ' ▲' : ' ▼') : '');
-    $('[data-r=tb]').innerHTML = `<div class="head"><b>フォルダ一覧 <span class="pd-tag" style="vertical-align:2px">${{ mac: 'Finder', win: 'エクスプローラー', linux: 'ファイルマネージャー' }[OS]} 風</span></b><span class="note">${OS_NAME} の操作：▶ / ← → で開閉（${KEY.deep} で中もすべて）・${KEY.open} でフォルダを最上位に（${KEY.up} で戻る）・ダブルクリックで再生・ドラッグで移動・右クリックでメニュー・スペースでプレビュー・${KEY.rename} で名前の変更・${KEY.mkdir} で新規フォルダ・${KEY.trash} でゴミ箱へ・1 / 2 / 3 で表示の切り替え</span></div><span class="sp"></span>
-      <span class="note">読み込み：${meta ? esc(new Date(meta.at).toLocaleString(loc(), { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })) : '未'}</span>
-      <input type="text" data-a="tq" placeholder="🔍 名前で絞り込み" size="18" value="${esc(tree.q || '')}">
-      <span class="seg"><button data-a="texpand" title="すべてのフォルダを開く（${KEY.expand}）">⊞ 全展開</button><button data-a="tcollapse" title="すべてのフォルダを閉じる（${KEY.collapse}）">⊟ 全格納</button></span>
+    $('[data-r=tb]').innerHTML = `<div class="tr-path" data-r="tpath"></div>
       <span class="seg"><button data-a="tview" data-v="list" class="${tree.view === 'list' ? 'on' : ''}" title="リスト表示（1 キー）">☰ リスト</button><button data-a="tview" data-v="thumb" class="${tree.view === 'thumb' ? 'on' : ''}" title="サムネイル付きのリスト（2 キー）">▤ サムネイル</button><button data-a="tview" data-v="tile" class="${tree.view === 'tile' ? 'on' : ''}" title="タイル表示。フォルダごとに見出しを付けて並べます（3 キー）">▦ タイル</button></span>
-      <label class="optsw" title="マウスを乗せたときにサムネイルを大きく表示します"><input type="checkbox" data-a="thover"${tree.hover !== false ? ' checked' : ''}> ホバーでサムネイル</label>
-      <button data-a="rescan" title="最新の状態を読み込み直します">再読み込み</button><button data-a="toflow" title="1〜7 の整理ステップの画面へ移ります（左メニューの「整理」と同じ）">整理（1〜7）へ</button>
-      <span class="tacts" data-r="tacts"></span>`;
-    treeHeadHtml = `<div class="tr-h"><span class="c-name" data-tsort="name">名前${arrow('name')}</span><span class="c-size" data-tsort="size">サイズ${arrow('size')}</span><span class="c-kind" data-tsort="kind">種類${arrow('kind')}</span><span class="c-n">項目</span></div>`;
+      <span class="seg"><button data-a="texpand" title="すべてのフォルダを開く（${KEY.expand}）">⊞ 全展開</button><button data-a="tcollapse" title="すべてのフォルダを閉じる（${KEY.collapse}）">⊟ 全格納</button></span>`;
   }
-  let treeHeadHtml = '';
   // サムネイル付き表示：ファイルは自分の、フォルダは中の一番大きいファイルのサムネイル（右下にフォルダの印）
   function thumbHtml(r) {
     const f = r.kind === 'folder' ? treeIdx.thumbOf.get(r.id) : r.f;
     const img = f && f.thumb ? `<img loading="lazy" referrerpolicy="no-referrer" src="${esc(f.thumb)}" alt="">` : `<span class="ph">${r.kind === 'folder' ? ICON_DIR : ICON_FILE(r)}</span>`;
     return `<span class="th${r.kind === 'folder' ? ' dir' : ''}">${img}${r.kind === 'folder' && f && f.thumb ? `<span class="badge">${ICON_DIR}</span>` : ''}</span>`;
   }
+  // フォルダの大きさの表示（まだ読み込んでいないフォルダは「—」）
+  const sizeOf = (r) => (r.kind === 'folder' ? (r.unk ? '—' : r.nf ? fmt(r.size) : '--') : fmt(r.size));
+  const subOf = (r) => (r.kind === 'folder' ? (r.unloaded ? '未スキャン' : r.n + ' 項目・' + (r.unk ? '—' : r.nf ? fmt(r.size) : '空')) : kindOf(r) + '・' + fmt(r.size));
+  const tagOf = (r) => (r.unloaded ? '<span class="ot">未スキャン</span>' : r.isScanRoot ? '<span class="ot" style="color:var(--pri)">読み込み済み</span>' : '');
   function renderTree() {
-    if (!treeHeadHtml) renderTreeToolbar();
+    if (!$('[data-r=tpath]')) renderTreeToolbar();
     const rows = treeRowsCache = treeRows();
     if (treeCur && !rows.some((r) => r.id === treeCur)) treeCur = '';
     [...treeSel].forEach((id) => { if (!rows.some((r) => r.id === id)) treeSel.delete(id); });
     const ix = treeIdx;
-    const junk = junkEnabled() ? (prepJunk(files, folders), (f) => { const j = junkInfo(f); return j && j.level === 'del' ? j.reason : ''; }) : () => '';
+    const junk = junkEnabled() ? (prepJunk(files, folders), (f) => { if (f.outer) return ''; const j = junkInfo(f); return j && j.level === 'del' ? j.reason : ''; }) : () => '';
+    const baseId = treeBase();
+    const top = ix.agg.get(baseId) || { n: 0, size: 0, files: 0 };
+    const baseName = dirLabel(baseId) || ix.rootName;
+    // 割合：表示中のフォルダの大きさが分かればその中での割合、分からなければ使用量全体に対する割合
+    const denom = top.unk ? (quota ? quota.usage : 0) : top.size;
+    const pctCell = (r) => {
+      if ((r.kind === 'folder' && r.unk) || !denom) return '<span class="c-pct">—</span>';
+      const v = r.size / denom;
+      return `<span class="c-pct"><span class="pb"><i style="width:${Math.min(100, v * 100).toFixed(2)}%"></i></span><em>${pctTxt(v)}</em></span>`;
+    };
+    const arrow = (k) => (tree.sort === k ? (tree.dir > 0 ? ' ▲' : ' ▼') : '');
+    const head = `<div class="tr-h"><span class="c-name" data-tsort="name">名前${arrow('name')}</span><span class="c-size" data-tsort="size">サイズ${arrow('size')}</span><span class="c-kind" data-tsort="kind">種類${arrow('kind')}</span><span class="c-n">項目</span><span class="c-pct" title="${top.unk ? '使用量全体に対する割合（まだ読み込んでいないフォルダがあるため）' : '表示中のフォルダの中での割合'}">${top.unk ? '使用量に占める割合' : `<b class="raw" style="font-weight:inherit">${esc(baseName)}</b> 内の割合`}</span></div>`;
     const rowHtml = (r, i) => {
       const jr = r.kind === 'file' ? junk(r.f) : '';
       const name = renaming === r.id ? `<input class="tr-ren" data-tren="${esc(r.id)}" value="${esc(r.name)}">` : `<span class="nm">${esc(r.name)}</span>`;
       return `<div class="tr-row${i % 2 ? ' odd' : ''}${treeSel.has(r.id) ? ' sel' : ''}${treeCur === r.id ? ' cur' : ''}" data-tid="${esc(r.id)}" title="${esc(r.path || '')}">
-        <span class="c-name" style="padding-left:${8 + r.depth * 18}px">${r.kind === 'folder' ? `<span class="tw${r.open ? ' open' : ''}" data-ttw="${esc(r.id)}">▶</span>` : '<span class="tw blank"></span>'}${tree.view === 'thumb' ? thumbHtml(r) : `<span class="ic">${r.kind === 'folder' ? ICON_DIR : ICON_FILE(r)}</span>`}${tree.view === 'thumb' ? `<span class="tx">${name}<span class="sub">${esc(r.kind === 'folder' ? r.n + ' 項目・' + (r.nf ? fmt(r.size) : '空') : kindOf(r) + '・' + fmt(r.size))}</span></span>` : name}${jr ? `<span class="jk" title="${esc(jr)}">不要</span>` : ''}</span>
-        <span class="c-size">${r.kind === 'folder' ? (r.nf ? fmt(r.size) : '--') : fmt(r.size)}</span><span class="c-kind">${esc(kindOf(r))}</span><span class="c-n">${r.kind === 'folder' ? r.n + ' 項目' : ''}</span></div>`;
+        <span class="c-name" style="padding-left:${8 + r.depth * 18}px">${r.kind === 'folder' ? `<span class="tw${r.open ? ' open' : ''}" data-ttw="${esc(r.id)}">▶</span>` : '<span class="tw blank"></span>'}${tree.view === 'thumb' ? thumbHtml(r) : `<span class="ic">${r.kind === 'folder' ? ICON_DIR : ICON_FILE(r)}</span>`}${tree.view === 'thumb' ? `<span class="tx">${name}<span class="sub">${esc(subOf(r))}</span></span>` : name}${tagOf(r)}${jr ? `<span class="jk" title="${esc(jr)}">不要</span>` : ''}</span>
+        <span class="c-size">${sizeOf(r)}</span><span class="c-kind">${esc(kindOf(r))}</span><span class="c-n">${r.kind === 'folder' ? (r.unloaded ? '—' : r.n + ' 項目') : ''}</span>${pctCell(r)}</div>`;
     };
-    const baseId = treeBase();
-    const top = ix.agg.get(baseId) || { n: 0, size: 0, files: 0 };
-    const baseName = baseId === ix.rootId ? ix.rootName : (ix.byId.get(baseId) || {}).name;
-    const crumbIds = baseId === ix.rootId ? [ix.rootId] : [ix.rootId, ...((ix.byId.get(baseId) || {}).trail || []).filter((x) => ix.byId.has(x) && !ix.byId.get(x).isRoot)];
-    const crumbHtml = `<div class="tr-path"><button data-tup${baseId === ix.rootId ? ' disabled' : ''} title="1 つ上の階層を最上位にする（${KEY.up}）">↑</button>${crumbIds.map((id, k) => `${k ? '<span class="sep">›</span>' : ''}<button data-tbase="${esc(id)}"${id === ix.rootId ? ' data-root' : ''} class="${id === baseId ? 'on' : ''}" title="${id === baseId ? 'いま最上位にしているフォルダ' : 'ここを最上位にする（ドラッグして離すとこのフォルダへ移動）'}">${id === ix.rootId ? '⌂ ' : ''}${esc(id === ix.rootId ? ix.rootName : ix.byId.get(id).name)}</button>`).join('')}${baseId !== ix.rootId ? '<span class="pd-tag" style="margin-left:8px">最上位を変更中</span>' : ''}</div>`;
-    const emptyHtml = '<div class="empty">' + (tree.q ? '一致するものはありません' : '読み込んだフォルダは空です') + '</div>';
+    // パス：ホームから表示中のフォルダまで（読み込んだ場所より上も、押すとその場で読み込んで移動）
+    const chain = [baseId, ...ancestorsOf(baseId)].reverse();
+    const upOff = (isHomeId(baseId) && (upKnown() || baseId === ix.rootId)) || (baseId === ix.rootId && outer.rootPid === null);
+    const tp = $('[data-r=tpath]');
+    if (tp) tp.innerHTML = `<button data-tup${upOff ? ' disabled' : ''} title="1 つ上の階層へ（${KEY.up}）" aria-label="1 つ上の階層へ">${IC.up}</button>${chain.map((id, k) => `${k ? '<span class="csep">›</span>' : ''}<button data-tbase="${esc(id)}"${isHomeId(id) ? ' data-root' : ''} class="${id === baseId ? 'on' : ''}" title="${id === baseId ? 'いま最上位にしているフォルダ' : 'ここを最上位にする（ドラッグして離すとこのフォルダへ移動）'}">${isHomeId(id) ? '⌂ ' : ''}${esc(dirLabel(id) || ix.rootName)}</button>`).join('')}`;
+    const emptyHtml = '<div class="empty">' + (tree.q ? '一致するものはありません' : top.unloaded ? '読み込み中…' : '読み込んだフォルダは空です') + '</div>';
     if (tree.view === 'tile') {
       // タイル：最上位のフォルダの中身と、開いているフォルダの中身を、フォルダごとの見出し付きで並べる
       const kids = new Map(); rows.forEach((r) => { if (!kids.has(r.parentId)) kids.set(r.parentId, []); kids.get(r.parentId).push(r); });
       const secs = [baseId, ...rows.filter((r) => r.kind === 'folder' && r.open).map((r) => r.id)];
       treeRowsCache = secs.flatMap((pid) => kids.get(pid) || []);
-      const relPath = (id) => { if (id === baseId) return [baseName]; const f = ix.byId.get(id); const tr = (f.trail || []); const k = tr.indexOf(baseId); return tr.slice(k + 1).map((x) => (ix.byId.get(x) || {}).name).filter(Boolean); };
+      const relPath = (id) => { if (id === baseId) return [baseName]; const ch = [id, ...ancestorsOf(id)]; const k = ch.indexOf(baseId); return ch.slice(0, k < 0 ? ch.length : k).reverse().map(dirLabel); };
       const tile = (r) => {
         const jr = r.kind === 'file' ? junk(r.f) : '';
         const name = renaming === r.id ? `<input class="tr-ren" data-tren="${esc(r.id)}" value="${esc(r.name)}">` : `<span class="nm" title="${esc(r.name)}">${esc(r.name)}</span>`;
-        return `<div class="tr-row tile${treeSel.has(r.id) ? ' sel' : ''}${treeCur === r.id ? ' cur' : ''}${r.kind === 'folder' ? ' dir' : ''}" data-tid="${esc(r.id)}">${thumbHtml(r)}${jr ? `<span class="jk" title="${esc(jr)}">不要</span>` : ''}${name}<span class="sub">${esc(r.kind === 'folder' ? r.n + ' 項目・' + (r.nf ? fmt(r.size) : '空') : fmt(r.size))}</span></div>`;
+        return `<div class="tr-row tile${treeSel.has(r.id) ? ' sel' : ''}${treeCur === r.id ? ' cur' : ''}${r.kind === 'folder' ? ' dir' : ''}" data-tid="${esc(r.id)}">${thumbHtml(r)}${jr ? `<span class="jk" title="${esc(jr)}">不要</span>` : ''}${name}<span class="sub">${esc(r.kind === 'folder' ? subOf(r) : fmt(r.size))}</span></div>`;
       };
       const body = secs.map((pid) => {
         const items = kids.get(pid) || [];
         const a = ix.agg.get(pid) || { n: 0, size: 0 };
         const path = relPath(pid);
-        return `<section class="tl-sec" data-sec="${esc(pid)}"><div class="tl-h" data-tdrop="${esc(pid)}">${pid === baseId ? '' : `<span class="tw open" data-ttw="${esc(pid)}" title="閉じる">▶</span>`}<span class="ic">${ICON_DIR}</span><b>${path.map((n, k) => (k === path.length - 1 ? esc(n) : `<span class="pp">${esc(n)} ›</span> `)).join('')}</b><span class="note">${a.n} 項目・${fmt(a.size)}</span><span class="sp"></span>${pid === baseId ? '' : `<button data-ttop="${esc(pid)}" title="一番上の一覧へ戻る（${KEY.back} キー／マウスの戻るボタン）">⤒ 一覧へ戻る</button><button data-tbase="${esc(pid)}" title="このフォルダを最上位にする">⤓ ここを最上位に</button>`}</div>
-          <div class="tl-grid">${items.map(tile).join('') || '<div class="note" style="padding:8px">（空のフォルダ）</div>'}</div></section>`;
+        return `<section class="tl-sec" data-sec="${esc(pid)}"><div class="tl-h" data-tdrop="${esc(pid)}">${pid === baseId ? '' : `<span class="tw open" data-ttw="${esc(pid)}" title="閉じる">▶</span>`}<span class="ic">${ICON_DIR}</span><b>${path.map((n, k) => (k === path.length - 1 ? esc(n) : `<span class="pp">${esc(n)} ›</span> `)).join('')}</b><span class="note">${a.unloaded ? '未スキャン' : `${a.n} 項目・${a.unk ? '—' : fmt(a.size)}`}</span><span class="sp"></span>${pid === baseId ? '' : `<button data-ttop="${esc(pid)}" title="一番上の一覧へ戻る（${KEY.back} キー／マウスの戻るボタン）">⤒ 一覧へ戻る</button><button data-tbase="${esc(pid)}" title="このフォルダを最上位にする">⤓ ここを最上位に</button>`}</div>
+          <div class="tl-grid">${items.map(tile).join('') || `<div class="note" style="padding:8px">${a.unloaded ? '読み込み中…' : '（空のフォルダ）'}</div>`}</div></section>`;
       }).join('');
-      $('[data-r=main]').innerHTML = `<div class="tr has-path tl" tabindex="0" data-r="tree">${crumbHtml}<div class="tr-body">${rows.length ? body : emptyHtml}</div><button class="tl-top" data-ttop="" title="一番上の一覧へ戻る（${KEY.back} キー／マウスの戻るボタン）">⤒ 一覧へ戻る</button></div>`;
+      $('[data-r=main]').innerHTML = `<div class="tr has-path tl" tabindex="0" data-r="tree"><div class="tr-body">${rows.length ? body : emptyHtml}</div><button class="tl-top" data-ttop="" title="一番上の一覧へ戻る（${KEY.back} キー／マウスの戻るボタン）">⤒ 一覧へ戻る</button></div>`;
     } else {
-      $('[data-r=main]').innerHTML = `<div class="tr has-path${tree.view === 'thumb' ? ' big' : ''}" tabindex="0" data-r="tree">${crumbHtml}${treeHeadHtml}<div class="tr-body">${rows.map(rowHtml).join('') || emptyHtml}</div></div>`;
+      $('[data-r=main]').innerHTML = `<div class="tr has-path${tree.view === 'thumb' ? ' big' : ''}" tabindex="0" data-r="tree">${head}<div class="tr-body">${rows.map(rowHtml).join('') || emptyHtml}</div></div>`;
     }
     const selN = treeSel.size, selSize = [...treeSel].reduce((a, id) => { const r = rows.find((x) => x.id === id); return a + (r ? r.size : 0); }, 0);
-    if (!busy) status(`${esc(baseName)}：${top.n} 項目・ファイル ${top.files} 件・${fmt(top.size)}${selN ? `　｜　${selN} 項目を選択（${fmt(selSize)}）` : ''}`);
-    renderTreeActs();
+    const capOf = (b) => (quota && quota.limit > 0 ? pctTxt(b / quota.limit) : '');
+    const sizeTxt = top.unloaded ? '未スキャン' : top.unk ? `${fmt(top.size)}（未スキャンのフォルダを除く）` : `${fmt(top.size)}${capOf(top.size) ? `（契約容量比 ${capOf(top.size)}）` : ''}`;
+    if (!busy) status(`${baseName}：${top.n} 項目・ファイル ${top.files} 件・${sizeTxt}${selN ? `　｜　${selN} 項目を選択（${fmt(selSize)}${capOf(selSize) ? `・全体比 ${capOf(selSize)}` : ''}）` : ''}`);
+    const pr = $('[data-r=pright]'); if (pr) pr.textContent = meta ? `読み込み：${new Date(meta.at).toLocaleString(loc(), { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}` : '';
+    renderTreeActs(); renderQuota();
     const ren = $('.tr-ren'); if (ren) { ren.focus(); const dot = ren.value.lastIndexOf('.'); ren.setSelectionRange(0, dot > 0 && treeRowsCache.find((x) => x.id === renaming).kind === 'file' ? dot : ren.value.length); }
     else { const t = $('[data-r=tree]'); if (t && view === 'tree' && !qlOpen && document.activeElement !== $('[data-a=tq]')) t.focus({ preventScroll: true }); }
     const cur = treeCur && [...root.querySelectorAll('.tr-row')].find((x) => x.dataset.tid === treeCur); if (cur) cur.scrollIntoView({ block: 'nearest' });
@@ -1756,6 +2001,7 @@
     if (deep && treeIdx) { const st = [id]; while (st.length) { const x = st.pop(); (treeIdx.kd.get(x) || []).forEach((d) => { ids.push(d.id); st.push(d.id); }); } }
     ids.forEach((x) => (want ? treeOpen.add(x) : treeOpen.delete(x)));
     saveTree();
+    if (want && ids.some(needLoad)) setTimeout(() => loadAndRender(ids), 0);
   }
   // クイックルック（スペース）
   function showQL() {
@@ -1775,13 +2021,16 @@
     on('[data-qlwin]', () => playFile(r.id));
     on('[data-qlfull]', () => playFile(r.id, { full: true }));
     on('[data-qlext]', () => { const v = d.querySelector('video'); if (v) v.pause(); openExternal(r.id); });
-    on('[data-qlset]', openPlaySettings);
+    on('[data-qlset]', () => openSettings('play'));
   }
   function closeQL() { qlOpen = false; killHls(qlHls); qlHls = null; const d = document.getElementById('pd-ql'); if (d) { const v = d.querySelector('video'); try { if (v) v.pause(); } catch (e) { /* 無視 */ } d.remove(); } }
   // 名前の変更（Enter）
   function applyRenameCache(kind, id, name) {
+    const o = kind === 'file' ? outer.files.get(id) : outer.dirs.get(id);
+    if (o) { o.name = name; return; }
     if (kind === 'file') { const f = files.find((x) => x.id === id); if (f) f.name = name; return; }
     const f = folders.find((x) => x.id === id); if (!f) return;
+    if (f.isRoot) { f.name = name; return; }
     const old = f.path; f.name = name; f.path = old.slice(0, old.length - old.split('/').pop().length) + name;
     folders.forEach((y) => { if (y.path.startsWith(old + '/')) y.path = f.path + y.path.slice(old.length); });
     files.forEach((y) => { if (y.path === old || y.path.startsWith(old + '/')) y.path = f.path + y.path.slice(old.length); });
@@ -1805,6 +2054,7 @@
   async function treeTrash() {
     const rows = treeRowsCache.filter((r) => treeSel.has(r.id));
     if (!rows.length) return;
+    if (rows.some((r) => isRootOrAbove(r.id))) { status('読み込んだ場所とその上のフォルダは、ここではゴミ箱に入れられません'); return; }
     // 選択したフォルダの中にあるものは、フォルダごと削除されるので除く
     const selDirs = new Set(rows.filter((r) => r.kind === 'folder').map((r) => r.id));
     const inside = (r) => { let p = treeIdx.byId.get(r.parentId); while (p) { if (selDirs.has(p.id)) return true; p = treeIdx.byId.get(p.parentId); } return false; };
@@ -1821,34 +2071,62 @@
         status(`削除中… ${done}/${list.length}`, done / list.length);
         await apiRemove(items.map((r) => r.id), pid, ans.hard);
         const gone = new Set(items.map((r) => r.id));
+        const goneO = new Set([...outer.dirs.keys()].filter((id) => gone.has(id) || ancestorsOf(id).some((x) => gone.has(x))));
+        goneO.forEach((id) => outer.dirs.delete(id));
+        [...outer.files.values()].forEach((f) => { if (gone.has(f.id) || goneO.has(f.parentId)) outer.files.delete(f.id); });
         const goneDirs = new Set(folders.filter((d) => (d.trail || []).some((x) => gone.has(x))).map((d) => d.id));
         folders = folders.filter((d) => !goneDirs.has(d.id));
         files = files.filter((f) => !gone.has(f.id) && !goneDirs.has(f.parentId));
         done += items.length; saveAll();
       }
-      treeSel.clear(); busy = false; renderTree();
+      treeSel.clear(); busy = false; treeIdx = null; renderTree(); refreshQuota(true);
       status(`${done} 項目を${ans.hard ? '完全に削除' : 'ゴミ箱へ移動'}しました。`); log('info', `フォルダ一覧で削除 ${done} 項目（${ans.hard ? '完全削除' : 'ゴミ箱'}）`); refreshView();
     } catch (err) { saveAll(); busy = false; renderTree(); handleErr(err, 'tree', `削除を停止しました（${done} 項目完了）：` + err.message); }
   }
   // ---------- フォルダ一覧：移動・新規フォルダ・右クリックメニュー・再生 ----------
   const isVideoRow = (r) => !!r && r.kind === 'file' && VIDEO_EXT.has(r.ext);
   const selRows = () => treeRowsCache.filter((r) => treeSel.has(r.id));
-  const folderById = (id) => folders.find((d) => d.id === id);
-  // to の中へ ids を移動できるか（自分自身や自分の中へは移動できない）
+  // to の中へ ids を移動できるか（自分自身や自分の中、読み込んだ場所とその上のフォルダは移動できない）
   function canMoveTo(ids, to) {
-    if (!to) return false;
-    const tf = folderById(to);
-    const trail = tf ? (tf.trail || []) : [to];
-    return ids.every((id) => id !== to && !trail.includes(id));
+    if (!to || (!isHomeId(to) && !dirById(to)) || (isHomeId(to) && !upKnown() && !inScan(to))) return false;
+    if (ids.some(isRootOrAbove)) return false;
+    const anc = [to, ...ancestorsOf(to)];
+    return ids.every((id) => !anc.includes(id));
+  }
+  // 読み込んだ場所の外へ出したものは、整理の対象（読み込み結果）から外す
+  function dropFromScan(it) {
+    if (files.includes(it)) { files = files.filter((f) => f !== it); return; }
+    const gone = new Set(folders.filter((d) => d.id === it.id || (d.trail || []).includes(it.id)).map((d) => d.id));
+    folders = folders.filter((d) => !gone.has(d.id));
+    files = files.filter((f) => !gone.has(f.parentId));
+  }
+  // 読み込んだ場所の中へ入れたものは、整理の対象に加える（フォルダは中身も読み込む）
+  async function addToScan(it, to) {
+    const np = folders.find((d) => d.id === to) || scanRoot();
+    if (!it.kind || it.kind !== 'drive#folder') {
+      if (outer.files.has(it.id)) { outer.files.delete(it.id); files.push({ id: it.id, name: it.name, size: it.size, thumb: it.thumb, parentId: to, path: (np && np.path) || '/' }); return; }
+    }
+    const sub = new Set([it.id, ...[...outer.dirs.keys()].filter((id) => ancestorsOf(id).includes(it.id))]);
+    sub.forEach((id) => outer.dirs.delete(id));
+    [...outer.files.values()].forEach((f) => { if (sub.has(f.parentId)) outer.files.delete(f.id); });
+    const trail = [...((np && np.trail) || [to]), it.id];
+    const base = ((np && np.path) || '') + '/' + it.name;
+    const r = await scanApi(trail);
+    r.folders.forEach((fo) => {
+      if (fo.isRoot) { folders.push({ id: it.id, name: it.name, parentId: to, path: base, trail }); return; }
+      folders.push({ ...fo, path: base + fo.path });
+    });
+    r.files.forEach((f) => files.push({ ...f, path: f.path === '/' ? base : base + f.path }));
   }
   async function treeMove(ids, to) {
+    if (ids.some(isRootOrAbove)) { status('読み込んだ場所とその上のフォルダは、ここでは移動できません'); return; }
     if (!canMoveTo(ids, to)) { status('そのフォルダへは移動できません（移動するフォルダ自身やその中へは移せません）'); return; }
     const all = new Set(ids);
-    const anc = (id) => { const f = files.find((x) => x.id === id) || folderById(id); let p = f && folderById(f.parentId); while (p) { if (all.has(p.id)) return true; p = folderById(p.parentId); } return false; };
-    const items = ids.map((id) => files.find((x) => x.id === id) || folderById(id)).filter((x) => x && !anc(x.id) && x.parentId !== to);
+    const anc = (id) => ancestorsOf(id).some((p) => all.has(p));
+    const items = ids.map((id) => fileById(id) || dirById(id)).filter((x) => x && !anc(x.id) && x.parentId !== to);
     if (!items.length) { status('すでにそのフォルダの中にあります'); return; }
     if (!ensureSession('tree')) return;
-    const dest = to === treeIdx.rootId ? treeIdx.rootName : ((folderById(to) || {}).name || '');
+    const dest = dirLabel(to) || treeIdx.rootName;
     busy = true; status(`移動中… ${items.length} 項目 → ${dest}`, 0.3);
     try {
       const dst = await apiList(to);
@@ -1860,11 +2138,19 @@
       }
       const idl = items.map((x) => x.id);
       for (let i = 0; i < idl.length; i += 100) { status(`移動中… ${Math.min(i + 100, idl.length)}/${idl.length} → ${dest}`, i / idl.length); await apiMove(idl.slice(i, i + 100), to); }
-      items.forEach((it) => (files.includes(it) ? cacheMoveFile(it.id, to) : cacheMoveFolder(it.id, to)));
+      const toScan = inScan(to);
+      for (const it of items) {
+        if (!it.outer && toScan) (files.includes(it) ? cacheMoveFile(it.id, to) : cacheMoveFolder(it.id, to));
+        else if (!it.outer) dropFromScan(it);
+        else if (toScan) await addToScan({ ...it, kind: outer.dirs.has(it.id) ? 'drive#folder' : 'file' }, to);
+        else it.parentId = to;
+      }
+      if (!toScan && outer.loaded.has(to)) await loadOuter(to);
+      if (meta) { meta.nfo = folders.length; meta.nfi = files.length; try { localStorage.setItem(LS_META, JSON.stringify(meta)); } catch (e) { /* 無視 */ } }
       saveAll(); treeOpen.add(to); saveTree();
-      busy = false; renderTree();
+      busy = false; treeIdx = null; renderTree();
       status(`${items.length} 項目を「${dest}」へ移動しました${renamed ? `（同じ名前があったため ${renamed} 件に (n) を付けました）` : ''}。`); log('info', `フォルダ一覧で移動 ${items.length} 項目 → ${dest}`); refreshView();
-    } catch (err) { saveAll(); busy = false; renderTree(); handleErr(err, 'tree', '移動を停止しました：' + err.message); }
+    } catch (err) { saveAll(); busy = false; treeIdx = null; renderTree(); handleErr(err, 'tree', '移動を停止しました：' + err.message); }
   }
   // 新規フォルダ（⌥⌘N／Alt+N）：選んでいるフォルダが開いていればその中、そうでなければ同じ場所に作る
   async function treeNewFolder() {
@@ -1877,10 +2163,12 @@
       const taken = new Set(sibs.map((x) => x.name.toLowerCase()));
       let name = '新規フォルダ', i = 1; while (taken.has(name.toLowerCase())) name = `新規フォルダ ${++i}`;
       const id = await apiMkdir(pid, name);
-      const np = folderById(pid);
-      folders.push({ id, name, parentId: pid, path: ((np && np.path) || '') + '/' + name, trail: [...((np && np.trail) || [pid]), id] });
+      if (inScan(pid)) {
+        const np = folders.find((d) => d.id === pid);
+        folders.push({ id, name, parentId: pid, path: ((np && np.path) || '') + '/' + name, trail: [...((np && np.trail) || [pid]), id] });
+      } else { outer.dirs.set(id, { id, name, parentId: pid, outer: true }); outer.loaded.add(id); }
       saveAll(); treeOpen.add(pid); saveTree();
-      busy = false; treeSel.clear(); treeSel.add(id); treeCur = id; treeAnchor = id; renaming = id; renderTree();
+      busy = false; treeSel.clear(); treeSel.add(id); treeCur = id; treeAnchor = id; renaming = id; treeIdx = null; renderTree();
       status('フォルダを作成しました。名前を入力して Enter で確定します。'); log('info', `フォルダ一覧で新規フォルダ：${name}`); refreshView();
     } catch (err) { busy = false; renderTree(); handleErr(err, 'tree', 'フォルダを作成できませんでした：' + err.message); }
   }
@@ -1888,9 +2176,10 @@
   function askMoveTarget(ids) {
     return new Promise((resolve) => {
       const d = document.createElement('div'); d.id = 'pd-dlg';
-      const list = [{ id: treeIdx.rootId, name: treeIdx.rootName, depth: 0 }];
+      const topId = upKnown() ? HOME : treeIdx.rootId;
+      const list = [{ id: topId, name: dirLabel(topId) || treeIdx.rootName, depth: 0 }];
       const walk = (pid, depth) => (treeIdx.kd.get(pid) || []).slice().sort((a, b) => a.name.localeCompare(b.name, 'ja', { numeric: true })).forEach((f) => { list.push({ id: f.id, name: f.name, depth }); walk(f.id, depth + 1); });
-      walk(treeIdx.rootId, 1);
+      walk(topId, 1);
       let pick = '';
       const draw = (q) => {
         q = (q || '').toLowerCase();
@@ -1927,15 +2216,20 @@
   }
   // 操作ボタン（選択に合わせて押せる／押せないを切り替える）
   function renderTreeActs() {
-    const el = $('[data-r=tacts]'); if (!el) return;
+    const el = $('[data-r=tsel]'); if (!el) return;
+    if (view !== 'tree') { el.innerHTML = ''; el.classList.remove('on'); return; }
     const rows = selRows(), one = rows.length === 1 ? rows[0] : null;
     const dis = (b) => (b && !busy ? '' : ' disabled');
-    el.innerHTML = `<button data-ta="play"${dis(isVideoRow(one))} title="再生：${prefLabel()}（${KEY.open} / ダブルクリック）">▶ 再生</button><button data-ta="playset" title="再生のしかたの設定（プレビュー内・プレーヤー・全画面・外部プレーヤー）">⚙</button>
-      <button data-ta="rename"${dis(one)} title="名前を変更（Enter）">✎ 名前を変更</button>
-      <button data-ta="move"${dis(rows.length)} title="移動（ドラッグでも移動できます）">↪ 移動…</button>
-      <button data-ta="mkdir"${dis(true)} title="新規フォルダ（${KEY.mkdir}）">＋ 新規フォルダ</button>
-      <button data-ta="base"${dis(one && one.kind === 'folder')} title="選んだフォルダを最上位にして、その中だけを表示（${KEY.open}）">⤓ ここを最上位に</button>
-      <button data-ta="trash"${dis(rows.length)} class="danger" title="ゴミ箱に入れる（${KEY.trash}）">🗑 ゴミ箱へ</button>`;
+    const fixed = rows.some((r) => isRootOrAbove(r.id));
+    el.classList.toggle('on', rows.length > 0);
+    el.innerHTML = rows.length
+      ? `<span class="cnt">選択中：${rows.length} 項目</span><button class="pri" data-ta="play"${dis(isVideoRow(one))} title="再生：${prefLabel()}（${KEY.open} / ダブルクリック）">▶ 再生</button>
+        <button data-ta="rename"${dis(one)} title="名前を変更（${KEY.rename}）">✎ 名前を変更</button>
+        <button data-ta="move"${dis(rows.length && !fixed)} title="${fixed ? '読み込んだ場所とその上のフォルダは、ここでは移動できません' : '移動（ドラッグでも移動できます）'}">↪ 移動…</button>
+        <button data-ta="base"${dis(one && one.kind === 'folder')} title="選んだフォルダを最上位にして、その中だけを表示（${KEY.open}）">⤓ ここを最上位に</button>
+        <button data-ta="trash"${dis(rows.length && !fixed)} class="red" title="${fixed ? '読み込んだ場所とその上のフォルダは、ここではゴミ箱に入れられません' : `ゴミ箱に入れる（${KEY.trash}）`}">🗑 ゴミ箱へ</button>
+        <span class="sp"></span><button data-ta="mkdir"${dis(true)} title="新規フォルダ（${KEY.mkdir}）">＋ 新規フォルダ</button>`
+      : `<span class="hint">項目を選ぶと、再生・名前の変更・移動・ゴミ箱が使えます（右クリックでもメニューを開けます）</span><span class="sp"></span><button data-ta="mkdir"${dis(true)} title="新規フォルダ（${KEY.mkdir}）">＋ 新規フォルダ</button>`;
   }
   function treeAction(a) {
     const rows = selRows(), one = rows.length === 1 ? rows[0] : null;
@@ -1943,7 +2237,7 @@
     if (a === 'play' && isVideoRow(one)) playDefault(one.id);
     else if (a === 'playfull' && isVideoRow(one)) playFile(one.id, { full: true });
     else if (a === 'playext' && isVideoRow(one)) openExternal(one.id);
-    else if (a === 'playset') openPlaySettings();
+    else if (a === 'playset') openSettings('play');
     else if (a === 'preview' && one) { treeCur = one.id; showQL(); }
     else if (a === 'rename' && one) { closeQL(); renaming = one.id; renderTree(); }
     else if (a === 'move') treeMoveAsk();
@@ -1971,9 +2265,9 @@
       one && one.kind === 'folder' ? it('open', '開く', '→', true) : '',
       one && one.kind === 'folder' ? it('base', 'このフォルダを最上位にして表示', KEY.open, true) : '',
       it('preview', 'プレビュー', 'Space', !!one), '<hr>',
-      it('rename', '名前を変更', KEY.rename, !!one), it('move', `移動…${rows.length > 1 ? `（${rows.length} 項目）` : ''}`, 'ドラッグ', rows.length > 0), it('mkdir', '新規フォルダ', KEY.mkdir, true), '<hr>',
+      it('rename', '名前を変更', KEY.rename, !!one), it('move', `移動…${rows.length > 1 ? `（${rows.length} 項目）` : ''}`, 'ドラッグ', rows.length > 0 && !rows.some((r) => isRootOrAbove(r.id))), it('mkdir', '新規フォルダ', KEY.mkdir, true), '<hr>',
       it('copy', '場所をコピー', KEY.copy, !!one), '<hr>',
-      it('trash', `ゴミ箱に入れる${rows.length > 1 ? `（${rows.length} 項目）` : ''}`, KEY.trash, rows.length > 0, 'red'),
+      it('trash', `ゴミ箱に入れる${rows.length > 1 ? `（${rows.length} 項目）` : ''}`, KEY.trash, rows.length > 0 && !rows.some((r) => isRootOrAbove(r.id)), 'red'),
     ].join('');
     document.body.appendChild(m);
     const w = m.offsetWidth || 220, h = m.offsetHeight || 300;
@@ -2107,7 +2401,7 @@
   }
   // 外部プレーヤーで開く（リンクは時間がたつと無効になるため、その都度取得する）
   async function openExternal(id, ext) {
-    const f = files.find((x) => x.id === id); if (!f) return;
+    const f = fileById(id); if (!f) return;
     ext = ext || playPref().ext;
     if (!ensureSession('tree')) return;
     status('外部プレーヤー用のリンクを取得中…', 0.5);
@@ -2137,29 +2431,83 @@
     else if (p.mode === 'inline') { treeCur = id; showQL(); qlPlay(id); }
     else playFile(id, { full: p.mode === 'full' });
   }
-  // 再生のしかたの設定
-  function openPlaySettings() {
-    const p = playPref();
-    const d = document.createElement('div'); d.id = 'pd-dlg'; d.style.zIndex = '100006'; // プレーヤー・プレビューより手前に出す
-    d.innerHTML = `<div class="box" style="width:min(560px,94vw)"><h3>再生のしかた</h3>
-      <div class="note">ダブルクリック・右クリックの「再生」・${KEY.open} キーで使う方法です。プレビュー（スペース）の中からはいつでも選べます。</div>
-      <div class="pset">${Object.keys(MODES).map((k) => `<label><input type="radio" name="pdmode" value="${k}"${p.mode === k ? ' checked' : ''}> ${MODES[k]}</label>`).join('')}</div>
-      <div class="pset ext"><b>外部プレーヤー（${OS_NAME}）</b>${extList().map((k) => `<label><input type="radio" name="pdext" value="${k}"${p.ext === k ? ' checked' : ''}> ${esc(EXT_PLAYERS[k].name)}</label>`).join('')}
-      <div class="note">${IS_MAC ? 'IINA・Infuse はアプリが入っていれば直接起動します。' : OS === 'win' ? 'PotPlayer はアプリが入っていれば直接起動します。GOM Player・VLC などは「既定のアプリで開く」を選び、.m3u ファイルを開くアプリにそのプレーヤーを設定してください。' : 'VLC・mpv・Celluloid などは「既定のアプリで開く」を選び、.m3u ファイルを開くアプリにそのプレーヤーを設定してください。'}</div></div>
-      <div class="acts" style="margin-top:12px"><button data-no>キャンセル</button><button class="danger" data-yes style="background:#306fff;border-color:#306fff">保存</button></div></div>`;
-    document.body.appendChild(d);
-    const done = () => d.remove();
-    d.querySelector('[data-no]').onclick = done;
-    d.querySelector('[data-yes]').onclick = () => {
-      savePlayPref({ mode: d.querySelector('input[name=pdmode]:checked').value, ext: d.querySelector('input[name=pdext]:checked').value });
-      done(); status('再生のしかたを「' + prefLabel() + '」にしました'); if (view === 'tree') renderTree(); if (qlOpen) showQL();
-    };
-    d.addEventListener('keydown', (e) => { if (e.key === 'Escape') done(); });
+  // ---------- 設定（右からのパネル：表示・再生・整理・情報） ----------
+  const SET_TABS = [['all', 'すべて'], ['view', '表示'], ['play', '再生'], ['org', '整理'], ['info', '情報']];
+  let setTab = 'all';
+  function openSettings(tab) {
+    setTab = tab || 'all';
+    let d = document.getElementById('pd-set');
+    if (!d) {
+      d = document.createElement('div'); d.id = 'pd-set'; document.body.appendChild(d);
+      d.addEventListener('mousedown', (e) => { if (e.target === d) closeSettings(); });
+      d.addEventListener('click', onSettingsClick);
+      d.addEventListener('change', onSettingsChange);
+    }
+    renderSettings();
+    const x = d.querySelector('.x'); if (x) x.focus();
+  }
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.getElementById('pd-set') && !document.getElementById('pd-dlg')) { e.preventDefault(); e.stopImmediatePropagation(); closeSettings(); } }, true);
+  function closeSettings() { const d = document.getElementById('pd-set'); if (d) d.remove(); const t = $('[data-r=tree]'); if (t && view === 'tree') t.focus({ preventScroll: true }); }
+  function renderSettings() {
+    const d = document.getElementById('pd-set'); if (!d) return;
+    const p = playPref(), th = themePref(), lp = langPref();
+    const seen = +(localStorage.getItem(LS_LOGSEEN) || 0);
+    const errs = readLog().filter((x) => x.level === 'error' && x.t > seen).length;
+    const sec = (k) => setTab === 'all' || setTab === k;
+    const helpTree = `${OS_NAME} の操作：▶ / ← → で開閉（${KEY.deep} で中もすべて）・${KEY.open} でフォルダを最上位に（${KEY.up} で戻る）・ダブルクリックで再生・ドラッグで移動・右クリックでメニュー・スペースでプレビュー・${KEY.rename} で名前の変更・${KEY.mkdir} で新規フォルダ・${KEY.trash} でゴミ箱へ・1 / 2 / 3 で表示の切り替え`;
+    const scroll = d.querySelector('.bd') ? d.querySelector('.bd').scrollTop : 0;
+    d.innerHTML = `<aside class="dr" role="dialog" aria-label="設定">
+      <div class="hd">${IC.gear}<h2>設定</h2><button class="x" data-s="close" title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
+      <div class="tabs" role="tablist">${SET_TABS.map(([k, l]) => `<button role="tab" data-s="tab" data-v="${k}" class="${setTab === k ? 'on' : ''}" aria-selected="${setTab === k}">${l}</button>`).join('')}</div>
+      <div class="bd">
+        ${sec('view') ? `<h3>表示</h3>
+        <div class="row"><span><b>テーマ</b><small>右上のボタンと同じ設定です</small></span><span class="seg">${[['light', 'ライト'], ['dark', 'ダーク'], ['auto', '自動']].map(([k, l]) => `<button data-s="theme" data-v="${k}" class="${th === k ? 'on' : ''}">${l}</button>`).join('')}</span></div>
+        <div class="row"><span><b>表示言語</b></span><select data-s="lang"><option value="auto"${lp === 'auto' ? ' selected' : ''}>自動（ブラウザ）</option><option value="ja" data-raw${lp === 'ja' ? ' selected' : ''}>日本語</option><option value="en" data-raw${lp === 'en' ? ' selected' : ''}>English</option></select></div>
+        <div class="row"><span><b>フォルダ一覧の表示</b></span><select data-s="tview"><option value="list"${tree.view === 'list' ? ' selected' : ''}>☰ リスト</option><option value="thumb"${tree.view === 'thumb' ? ' selected' : ''}>▤ サムネイル</option><option value="tile"${tree.view === 'tile' ? ' selected' : ''}>▦ タイル</option></select></div>
+        <label class="row"><span><b>ホバーでサムネイル</b><small>マウスを乗せたときにサムネイルを大きく表示します</small></span><input type="checkbox" data-s="hover"${tree.hover !== false ? ' checked' : ''}></label>
+        <div class="row"><span><b>フォルダ一覧の操作</b><small>${esc(helpTree)}</small></span></div>` : ''}
+        ${sec('play') ? `<h3 data-sec="play">再生</h3>
+        <div class="row col"><b>▶ 再生ボタン・ダブルクリックのとき</b>${Object.keys(MODES).map((k) => `<label><input type="radio" name="pdmode" data-s="mode" value="${k}"${p.mode === k ? ' checked' : ''}> ${MODES[k]}</label>`).join('')}</div>
+        <div class="row"><span><b>外部プレーヤー（${OS_NAME}）</b><small>${IS_MAC ? 'IINA・Infuse はアプリが入っていれば直接起動します。' : OS === 'win' ? 'PotPlayer はアプリが入っていれば直接起動します。GOM Player・VLC などは「既定のアプリで開く」を選び、.m3u ファイルを開くアプリにそのプレーヤーを設定してください。' : 'VLC・mpv・Celluloid などは「既定のアプリで開く」を選び、.m3u ファイルを開くアプリにそのプレーヤーを設定してください。'}</small></span><select data-s="ext">${extList().map((k) => `<option value="${k}"${p.ext === k ? ' selected' : ''}>${esc(EXT_PLAYERS[k].short)}</option>`).join('')}</select></div>` : ''}
+        ${sec('org') ? `<h3>整理</h3>
+        <label class="row"><span><b>作品と関係ないファイルを除外する</b><small>広告・宣伝のファイルや 10MB 以下のファイルなどを、ほかの作業の対象から外します</small></span><input type="checkbox" data-s="junk"${junkEnabled() ? ' checked' : ''}></label>
+        <label class="row"><span><b>ファイル名を整える</b><small>オフにすると、このステップを使わず次へ進みます</small></span><input type="checkbox" data-s="name"${nameEnabled() ? ' checked' : ''}></label>` : ''}
+        ${sec('info') ? `<h3>情報</h3>
+        <div class="row"><span><b>PikPak Distill – Dedupe</b><small class="ver">v${VER} · Noel Labs</small></span><button data-s="changelog">更新履歴</button></div>
+        <div class="row"><span><b>ログ</b><small>エラーや処理の記録</small></span><button data-s="log">ログを表示${errs ? `<span class="badge">${errs}</span>` : ''}</button></div>` : ''}
+      </div></aside>`;
+    d.querySelector('.bd').scrollTop = scroll;
+  }
+  function onSettingsClick(e) {
+    const b = e.target.closest('[data-s]'); if (!b || b.tagName === 'SELECT' || b.tagName === 'INPUT') return;
+    const k = b.dataset.s;
+    if (k === 'close') closeSettings();
+    else if (k === 'tab') { setTab = b.dataset.v; renderSettings(); }
+    else if (k === 'theme') setTheme(b.dataset.v);
+    else if (k === 'log') { closeSettings(); showLog(); }
+    else if (k === 'changelog') window.open('https://github.com/Noel-Labs39/pikpak-distill/blob/main/CHANGELOG.md', '_blank', 'noopener');
+  }
+  function onSettingsChange(e) {
+    const t = e.target, k = t.dataset.s;
+    if (k === 'lang') { setLang(t.value); return; }
+    if (k === 'tview') { tree.view = t.value; saveTree(); if (view === 'tree') treeView(t.value); return; }
+    if (k === 'hover') { tree.hover = t.checked; saveTree(); hideHover(); return; }
+    if (k === 'mode' || k === 'ext') {
+      const p = playPref();
+      savePlayPref({ mode: k === 'mode' ? t.value : p.mode, ext: k === 'ext' ? t.value : p.ext });
+      status('再生のしかたを「' + prefLabel() + '」にしました'); if (view === 'tree') renderTreeActs(); if (qlOpen) showQL();
+      return;
+    }
+    if (k === 'junk' || k === 'name') {
+      try { localStorage.setItem(k === 'junk' ? LS_OPT_JUNK : LS_OPT_NAME, t.checked ? '1' : '0'); } catch (err) { /* 無視 */ }
+      log('info', (k === 'junk' ? '不要ファイルの除外を' : 'ファイル名の整理を') + (t.checked ? 'オン' : 'オフ') + 'に変更');
+      if (root.classList.contains('on') && !busy) setView(view);
+    }
   }
   // プレビュー（クイックルック）の中で再生する
   async function qlPlay(id) {
     const d = document.getElementById('pd-ql'); if (!d) return;
-    const box = d.querySelector('.ql-b'), f = files.find((x) => x.id === id); if (!box || !f) return;
+    const box = d.querySelector('.ql-b'), f = fileById(id); if (!box || !f) return;
     if (!ensureSession('tree')) return;
     killHls(qlHls); qlHls = null;
     box.insertAdjacentHTML('beforeend', '<div class="pl-msg ql-wait">再生の準備中…</div>');
@@ -2175,7 +2523,7 @@
     } catch (err) { if (err.session) { closeQL(); handleErr(err, 'tree'); return; } box.insertAdjacentHTML('beforeend', `<div class="pl-msg pl-err">${esc(err.message)}</div>`); }
   }
   async function playFile(id, opt = {}) {
-    const f = files.find((x) => x.id === id); if (!f) return;
+    const f = fileById(id); if (!f) return;
     // プレビューで再生中なら、その位置から続ける
     const qv = document.querySelector('#pd-ql video'); const fromT = opt.t || (qv && treeCur === id ? qv.currentTime : 0);
     closeQL(); closeCtx();
@@ -2189,14 +2537,14 @@
     const vids = treeRowsCache.filter(isVideoRow);
     const i = vids.findIndex((r) => r.id === id);
     d.innerHTML = `<div class="pl"><div class="pl-h"><button data-pl="prev"${i > 0 ? '' : ' disabled'} title="前のビデオ（${KEY.prev}）">◀</button><button data-pl="next"${i >= 0 && i < vids.length - 1 ? '' : ' disabled'} title="次のビデオ（${KEY.next}）">▶</button><b>${esc(f.name)}</b><select data-pl="q" title="画質（カクつく場合は変換画質を選んでください）" style="display:none"></select><button data-pl="full" title="全画面（F）">⛶ 全画面</button><button data-pl="ext" title="外部プレーヤーで開く">↗ ${esc(EXT_PLAYERS[playPref().ext].short)}</button><button data-pl="set" title="再生のしかたの設定">⚙</button><button data-pl="close" title="閉じる（Esc）">✕</button></div>
-      <div class="pl-b"><div class="pl-msg">再生の準備中…</div></div><div class="pl-f note"><span>${esc((f.path || '/').replace(/\/$/, ''))}/ ・ ${fmt(f.size)}</span><span data-pl="info"></span></div></div>`;
+      <div class="pl-b"><div class="pl-msg">再生の準備中…</div></div><div class="pl-f note"><span>${esc(f.outer ? fullPath(f.parentId) : (f.path || '/').replace(/\/$/, ''))}/ ・ ${fmt(f.size)}</span><span data-pl="info"></span></div></div>`;
     const prev = d.querySelector('[data-pl=prev]'), next = d.querySelector('[data-pl=next]');
     prev.onclick = () => { if (i > 0) { treeSelect(vids[i - 1].id, null); renderTree(); playFile(vids[i - 1].id, { full: !!document.fullscreenElement }); } };
     next.onclick = () => { if (i < vids.length - 1) { treeSelect(vids[i + 1].id, null); renderTree(); playFile(vids[i + 1].id, { full: !!document.fullscreenElement }); } };
     const goFull = () => { const v = d.querySelector('video') || d.querySelector('.pl'); const fn = v && (v.requestFullscreen || v.webkitRequestFullscreen); if (fn) Promise.resolve(fn.call(v)).catch(() => status('全画面にできませんでした。プレーヤーの ⛶ を押してください。')); };
     d.querySelector('[data-pl=full]').onclick = goFull;
     d.querySelector('[data-pl=ext]').onclick = () => { const v = d.querySelector('video'); if (v) v.pause(); openExternal(id); };
-    d.querySelector('[data-pl=set]').onclick = openPlaySettings;
+    d.querySelector('[data-pl=set]').onclick = () => openSettings('play');
     try {
       const S = await loadSources(id);
       if (!document.body.contains(d)) return;
@@ -2306,7 +2654,7 @@
   }
   // キーボード操作
   document.addEventListener('keydown', (e) => {
-    if (!root.classList.contains('on') || view !== 'tree' || busy || document.getElementById('pd-dlg') || document.getElementById('pd-player')) return;
+    if (!root.classList.contains('on') || view !== 'tree' || busy || document.getElementById('pd-dlg') || document.getElementById('pd-player') || document.getElementById('pd-set')) return;
     if (document.getElementById('pd-ctx')) { if (e.key === 'Escape') { e.preventDefault(); closeCtx(); } return; }
     const t = e.target;
     if (t && t.classList && t.classList.contains('tr-ren')) {
@@ -2362,13 +2710,22 @@
     else if ((k === 'c' || k === 'C') && modKey(e) && cur && !String(window.getSelection ? window.getSelection() : '').trim()) { e.preventDefault(); copyPath(cur); }
   });
   root.addEventListener('focusout', (e) => { if (e.target.classList && e.target.classList.contains('tr-ren') && renaming) treeCommitRename(renaming, e.target.value); });
-  function treeUp() {
-    const ix = treeIdx || buildTreeIndex(); const b = treeBase(); if (b === ix.rootId) return;
-    const cur = ix.byId.get(b); setBase(cur && ix.byId.has(cur.parentId) && !ix.byId.get(cur.parentId).isRoot ? cur.parentId : '');
-    if (cur) { treeSel.add(cur.id); treeCur = cur.id; treeAnchor = cur.id; renderTree(); }
+  // 1 つ上の階層へ（読み込んだ場所より上も、その場で読み込んで移動する）
+  async function treeUp() {
+    const ix = treeIdx || buildTreeIndex(); const b = treeBase();
+    if (b === ix.rootId && outer.rootPid === undefined) {
+      if (!sessionValid()) { ensureSession('tree'); return; }
+      status('上の階層を確認しています…', 0.4);
+      try { await ensureUp(); } catch (err) { if (err.session) { handleErr(err, 'tree'); return; } status('上の階層を読み込めませんでした：' + err.message); return; }
+      treeIdx = null;
+    }
+    const p = parentOf(b);
+    if (p === undefined || p === null || (isHomeId(b) && b !== ix.rootId)) { status('これより上の階層はありません'); renderTree(); return; }
+    setBase(p);
+    treeSel.add(b); treeCur = b; treeAnchor = b; renderTree();
   }
   function treeAll(open) {
-    if (open) folders.forEach((d) => { if (!d.isRoot) treeOpen.add(d.id); }); else treeOpen.clear();
+    if (open) { folders.forEach((d) => { if (!d.isRoot) treeOpen.add(d.id); }); outer.dirs.forEach((d) => { if (outer.loaded.has(d.id)) treeOpen.add(d.id); }); } else treeOpen.clear();
     saveTree(); renderTree(); status(open ? 'すべてのフォルダを開きました' : 'すべてのフォルダを閉じました');
   }
   // タイル：フォルダの見出しへ飛ぶ／一番上の一覧へ戻る
@@ -2386,16 +2743,16 @@
     if (!sec) return;
     main.scrollTo({ top: main.scrollTop + sec.getBoundingClientRect().top - main.getBoundingClientRect().top - 30, behavior: 'smooth' });
     afterScroll(main, () => flash(sec.querySelector('.tl-h')));
-    status(`「${(folderById(id) || {}).name}」の中身を表示しています（見出しの「⤒ 一覧へ戻る」か ${KEY.back} キーで一番上へ戻れます）`);
+    status(`「${dirLabel(id)}」の中身を表示しています（見出しの「⤒ 一覧へ戻る」か ${KEY.back} キーで一番上へ戻れます）`);
   }
   function jumpTop(fromId) {
     const main = $('[data-r=main]');
     main.scrollTo({ top: 0, behavior: 'smooth' });
     // 戻り先：最上位の一覧にある、そのフォルダ（またはそのフォルダを含むフォルダ）のタイルを選ぶ
-    const f = fromId && folderById(fromId), base = treeBase();
-    if (f) {
-      const tr = f.trail || [], k = tr.indexOf(base);
-      const top = k >= 0 ? tr[k + 1] : (tr.find((x) => treeRowsCache.some((q) => q.id === x && q.parentId === base)) || '');
+    const base = treeBase();
+    if (fromId) {
+      const ch = [fromId, ...ancestorsOf(fromId)], k = ch.indexOf(base);
+      const top = k > 0 ? ch[k - 1] : (ch.find((x) => treeRowsCache.some((q) => q.id === x && q.parentId === base)) || '');
       if (top) { treeSel.clear(); treeSel.add(top); treeCur = top; treeAnchor = top; renderTree(); main.scrollTo({ top: 0, behavior: 'smooth' }); afterScroll(main, () => flash([...root.querySelectorAll('.tr-row.tile')].find((x) => x.dataset.tid === top))); }
     }
   }
@@ -2417,9 +2774,11 @@
   function treeView(v) { tree.view = v; saveTree(); renderTreeToolbar(); renderTree(); $('[data-r=main]').scrollTop = 0; }
   function openTree() {
     if (busy) return;
-    closeQL(); treeHeadHtml = '';
+    closeQL();
     if (!hasScan()) { afterScan = 'tree'; setView('scan'); runScan(); return; }
     setView('tree');
+    const q = $('[data-a=tq]'); if (q) q.value = tree.q || '';
+    prefetchUp();
   }
 
   // ---------- 操作 ----------
@@ -2439,6 +2798,8 @@
     if (t.dataset.g !== undefined) { if (busy) return; const g = visibleGroups().find((x) => x.key === t.dataset.g); if (g) runDelete([g]); return; }
     if (a === 'close') { root.classList.remove('on'); return; }
     if (a === 'log') { showLog(); return; }
+    if (a === 'settings') { openSettings(); return; }
+    if (a === 'theme') { setTheme(t.dataset.v); return; }
     if (a === 'lang') { if (!busy) setLang(LANG === 'en' ? 'ja' : 'en'); return; }
     if (a === 'tree') { if (!busy) openTree(); return; }
     if (a === 'texpand' || a === 'tcollapse') { if (!busy) treeAll(a === 'texpand'); return; }
@@ -2490,30 +2851,18 @@
     setView(v);
   }
   function renderFab() {
-    const c = counts();
-    const badge = (k) => {
-      if (k === 'scan') return meta ? `<span class="b ok">${esc(new Date(meta.at).toLocaleString(loc(), { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }))}</span>` : '<span class="b todo">未読み込み</span>';
-      if (!c) return '<span class="b">読み込んでから</span>';
-      const n = remaining(k, c);
-      if (n) return `<span class="b todo">${n} ${UNIT_OF[k]}</span>`;
-      if (k === 'clean' && c.cleanSkip) return `<span class="b">要確認 ${c.cleanSkip}</span>`;
-      return '<span class="b ok">✓ 完了</span>';
-    };
     const seen = +(localStorage.getItem(LS_LOGSEEN) || 0);
     const errs = readLog().filter((x) => x.level === 'error' && x.t > seen).length;
-    fab.innerHTML = `<button class="flow" data-fab="flow"><span class="n" style="background:#ffffff33">▶</span><span class="t">おまかせ整理<br><span style="font-weight:400;font-size:11px;opacity:.85">1〜7の流れで順番に進める</span></span></button>
-      <div class="hd">作業を選んで開く</div>
-      ${STEPS.map((s, i) => `<button data-fab="${s.v}"${busy ? ' disabled' : ''}><span class="n">${i + 1}</span><span class="t">${esc(s.t)}</span>${badge(s.v)}</button>`).join('')}
-      <hr><button data-fab="tree"${busy ? ' disabled' : ''}><span class="n">🗂</span><span class="t">フォルダ一覧</span>${meta ? `<span class="b">${folders.length} フォルダ</span>` : '<span class="b">読み込んでから</span>'}</button>
-      <button data-fab="log"><span class="n">≡</span><span class="t">ログ</span>${errs ? `<span class="b todo">エラー ${errs}</span>` : ''}</button>
-      <div class="hd" style="text-align:right;padding:2px 10px 4px">PikPak Distill v${VER}</div>`;
+    fab.innerHTML = `<button class="it" data-fab="tree"${busy ? ' disabled' : ''}><span class="ic">${IC.folder}</span><span class="t"><b>フォルダ一覧</b><small>見る・再生・名前の変更・移動</small></span></button>
+      <button class="it pri" data-fab="flow"><span class="ic">${IC.dedupe}</span><span class="t"><b>Dedupe スキャン</b><small>重複・不要ファイルを読み込んで整理</small></span></button>
+      ${errs ? `<div class="err">${IC.alert}<span>前回の操作でエラーが ${errs} 件あります</span><button data-fab="log">確認</button></div>` : ''}`;
   }
   const closeFab = () => fab.classList.remove('on');
   btn.addEventListener('click', (e) => { e.stopPropagation(); if (fab.classList.contains('on')) { closeFab(); return; } renderFab(); fab.classList.add('on'); });
   fab.addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b || b.disabled) return;
     const k = b.dataset.fab; closeFab();
-    if (k === 'flow') openFlow();
+    if (k === 'flow') { if (!busy && view === 'tree') view = 'scan'; openFlow(); }
     else if (k === 'log') showLog();
     else if (k === 'tree') { mode = 'single'; root.classList.add('single', 'on'); updateLogBadge(); openTree(); }
     else openTask(k);
@@ -2521,7 +2870,7 @@
   document.addEventListener('click', (e) => { if (fab.classList.contains('on') && !fab.contains(e.target) && e.target !== btn) closeFab(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeFab(); });
   updateLogBadge();
-  renderRailLang();
+  renderLangBtn(); applyTheme();
   if (LANG === 'en') document.querySelectorAll(UI_SEL).forEach(trNode);
   resumeAfterReload();
 

@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.24.1
+// @version      3.25.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -81,7 +81,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.24.1'; // @version と合わせて更新する
+  const VER = '3.25.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -971,6 +971,48 @@
   #pd-ext .gr small{font-size:10px;color:#8b91a1}
   #pd-ext .ft{margin-top:10px;font-size:11px;color:#8b91a1}
   .sl-chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+  .pd-sk{position:relative;height:16px;padding:5px 12px;background:#000;cursor:pointer}
+  .pd-sk > .sktr{position:relative;height:6px;border-radius:3px;background:#3a3f4b;overflow:hidden}
+  .pd-sk:hover > .tr{height:8px;margin-top:-1px}
+  .pd-sk > .sktr i{position:absolute;left:0;top:0;bottom:0;width:0}
+  .pd-sk .skb{background:#5a6070}
+  .pd-sk .skp{background:#306fff}
+  .pd-sk .tip{position:absolute;bottom:24px;width:210px;padding:4px;box-sizing:border-box;background:#000;border:2px solid #fff;border-radius:8px;box-shadow:0 6px 18px #000a;pointer-events:none;z-index:5;text-align:center}
+  .pd-sk .tip[hidden]{display:none}
+  .pd-sk .tip canvas{display:block;width:100%;height:auto;border-radius:4px}
+  .pd-sk .tip b{display:block;font:600 11px ui-monospace,Menlo,monospace;color:#fff;padding-top:2px}
+  #pd-ql .ql-acts select,#pd-player .pl-h select[data-rate]{min-width:64px}
+  #pd-frames{position:fixed;inset:0;z-index:100007;background:#0009;display:flex;align-items:center;justify-content:center;font:13px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif;color:#e6e8ee}
+  #pd-frames .fr-box{width:min(1400px,96vw);max-height:94vh;display:flex;flex-direction:column;background:#1d2027;border-radius:14px;box-shadow:0 18px 50px #000a;overflow:hidden}
+  #pd-frames .fr-hd{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid #2c303a}
+  #pd-frames .fr-hd b{font-size:16px}
+  #pd-frames .sp{flex:1}
+  #pd-frames .note{color:#8b91a1;font-size:12px}
+  #pd-frames button{height:32px;padding:0 12px;border:1px solid #3a3f4b;border-radius:8px;background:#252932;color:#e6e8ee;font:inherit;cursor:pointer}
+  #pd-frames button:disabled{opacity:.45;cursor:default}
+  #pd-frames .seg{display:inline-flex}
+  #pd-frames .seg button{border-radius:0;margin-left:-1px}
+  #pd-frames .seg button:first-child{border-radius:8px 0 0 8px}
+  #pd-frames .seg button:last-child{border-radius:0 8px 8px 0}
+  #pd-frames .seg button.on{background:#306fff;border-color:#306fff;color:#fff;font-weight:700}
+  #pd-frames button.x{width:32px;padding:0;border:0;background:none;display:inline-flex;align-items:center;justify-content:center;color:#8b91a1}
+  #pd-frames button.x svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+  #pd-frames .fr-cols{display:grid;overflow:auto;flex:1 1 auto}
+  #pd-frames .fr-col{padding:12px 14px;border-right:1px solid #2c303a;min-width:0}
+  #pd-frames .fr-col:last-child{border-right:0}
+  #pd-frames .fr-meta{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  #pd-frames .fr-meta b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #pd-frames .fr-tag{font-size:11px;padding:1px 8px;border-radius:99px;font-weight:700}
+  #pd-frames .fr-tag.keep{background:#17331f;color:#6fdc9a}
+  #pd-frames .fr-tag.del{background:#3a1a1a;color:#ff8a80}
+  #pd-frames .fr-grid{display:grid;gap:5px}
+  #pd-frames .fr-c{position:relative;height:auto;aspect-ratio:16/9;padding:0;border:0;border-radius:6px;background:#2b2f39;overflow:hidden}
+  #pd-frames .fr-c canvas{display:block;width:100%;height:100%;object-fit:cover}
+  #pd-frames .fr-c.on{outline:3px solid #306fff;outline-offset:-1px}
+  #pd-frames .fr-c .t{position:absolute;left:4px;bottom:3px;font:600 10px ui-monospace,Menlo,monospace;color:#fff;text-shadow:0 1px 2px #000}
+  #pd-frames .fr-msg{min-height:18px;margin-top:6px}
+  #pd-frames .fr-acts{display:flex;gap:8px;margin-top:6px}
+  #pd-frames .fr-ft{padding:8px 18px;border-top:1px solid #2c303a}
   #pd-add{position:fixed;inset:0;z-index:100005;background:#14161b80;display:flex;align-items:center;justify-content:center;font:13px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Meiryo","Noto Sans CJK JP",sans-serif;color:var(--fg)}
   #pd-add.drop .ad-box{outline:3px dashed var(--pri);outline-offset:-8px}
   #pd-add .ad-box{width:min(980px,96vw);max-height:92vh;display:flex;flex-direction:column;background:var(--panel);border-radius:14px;box-shadow:0 18px 50px #0006;overflow:hidden}
@@ -1321,6 +1363,7 @@
   EN.push(...[["品番から判定", "From the ID"], ["サイトで確認", "Confirmed on a site"], ["名前の「", "From \""], ["」から判定", "\" in the name"], ["日付型の品番だけで、名前にサイト名がありません（名前に 1pon・carib などがあれば自動で決まります）", "Only a date-style ID and no site name (names containing 1pon, carib, etc. are decided automatically)"], ["同じ番号の作品が複数のサイトにあります", "The same number exists on several sites"], ["外部サイトで確かめる", "Check on other sites"], ["外部サイト ▾", "Other sites ▾"], ["分かったら、行の入力欄に販売者名と ID を入れて「保存」", "When you find it, enter the seller name and ID in the row and press Save"], ["調べ直す", "Look up again"], ["販売者を調べる", "Look up sellers"], ["確かめる・入力", "Check & enter"], ["移動", "Move"], ["未調査はありません", "Nothing left to look up"], ["分からないものはありません", "Nothing unknown"], ["件は販売者が分かりませんでした。外部サイトで確かめて入力してください", " could not be identified. Check other sites and enter the seller"], ["このまま ③ 移動へ", "Go to ③ Move as is"], ["② に戻る", "Back to ②"], ["移動するもの ", "To move: "], ["チェックの入った作品がありません", "No works are checked"], ["先頭1件だけ試す", "Try the first one"], ["決まった", "Decided"], ["自動では移動しません（初めはチェックなし）", "Not moved automatically (unchecked at first)"], ["入力すると、その販売者の組へ移ります", "Enter a seller to move it to that group"], ["販売者名と販売者ID（英数字）を入れてください", "Enter the seller name and seller ID (letters/digits)"], ["件を確かめる", " to check"], ["分からない ", "Unknown: "]]);
   EN.push(...[["残り時間を計算中…", "Estimating time left…"], ["まもなく完了", "Almost done"], ["あと約 ", "About "], ["（目安・前回 ", "(estimate, last time "], ["（目安）", "(estimate)"], ["実行中…", "Running…"], ["中断すると、そこまでの分は反映されます", "If you stop, what has been done so far is kept"], ["削除するもの ", "To delete: "], ["PikPak のゴミ箱へ移動します", "Moves to the PikPak trash"], ["チェックの入ったファイルがありません", "No files are checked"], ["削除するものにチェックを入れてください", "Check the files to delete"], ["表示中 ", "Showing "], ["チェックした（削除の）ファイルを PikPak のゴミ箱へ移動します", "Moves the checked (delete) files to the PikPak trash"], ["対象 ", "Targets: "], ["まずは「先頭1件だけ試す」で動きを確かめてください", "First check how it works with \"Try the first one\""], ["下の「画質」で別の画質を試せます。", "Try another quality from the quality menu below."]]);
   EN.push(...[["（残り ", "(left "], ["リンク・マグネットを追加", "Add links / magnets"], ["追加する前に、もうあるか確かめる", "Checks whether you already have it before adding"], ["中身を確認", "Check contents"], ["もうあります", "Already have"], ["すべて保存", "Save all"], ["一部だけ保存", "Save selected only"], ["キャッシュなし", "No cache"], ["中身を確認中…", "Checking contents…"], ["中身を確認できません", "Can't check contents"], ["追加するもの ", "To add: "], ["追加するものがありません", "Nothing to add"], ["PikPak の既定の保存先（My Pack）", "PikPak default location (My Pack)"], ["保存先", "Save to"], ["🔗 リンクを追加", "🔗 Add links"], ["ここにリンクを追加…", "Add links here…"], ["リンク・マグネットを追加…", "Add links / magnets…"]]);
+  EN.push(...[["▦ コマ一覧", "▦ Frames"], ["▦ コマで比べる", "▦ Compare frames"], ["▦ 2 本をコマで比べる", "▦ Compare 2 videos by frames"], ["コマ一覧", "Frames"], ["同じ位置のコマを左右に並べています", "Frames at the same positions, side by side"], ["▶ 選んだコマから再生", "▶ Play from selected frame"], ["画像で保存", "Save as image"], ["動画を読み込んでいます…", "Loading video…"], ["コマを作っています… ", "Making frames… "], ["コマを作れませんでした：", "Could not make frames: "], ["この動画はブラウザの制限でコマを作れません", "The browser does not allow frames for this video"], ["再生速度：", "Speed: "], ["残す", "Keep"], [" コマ", " frames"]]);
   EN.sort((a, b) => b[0].length - a[0].length); // 長い言い回しから先に置き換える
   const EN_MAP = new Map(EN);
   const EN_UNIT = EN.filter(([a]) => a.length > 1 && /^(件|項目|組|作品|本)./.test(a));
@@ -2000,7 +2043,7 @@
           <div class="pd-sz"><b>${fmt(f.size)}</b><div class="note">${diff}</div></div>
           <div class="pd-act"><button data-s="open">場所を開く</button></div></div>`;
       }).join('');
-      return `<section class="pd-g"><div class="pd-gh"><span>${esc(g.items[0].name)}</span><span class="note">${g.items.length}件</span>${g.near ? '<span class="pd-tag">サイズが近い組あり</span>' : ''}<span class="sp"></span><button data-g="${esc(g.key)}">この組のチェックを削除</button></div>${rows}</section>`;
+      return `<section class="pd-g"><div class="pd-gh"><span>${esc(g.items[0].name)}</span><span class="note">${g.items.length}件</span>${g.near ? '<span class="pd-tag">サイズが近い組あり</span>' : ''}<span class="sp"></span><button data-frg="${esc(g.key)}" title="この組の 2 本を、同じ位置のコマで並べて比べる">▦ コマで比べる</button><button data-g="${esc(g.key)}">この組のチェックを削除</button></div>${rows}</section>`;
     }).join('') + nextButton();
     renderActs();
     if (!busy) { const dl = delList(groups); status(`重複 ${groups.length} 組 ／ チェック（削除する） ${dl.length} 件・${fmt(dl.reduce((a, f) => a + f.size, 0))}　※各組の一番大きいファイルは最初からチェックなし（残す）になっています`); }
@@ -2813,15 +2856,16 @@
     const info = r.kind === 'folder' ? `${r.n} 項目（中のファイル ${ix.agg.get(r.id).files} 件）・${fmt(r.size)}` : `${esc(kindOf(r))}・${fmt(r.size)}`;
     const jr = r.kind === 'file' && junkEnabled() ? (prepJunk(files, folders), junkInfo(r.f)) : null;
     d.innerHTML = `<div class="ql"><div class="ql-h"><button data-qlclose title="閉じる（スペース / Esc）">✕</button><b>${esc(r.name)}</b></div><div class="ql-b">${big}</div>
-      <div class="ql-f"><div>${info}</div><div class="note">${esc((r.kind === 'folder' ? r.path : r.path + '/').replace(/^\/?/, '/').replace(/\/+$/, '') || '/')}</div>${jr ? `<div style="color:#ff6b6b">不要ファイルの判定：${esc(jr.reason)}</div>` : ''}${isVideoRow(r) ? `<div class="ql-acts"><button data-qlplay class="pri" title="このプレビューの中で再生">▶ ここで再生</button><button data-qlfull title="全画面で再生">⛶ 全画面</button><button data-qlext title="外部プレーヤーで開く">↗ ${esc(EXT_PLAYERS[playPref().ext].short)}</button><button data-qlset title="再生のしかたの設定（ダブルクリック時の動作・外部プレーヤー）">⚙</button></div>` : ''}</div></div>`;
+      <div class="ql-f"><div>${info}</div><div class="note">${esc((r.kind === 'folder' ? r.path : r.path + '/').replace(/^\/?/, '/').replace(/\/+$/, '') || '/')}</div>${jr ? `<div style="color:#ff6b6b">不要ファイルの判定：${esc(jr.reason)}</div>` : ''}${isVideoRow(r) ? `<div class="ql-acts"><button data-qlplay class="pri" title="このプレビューの中で再生">▶ ここで再生</button><button data-qlfull title="全画面で再生">⛶ 全画面</button><button data-qlframes title="コマ一覧（動画の中身を 16 コマで見る）">▦ コマ一覧</button>${rateSelect()}<button data-qlext title="外部プレーヤーで開く">↗ ${esc(EXT_PLAYERS[playPref().ext].short)}</button><button data-qlset title="再生のしかたの設定（ダブルクリック時の動作・外部プレーヤー）">⚙</button></div>` : ''}</div></div>`;
     d.classList.remove('playing'); killHls(qlHls); qlHls = null;
     const on = (sel, fn) => { const b = d.querySelector(sel); if (b) b.onclick = fn; };
     on('[data-qlplay]', () => qlPlay(r.id));
     on('[data-qlfull]', () => playFile(r.id, { full: true }));
     on('[data-qlext]', () => { const v = d.querySelector('video'); if (v) v.pause(); openExternal(r.id); });
     on('[data-qlset]', () => openSettings('play'));
+    on('[data-qlframes]', () => { const v = d.querySelector('video'); if (v) v.pause(); openFrames([r.id]); });
   }
-  function closeQL() { qlOpen = false; killHls(qlHls); qlHls = null; const d = document.getElementById('pd-ql'); if (d) { const v = d.querySelector('video'); try { if (v) v.pause(); } catch (e) { /* 無視 */ } d.remove(); } }
+  function closeQL() { qlOpen = false; killHls(qlHls); qlHls = null; const d = document.getElementById('pd-ql'); if (d) { d.querySelectorAll('.pd-sk').forEach((b) => { if (b._grab) b._grab.close(); }); const v = d.querySelector('video'); try { if (v) v.pause(); } catch (e) { /* 無視 */ } d.remove(); } }
   // 名前の変更（Enter）
   function applyRenameCache(kind, id, name) {
     const o = kind === 'file' ? outer.files.get(id) : outer.dirs.get(id);
@@ -3036,6 +3080,7 @@
     else if (a === 'playfull' && isVideoRow(one)) playFile(one.id, { full: true });
     else if (a === 'playext' && isVideoRow(one)) openExternal(one.id);
     else if (a === 'playset') openSettings('play');
+    else if (a === 'frames' && rows.length && rows.length <= 2 && rows.every(isVideoRow)) openFrames(rows.map((r) => r.id));
     else if (a === 'preview' && one) { treeCur = one.id; showQL(); }
     else if (a === 'rename' && one) { closeQL(); renaming = one.id; renderTree(); }
     else if (a === 'move') treeMoveAsk();
@@ -3060,6 +3105,7 @@
       isVideoRow(one) ? it('play', `▶ 再生（${prefLabel()}）`, KEY.open, true) : '',
       isVideoRow(one) ? it('playfull', '⛶ 全画面で再生', '', true) : '',
       isVideoRow(one) ? it('playext', `↗ 外部プレーヤー（${EXT_PLAYERS[playPref().ext].short}）`, '', true) : '',
+      rows.length && rows.length <= 2 && rows.every(isVideoRow) ? it('frames', rows.length === 2 ? '▦ 2 本をコマで比べる' : '▦ コマ一覧', '', true) : '',
       isVideoRow(one) ? it('playset', '再生のしかたの設定…', '', true) + '<hr>' : '',
       one && one.kind === 'folder' ? it('open', '開く', '→', true) : '',
       one && one.kind === 'folder' ? it('base', 'このフォルダを最上位にして表示', KEY.open, true) : '',
@@ -3188,9 +3234,13 @@
   // video 要素に再生元をつなぐ（HLS は hls.js、それ以外はそのまま。失敗したら hls.js で再試行）
   function mountVideo(box, x, S, onFail, opt = {}) {
     const t = opt.t || 0;
+    // 前の動画のシークバー（とサムネイル用の影の動画）を片付ける
+    const oldBar = box.nextElementSibling && box.nextElementSibling.classList.contains('pd-sk') ? box.nextElementSibling : null;
+    if (oldBar) { if (oldBar._grab) oldBar._grab.close(); oldBar.remove(); }
     box.innerHTML = '<video controls autoplay playsinline preload="auto"></video>';
     const v = box.querySelector('video');
-    v.addEventListener('loadedmetadata', () => { if (t) v.currentTime = t; if (opt.onMeta) opt.onMeta(v); }, { once: true });
+    v.addEventListener('loadedmetadata', () => { if (t) v.currentTime = t; v.defaultPlaybackRate = getRate(); v.playbackRate = getRate(); if (opt.onMeta) opt.onMeta(v); }, { once: true });
+    if (opt.seekbar !== false) { const tmp = document.createElement('div'); box.after(tmp); attachSeekbar(tmp, v, x, S); const bar = tmp.querySelector('.pd-sk'); tmp.replaceWith(bar); }
     let hls = null;
     const viaHls = async () => {
       hls = new S.H({ maxBufferLength: 60, enableWorker: true });
@@ -3381,7 +3431,7 @@
     }
     const vids = treeRowsCache.filter(isVideoRow);
     const i = vids.findIndex((r) => r.id === id);
-    d.innerHTML = `<div class="pl"><div class="pl-h"><button data-pl="prev"${i > 0 ? '' : ' disabled'} title="前のビデオ（${KEY.prev}）">◀</button><button data-pl="next"${i >= 0 && i < vids.length - 1 ? '' : ' disabled'} title="次のビデオ（${KEY.next}）">▶</button><b>${esc(f.name)}</b><select data-pl="q" title="画質（カクつく場合は変換画質を選んでください）" style="display:none"></select><button data-pl="full" title="全画面（F）">⛶ 全画面</button><button data-pl="ext" title="外部プレーヤーで開く">↗ ${esc(EXT_PLAYERS[playPref().ext].short)}</button><button data-pl="set" title="再生のしかたの設定">⚙</button><button data-pl="close" title="閉じる（Esc）">✕</button></div>
+    d.innerHTML = `<div class="pl"><div class="pl-h"><button data-pl="prev"${i > 0 ? '' : ' disabled'} title="前のビデオ（${KEY.prev}）">◀</button><button data-pl="next"${i >= 0 && i < vids.length - 1 ? '' : ' disabled'} title="次のビデオ（${KEY.next}）">▶</button><b>${esc(f.name)}</b><select data-pl="q" title="画質（カクつく場合は変換画質を選んでください）" style="display:none"></select>${rateSelect()}<button data-pl="frames" title="コマ一覧">▦ コマ一覧</button><button data-pl="full" title="全画面（F）">⛶ 全画面</button><button data-pl="ext" title="外部プレーヤーで開く">↗ ${esc(EXT_PLAYERS[playPref().ext].short)}</button><button data-pl="set" title="再生のしかたの設定">⚙</button><button data-pl="close" title="閉じる（Esc）">✕</button></div>
       <div class="pl-b"><div class="pl-msg">再生の準備中…</div></div><div class="pl-f note"><span>${esc(f.outer ? fullPath(f.parentId) : (f.path || '/').replace(/\/$/, ''))}/ ・ ${fmt(f.size)}</span><span data-pl="info"></span></div></div>`;
     const prev = d.querySelector('[data-pl=prev]'), next = d.querySelector('[data-pl=next]');
     prev.onclick = () => { if (i > 0) { treeSelect(vids[i - 1].id, null); renderTree(); playFile(vids[i - 1].id, { full: !!document.fullscreenElement }); } };
@@ -3390,6 +3440,7 @@
     d.querySelector('[data-pl=full]').onclick = goFull;
     d.querySelector('[data-pl=ext]').onclick = () => { const v = d.querySelector('video'); if (v) v.pause(); openExternal(id); };
     d.querySelector('[data-pl=set]').onclick = () => openSettings('play');
+    d.querySelector('[data-pl=frames]').onclick = () => { const v = d.querySelector('video'); if (v) v.pause(); openFrames([id]); };
     try {
       const S = await loadSources(id);
       if (!document.body.contains(d)) return;
@@ -3420,7 +3471,7 @@
       log('info', '再生：' + f.name + '（' + src[S.first].label + '）');
     } catch (err) { if (err.session) { closePlayer(); handleErr(err, 'tree'); return; } d.querySelector('.pl-msg').textContent = '再生用リンクを取得できませんでした：' + err.message; log('error', '再生用リンクの取得に失敗：' + err.message, f.name); updateLogBadge(); }
   }
-  function closePlayer() { stopHls(); const d = document.getElementById('pd-player'); if (d) { const v = d.querySelector('video'); try { if (v) { v.pause(); v.removeAttribute('src'); v.load(); } } catch (e) { /* 無視 */ } d.remove(); } const t = $('[data-r=tree]'); if (t) t.focus(); }
+  function closePlayer() { stopHls(); const d = document.getElementById('pd-player'); if (d) { d.querySelectorAll('.pd-sk').forEach((b) => { if (b._grab) b._grab.close(); }); const v = d.querySelector('video'); try { if (v) { v.pause(); v.removeAttribute('src'); v.load(); } } catch (e) { /* 無視 */ } d.remove(); } const t = $('[data-r=tree]'); if (t) t.focus(); }
   document.addEventListener('keydown', (e) => {
     const d = document.getElementById('pd-player'); if (!d) return;
     if (e.key === 'Escape') { if (document.fullscreenElement) return; e.preventDefault(); e.stopImmediatePropagation(); closePlayer(); }
@@ -3641,6 +3692,7 @@
       if (f && r) { root.classList.remove('on'); r.push('/all/' + f.parentId); }
       return;
     }
+    if (t.dataset.frg !== undefined) { const g = visibleGroups().find((x) => x.key === t.dataset.frg); if (g) { const del = g.items.find((f, i) => stateOf(f, i) === 'del'); openFrames([g.items[0].id, (del || g.items[1]).id]); } return; }
     if (t.dataset.g !== undefined) { if (busy) return; const g = visibleGroups().find((x) => x.key === t.dataset.g); if (g) runDelete([g]); return; }
     if (a === 'close' || a === 'mini') { root.classList.remove('on'); return; }
     if (a === 'tofull') { setWin('full'); return; }
@@ -3742,6 +3794,176 @@
     new ResizeObserver(() => { if (winMode !== 'pop' || !root.classList.contains('on')) return; clearTimeout(rt); rt = setTimeout(() => { const b = root.getBoundingClientRect(); if (b.width && b.height) savePopGeom({ x: Math.round(b.left), y: Math.round(b.top), w: Math.round(b.width), h: Math.round(b.height) }); }, 300); }).observe(root);
   }
   window.addEventListener('resize', () => { if (winMode === 'pop' && root.classList.contains('on')) applyWin(); });
+  // ---------- 再生の強化（倍速・シークバーのサムネイル）とコマ一覧 ----------
+  const LS_RATE = 'ppdup:rate:v1', LS_FRAMES = 'ppdup:frames:v1';
+  const RATES = [0.5, 0.75, 1, 1.25, 1.5, 2, 3];
+  const getRate = () => { let r = 1; try { r = +localStorage.getItem(LS_RATE) || 1; } catch (e) { /* 無視 */ } return r >= 0.25 && r <= 3 ? r : 1; };
+  function setRate(r) {
+    r = Math.round(Math.max(0.25, Math.min(3, r)) * 100) / 100;
+    try { localStorage.setItem(LS_RATE, String(r)); } catch (e) { /* 無視 */ }
+    document.querySelectorAll('#pd-ql video, #pd-player video').forEach((v) => { v.defaultPlaybackRate = r; v.playbackRate = r; });
+    document.querySelectorAll('[data-rate]').forEach((s) => { if (![...s.options].some((o) => +o.value === r)) s.insertAdjacentHTML('beforeend', `<option value="${r}">${r}×</option>`); s.value = String(r); });
+    return r;
+  }
+  const rateSelect = () => `<select data-rate title="再生速度（[ ] で 0.25 ずつ、\\ で 1 倍）">${[...new Set([...RATES, getRate()])].sort((a, b) => a - b).map((r) => `<option value="${r}"${r === getRate() ? ' selected' : ''}>${r}×</option>`).join('')}</select>`;
+  document.addEventListener('change', (e) => { if (e.target.matches && e.target.matches('select[data-rate]')) setRate(+e.target.value); }, true);
+  document.addEventListener('keydown', (e) => {
+    if (!document.querySelector('#pd-ql video, #pd-player video')) return;
+    const t = e.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT')) return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === ']') { e.preventDefault(); status('再生速度：' + setRate(getRate() + 0.25) + '×'); }
+    else if (e.key === '[') { e.preventDefault(); status('再生速度：' + setRate(getRate() - 0.25) + '×'); }
+    else if (e.key === '\\') { e.preventDefault(); status('再生速度：' + setRate(1) + '×'); }
+  }, true);
+  // 影の video：見えないところでシークして、その位置の画面をキャンバスに描く（コマ一覧・シークバーのサムネイル）
+  function makeGrabber(x, S) {
+    const v = document.createElement('video');
+    v.muted = true; v.crossOrigin = 'anonymous'; v.preload = 'auto'; v.playsInline = true;
+    let hls = null, closed = false;
+    const ready = new Promise((res, rej) => {
+      const to = setTimeout(() => rej(new Error('動画の読み込みが時間切れになりました')), 25000);
+      v.addEventListener('loadedmetadata', () => { clearTimeout(to); res(); }, { once: true });
+      v.addEventListener('error', () => { clearTimeout(to); rej(new Error('動画を読み込めませんでした')); }, { once: true });
+      if (x.hls && !S.nativeHls && S.H && S.H.isSupported()) {
+        hls = new S.H({ maxBufferLength: 4, maxMaxBufferLength: 8, enableWorker: true, startLevel: 0, capLevelToPlayerSize: false });
+        hls.on(S.H.Events.ERROR, (ev, d) => { if (d && d.fatal) { clearTimeout(to); rej(new Error(d.details || 'HLS の読み込みに失敗しました')); } });
+        (async () => {
+          let u = x.url;
+          if (x.tsdl) { try { const r = await fetch(x.url, { cache: 'no-store', credentials: 'omit' }); if (r.ok) { const txt = fixTsM3u8(await r.text()); if (txt.includes('#EXTM3U')) u = URL.createObjectURL(new Blob([txt], { type: 'application/vnd.apple.mpegurl' })); } } catch (e) { /* そのまま読む */ } }
+          if (!closed) { hls.loadSource(u); hls.attachMedia(v); }
+        })();
+      } else v.src = x.url;
+    });
+    ready.catch(() => {});
+    let q = Promise.resolve();
+    const grab = (t, w = 320) => {
+      const p = q.catch(() => {}).then(() => ready).then(() => new Promise((res, rej) => {
+        if (closed) { rej(new Error('closed')); return; }
+        const to = setTimeout(() => { v.removeEventListener('seeked', done); rej(new Error('コマの取得が時間切れになりました')); }, 20000);
+        function done() {
+          clearTimeout(to);
+          try {
+            const h = Math.round(w * (v.videoHeight || 9) / (v.videoWidth || 16));
+            const c = document.createElement('canvas'); c.width = w; c.height = h;
+            const g = c.getContext('2d'); g.drawImage(v, 0, 0, w, h);
+            g.getImageData(0, 0, 1, 1); // 別のサイトの動画で描けないときはここで止まる
+            res(c);
+          } catch (e) { rej(new Error('この動画はブラウザの制限でコマを作れません')); }
+        }
+        v.addEventListener('seeked', done, { once: true });
+        v.currentTime = Math.max(0, Math.min(t, (v.duration || t + 1) - 0.2));
+      }));
+      q = p; return p;
+    };
+    return { ready, grab, v, get duration() { return v.duration || 0; }, close() { closed = true; killHls(hls); try { v.removeAttribute('src'); v.load(); } catch (e) { /* 無視 */ } } };
+  }
+  // コマを作るときは軽い画質（変換画質の低いもの）を使う
+  const lightSrc = (S) => { const c = S.src.filter((x) => !x.dl && S.playable(x)); return c.filter((x) => !x.origin && x.h).sort((a, b) => a.h - b.h)[0] || c[c.length - 1] || S.src[S.first]; };
+  const fmtT = (s) => { s = Math.max(0, Math.round(s)); const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60, ss = s % 60; return (h ? h + ':' + String(m).padStart(2, '0') : String(m).padStart(2, '0')) + ':' + String(ss).padStart(2, '0'); };
+  // 自分のシークバー（動画の下）：マウスを乗せるとその位置の画面を小さく出す。押すとその位置へ
+  function attachSeekbar(box, v, x, S) {
+    const bar = document.createElement('div'); bar.className = 'pd-sk';
+    bar.innerHTML = '<div class="sktr"><i class="skb"></i><i class="skp"></i></div><div class="tip"><canvas></canvas><b></b></div>';
+    box.appendChild(bar);
+    const tip = bar.querySelector('.tip'), cv = tip.querySelector('canvas'), lb = tip.querySelector('b'), pl = bar.querySelector('.skp'), bf = bar.querySelector('.skb');
+    let gr = null, want = -1, busyG = false, cache = new Map();
+    const upd = () => { const d = v.duration || 0; pl.style.width = d ? (v.currentTime / d * 100) + '%' : '0'; try { bf.style.width = d && v.buffered.length ? (v.buffered.end(v.buffered.length - 1) / d * 100) + '%' : '0'; } catch (e) { /* 無視 */ } };
+    v.addEventListener('timeupdate', upd); v.addEventListener('progress', upd);
+    const tAt = (e) => { const r = bar.getBoundingClientRect(); return Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * (v.duration || 0); };
+    const draw = (c) => { cv.width = c.width; cv.height = c.height; cv.getContext('2d').drawImage(c, 0, 0); cv.style.display = ''; };
+    const pump = async () => {
+      if (busyG || want < 0) return;
+      const t = want, k = Math.round(t / 5); want = -1;
+      if (cache.has(k)) { draw(cache.get(k)); pump(); return; }
+      busyG = true;
+      try { if (!gr) { gr = makeGrabber(lightSrc(S) || x, S); bar._grab = gr; } const c = await gr.grab(k * 5, 200); cache.set(k, c); if (cache.size > 200) cache.delete(cache.keys().next().value); if (!tip.hidden) draw(c); }
+      catch (e) { cv.style.display = 'none'; lb.dataset.err = '1'; }
+      busyG = false; pump();
+    };
+    bar.addEventListener('mousemove', (e) => {
+      const t = tAt(e), r = bar.getBoundingClientRect();
+      tip.hidden = false; lb.textContent = fmtT(t);
+      tip.style.left = Math.max(0, Math.min(r.width - 210, e.clientX - r.left - 105)) + 'px';
+      if (!lb.dataset.err) { const k = Math.round(t / 5); if (cache.has(k)) draw(cache.get(k)); want = t; pump(); }
+    });
+    bar.addEventListener('mouseleave', () => { tip.hidden = true; want = -1; });
+    bar.addEventListener('click', (e) => { v.currentTime = tAt(e); });
+    tip.hidden = true; cv.style.display = 'none';
+  }
+  function closeGrab(scope) { (scope ? [scope] : []).forEach((el) => { if (!el) return; el.querySelectorAll('*').forEach((n) => { if (n._grab) { n._grab.close(); n._grab = null; } }); if (el._grab) { el._grab.close(); el._grab = null; } }); }
+  // ---- コマ一覧（1 本、または重複の 2 本を並べる） ----
+  let framesRun = 0;
+  function openFrames(ids) {
+    ids = [...new Set(ids)].filter((id) => fileById(id)).slice(0, 2);
+    if (!ids.length) return;
+    if (!ensureSession(view)) return;
+    closeFrames();
+    const run = ++framesRun;
+    let n = 16; try { n = +localStorage.getItem(LS_FRAMES) || 16; } catch (e) { /* 無視 */ }
+    if (![9, 16, 25].includes(n)) n = 16;
+    const d = document.createElement('div'); d.id = 'pd-frames'; document.body.appendChild(d);
+    const kept = (id) => { if (view !== 'dup') return ''; const g = visibleGroups().find((x) => x.items.some((f) => f.id === id)); if (!g) return ''; const i = g.items.findIndex((f) => f.id === id); return stateOf(g.items[i], i) === 'del' ? 'del' : 'keep'; };
+    d.innerHTML = `<div class="fr-box" role="dialog" aria-label="コマ一覧"><div class="fr-hd"><b>コマ一覧</b><span class="note">${ids.length > 1 ? '同じ位置のコマを左右に並べています' : ''}</span><span class="sp"></span><span class="seg">${[9, 16, 25].map((k) => `<button data-frn="${k}" class="${k === n ? 'on' : ''}">${k} コマ</button>`).join('')}</span><button class="x" data-frclose title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
+      <div class="fr-cols" style="grid-template-columns:repeat(${ids.length},minmax(0,1fr))">${ids.map((id) => { const f = fileById(id), k = kept(id); return `<div class="fr-col" data-frid="${esc(id)}"><div class="fr-meta">${k ? `<span class="fr-tag ${k}">${k === 'keep' ? '残す' : '削除'}</span>` : ''}<b title="${esc(f.name)}">${esc(f.name)}</b><span class="note raw" data-frinfo>${fmt(f.size)}</span></div><div class="fr-grid" style="grid-template-columns:repeat(${Math.sqrt(n)},1fr)">${Array.from({ length: n }, (_, i) => `<button class="fr-c" data-fri="${i}"><span class="t"></span></button>`).join('')}</div><div class="fr-msg note" data-frmsg>動画を読み込んでいます…</div><div class="fr-acts"><button data-frplay disabled>▶ 選んだコマから再生</button><button data-frsave disabled>画像で保存</button></div></div>`; }).join('')}</div>
+      <div class="fr-ft note">コマは動画を読み込みながら順に出ます（1 本 10〜30 秒ほど）。コマを押して選び、「選んだコマから再生」でその位置から再生します。</div></div>`;
+    if (LANG === 'en') d.querySelectorAll('*').forEach(trNode);
+    d.addEventListener('mousedown', (e) => { if (e.target === d) closeFrames(); });
+    d.addEventListener('click', (e) => {
+      const b = e.target.closest('button'); if (!b) return;
+      if (b.dataset.frclose !== undefined) { closeFrames(); return; }
+      if (b.dataset.frn) { try { localStorage.setItem(LS_FRAMES, b.dataset.frn); } catch (err) { /* 無視 */ } openFrames(ids); return; }
+      const col = b.closest('.fr-col'); if (!col) return;
+      if (b.dataset.fri !== undefined) { col.querySelectorAll('.fr-c.on').forEach((x) => x.classList.remove('on')); b.classList.add('on'); col.querySelector('[data-frplay]').disabled = !b.dataset.t; return; }
+      if (b.dataset.frplay !== undefined) { const on = col.querySelector('.fr-c.on'); const t = on ? +on.dataset.t : 0; const id = col.dataset.frid; closeFrames(); playFile(id, { t }); return; }
+      if (b.dataset.frsave !== undefined) saveSheet(col);
+    });
+    ids.forEach(async (id) => {
+      const col = d.querySelector(`.fr-col[data-frid="${CSS.escape(id)}"]`);
+      const msg = col.querySelector('[data-frmsg]');
+      let gr = null;
+      try {
+        const S = await loadSources(id);
+        if (run !== framesRun) return;
+        const x = lightSrc(S); if (!x) throw new Error('再生用リンクを取得できませんでした');
+        gr = makeGrabber(x, S); col._grab = gr;
+        await gr.ready;
+        const dur = gr.duration;
+        col.querySelector('[data-frinfo]').textContent = `${gr.v.videoWidth ? '' : ''}${fmt(fileById(id).size)}・${fmtT(dur)}`;
+        const cells = [...col.querySelectorAll('.fr-c')];
+        for (let i = 0; i < cells.length; i++) {
+          if (run !== framesRun) return;
+          const t = dur * (i + 0.5) / cells.length;
+          msg.textContent = tr(`コマを作っています… ${i + 1} / ${cells.length}`);
+          const c = await gr.grab(t, 320);
+          cells[i].dataset.t = String(t); cells[i].prepend(c); cells[i].querySelector('.t').textContent = fmtT(t);
+        }
+        msg.textContent = ''; col.querySelector('[data-frsave]').disabled = false;
+        const on = col.querySelector('.fr-c.on'); if (on) col.querySelector('[data-frplay]').disabled = false;
+        log('info', 'コマ一覧を作成：' + fileById(id).name);
+      } catch (err) {
+        if (err.session) { closeFrames(); handleErr(err, view); return; }
+        if (run === framesRun) msg.textContent = tr('コマを作れませんでした：') + err.message;
+      } finally { if (gr) { gr.close(); col._grab = null; } }
+    });
+  }
+  function closeFrames() { framesRun++; const d = document.getElementById('pd-frames'); if (d) { closeGrab(d); d.remove(); } }
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.getElementById('pd-frames')) { e.preventDefault(); e.stopImmediatePropagation(); closeFrames(); } }, true);
+  // コマを 1 枚の画像にまとめて保存（時刻つき）
+  function saveSheet(col) {
+    const cs = [...col.querySelectorAll('.fr-c canvas')]; if (!cs.length) return;
+    const n = Math.round(Math.sqrt(col.querySelectorAll('.fr-c').length)), w = cs[0].width, h = cs[0].height, pad = 6, head = 36;
+    const c = document.createElement('canvas'); c.width = n * w + (n + 1) * pad; c.height = head + Math.ceil(cs.length / n) * (h + pad) + pad;
+    const g = c.getContext('2d'); g.fillStyle = '#111318'; g.fillRect(0, 0, c.width, c.height);
+    const name = col.querySelector('.fr-meta b').textContent;
+    g.fillStyle = '#e6e8ee'; g.font = '600 15px system-ui,sans-serif'; g.fillText(name + '   ' + col.querySelector('[data-frinfo]').textContent, pad + 2, 24);
+    cs.forEach((x, i) => {
+      const cx = pad + (i % n) * (w + pad), cy = head + Math.floor(i / n) * (h + pad);
+      g.drawImage(x, cx, cy);
+      const t = x.parentElement.querySelector('.t').textContent;
+      g.font = '600 12px ui-monospace,monospace'; g.fillStyle = '#000a'; g.fillRect(cx + 4, cy + h - 20, g.measureText(t).width + 8, 16); g.fillStyle = '#fff'; g.fillText(t, cx + 8, cy + h - 8);
+    });
+    c.toBlob((b) => { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name.replace(/\.[^.]+$/, '') + '_コマ一覧.jpg'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000); }, 'image/jpeg', 0.9);
+  }
   // ---------- リンク・マグネットを追加（追加する前に、もうあるか確かめる） ----------
   // ・中身の確認：PikPak の resource/list で、マグネットの中のファイル一覧（とキャッシュの有無）を取る
   // ・すべて保存：クラウドダウンロード（UPLOAD_TYPE_URL）に追加

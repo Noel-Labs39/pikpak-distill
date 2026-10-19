@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.27.0
+// @version      3.28.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -81,7 +81,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.27.0'; // @version と合わせて更新する
+  const VER = '3.28.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -474,8 +474,8 @@
       try {
         const hd = apiHeaders();
         if (opt.captcha) { const ct = await getCaptcha(opt.captcha, tries > 0); if (ct) hd['x-captcha-token'] = ct; }
-        const { captcha: _c, ...o2 } = opt;
-        res = await http(API + path, { ...o2, headers: hd });
+        const { captcha: _c, raw: _r, ...o2 } = opt;
+        res = await http(/^https?:/.test(path) ? path : API + path, { ...o2, headers: hd });
       }
       catch (e) {
         if (e.session) throw e;
@@ -497,12 +497,13 @@
           while (Date.now() - t0 < 8000 && (readCred() || {}).auth === used) await sleep(500);
           if ((readCred() || {}).auth !== used) { tries = Math.max(tries, 2); continue; }
         }
+        if (opt.raw && res.status !== 401 && !/captcha/i.test(String(data.error || ''))) return { ok: false, status: res.status, data };
         if (res.status === 401 || /unauthenticated|token/i.test(String(data.error || ''))) { log('warn', msg + '（自動で回復します）', where); throw sessionError('ログインの有効期限が切れています'); }
         if (/captcha/i.test(String(data.error || '')) || /認証コード/.test(msg)) { log('warn', msg + '（自動で回復します）', where); throw sessionError('認証の確認が必要です（' + msg + '）'); }
         log('error', msg, where);
         throw new Error(msg);
       }
-      return data;
+      return opt.raw ? { ok: true, status: res.status, data } : data;
     }
   }
   const apiPid = (id) => (!id || id === 'root' ? '' : id);
@@ -739,9 +740,9 @@
   #ppdup-fab .err button{width:auto;padding:0;background:none;color:#ffb4b4;font-weight:700}
   #ppdup-fab .err button:hover{background:none;text-decoration:underline}
   #ppdup.single nav,#ppdup.treev nav{display:none}
-  #ppdup,#pd-set,#pd-add{--bg:#f5f6f8;--panel:#fff;--panel2:#eef0f4;--line:#dde0e6;--fg:#1c1f26;--mute:#6a7080;--pri:#306fff;--pri-soft:#306fff1f;--ok:#1f9d55;--danger:#d64545;--keep:#f0faf2;--del:#fff5f5;--ctl:#fff;--ctl-line:#c5c9d2}
+  #ppdup,#pd-set,#pd-add,#pd-unzip{--bg:#f5f6f8;--panel:#fff;--panel2:#eef0f4;--line:#dde0e6;--fg:#1c1f26;--mute:#6a7080;--pri:#306fff;--pri-soft:#306fff1f;--ok:#1f9d55;--danger:#d64545;--keep:#f0faf2;--del:#fff5f5;--ctl:#fff;--ctl-line:#c5c9d2}
   #ppdup{position:fixed;inset:0;z-index:99999;background:var(--bg);color:var(--fg);font:13px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Yu Gothic","Meiryo","Noto Sans CJK JP","Noto Sans JP",sans-serif;display:none;flex-direction:column}
-  html.pd-dark #ppdup,html.pd-dark #pd-set,html.pd-dark #pd-add{--bg:#15171c;--panel:#1d2027;--panel2:#252932;--line:#2c303a;--fg:#e6e8ee;--mute:#8b91a1;--pri-soft:#306fff33;--keep:#17261c;--del:#2a1a1a;--ctl:#252932;--ctl-line:#3a3f4b}
+  html.pd-dark #ppdup,html.pd-dark #pd-set,html.pd-dark #pd-add,html.pd-dark #pd-unzip{--bg:#15171c;--panel:#1d2027;--panel2:#252932;--line:#2c303a;--fg:#e6e8ee;--mute:#8b91a1;--pri-soft:#306fff33;--keep:#17261c;--del:#2a1a1a;--ctl:#252932;--ctl-line:#3a3f4b}
   #ppdup.on{display:flex}
   #ppdup:not(.pop) .wbtn-full,#ppdup:not(.pop) .wbtn-min{display:none !important}
   #ppdup.pop .wbtn-full,#ppdup.pop .wbtn-min{display:inline-flex}
@@ -1072,30 +1073,48 @@
   #pd-frames .fr-msg{min-height:18px;margin-top:6px}
   #pd-frames .fr-acts{display:flex;gap:8px;margin-top:6px}
   #pd-frames .fr-ft{padding:8px 18px;border-top:1px solid #2c303a}
+  #pd-unzip{position:fixed;inset:0;z-index:100005;background:#14161b80;display:flex;align-items:center;justify-content:center;font:13px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Meiryo","Noto Sans CJK JP",sans-serif;color:var(--fg)}
+  #pd-unzip .ad-hd,#pd-unzip .ad-ft{display:flex;align-items:center;gap:10px}
+  #pd-unzip .ad-ft{padding:12px 18px;border-top:1px solid var(--line)}
+  #pd-unzip .ad-ft .tx{flex:1;min-width:0;color:var(--mute)}
+  #pd-unzip .ad-ft .tx b{color:var(--fg)}
+  html.pd-dark #pd-unzip .ad-tag.ok{background:#17331f;color:#6fdc9a}
+  html.pd-dark #pd-unzip .ad-tag.warn{background:#3a2c12;color:#f0c46c}
+  html.pd-dark #pd-unzip .ad-tag.del{background:#3a1a1a;color:#ff8a80}
+  #pd-unzip .uz-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 12px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+  #pd-unzip .uz-ext{width:34px;height:34px;flex:none;border-radius:8px;background:#fff3dc;color:#8a5600;font:700 10px ui-monospace,monospace;display:inline-flex;align-items:center;justify-content:center}
+  html.pd-dark #pd-unzip .uz-ext{background:#3a2c12;color:#f0c46c}
+  #pd-unzip .uz-t{flex:1 1 260px;min-width:0;display:flex;flex-direction:column}
+  #pd-unzip .uz-t b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #pd-unzip .uz-t small{color:var(--mute);font-size:12px}
+  #pd-unzip .uz-pw{display:flex;gap:6px}
+  #pd-unzip .uz-pw input{width:160px;height:32px;box-sizing:border-box;padding:0 10px;border:1px solid var(--ctl-line);border-radius:7px;background:var(--ctl);color:inherit;font:inherit}
+  #pd-unzip .uz-bar{flex:0 0 180px;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+  #pd-unzip .uz-bar i{display:block;height:100%;background:var(--pri);transition:width .3s}
   #pd-add{position:fixed;inset:0;z-index:100005;background:#14161b80;display:flex;align-items:center;justify-content:center;font:13px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Meiryo","Noto Sans CJK JP",sans-serif;color:var(--fg)}
   #pd-add.drop .ad-box{outline:3px dashed var(--pri);outline-offset:-8px}
-  #pd-add .ad-box{width:min(980px,96vw);max-height:92vh;display:flex;flex-direction:column;background:var(--panel);border-radius:14px;box-shadow:0 18px 50px #0006;overflow:hidden}
+  #pd-add .ad-box,#pd-unzip .ad-box{width:min(980px,96vw);max-height:92vh;display:flex;flex-direction:column;background:var(--panel);border-radius:14px;box-shadow:0 18px 50px #0006;overflow:hidden}
   #pd-add .ad-hd,#pd-add .ad-ft,#pd-add .ad-row,#pd-add .ad-h{display:flex;align-items:center;gap:10px}
-  #pd-add .ad-hd{padding:12px 18px;border-bottom:1px solid var(--line)}
-  #pd-add .ad-hd b{font-size:16px}
-  #pd-add .sp{flex:1}
-  #pd-add .note{color:var(--mute);font-size:12px}
+  #pd-add .ad-hd,#pd-unzip .ad-hd{padding:12px 18px;border-bottom:1px solid var(--line)}
+  #pd-add .ad-hd b,#pd-unzip .ad-hd b{font-size:16px}
+  #pd-add .sp,#pd-unzip .sp{flex:1}
+  #pd-add .note,#pd-unzip .note{color:var(--mute);font-size:12px}
   #pd-add select{max-width:380px;height:32px;border:1px solid var(--ctl-line);border-radius:8px;background:var(--ctl);color:inherit;font:inherit;padding:0 8px}
-  #pd-add button{white-space:nowrap;height:34px;padding:0 14px;border:1px solid var(--ctl-line);border-radius:8px;background:var(--ctl);color:inherit;font:inherit;font-weight:600;cursor:pointer}
-  #pd-add button.pri{background:var(--pri);border-color:var(--pri);color:#fff;font-weight:700}
-  #pd-add button:disabled{opacity:.45;cursor:default}
-  #pd-add button.x{width:32px;padding:0;border:0;background:none;display:inline-flex;align-items:center;justify-content:center;color:var(--mute)}
-  #pd-add button.x svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+  #pd-add button,#pd-unzip button{white-space:nowrap;height:34px;padding:0 14px;border:1px solid var(--ctl-line);border-radius:8px;background:var(--ctl);color:inherit;font:inherit;font-weight:600;cursor:pointer}
+  #pd-add button.pri,#pd-unzip button.pri{background:var(--pri);border-color:var(--pri);color:#fff;font-weight:700}
+  #pd-add button:disabled,#pd-unzip button:disabled{opacity:.45;cursor:default}
+  #pd-add button.x,#pd-unzip button.x{width:32px;padding:0;border:0;background:none;display:inline-flex;align-items:center;justify-content:center;color:var(--mute)}
+  #pd-add button.x svg,#pd-unzip button.x svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
   #pd-add .ad-in{padding:12px 18px;display:flex;flex-direction:column;gap:8px;border-bottom:1px solid var(--line)}
   #pd-add textarea{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--ctl-line);border-radius:9px;background:var(--ctl);color:inherit;font:500 12px/1.6 ui-monospace,Menlo,Consolas,monospace;resize:vertical}
   #pd-add .ad-msg{padding:8px 12px;border-radius:8px;background:var(--pri-soft);font-weight:600}
-  #pd-add .ad-list{flex:1 1 auto;overflow:auto;padding:12px 18px;background:var(--bg);display:flex;flex-direction:column;gap:10px;min-height:120px}
-  #pd-add .ad-list .empty{color:var(--mute);text-align:center;padding:30px 0}
+  #pd-add .ad-list,#pd-unzip .ad-list{flex:1 1 auto;overflow:auto;padding:12px 18px;background:var(--bg);display:flex;flex-direction:column;gap:10px;min-height:120px}
+  #pd-add .ad-list .empty,#pd-unzip .ad-list .empty{color:var(--mute);text-align:center;padding:30px 0}
   #pd-add .ad-it{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
   #pd-add .ad-it.ex{border-color:#f0d9a8}
-  #pd-add .ad-h{padding:9px 12px;background:var(--panel2)}
-  #pd-add .ad-h b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:50%}
-  #pd-add .ad-h .note{text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #pd-add .ad-h,#pd-unzip .ad-h{padding:9px 12px;background:var(--panel2)}
+  #pd-add .ad-h b,#pd-unzip .ad-h b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:50%}
+  #pd-add .ad-h .note,#pd-unzip .ad-h .note{text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   #pd-add .ad-note{padding:6px 12px;font-size:12px;color:#8a5600;background:#fff8e6}
   html.pd-dark #pd-add .ad-note{color:#f0c46c;background:#3a2c12}
   #pd-add .ad-f{display:flex;align-items:center;gap:10px;padding:5px 12px;border-top:1px solid var(--line);cursor:pointer}
@@ -1103,18 +1122,18 @@
   #pd-add .ad-f .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   #pd-add .ad-f .nm i{font-style:normal;color:var(--mute)}
   #pd-add .ad-f .sz{width:80px;text-align:right;color:var(--mute);font-size:12px}
-  #pd-add .ad-tag{font-size:11px;padding:1px 8px;border-radius:99px;font-weight:700;white-space:nowrap;background:var(--panel2);color:var(--mute)}
-  #pd-add .ad-tag.ok{background:#e3f6ec;color:#17703f}
-  #pd-add .ad-tag.pri{background:var(--pri-soft);color:var(--pri)}
-  #pd-add .ad-tag.warn{background:#fff3dc;color:#8a5600}
-  #pd-add .ad-tag.del{background:#fde8e8;color:#b42318}
+  #pd-add .ad-tag,#pd-unzip .ad-tag{font-size:11px;padding:1px 8px;border-radius:99px;font-weight:700;white-space:nowrap;background:var(--panel2);color:var(--mute)}
+  #pd-add .ad-tag.ok,#pd-unzip .ad-tag.ok{background:#e3f6ec;color:#17703f}
+  #pd-add .ad-tag.pri,#pd-unzip .ad-tag.pri{background:var(--pri-soft);color:var(--pri)}
+  #pd-add .ad-tag.warn,#pd-unzip .ad-tag.warn{background:#fff3dc;color:#8a5600}
+  #pd-add .ad-tag.del,#pd-unzip .ad-tag.del{background:#fde8e8;color:#b42318}
   html.pd-dark #pd-add .ad-tag.ok{background:#17331f;color:#6fdc9a}
   html.pd-dark #pd-add .ad-tag.warn{background:#3a2c12;color:#f0c46c}
   html.pd-dark #pd-add .ad-tag.del{background:#3a1a1a;color:#ff8a80}
   #pd-add .ad-ft{padding:12px 18px;border-top:1px solid var(--line)}
   #pd-add .ad-ft .tx{flex:1;min-width:0;color:var(--mute)}
   #pd-add .ad-ft .tx b{color:var(--fg)}
-  #pd-add input[type=checkbox]{width:16px;height:16px;accent-color:var(--pri);flex:none}
+  #pd-add input[type=checkbox],#pd-unzip input[type=checkbox]{width:16px;height:16px;accent-color:var(--pri);flex:none}
   .st-bar{position:sticky;bottom:0;z-index:3;display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:14px 0 0;padding:10px 14px;background:#1c1f26;color:#fff;border-radius:12px;box-shadow:0 10px 30px #0004}
   html.pd-dark .st-bar{background:#2b3040}
   .st-bar.hide{display:none}
@@ -1427,6 +1446,7 @@
   EN.push(...[["▦ コマ一覧", "▦ Frames"], ["▦ コマで比べる", "▦ Compare frames"], ["▦ 2 本をコマで比べる", "▦ Compare 2 videos by frames"], ["コマ一覧", "Frames"], ["同じ位置のコマを左右に並べています", "Frames at the same positions, side by side"], ["▶ 選んだコマから再生", "▶ Play from selected frame"], ["画像で保存", "Save as image"], ["動画を読み込んでいます…", "Loading video…"], ["コマを作っています… ", "Making frames… "], ["コマを作れませんでした：", "Could not make frames: "], ["この動画はブラウザの制限でコマを作れません", "The browser does not allow frames for this video"], ["再生速度：", "Speed: "], ["残す", "Keep"], [" コマ", " frames"]]);
   EN.push(...[["名前で絞り込み・検索", "Filter / search by name"], ["このフォルダ", "This folder"], ["すべて", "All"], ["行を押すとその場所を開きます", "Click a row to open its location"], ["名前とパスで探しています", "searching names and paths"], ["書き出し／読み込み", "Export / import"], ["別のブラウザやパソコンへ移すときに使います（ログイン情報は含めません）", "Use this to move to another browser or PC (login info is not included)"], ["書き出す（.json）", "Export (.json)"], ["読み込む…", "Import…"], ["販売者の調査結果と手入力", "Seller lookups and manual entries"], ["重複の判断（残す・削除の記録）", "Duplicate decisions (keep / delete)"], ["解凍パスワード", "Archive passwords"], ["読み込む内容", "What to import"], ["今のものに足す（同じものは読み込んだ方を優先）", "Add to the current data (imported wins on conflicts)"], ["置き換える", "Replace"]]);
   EN.push(...[["まず PikPak の中身を読み込みます", "First, load your PikPak contents"], ["フォルダとファイルの一覧を読み込んで、重複や不要ファイルを見つけます。", "Loads the list of folders and files to find duplicates and unneeded files. "], ["読むだけで、ファイルは何も変更しません。", "It only reads; nothing is changed."], ["読み込みを始める", "Start loading"], ["あとで", "Later"], ["次からは確認しない", "Don't ask again"], ["リンクを追加", "Add links"], ["リンク", "Links"], ["販売者を調べています", "Looking up sellers"], ["一時停止", "Pause"], ["再開", "Resume"], ["分かった ", "Found "], ["分からない ", "Unknown "], ["横向きにすると見やすくなります", "Rotate to landscape for a better view"], ["このまま使う", "Use as is"], ["残り ", "Left "]]);
+  EN.push(...[["📦 解凍", "📦 Extract"], ["解凍できます", "Can be extracted"], ["パスワードが必要です", "Password required"], ["パスワードが違います", "Wrong password"], ["記録したパスワードで開けました", "Opened with a saved password"], ["解凍できたら元の圧縮ファイルをゴミ箱へ", "Move the archive to trash after extracting"], ["解凍するもの ", "To extract: "], ["件を解凍", " to extract"], ["試す", "Try"]]);
   EN.sort((a, b) => b[0].length - a[0].length); // 長い言い回しから先に置き換える
   const EN_MAP = new Map(EN);
   const EN_UNIT = EN.filter(([a]) => a.length > 1 && /^(件|項目|組|作品|本)./.test(a));
@@ -3178,6 +3198,7 @@
       ? `<span class="cnt">選択中：${rows.length} 項目</span><button class="pri" data-ta="play"${dis(isVideoRow(one))} title="再生：${prefLabel()}（${KEY.open} / ダブルクリック）">▶ 再生</button>
         <button data-ta="rename"${dis(one)} title="名前を変更（${KEY.rename}）">✎ 名前を変更</button>
         <button data-ta="move"${dis(rows.length && !fixed)} title="${fixed ? '読み込んだ場所とその上のフォルダは、ここでは移動できません' : '移動（ドラッグでも移動できます）'}">↪ 移動…</button>
+        ${rows.some((r) => r.kind === 'file' && isArchive(r.name)) ? '<button data-ta="unzip" title="選んだ圧縮ファイルを PikPak の上で解凍">📦 解凍</button>' : ''}
         <button data-ta="base"${dis(one && one.kind === 'folder')} title="選んだフォルダを最上位にして、その中だけを表示（${KEY.open}）">⤓ ここを最上位に</button>
         <button data-ta="trash"${dis(rows.length && !fixed)} class="red" title="${fixed ? '読み込んだ場所とその上のフォルダは、ここではゴミ箱に入れられません' : `ゴミ箱に入れる（${KEY.trash}）`}">🗑 ゴミ箱へ</button>
         <span class="sp"></span><button data-ta="addlink"${dis(true)} title="リンク・マグネットを、選んでいる場所へ追加">🔗 リンクを追加</button><button data-ta="mkdir"${dis(true)} title="新規フォルダ（${KEY.mkdir}）">＋ 新規フォルダ</button>`
@@ -3195,6 +3216,7 @@
     else if (a === 'rename' && one) { closeQL(); renaming = one.id; renderTree(); }
     else if (a === 'move') treeMoveAsk();
     else if (a === 'mkdir') treeNewFolder();
+    else if (a === 'unzip') openUnzip(rows);
     else if (a === 'addlink') openAdd(one ? (one.kind === 'folder' ? one.id : one.parentId) : treeBase());
     else if (a === 'trash' && rows.length) { closeQL(); treeTrash(); }
     else if (a === 'copy' && one) copyPath(one);
@@ -3221,6 +3243,7 @@
       one && one.kind === 'folder' ? it('base', 'このフォルダを最上位にして表示', KEY.open, true) : '',
       it('preview', 'プレビュー', 'Space', !!one), '<hr>',
       it('rename', '名前を変更', KEY.rename, !!one), it('move', `移動…${rows.length > 1 ? `（${rows.length} 項目）` : ''}`, 'ドラッグ', rows.length > 0 && !rows.some((r) => isRootOrAbove(r.id))), it('mkdir', '新規フォルダ', KEY.mkdir, true), it('addlink', one && one.kind === 'folder' ? 'ここにリンクを追加…' : 'リンク・マグネットを追加…', '', true), '<hr>',
+      rows.some((r) => r.kind === 'file' && isArchive(r.name)) ? it('unzip', `📦 解凍…${rows.filter((r) => r.kind === 'file' && isArchive(r.name)).length > 1 ? `（${rows.filter((r) => r.kind === 'file' && isArchive(r.name)).length} ファイル）` : ''}`, '', true) + '<hr>' : '',
       it('copy', '場所をコピー', KEY.copy, !!one), '<hr>',
       it('trash', `ゴミ箱に入れる${rows.length > 1 ? `（${rows.length} 項目）` : ''}`, KEY.trash, rows.length > 0 && !rows.some((r) => isRootOrAbove(r.id)), 'red'),
     ].join('');
@@ -3448,6 +3471,7 @@
         ${sec('org') ? `<h3>整理</h3>
         <label class="row"><span><b>作品と関係ないファイルを除外する</b><small>広告・宣伝のファイルや 10MB 以下のファイルなどを、ほかの作業の対象から外します</small></span><input type="checkbox" data-s="junk"${junkEnabled() ? ' checked' : ''}></label>
         <label class="row"><span><b>ファイル名を整える</b><small>オフにすると、このステップを使わず次へ進みます</small></span><input type="checkbox" data-s="name"${nameEnabled() ? ' checked' : ''}></label>` : ''}
+        ${sec('org') ? `<div class="row"><span><b>解凍パスワード</b><small>解凍できたパスワード ${pwList().length} 件（次から自動で順に試します）。このブラウザにだけ保存</small></span><button data-s="pwclear"${pwList().length ? '' : ' disabled'}>消去</button></div>` : ''}
         ${sec('org') ? `<h3>販売者ごとに仕分け</h3>
         <label class="row"><span><b>このステップを使う</b><small>オフにすると「8. 販売者ごとに仕分け」を使いません</small></span><input type="checkbox" data-s="seller"${sellerEnabled() ? ' checked' : ''}></label>
         <div class="row"><span><b>まとめるフォルダ</b><small>ホームの直下に作ります</small></span><input type="text" data-s="scfg" data-k="root" value="${esc(sellerCfg().root)}" style="width:150px;font:inherit;padding:6px 10px;border:1px solid var(--ctl-line);border-radius:8px;background:var(--ctl);color:inherit"></div>
@@ -3470,6 +3494,7 @@
     else if (k === 'theme') setTheme(b.dataset.v);
     else if (k === 'log') { closeSettings(); showLog(); }
     else if (k === 'sclear') { if (confirm(tr('調べた販売者の結果（手入力を含む）をすべて消去しますか？'))) { sellerDb = {}; saveSellerDb(); sellerSel.clear(); log('info', '販売者の調査結果を消去'); renderSettings(); if (root.classList.contains('on') && !busy) setView(view); } }
+    else if (k === 'pwclear') { if (confirm(tr('記録した解凍パスワードをすべて消去しますか？'))) { try { localStorage.removeItem(LS_UNZIPPW); } catch (e) { /* 無視 */ } log('info', '解凍パスワードを消去'); renderSettings(); } }
     else if (k === 'export') exportData();
     else if (k === 'import') importData();
     else if (k === 'changelog') window.open('https://github.com/Noel-Labs39/pikpak-distill/blob/main/CHANGELOG.md', '_blank', 'noopener');
@@ -4199,6 +4224,133 @@
       };
     };
     inp.click();
+  }
+  // ---------- 一括解凍（PikPak のサーバー側で解凍する。成功したパスワードを記録して次から自動で試す） ----------
+  const LS_UNZIPPW = 'ppdup:unzippw:v1';
+  const DEC = 'https://api-drive.mypikpak.com/decompress/v1';
+  const isArchive = (name) => { const n = String(name || '').toLowerCase(); if (/\.part0*([2-9]|\d{2,})\.rar$/.test(n)) return false; return /\.(zip|rar|7z)$/.test(n) || /\.(7z|zip)\.0*1$/.test(n); };
+  const pwList = () => { try { const a = JSON.parse(localStorage.getItem(LS_UNZIPPW) || '[]'); return Array.isArray(a) ? a.filter((x) => typeof x === 'string') : []; } catch (e) { return []; } };
+  const savePw = (pw) => { if (!pw) return; const a = [pw, ...pwList().filter((x) => x !== pw)].slice(0, 50); try { localStorage.setItem(LS_UNZIPPW, JSON.stringify(a)); } catch (e) { /* 無視 */ } };
+  const pwSignal = (d) => { const code = +(d && (d.error_code != null ? d.error_code : d.code)) || 0; const st = String((d && (d.status || d.status_code || d.error)) || '').toUpperCase(); return code === 10023 || /PASS_?WORD/.test(st); };
+  let uzSt = null; // { items: [...], trash: true, busy }
+  async function uzList(it, pw) {
+    const r = await api(DEC + '/list', { method: 'POST', raw: true, captcha: 'POST:/decompress/v1/list', body: JSON.stringify({ gcid: it.gcid, file_id: it.id, password: pw || '', path: '' }) });
+    const d = r.data || {};
+    if (pwSignal(d)) return { pw: true };
+    if (!r.ok || (d.status && d.status !== 'OK')) return { err: d.status_text || d.error_description || d.error || ('API ' + r.status) };
+    const fs = Array.isArray(d.files) ? d.files : Array.isArray(d.list) ? d.list : [];
+    return { ok: true, n: fs.length, size: fs.reduce((s, f) => s + (+(f.filesize || f.size || f.file_size) || 0), 0) };
+  }
+  async function uzCheck(it) {
+    it.st = 'checking'; renderUnzip();
+    try {
+      if (!it.gcid) { const info = await apiGet(it.id); it.gcid = info.gcid || info.hash || info.md5_checksum || ''; }
+      let r = await uzList(it, '');
+      if (r.pw) {
+        // 記録したパスワードを順に試す（最大 10 個）
+        for (const pw of pwList().slice(0, 10)) { const t = await uzList(it, pw); if (t.ok) { r = t; it.pw = pw; it.autoPw = true; break; } await sleep(250); }
+      }
+      if (r.ok) { it.st = 'ready'; it.n = r.n; it.usize = r.size; it.on = true; }
+      else if (r.pw) { it.st = 'pw'; it.on = false; }
+      else { it.st = 'err'; it.err = r.err; it.on = false; }
+    } catch (err) { if (err.session) { handleErr(err, view); return; } it.st = 'err'; it.err = err.message; it.on = false; }
+    renderUnzip();
+  }
+  async function uzTryPw(i) {
+    const it = uzSt.items[i]; const inp = document.querySelector(`#pd-unzip [data-uzpw="${i}"]`); if (!it || !inp) return;
+    const pw = inp.value; if (!pw) return;
+    it.st = 'checking'; renderUnzip();
+    try { const r = await uzList(it, pw); if (r.ok) { it.st = 'ready'; it.pw = pw; it.n = r.n; it.usize = r.size; it.on = true; savePw(pw); } else if (r.pw) { it.st = 'pw'; it.bad = true; } else { it.st = 'err'; it.err = r.err; } }
+    catch (err) { if (err.session) { handleErr(err, view); return; } it.st = 'err'; it.err = err.message; }
+    renderUnzip();
+  }
+  function openUnzip(rows) {
+    const list = rows.filter((r) => r.kind === 'file' && isArchive(r.name));
+    if (!list.length) { status('選んだ中に、解凍できるファイル（.zip・.rar・.7z）がありません'); return; }
+    if (!ensureSession(view)) return;
+    closeCtx(); closeQL();
+    uzSt = { trash: true, busy: false, items: list.map((r) => ({ id: r.id, name: r.name, size: r.size, parentId: r.parentId, path: r.path || fullPath(r.parentId), st: 'new', on: false, pw: '', gcid: '' })) };
+    let d = document.getElementById('pd-unzip');
+    if (!d) {
+      d = document.createElement('div'); d.id = 'pd-unzip'; document.body.appendChild(d);
+      d.addEventListener('mousedown', (e) => { if (e.target === d && !uzSt.busy) closeUnzip(); });
+      d.addEventListener('click', (e) => {
+        const b = e.target.closest('button'); if (!b || b.disabled) return;
+        if (b.dataset.uzclose !== undefined) { if (!uzSt.busy) closeUnzip(); }
+        else if (b.dataset.uztry !== undefined) uzTryPw(+b.dataset.uztry);
+        else if (b.dataset.uzgo !== undefined) runUnzip();
+      });
+      d.addEventListener('change', (e) => { const t = e.target; if (t.dataset.uzi !== undefined) { uzSt.items[+t.dataset.uzi].on = t.checked; renderUnzip(); } else if (t.dataset.uztrash !== undefined) uzSt.trash = t.checked; });
+      d.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.dataset.uzpw !== undefined) { e.preventDefault(); uzTryPw(+e.target.dataset.uzpw); } });
+    }
+    renderUnzip();
+    (async () => { for (const it of uzSt.items) { if (!document.getElementById('pd-unzip')) return; await uzCheck(it); await sleep(200); } })();
+  }
+  function closeUnzip() { const d = document.getElementById('pd-unzip'); if (d) d.remove(); uzSt = null; }
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.getElementById('pd-unzip') && uzSt && !uzSt.busy) { e.preventDefault(); e.stopImmediatePropagation(); closeUnzip(); } }, true);
+  function renderUnzip() {
+    const d = document.getElementById('pd-unzip'); if (!d || !uzSt) return;
+    const typed = {}; d.querySelectorAll('[data-uzpw]').forEach((x) => { typed[x.dataset.uzpw] = x.value; });
+    const tag = (cls, t) => `<span class="ad-tag ${cls}">${esc(t)}</span>`;
+    const row = (it, i) => {
+      const ext = (it.name.match(/\.([a-z0-9]+)(?:\.\d+)?$/i) || [, ''])[1].toUpperCase();
+      const st = it.st === 'new' || it.st === 'checking' ? tag('pend', '中身を確認中…') : it.st === 'ready' ? tag('ok', it.autoPw ? '記録したパスワードで開けました' : it.pw ? 'パスワードで開けました' : '解凍できます')
+        : it.st === 'pw' ? tag('warn', it.bad ? 'パスワードが違います' : 'パスワードが必要です') : it.st === 'running' ? tag('pri', `解凍中 ${it.pct || 0}%`) : it.st === 'done' ? tag('ok', '✓ 解凍しました' + (it.trashed ? '（元はゴミ箱へ）' : '')) : tag('del', 'できません');
+      const info = `${esc(it.path || '/')}/・${fmt(it.size)}${it.n != null ? ` → ${it.n} 項目${it.usize ? `・解凍後 ${fmt(it.usize)}` : ''}` : ''}${it.st === 'err' ? `・${esc(it.err || '')}` : ''}`;
+      const pw = it.st === 'pw' ? `<span class="uz-pw"><input type="password" data-uzpw="${i}" placeholder="パスワード" value="${esc(typed[i] || '')}"><button data-uztry="${i}">試す</button></span>` : '';
+      const bar = it.st === 'running' ? `<span class="uz-bar"><i style="width:${it.pct || 0}%"></i></span>` : '';
+      return `<div class="uz-row"><input type="checkbox" data-uzi="${i}"${it.on ? ' checked' : ''}${it.st !== 'ready' || uzSt.busy ? ' disabled' : ''}><span class="uz-ext">${esc(ext)}</span><span class="uz-t"><b title="${esc(it.name)}">${esc(it.name)}</b><small>${info}</small></span>${st}${pw}${bar}</div>`;
+    };
+    const n = uzSt.items.filter((x) => x.on && x.st === 'ready').length;
+    const sz = uzSt.items.filter((x) => x.on && x.st === 'ready').reduce((s, x) => s + (x.usize || 0), 0);
+    d.innerHTML = `<div class="ad-box" role="dialog" aria-label="解凍"><div class="ad-hd"><b>解凍（${uzSt.items.length} ファイル）</b><span class="sp"></span><label class="note" style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-uztrash${uzSt.trash ? ' checked' : ''}${uzSt.busy ? ' disabled' : ''}> 解凍できたら元の圧縮ファイルをゴミ箱へ</label><button class="x" data-uzclose title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
+      <div class="ad-list">${uzSt.items.map(row).join('')}</div>
+      <div class="ad-ft"><span class="tx">${n ? `<b>解凍するもの ${n} 件</b>${sz ? `（解凍後 約 ${fmt(sz)}・PikPak の容量を使います）` : ''}　解凍先：それぞれ同じフォルダ` : '<b>解凍できるものを選んでください</b>（パスワードが必要なものは入力して「試す」）'}</span><button data-uzclose${uzSt.busy ? ' disabled' : ''}>閉じる</button><button class="pri" data-uzgo${n && !uzSt.busy ? '' : ' disabled'}>${n} 件を解凍</button></div></div>`;
+    if (LANG === 'en') d.querySelectorAll('*').forEach(trNode);
+  }
+  async function runUnzip() {
+    if (!uzSt || uzSt.busy) return;
+    const list = uzSt.items.filter((x) => x.on && x.st === 'ready');
+    if (!list.length) return;
+    uzSt.busy = true; renderUnzip();
+    let ok = 0, ng = 0;
+    for (const it of list) {
+      it.st = 'running'; it.pct = 0; renderUnzip();
+      try {
+        const r = await api(DEC + '/decompress', { method: 'POST', raw: true, captcha: 'POST:/decompress/v1/decompress', body: JSON.stringify({ gcid: it.gcid, file_id: it.id, password: it.pw || '', files: [], default_parent: true }) });
+        const dd = r.data || {};
+        if (pwSignal(dd)) throw new Error('パスワードが違います');
+        if (!r.ok || (dd.status && dd.status !== 'OK' && dd.code !== 0 && !dd.task_id)) throw new Error(dd.status_text || dd.error_description || dd.error || ('API ' + r.status));
+        const tid = dd.task_id || (dd.task && dd.task.id) || '';
+        // 進み具合を見る（最大 30 分）
+        const t0 = Date.now(); let fin = !tid;
+        while (!fin && Date.now() - t0 < 30 * 60 * 1000) {
+          await sleep(2000);
+          const p = await api(DEC + '/progress?task_id=' + encodeURIComponent(tid), { raw: true });
+          const pd = p.data || {}, ph = String(pd.phase || '').toUpperCase();
+          it.pct = Math.max(it.pct || 0, Math.min(100, Math.floor(+pd.progress || 0))); renderUnzip();
+          if (ph === 'PHASE_TYPE_COMPLETE') fin = true;
+          else if (/ERROR|FAIL/.test(ph)) throw new Error(pd.message || pd.status_text || '解凍に失敗しました');
+          else if (p.status === 404 && Date.now() - t0 > 20000) fin = true; // 終わると見えなくなることがある
+        }
+        if (!fin) throw new Error('時間切れ（PikPak 側で続いている可能性があります）');
+        if (it.pw) savePw(it.pw);
+        it.st = 'done'; it.pct = 100; ok++;
+        if (uzSt.trash) {
+          // 分割ファイル（〇〇.part2.rar など）も一緒にゴミ箱へ
+          const m = it.name.match(/^(.*)\.part0*1\.rar$/i) || it.name.match(/^(.*\.(?:7z|zip))\.0*1$/i);
+          const ids = [it.id, ...(m ? [...files, ...outer.files.values()].filter((f) => f.parentId === it.parentId && f.id !== it.id && (f.name.toLowerCase().startsWith(m[1].toLowerCase() + '.part') && /\.rar$/i.test(f.name) || f.name.toLowerCase().startsWith(m[1].toLowerCase() + '.') && /\.\d{2,3}$/.test(f.name))).map((f) => f.id) : [])];
+          try { await api('/files:batchTrash', { method: 'POST', body: JSON.stringify({ ids }) }); it.trashed = true; } catch (e) { if (e.session) throw e; log('warn', '元の圧縮ファイルをゴミ箱へ移せませんでした：' + it.name); } }
+        log('info', `解凍：${it.name}${it.trashed ? '（元はゴミ箱へ）' : ''}`);
+      } catch (err) {
+        if (err.session) { uzSt.busy = false; handleErr(err, view); return; }
+        it.st = 'err'; it.err = err.message; ng++; log('error', `解凍できませんでした：${it.name}（${err.message}）`);
+      }
+      renderUnzip();
+    }
+    uzSt.busy = false; renderUnzip();
+    status(`${ok} 件を解凍しました${ng ? `・できなかった ${ng} 件` : ''}。フォルダ一覧は「再読み込み」で最新になります。`);
+    refreshQuota(); if (view === 'tree') refreshView();
   }
   // ---------- リンク・マグネットを追加（追加する前に、もうあるか確かめる） ----------
   // ・中身の確認：PikPak の resource/list で、マグネットの中のファイル一覧（とキャッシュの有無）を取る

@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.31.0
+// @version      3.31.1
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -23,11 +23,16 @@
   // 販売者を読み取って PikPak の画面へ知らせる（ほかには何もしない）
   if (location.hostname === 'fd2ppv.cc' || location.hostname === 'fc2cmadb.com') {
     const hm = location.hash.match(/#ppdup-lookup(?:=([\w-]+))?/);
-    if ((!hm && window.name !== 'ppdup-lookup') || !window.opener) return;
+    // Safari は別サイトへ移るとウィンドウ名を消し、初回はサイト側の切り替えで # も消えることがあるため、
+    // 開いた元（PikPak の画面）があれば動く（結果は PikPak の画面にしか送らない）
+    if (!window.opener) return;
     const token = hm && hm[1] ? hm[1] : '';
-    const num = (location.pathname.match(/\/articles\/(\d+)/) || [])[1] || '';
-    const send = (d) => { try { window.opener.postMessage({ type: 'ppdup-seller', token, num, ...d }, 'https://mypikpak.com'); } catch (e) { /* 無視 */ } };
-    const challenge = () => /しばらくお待ちください|Just a moment|Attention Required/i.test(document.title) || !!document.querySelector('#challenge-form,.cf-turnstile,[id^="cf-chl"]');
+    const num = decodeURIComponent((location.pathname.match(/\/articles\/([^/?#]+)/) || [])[1] || '');
+    const kw = new URLSearchParams(location.search).get('keyword') || '';
+    const send = (d) => { try { window.opener.postMessage({ type: 'ppdup-seller', token, num, kw, ...d }, 'https://mypikpak.com'); } catch (e) { /* 無視 */ } };
+    // Cloudflare の確認画面と、年齢確認などの「先に進む前に押す」画面（どちらも人が済ませる）
+    const ageGate = () => { const t = (document.body ? document.body.innerText : '').slice(0, 3000); return /18\s*歳(以上|未満)|年齢(確認|認証)|成人向け|Age Verification|Are you (over )?18|I am 18|over 18|adults? only/i.test(t) && [...document.querySelectorAll('button,a,input[type=button],input[type=submit]')].some((b) => /はい|入る|同意|Enter|Yes|I am|Agree|Continue|OK/i.test(b.textContent || b.value || '')) && !document.querySelector('.work-meta-label') && ![...document.querySelectorAll('th')].some((th) => /販売者|Seller/i.test(th.textContent)); };
+    const challenge = () => /しばらくお待ちください|Just a moment|Attention Required/i.test(document.title) || !!document.querySelector('#challenge-form,.cf-turnstile,[id^="cf-chl"]') || ageGate();
     if (challenge()) { send({ status: 'challenge' }); return; }
     const sidOf = (a, re) => decodeURIComponent((a.getAttribute('href').match(re) || [])[1] || '');
     if (location.hostname === 'fd2ppv.cc') {
@@ -81,7 +86,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.31.0'; // @version と合わせて更新する
+  const VER = '3.31.1'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -2589,12 +2594,13 @@
     return new Promise((resolve) => {
       const token = 'p' + Date.now().toString(36) + (++lookupSeq);
       let limit = 30000, timer = null, challenged = false;
+      let kwq = ''; try { kwq = new URL(url).searchParams.get('keyword') || ''; } catch (e) { /* 無視 */ }
       const off = () => { clearTimeout(timer); clearInterval(watch); window.removeEventListener('message', on); };
       const arm = () => { clearTimeout(timer); timer = setTimeout(() => { off(); resolve({ status: challenged ? 'challenge' : 'timeout' }); }, limit); };
       const on = (e) => {
         if (e.origin !== origin || !e.data || e.data.type !== 'ppdup-seller') return;
         // 合言葉で照合する（画面を後から組み立てるサイトで # が消えたときは品番で照合）
-        if (e.data.token ? e.data.token !== token : !(num && e.data.num === num)) return;
+        if (e.data.token ? e.data.token !== token : !((num && e.data.num === num) || (kwq && e.data.kw === kwq))) return;
         if (e.data.status === 'challenge') { if (!challenged) { challenged = true; limit = 5 * 60 * 1000; arm(); onChallenge(origin); } return; } // 確認を済ませるとページが切り替わり、もう一度知らせが来る
         off(); resolve(e.data);
       };
@@ -2623,7 +2629,8 @@
     if (new Set(hits.map((h) => h.split('-')[0].toLowerCase())).size > 1) return { status: 'ambiguous', src: 'fd2ppv' };
     const hit = hits[0];
     await sleep(sellerCfg().interval * 1000);
-    const a = await visitAndWait(win, FD2, `${FD2}/articles/${encodeURIComponent(String(hit).split('/').pop())}`, onChallenge);
+    const slug = String(hit).split('/').pop();
+    const a = await visitAndWait(win, FD2, `${FD2}/articles/${encodeURIComponent(slug)}`, onChallenge, slug);
     return { ...a, src: 'fd2ppv' };
   }
   // 調べている間の進み具合（「販売者を調べる」の枠に出す）
@@ -2638,7 +2645,7 @@
     selPlan.filter((p) => p.kind === 'pending').forEach((p) => p.keys.forEach((k) => { if (k.kind !== 'brand' && !sellerDb[k.key] && !seen.has(k.key)) { seen.add(k.key); keys.push(k); } }));
     if (!keys.length) { status('未調査の作品はありません。'); return; }
     // ポップアップを止められないよう、押した直後に開く
-    const win = window.open('about:blank', 'ppdup-lookup', 'width=560,height=720');
+    let win = window.open('about:blank', 'ppdup-lookup', 'width=560,height=720');
     if (!win) { status('小さなウィンドウを開けませんでした。ブラウザのアドレスバーで、このサイトのポップアップを許可してから、もう一度押してください。'); return; }
     const cfg = sellerCfg();
     busy = true; window.__ppdupStop = false; renderNav(); renderToolbar();
@@ -2651,7 +2658,19 @@
       lookupSt.cur = k.label; lookupSt.site = k.kind === 'fc2' ? 'fd2ppv.cc → fc2cmadb.com' : 'fd2ppv.cc'; lookupSt.challenge = '';
       status(`販売者を調べています… ${done + 1}/${keys.length}：${k.label}`, done / keys.length, lookupEta());
       refreshSellerChrome();
-      const r = await lookupKey(win, k, (origin) => { lookupSt.challenge = origin.replace('https://', ''); showWin(win); parked = false; refreshSellerChrome(); status(`${origin.replace('https://', '')} の確認画面が出ています。開いた小さなウィンドウで確認を済ませてください（済むと自動で続きます）：${k.label}`, done / keys.length); });
+      const onCh = (origin) => { lookupSt.challenge = origin.replace('https://', ''); showWin(win); parked = false; refreshSellerChrome(); status(`${origin.replace('https://', '')} の確認画面が出ています。開いた小さなウィンドウで確認を済ませてください（済むと自動で続きます）：${k.label}`, done / keys.length);};
+      let r = await lookupKey(win, k, onCh);
+      // 確認画面（Cloudflare・年齢確認など）を挟んだあとや、結果が返らず止まったときは、ウィンドウを開き直して同じ作品をもう一度調べる
+      for (let retry = 0; retry < 2 && (r.status === 'timeout' || r.status === 'challenge' || (r.status === 'closed' && retry === 0 && lookupSt.challenge)) && !window.__ppdupStop; retry++) {
+        log('info', `販売者の調査：開き直してもう一度調べます（${r.status}）`, k.label);
+        try { win.close(); } catch (e) { /* 無視 */ }
+        await sleep(800);
+        win = window.open('about:blank', 'ppdup-lookup', 'width=560,height=720');
+        if (!win) break;
+        parked = false; lookupSt.challenge = '';
+        r = await lookupKey(win, k, onCh);
+      }
+      if (!win) { stop = '小さなウィンドウを開き直せませんでした（ポップアップを許可してください）'; break; }
       lookupSt.challenge = '';
       if (!parked && r.status !== 'closed' && r.status !== 'challenge') { parkWin(win); parked = true; }
       if (r.status === 'closed') { stop = 'ウィンドウが閉じられたため止めました'; break; }

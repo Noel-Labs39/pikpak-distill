@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.31.1
+// @version      3.31.2
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -31,7 +31,7 @@
     const kw = new URLSearchParams(location.search).get('keyword') || '';
     const send = (d) => { try { window.opener.postMessage({ type: 'ppdup-seller', token, num, kw, ...d }, 'https://mypikpak.com'); } catch (e) { /* 無視 */ } };
     // Cloudflare の確認画面と、年齢確認などの「先に進む前に押す」画面（どちらも人が済ませる）
-    const ageGate = () => { const t = (document.body ? document.body.innerText : '').slice(0, 3000); return /18\s*歳(以上|未満)|年齢(確認|認証)|成人向け|Age Verification|Are you (over )?18|I am 18|over 18|adults? only/i.test(t) && [...document.querySelectorAll('button,a,input[type=button],input[type=submit]')].some((b) => /はい|入る|同意|Enter|Yes|I am|Agree|Continue|OK/i.test(b.textContent || b.value || '')) && !document.querySelector('.work-meta-label') && ![...document.querySelectorAll('th')].some((th) => /販売者|Seller/i.test(th.textContent)); };
+    const ageGate = () => { const t = (document.body ? document.body.innerText : '').slice(0, 3000); return /18\s*歳(以上|未満)|年齢(確認|認証)|成人向け|Age Verification|Are you (over )?18|I am 18|over 18|adults? only/i.test(t) && [...document.querySelectorAll('button,a,input[type=button],input[type=submit]')].some((b) => /はい|入る|同意|Enter|Yes|I am|Agree|Continue|OK/i.test(b.textContent || b.value || '')) && !document.querySelector('.work-meta-label,a[href*="/writers/"],a[href*="/channels/"]') && !/販売者|Sellers?\b/i.test(t); };
     const challenge = () => /しばらくお待ちください|Just a moment|Attention Required/i.test(document.title) || !!document.querySelector('#challenge-form,.cf-turnstile,[id^="cf-chl"]') || ageGate();
     if (challenge()) { send({ status: 'challenge' }); return; }
     const sidOf = (a, re) => decodeURIComponent((a.getAttribute('href').match(re) || [])[1] || '');
@@ -58,10 +58,13 @@
     // fc2cmadb.com は画面を後から組み立てるので、販売者の欄が出るまで少し待つ
     let n = 0;
     const tick = () => {
-      if (challenge()) { send({ status: 'challenge' }); return; }
-      if (/^404|ページが見つかりません|Not Found/i.test(document.title)) { send({ status: 'notfound' }); return; }
-      const row = [...document.querySelectorAll('tr')].find((tr) => { const th = tr.querySelector('th'); return th && /販売者|Seller/i.test(th.textContent); });
-      const a = row ? row.querySelector('a[href*="/writers/"]') : null;
+      // 販売者が出ていれば、確認画面の判定より先に読み取る（ページ内の注意書きを年齢確認と見誤らないように）
+      const row = [...document.querySelectorAll('tr')].find((tr) => { const th = tr.querySelector('th'); return th && /販売者|Seller/i.test(th.textContent); })
+        || [...document.querySelectorAll('div,li,dl,p')].filter((el) => /^\s*(販売者|Sellers?)\s*[：:]?/i.test(el.textContent) && el.querySelector('a[href*="/writers/"]')).sort((x, y) => x.textContent.length - y.textContent.length)[0];
+      let a = row ? row.querySelector('a[href*="/writers/"]') : null;
+      if (!a) { const all = [...document.querySelectorAll('a[href*="/writers/"]')]; if (all.length && new Set(all.map((x) => x.getAttribute('href'))).size === 1) a = all[0]; }
+      if (!a && challenge()) { send({ status: 'challenge' }); return; }
+      if (!a && /^404|ページが見つかりません|Not Found/i.test(document.title)) { send({ status: 'notfound' }); return; }
       if (a) { const sid = sidOf(a, /\/writers\/([^/?#]+)/); send(sid ? { status: 'ok', name: a.textContent.trim(), sid } : { status: 'noseller' }); return; }
       if (row && ++n > 10) { send({ status: 'noseller' }); return; }
       if (++n > 48) { send({ status: document.querySelector(`a[href*="/articles/${num}"]`) ? 'noseller' : 'notfound' }); return; }
@@ -86,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.31.1'; // @version と合わせて更新する
+  const VER = '3.31.2'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {

@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 import WebKit
 
 struct Popup: Identifiable {
@@ -13,27 +14,38 @@ final class BrowserModel: ObservableObject {
 
     static let startURL = URL(string: "https://mypikpak.com/drive/all")!
     static let scriptURL = URL(string: "https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js")!
+    // スクリプトの @require（動画再生用の hls.js）。アプリでは自動で読まれないため、ここで先に組み込む
+    static let hlsURL = URL(string: "https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js")!
+    private var hls = ""
 
     // 保存しておいたスクリプト（アプリを開くたびに GitHub の最新版で上書きする）
-    private var cacheFile: URL {
+    private func cached(_ name: String) -> URL {
         let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        return dir.appendingPathComponent("pikpak-distill.user.js")
+        return dir.appendingPathComponent(name)
+    }
+    private var cacheFile: URL { cached("pikpak-distill.user.js") }
+
+    private func fetch(_ url: URL, mustContain: String) async -> Data? {
+        var req = URLRequest(url: url)
+        req.cachePolicy = .reloadIgnoringLocalCacheData
+        req.timeoutInterval = 8
+        guard let (data, res) = try? await URLSession.shared.data(for: req),
+              (res as? HTTPURLResponse)?.statusCode == 200,
+              let s = String(data: data, encoding: .utf8), s.contains(mustContain) else { return nil }
+        return data
     }
 
     // 1. GitHub の最新版 → 2. 前回保存した版 → 3. アプリに同梱した版 の順に使う
     func loadScript() async {
-        do {
-            var req = URLRequest(url: Self.scriptURL)
-            req.cachePolicy = .reloadIgnoringLocalCacheData
-            req.timeoutInterval = 8
-            let (data, res) = try await URLSession.shared.data(for: req)
-            if (res as? HTTPURLResponse)?.statusCode == 200, let s = String(data: data, encoding: .utf8), s.contains("@version") {
-                try? data.write(to: cacheFile)
-                script = s
-                return
-            }
-        } catch { /* 通信できないときは保存済みの版を使う */ }
+        let hlsFile = cached("hls.min.js")
+        if let d = await fetch(Self.hlsURL, mustContain: "Hls") { try? d.write(to: hlsFile) }
+        hls = (try? String(contentsOf: hlsFile, encoding: .utf8)) ?? ""
+        if let d = await fetch(Self.scriptURL, mustContain: "@version"), let s = String(data: d, encoding: .utf8) {
+            try? d.write(to: cacheFile)
+            script = s
+            return
+        }
         if let s = try? String(contentsOf: cacheFile, encoding: .utf8) { script = s; return }
         if let u = Bundle.main.url(forResource: "pikpak-distill.user", withExtension: "js"), let s = try? String(contentsOf: u, encoding: .utf8) { script = s; return }
         script = ""
@@ -48,6 +60,9 @@ final class BrowserModel: ObservableObject {
         cfg.allowsInlineMediaPlayback = true
         cfg.mediaTypesRequiringUserActionForPlayback = []
         #endif
+        if !hls.isEmpty {
+            cfg.userContentController.addUserScript(WKUserScript(source: hls, injectionTime: .atDocumentEnd, forMainFrameOnly: true, in: .page))
+        }
         if !script.isEmpty {
             // Dedupe は PikPak の画面の中で動く（@grant none と同じ）
             let us = WKUserScript(source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: true, in: .page)

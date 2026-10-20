@@ -39,6 +39,20 @@
 2. 上の **▶ インストール** を開き、Tampermonkey の画面で「インストール」を押します。
 3. 以後、このリポジトリが更新されると Tampermonkey が自動で新しい版に更新します。
 
+### Mac アプリ版（試験版）
+
+PikPak の画面をアプリの中で全画面表示し、Dedupe を組み込んだ Mac 用アプリです。スクリプトは起動のたびに最新版を読み込みます。
+
+1. [最新のリリース](https://github.com/Noel-Labs39/pikpak-distill/releases/latest) から `Dedupe-macOS.zip` をダウンロードして展開し、`Dedupe.app` をアプリケーションフォルダに入れます
+2. 初回はダブルクリックすると「開けません」と出るので「完了」で閉じ、「システム設定」→「プライバシーとセキュリティ」の下にある「このまま開く」を押します（Apple の公証を受けていないため）
+3. 開けないときは、ターミナルで次を実行してから開きます
+
+```
+xattr -dr com.apple.quarantine /Applications/Dedupe.app
+```
+
+PikPak へのログインはアプリの中で行います。調査結果や設定は「PikPak で同期」をオンにすると、ブラウザ版と共有できます。
+
 ## 使い方
 
 1. [PikPak](https://mypikpak.com/) にログインし、ホーム（または My Pack）を開きます。

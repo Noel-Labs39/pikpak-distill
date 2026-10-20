@@ -1,0 +1,34 @@
+# Mac アプリ版の組み立て設定（XcodeGen で Dedupe.xcodeproj を作る）。GitHub Actions が使う
+name: Dedupe
+options:
+  bundleIdPrefix: com.noellabs
+  deploymentTarget:
+    macOS: "14.0"
+targets:
+  Dedupe:
+    type: application
+    platform: macOS
+    sources:
+      - path: DedupeApp
+      - path: ../pikpak-distill.user.js
+        buildPhase: resources
+    entitlements:
+      path: DedupeApp/Dedupe.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.network.client: true
+        com.apple.security.files.user-selected.read-write: true
+    settings:
+      base:
+        PRODUCT_NAME: Dedupe
+        PRODUCT_BUNDLE_IDENTIFIER: com.noellabs.dedupe
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Dedupe
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.utilities
+        SWIFT_VERSION: "5.0"
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGN_STYLE: Manual
+        DEVELOPMENT_TEAM: ""
+        ENABLE_HARDENED_RUNTIME: NO

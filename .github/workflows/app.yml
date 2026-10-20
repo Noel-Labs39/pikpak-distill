@@ -1,0 +1,67 @@
+# Mac アプリ版を組み立てて、最新のリリースに Dedupe-macOS.zip として添付する（公証なし）
+#   ・app/ を変えて main に入ったとき、スクリプトのリリースができたとき、手動で実行したとき
+name: Mac app
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - app/**
+      - .github/workflows/app.yml
+  pull_request:
+    paths:
+      - app/**
+      - .github/workflows/app.yml
+  workflow_run:
+    workflows: [Release]
+    types: [completed]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mac-app
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.head_ref || 'main' }}
+
+      - name: Generate Xcode project
+        run: |
+          brew install xcodegen
+          cd app && xcodegen generate
+
+      - name: Build
+        run: |
+          xcodebuild -project app/Dedupe.xcodeproj -scheme Dedupe -configuration Release \
+            -destination 'generic/platform=macOS' -derivedDataPath build \
+            CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO DEVELOPMENT_TEAM= build
+
+      - name: Sign (ad-hoc) and zip
+        run: |
+          APP=build/Build/Products/Release/Dedupe.app
+          codesign --force --deep --sign - --entitlements app/DedupeApp/Dedupe.entitlements "$APP"
+          codesign --verify --verbose "$APP"
+          ditto -c -k --keepParent "$APP" Dedupe-macOS.zip
+          ls -la Dedupe-macOS.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Dedupe-macOS
+          path: Dedupe-macOS.zip
+
+      - name: Attach to the latest release
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=$(gh release list --limit 1 --exclude-drafts --exclude-pre-releases --json tagName --jq '.[0].tagName')
+          gh release upload "$tag" Dedupe-macOS.zip --clobber
+          echo "添付しました：$tag"

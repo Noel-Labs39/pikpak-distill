@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.0.4
+// @version      4.0.5
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.0.4'; // @version と合わせて更新する
+  const VER = '4.0.5'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -845,7 +845,9 @@
   .pd-quota .ql b{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;vertical-align:0}
   .q-cur{background:#1d4fd6}.q-oth{background:#8fb0ff}.q-tr{background:#f2a33a}
   html.pd-dark .q-cur{background:#5b8cff}html.pd-dark .q-oth{background:#3a4b78}
-  @media (max-width:1600px){#ppdup.treev header .hbtn[data-a=lang] span,#ppdup.treev header .hbtn[data-a=addlink] span{display:none}#ppdup.treev .pd-quota .ql{display:none}#ppdup.treev .pd-quota{width:210px}}
+  @media (max-width:1200px){#ppdup .pd-quota,#ppdup header .thm{display:none !important}#ppdup header .hbtn[data-a=lang] span,#ppdup header .hbtn[data-a=addlink] span,#ppdup header .hxl span{display:none}#ppdup .hq input{width:120px}}
+  @media (max-height:640px){#ppdup{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}#ppdup main{flex:none;min-height:calc(100vh - 20px);overflow:visible}#ppdup header{padding-top:6px}#ppdup .wm small{display:none}}
+  @media (max-width:1600px){#ppdup.treev header .hbtn[data-a=lang] span,#ppdup.treev header .hbtn[data-a=addlink] span,#ppdup.treev header .hxl span{display:none}#ppdup.treev .pd-quota .ql{display:none}#ppdup.treev .pd-quota{width:210px}}
   @media (max-width:1280px){.pd-quota .ql{display:none}.pd-quota{width:210px}#ppdup .hq input{width:110px}}
   @media (max-width:1200px){#ppdup .brand .chip{display:none}#ppdup [data-r=langname]{display:none}#ppdup .brand{gap:8px}}
   #ppdup .sp{flex:1}
@@ -898,7 +900,10 @@
   #ppdup .prog.busy .pb{display:block}
   #ppdup .prog .pp{white-space:nowrap;font:700 12px ui-monospace,Menlo,Consolas,monospace;color:var(--fg);min-width:0}
   #ppdup .prog .pp:empty{display:none}
-  #ppdup main{flex:1;overflow:auto;padding:14px 18px}
+  #ppdup main{flex:1;overflow:auto;padding:14px 18px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-x pan-y;min-height:0}
+  html.pd-blur #ppdup img,html.pd-blur #pd-hover img,html.pd-blur #pd-ql img,html.pd-blur #pd-frames canvas,html.pd-blur #pd-add img,html.pd-blur .pd-sk canvas,html.pd-blur .pd-sk img{filter:blur(14px) saturate(.6);transition:filter .15s}
+  html.pd-blur #ppdup .pd-th,html.pd-blur #pd-frames .fr-c{overflow:hidden}
+  html.pd-blurhov #ppdup img:hover,html.pd-blurhov #ppdup :hover > img,html.pd-blurhov #pd-ql img:hover,html.pd-blurhov #pd-frames .fr-c:hover canvas,html.pd-blurhov #pd-frames .fr-c:active canvas,html.pd-blurhov #ppdup img:active{filter:none}
   #ppdup .empty{padding:40px;text-align:center;color:var(--mute)}
   /* スキャン画面 */
   .pd-hero{max-width:760px;margin:24px auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:28px;text-align:center}
@@ -1460,8 +1465,8 @@
         <button class="hbtn" data-a="addlink" title="リンク・マグネットを追加（追加する前に、もうあるか確かめる）">${IC.link}<span>リンクを追加</span></button>
         <button class="hbtn" data-a="settings" title="設定（表示・再生・整理・情報）">${IC.gear}<span>設定</span><i data-r="logbadge"></i></button>
         <button class="hbtn wbtn-full" data-a="tofull" title="PikPak の画面を Dedupe に切り替えて、広い画面で使う">${IC.expand}<span>全画面で開く</span></button>
-        <button class="hx wbtn-min" data-a="mini" title="小さくする（右下のボタンに戻す。作業中の内容はそのまま）" aria-label="小さくする">${IC.minus}</button>
-        <button class="hx" data-a="close" title="閉じる（PikPakの画面に戻る）" aria-label="閉じる">${IC.x}</button>
+        <button class="hbtn hxl wbtn-min" data-a="mini" title="小さくする（右下のボタンに戻す。作業中の内容はそのまま）">${IC.minus}<span>小さくする</span></button>
+        <button class="hbtn hxl" data-a="close" title="Dedupe を閉じて、PikPak の画面に戻る（作業中の内容はそのまま）">${IC.x}<span>Dedupe を閉じる</span></button>
       </div>
       <nav data-r="nav"></nav>
     </header>
@@ -1582,6 +1587,12 @@
     const p = themePref();
     el.innerHTML = [['light', IC.sun, 'ライト'], ['dark', IC.moon, 'ダーク'], ['auto', '', '自動']].map(([k, ic, l]) => `<button data-a="theme" data-v="${k}" class="${p === k ? 'on' : ''}" aria-pressed="${p === k}" title="${k === 'auto' ? '自動（OS の設定に合わせる）' : l}">${ic || l}</button>`).join('');
   }
+  // サムネイルをぼかす（プライバシー）。この端末だけの設定（同期しない）
+  const LS_BLUR = 'ppdup:blur:v1', LS_BLURHOV = 'ppdup:blurhov:v1';
+  const blurOn = () => { try { return localStorage.getItem(LS_BLUR) === '1'; } catch (e) { return false; } };
+  const blurHov = () => { try { return localStorage.getItem(LS_BLURHOV) !== '0'; } catch (e) { return true; } };
+  function applyBlur() { document.documentElement.classList.toggle('pd-blur', blurOn()); document.documentElement.classList.toggle('pd-blurhov', blurOn() && blurHov()); }
+  applyBlur();
   function applyTheme() {
     const p = themePref();
     document.documentElement.classList.toggle('pd-dark', p === 'dark' || (p === 'auto' && !!(darkMQ && darkMQ.matches)));
@@ -3579,6 +3590,8 @@
         <div class="row col"><b>開き方</b>${[['full', '全画面（おすすめ）', 'PikPak の画面を Dedupe に切り替えて、広い画面で使います'], ['pop', 'ポップアップ', 'PikPak の画面の上に重ねて開きます。動かしたり大きさを変えたりでき、後ろの PikPak もそのまま使えます']].map(([k, l, d]) => `<label><input type="radio" name="pdopen" data-s="openmode" value="${k}"${(root.classList.contains('on') ? winMode : openPref()) === k ? ' checked' : ''}> <span><b>${l}</b><small style="display:block">${d}</small></span></label>`).join('')}</div>
         <div class="row"><span><b>表示言語</b></span><select data-s="lang"><option value="auto"${lp === 'auto' ? ' selected' : ''}>自動（ブラウザ）</option><option value="ja" data-raw${lp === 'ja' ? ' selected' : ''}>日本語</option><option value="en" data-raw${lp === 'en' ? ' selected' : ''}>English</option></select></div>
         <div class="row"><span><b>フォルダ一覧の表示</b></span><select data-s="tview"><option value="list"${tree.view === 'list' ? ' selected' : ''}>☰ リスト</option><option value="thumb"${tree.view === 'thumb' ? ' selected' : ''}>▤ サムネイル</option><option value="tile"${tree.view === 'tile' ? ' selected' : ''}>▦ タイル</option></select></div>
+        <label class="row"><span><b>サムネイルをぼかす</b><small>人に画面を見られても分からないよう、サムネイル・プレビュー・コマをぼかします（このブラウザだけの設定）</small></span><input type="checkbox" data-s="blur"${blurOn() ? ' checked' : ''}></label>
+        <label class="row"><span><b>マウスを乗せたら、はっきり表示</b><small>「サムネイルをぼかす」がオンのとき、マウスを乗せた（スマホは押している）間だけぼかしを外します</small></span><input type="checkbox" data-s="blurhov"${blurHov() ? ' checked' : ''}${blurOn() ? '' : ' disabled'}></label>
         <label class="row"><span><b>ホバーでサムネイル</b><small>マウスを乗せたときにサムネイルを大きく表示します</small></span><input type="checkbox" data-s="hover"${tree.hover !== false ? ' checked' : ''}></label>
         <div class="row"><span><b>フォルダ一覧の操作</b><small>${esc(helpTree)}</small></span></div>` : ''}
         ${sec('play') ? `<h3 data-sec="play">再生</h3>
@@ -3624,6 +3637,7 @@
     if (k === 'syncpw') { saveSyncCfg({ pw: t.checked }); if (t.checked) syncNow('解凍パスワード'); return; }
     if (k === 'lang') { setLang(t.value); return; }
     if (k === 'expg') { exportSel[t.value] = t.checked; return; }
+    if (k === 'blur' || k === 'blurhov') { try { localStorage.setItem(k === 'blur' ? LS_BLUR : LS_BLURHOV, t.checked ? '1' : '0'); } catch (e) { /* 無視 */ } applyBlur(); renderSettings(); return; }
     if (k === 'openmode') { setOpenPref(t.value); if (root.classList.contains('on')) setWin(t.value); return; }
     if (k === 'tview') { tree.view = t.value; saveTree(); if (view === 'tree') treeView(t.value); return; }
     if (k === 'hover') { tree.hover = t.checked; saveTree(); hideHover(); return; }

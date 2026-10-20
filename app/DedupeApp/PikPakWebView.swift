@@ -55,6 +55,9 @@ final class WebUI: NSObject, WKUIDelegate, WKNavigationDelegate, WKDownloadDeleg
         return pop
     }
 
+    // 画面（WebKit の処理）が落ちたときは、自動で読み込み直す
+    func webViewWebContentProcessDidTerminate(_ webView: WKWebView) { webView.reload() }
+
     // window.close（調べ終わったときなど）
     func webViewDidClose(_ webView: WKWebView) {
         if model.popup?.webView === webView { model.popup = nil }

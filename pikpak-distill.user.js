@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.0.3
+// @version      4.0.4
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.0.3'; // @version と合わせて更新する
+  const VER = '4.0.4'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -3705,7 +3705,8 @@
     d.querySelector('[data-pl=full]').onclick = goFull;
     d.querySelector('[data-pl=ext]').onclick = () => { const v = d.querySelector('video'); if (v) v.pause(); openExternal(id); };
     d.querySelector('[data-pl=set]').onclick = () => openSettings('play');
-    d.querySelector('[data-pl=frames]').onclick = () => { const v = d.querySelector('video'); if (v) v.pause(); openFrames([id]); };
+    // コマ一覧を開くときは再生画面を閉じる（動画を同時にいくつも読み込むと、Safari・アプリ版で画面ごと落ちることがあるため）
+    d.querySelector('[data-pl=frames]').onclick = () => { closePlayer(); openFrames([id]); };
     try {
       const S = await loadSources(id);
       if (!document.body.contains(d)) return;
@@ -4200,7 +4201,7 @@
     const kept = (id) => { if (view !== 'dup') return ''; const g = visibleGroups().find((x) => x.items.some((f) => f.id === id)); if (!g) return ''; const i = g.items.findIndex((f) => f.id === id); return stateOf(g.items[i], i) === 'del' ? 'del' : 'keep'; };
     d.innerHTML = `<div class="fr-box" role="dialog" aria-label="コマ一覧"><div class="fr-hd"><b>コマ一覧</b><span class="note">${ids.length > 1 ? '同じ位置のコマを左右に並べています' : ''}</span><span class="sp"></span><span class="seg">${[9, 16, 25].map((k) => `<button data-frn="${k}" class="${k === n ? 'on' : ''}">${k} コマ</button>`).join('')}</span><button class="x" data-frclose title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
       <div class="fr-cols" style="grid-template-columns:repeat(${ids.length},minmax(0,1fr))">${ids.map((id) => { const f = fileById(id), k = kept(id); return `<div class="fr-col" data-frid="${esc(id)}"><div class="fr-meta">${k ? `<span class="fr-tag ${k}">${k === 'keep' ? '残す' : '削除'}</span>` : ''}<b title="${esc(f.name)}">${esc(f.name)}</b><span class="note raw" data-frinfo>${fmt(f.size)}</span></div><div class="fr-grid" style="grid-template-columns:repeat(${Math.sqrt(n)},1fr)">${Array.from({ length: n }, (_, i) => `<button class="fr-c" data-fri="${i}"><span class="t"></span></button>`).join('')}</div><div class="fr-msg note" data-frmsg>動画を読み込んでいます…</div><div class="fr-acts"><button data-frplay disabled>▶ 選んだコマから再生</button><button data-frsave disabled>画像で保存</button></div></div>`; }).join('')}</div>
-      <div class="fr-ft note">コマは動画を読み込みながら順に出ます（1 本 10〜30 秒ほど）。コマを押して選び、「選んだコマから再生」でその位置から再生します。</div></div>`;
+      <div class="fr-ft note">コマは動画を読み込みながら順に出ます（1 本 10〜30 秒ほど）。コマを押して選び、「選んだコマから再生」（またはコマをダブルクリック）でその位置から再生します。</div></div>`;
     if (LANG === 'en') d.querySelectorAll('*').forEach(trNode);
     d.addEventListener('mousedown', (e) => { if (e.target === d) closeFrames(); });
     d.addEventListener('click', (e) => {
@@ -4209,9 +4210,11 @@
       if (b.dataset.frn) { try { localStorage.setItem(LS_FRAMES, b.dataset.frn); } catch (err) { /* 無視 */ } openFrames(ids); return; }
       const col = b.closest('.fr-col'); if (!col) return;
       if (b.dataset.fri !== undefined) { col.querySelectorAll('.fr-c.on').forEach((x) => x.classList.remove('on')); b.classList.add('on'); col.querySelector('[data-frplay]').disabled = !b.dataset.t; return; }
-      if (b.dataset.frplay !== undefined) { const on = col.querySelector('.fr-c.on'); const t = on ? +on.dataset.t : 0; const id = col.dataset.frid; closeFrames(); playFile(id, { t }); return; }
+      if (b.dataset.frplay !== undefined) { const on = col.querySelector('.fr-c.on'); const t = on ? +on.dataset.t : 0; framesPlay(col.dataset.frid, t); return; }
       if (b.dataset.frsave !== undefined) saveSheet(col);
     });
+    // コマをダブルクリックすると、その位置から再生
+    d.addEventListener('dblclick', (e) => { const c = e.target.closest('.fr-c'); if (!c || !c.dataset.t) return; e.preventDefault(); framesPlay(c.closest('.fr-col').dataset.frid, +c.dataset.t); });
     ids.forEach(async (id) => {
       const col = d.querySelector(`.fr-col[data-frid="${CSS.escape(id)}"]`);
       const msg = col.querySelector('[data-frmsg]');
@@ -4241,6 +4244,8 @@
       } finally { if (gr) { gr.close(); col._grab = null; } }
     });
   }
+  // コマ一覧を閉じてから少し待って再生する（コマ作りの動画を片付け終わる前に再生を始めると、Safari・アプリ版で落ちることがあるため）
+  function framesPlay(id, t) { closeFrames(); setTimeout(() => playFile(id, { t }), 250); }
   function closeFrames() { framesRun++; const d = document.getElementById('pd-frames'); if (d) { closeGrab(d); d.remove(); } }
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.getElementById('pd-frames')) { e.preventDefault(); e.stopImmediatePropagation(); closeFrames(); } }, true);
   // コマを 1 枚の画像にまとめて保存（時刻つき）

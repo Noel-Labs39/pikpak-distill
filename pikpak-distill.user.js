@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.0.7
+// @version      4.0.8
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.0.7'; // @version と合わせて更新する
+  const VER = '4.0.8'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -3105,6 +3105,8 @@
     const r = treeRowsCache.find((x) => x.id === treeCur); if (!r) return closeQL();
     let d = document.getElementById('pd-ql');
     if (!d) { d = document.createElement('div'); d.id = 'pd-ql'; document.body.appendChild(d); d.addEventListener('click', (e) => { if (e.target === d || e.target.dataset.qlclose !== undefined) closeQL(); }); }
+    else { killHls(qlHls); qlHls = null; unloadMedia(d); } // 次・前のファイルへ移るときは、前の動画とシークバー用の影の動画を片付ける
+    qlRun++;
     qlOpen = true;
     const big = r.kind === 'file' && r.thumb ? `<img src="${esc(r.thumb)}" referrerpolicy="no-referrer" alt="">` : `<div class="ql-ic">${r.kind === 'folder' ? ICON_DIR : ICON_FILE(r)}</div>`;
     const ix = treeIdx;
@@ -3120,7 +3122,7 @@
     on('[data-qlset]', () => openSettings('play'));
     on('[data-qlframes]', () => { closeQL(); openFrames([r.id]); });
   }
-  function closeQL() { qlOpen = false; killHls(qlHls); qlHls = null; const d = document.getElementById('pd-ql'); if (d) { d.querySelectorAll('.pd-sk').forEach((b) => { if (b._grab) b._grab.close(); }); const v = d.querySelector('video'); try { if (v) v.pause(); } catch (e) { /* 無視 */ } d.remove(); } }
+  function closeQL() { qlRun++; unloadMedia(document.getElementById('pd-ql')); qlOpen = false; killHls(qlHls); qlHls = null; const d = document.getElementById('pd-ql'); if (d) { d.querySelectorAll('.pd-sk').forEach((b) => { if (b._grab) b._grab.close(); }); const v = d.querySelector('video'); try { if (v) v.pause(); } catch (e) { /* 無視 */ } d.remove(); } }
   // 名前の変更（Enter）
   function applyRenameCache(kind, id, name) {
     const o = kind === 'file' ? outer.files.get(id) : outer.dirs.get(id);
@@ -3663,7 +3665,9 @@
     }
   }
   // プレビュー（クイックルック）の中で再生する
+  let qlRun = 0;
   async function qlPlay(id) {
+    const myRun = qlRun;
     const d = document.getElementById('pd-ql'); if (!d) return;
     const box = d.querySelector('.ql-b'), f = fileById(id); if (!box || !f) return;
     if (!ensureSession('tree')) return;
@@ -3671,7 +3675,7 @@
     box.insertAdjacentHTML('beforeend', '<div class="pl-msg ql-wait">再生の準備中…</div>');
     try {
       const S = await loadSources(id);
-      if (!document.body.contains(box) || treeCur !== id) return;
+      if (!document.body.contains(box) || treeCur !== id || myRun !== qlRun) return;
       if (!S.src.length) { box.innerHTML = '<div class="pl-msg">再生用リンクを取得できませんでした</div>'; return; }
       const fail = (x, why) => { box.insertAdjacentHTML('beforeend', `<div class="pl-msg pl-err">「${esc(x.label)}」は再生できませんでした${why ? `（${esc(why)}）` : ''}。下の「画質」で別の画質を試せます。</div>`); log('warn', `再生できない画質：${x.label}`, f.name); };
       // 画質の切り替えと解像度の表示（以前の「プレーヤー画面」の機能をプレビューにまとめた）
@@ -3697,6 +3701,14 @@
       log('info', 'プレビューで再生：' + f.name);
     } catch (err) { if (err.session) { closeQL(); handleErr(err, 'tree'); return; } box.insertAdjacentHTML('beforeend', `<div class="pl-msg pl-err">${esc(err.message)}</div>`); }
   }
+  let playRun = 0;
+  // 動画を止めて読み込みをやめる（シークバー用の影の動画も）
+  function unloadMedia(scope) {
+    if (!scope) return;
+    closeGrab(scope);
+    scope.querySelectorAll('.pd-sk').forEach((b) => { if (b._grab) { b._grab.close(); b._grab = null; } });
+    scope.querySelectorAll('video').forEach((v) => { try { v.pause(); v.removeAttribute('src'); v.load(); } catch (e) { /* 無視 */ } });
+  }
   async function playFile(id, opt = {}) {
     const f = fileById(id); if (!f) return;
     // プレビューで再生中なら、その位置から続ける
@@ -3704,7 +3716,11 @@
     closeQL(); closeCtx();
     if (!ensureSession('tree')) return;
     stopHls();
+    // 次・前へ移るたびに、前の動画（とシークバー用の影の動画）を確実に止めて片付ける。
+    // 片付けずに続けて再生すると、裏で動画がいくつも読み込まれ続けて、画面ごと落ちていた
+    const run = ++playRun;
     let d = document.getElementById('pd-player');
+    if (d) unloadMedia(d);
     if (!d) {
       d = document.createElement('div'); d.id = 'pd-player'; document.body.appendChild(d);
       d.addEventListener('click', (e) => { if (e.target === d || e.target.closest('[data-pl=close]')) closePlayer(); });
@@ -3724,7 +3740,7 @@
     d.querySelector('[data-pl=frames]').onclick = () => { closePlayer(); openFrames([id]); };
     try {
       const S = await loadSources(id);
-      if (!document.body.contains(d)) return;
+      if (!document.body.contains(d) || run !== playRun) return; // その間に別の動画へ移った
       const { src } = S;
       if (!src.length) { d.querySelector('.pl-msg').textContent = 'このファイルの再生用リンクを取得できませんでした（PikPak 側で変換中の可能性があります）'; return; }
       const sel = d.querySelector('[data-pl=q]'), inf = d.querySelector('[data-pl=info]');
@@ -3752,7 +3768,7 @@
       log('info', '再生：' + f.name + '（' + src[S.first].label + '）');
     } catch (err) { if (err.session) { closePlayer(); handleErr(err, 'tree'); return; } d.querySelector('.pl-msg').textContent = '再生用リンクを取得できませんでした：' + err.message; log('error', '再生用リンクの取得に失敗：' + err.message, f.name); updateLogBadge(); }
   }
-  function closePlayer() { stopHls(); const d = document.getElementById('pd-player'); if (d) { d.querySelectorAll('.pd-sk').forEach((b) => { if (b._grab) b._grab.close(); }); const v = d.querySelector('video'); try { if (v) { v.pause(); v.removeAttribute('src'); v.load(); } } catch (e) { /* 無視 */ } d.remove(); } const t = $('[data-r=tree]'); if (t) t.focus(); }
+  function closePlayer() { playRun++; unloadMedia(document.getElementById('pd-player')); stopHls(); const d = document.getElementById('pd-player'); if (d) { d.querySelectorAll('.pd-sk').forEach((b) => { if (b._grab) b._grab.close(); }); const v = d.querySelector('video'); try { if (v) { v.pause(); v.removeAttribute('src'); v.load(); } } catch (e) { /* 無視 */ } d.remove(); } const t = $('[data-r=tree]'); if (t) t.focus(); }
   document.addEventListener('keydown', (e) => {
     const d = document.getElementById('pd-player'); if (!d) return;
     if (e.key === 'Escape') { if (document.fullscreenElement) return; e.preventDefault(); e.stopImmediatePropagation(); closePlayer(); }

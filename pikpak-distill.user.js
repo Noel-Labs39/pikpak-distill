@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.32.0
+// @version      3.32.1
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.32.0'; // @version と合わせて更新する
+  const VER = '3.32.1'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -4111,15 +4111,29 @@
       const p = q.catch(() => {}).then(() => ready).then(() => new Promise((res, rej) => {
         if (closed) { rej(new Error('closed')); return; }
         const to = setTimeout(() => { v.removeEventListener('seeked', done); rej(new Error('コマの取得が時間切れになりました')); }, 20000);
-        function done() {
-          clearTimeout(to);
+        // Safari（拡張機能・アプリ版）は、移動した直後だとまだ絵が出ておらず真っ黒に描かれることがあるため、
+        // 次のコマが表示されるのを待ち、真っ黒なら少し再生してから描き直す（3 回まで）
+        const draw = () => {
+          const h = Math.round(w * (v.videoHeight || 9) / (v.videoWidth || 16));
+          const c = document.createElement('canvas'); c.width = w; c.height = h;
+          const g = c.getContext('2d'); g.drawImage(v, 0, 0, w, h);
+          const px = g.getImageData(0, 0, w, h).data; // 別のサイトの動画で描けないときはここで止まる
+          let sum = 0, n = 0; for (let i = 0; i < px.length; i += 4 * 97) { sum += px[i] + px[i + 1] + px[i + 2]; n++; }
+          return { c, dark: n > 0 && sum / n < 6 };
+        };
+        const nextFrame = (ms) => new Promise((r) => { const t2 = setTimeout(r, ms); if (v.requestVideoFrameCallback) v.requestVideoFrameCallback(() => { clearTimeout(t2); r(); }); });
+        async function done() {
           try {
-            const h = Math.round(w * (v.videoHeight || 9) / (v.videoWidth || 16));
-            const c = document.createElement('canvas'); c.width = w; c.height = h;
-            const g = c.getContext('2d'); g.drawImage(v, 0, 0, w, h);
-            g.getImageData(0, 0, 1, 1); // 別のサイトの動画で描けないときはここで止まる
-            res(c);
-          } catch (e) { rej(new Error('この動画はブラウザの制限でコマを作れません')); }
+            await nextFrame(400);
+            let out = draw();
+            for (let k = 0; out.dark && k < 3 && !closed; k++) {
+              try { await v.play(); } catch (e) { /* 無視 */ }
+              await nextFrame(600); await sleep(120);
+              try { v.pause(); } catch (e) { /* 無視 */ }
+              out = draw();
+            }
+            clearTimeout(to); res(out.c);
+          } catch (e) { clearTimeout(to); rej(new Error('この動画はブラウザの制限でコマを作れません')); }
         }
         v.addEventListener('seeked', done, { once: true });
         v.currentTime = Math.max(0, Math.min(t, (v.duration || t + 1) - 0.2));

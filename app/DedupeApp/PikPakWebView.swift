@@ -42,7 +42,7 @@ struct PopupWebView: PlatformViewRepresentable {
 
 // alert・confirm・prompt（Dedupe の確認画面）と、新しいウィンドウ（販売者の調査）を扱う
 @MainActor
-final class WebUI: NSObject, WKUIDelegate, WKNavigationDelegate {
+final class WebUI: NSObject, WKUIDelegate, WKNavigationDelegate, WKDownloadDelegate {
     let model: BrowserModel
     init(model: BrowserModel) { self.model = model }
 
@@ -62,11 +62,60 @@ final class WebUI: NSObject, WKUIDelegate, WKNavigationDelegate {
 
     // 「更新する」「変更点」などのリンクは、通常のブラウザで開く
     func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        // 書き出し（.json）・CSV・コマ一覧などの保存は、画面に表示せずファイルとして保存する
+        if action.shouldPerformDownload || action.request.url?.scheme == "blob" && action.targetFrame?.isMainFrame == true {
+            decisionHandler(.download); return
+        }
         if let u = action.request.url, action.targetFrame == nil, let host = u.host(), host.contains("github") {
             openExternal(u); decisionHandler(.cancel); return
         }
         decisionHandler(.allow)
     }
+
+    func webView(_ webView: WKWebView, navigationAction: WKNavigationAction, didBecome download: WKDownload) { download.delegate = self }
+    func webView(_ webView: WKWebView, navigationResponse: WKNavigationResponse, didBecome download: WKDownload) { download.delegate = self }
+
+    // 保存先を決める（Mac は保存ダイアログ、iPhone・iPad はいったん一時フォルダに置いてから「ファイル」へ書き出す）
+    func download(_ download: WKDownload, decideDestinationUsing response: URLResponse, suggestedFilename: String, completionHandler: @escaping (URL?) -> Void) {
+        #if os(macOS)
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = suggestedFilename
+        panel.directoryURL = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first
+        completionHandler(panel.runModal() == .OK ? panel.url : nil)
+        #else
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent(suggestedFilename)
+        try? FileManager.default.removeItem(at: url)
+        pending[ObjectIdentifier(download)] = url
+        completionHandler(url)
+        #endif
+    }
+
+    func downloadDidFinish(_ download: WKDownload) {
+        #if os(iOS)
+        guard let url = pending.removeValue(forKey: ObjectIdentifier(download)) else { return }
+        let picker = UIDocumentPickerViewController(forExporting: [url], asCopy: true)
+        topController()?.present(picker, animated: true)
+        #endif
+    }
+
+    func download(_ download: WKDownload, didFailWithError error: Error, resumeData: Data?) {
+        ask("保存できませんでした：\(error.localizedDescription)", buttons: ["OK"]) { _ in }
+    }
+
+    #if os(iOS)
+    private var pending: [ObjectIdentifier: URL] = [:]
+    #endif
+
+    // 読み込む…（ファイルを選ぶ）。iPhone・iPad は WebKit が自動で選択画面を出す
+    #if os(macOS)
+    func webView(_ webView: WKWebView, runOpenPanelWith parameters: WKOpenPanelParameters, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping ([URL]?) -> Void) {
+        let panel = NSOpenPanel()
+        panel.allowsMultipleSelection = parameters.allowsMultipleSelection
+        panel.canChooseDirectories = parameters.allowsDirectories
+        panel.canChooseFiles = true
+        completionHandler(panel.runModal() == .OK ? panel.urls : nil)
+    }
+    #endif
 
     func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
         ask(message, buttons: ["OK"]) { _ in completionHandler() }

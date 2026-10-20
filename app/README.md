@@ -17,6 +17,7 @@ PikPak の Web 画面をアプリの中に全画面で表示し、Dedupe（`pikp
 5. 左の一覧で一番上のプロジェクト → TARGETS の `DedupeApp` →「Signing & Capabilities」
    - 「Team」で自分の Apple ID を選ぶ
    - 「App Sandbox」の「Outgoing Connections (Client)」にチェック（Mac で通信するために必要）
+   - 同じ「App Sandbox」の「File Access」→「User Selected File」を「Read/Write」にする（書き出し・読み込みに必要）
 
 ## 動かす
 

@@ -60,12 +60,14 @@ final class BrowserModel: ObservableObject {
         cfg.allowsInlineMediaPlayback = true
         cfg.mediaTypesRequiringUserActionForPlayback = []
         #endif
+        // PikPak と販売者を調べるサイトの上でだけ動かす（保存した画像などを開いたページでは動かさない）
+        let only = { (src: String) in "if (/(^|\\.)mypikpak\\.com$|^fd2ppv\\.cc$|^fc2cmadb\\.com$/.test(location.hostname)) {\n" + src + "\n}" }
         if !hls.isEmpty {
-            cfg.userContentController.addUserScript(WKUserScript(source: hls, injectionTime: .atDocumentEnd, forMainFrameOnly: true, in: .page))
+            cfg.userContentController.addUserScript(WKUserScript(source: only(hls), injectionTime: .atDocumentEnd, forMainFrameOnly: true, in: .page))
         }
         if !script.isEmpty {
             // Dedupe は PikPak の画面の中で動く（@grant none と同じ）
-            let us = WKUserScript(source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: true, in: .page)
+            let us = WKUserScript(source: only(script), injectionTime: .atDocumentEnd, forMainFrameOnly: true, in: .page)
             cfg.userContentController.addUserScript(us)
         }
         let wv = WKWebView(frame: .zero, configuration: cfg)

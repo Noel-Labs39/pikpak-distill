@@ -15,7 +15,7 @@ final class BrowserModel: ObservableObject {
     static let startURL = URL(string: "https://mypikpak.com/drive/all")!
     static let scriptURL = URL(string: "https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js")!
     // スクリプトの @require（動画再生用の hls.js）。アプリでは自動で読まれないため、ここで先に組み込む
-    static let hlsURL = URL(string: "https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js")!
+    static let hlsURL = URL(string: "https://cdn.jsdelivr.net/npm/hls.js@1.6.15/dist/hls.min.js")!
     private var hls = ""
 
     // 保存しておいたスクリプト（アプリを開くたびに GitHub の最新版で上書きする）

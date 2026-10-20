@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      3.31.2
+// @version      3.32.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '3.31.2'; // @version と合わせて更新する
+  const VER = '3.32.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -538,6 +538,7 @@
           const cur = queue.shift(); active++;
           apiList(cur.id).then((list) => {
             list.forEach((f) => {
+              if (f.kind === 'drive#folder' && f.name === SYNC_DIR && !cur.path) return; // 同期用のフォルダは整理の対象にしない
               if (f.kind === 'drive#folder') {
                 const fo = { id: f.id, name: f.name, parentId: cur.id, path: cur.path + '/' + f.name, trail: [...cur.trail, f.id] };
                 outFolders.push(fo); queue.push({ id: f.id, path: fo.path, trail: fo.trail });
@@ -3592,10 +3593,12 @@
         <div class="row"><span><b>調べた結果</b><small>${Object.keys(sellerDb).length} 件（手入力 ${Object.values(sellerDb).filter((r) => r.src === 'manual').length} 件を含む）。このブラウザにだけ保存</small></span><button data-s="sclear"${Object.keys(sellerDb).length ? '' : ' disabled'}>消去</button></div>` : ''}
         ${sec('info') ? `<h3>情報</h3>
         <div class="row"><span><b>PikPak Distill – Dedupe</b><small class="ver">v${VER} · Noel Labs</small></span><button data-s="changelog">更新履歴</button></div>
+        <div class="row"><span><b>PikPak で同期する</b><small>調査結果・判断・設定を PikPak の「${esc(SYNC_DIR)}」に保存し、ほかのブラウザやアプリと共有します（ログイン情報は含めません）</small><small data-r="syncrow"></small><label style="display:flex;gap:6px;align-items:center;margin-top:4px"><input type="checkbox" data-s="syncpw"${syncCfg().pw ? ' checked' : ''}> 解凍パスワードも同期する</label></span><span style="display:flex;gap:8px;align-items:center"><button data-s="syncnow"${syncCfg().on && syncCfg().asked ? '' : ' disabled'}>今すぐ同期</button><input type="checkbox" data-s="syncon" title="同期する"${syncCfg().on && syncCfg().asked ? ' checked' : ''}></span></div>
         <div class="row col"><b>書き出し／読み込み</b><small class="note" style="display:block">別のブラウザやパソコンへ移すときに使います（ログイン情報は含めません）</small>${Object.keys(EXPORT_GROUPS).map((g) => `<label><input type="checkbox" data-s="expg" value="${g}"${exportSel[g] ? ' checked' : ''}> ${EXPORT_GROUPS[g].label}<small style="color:var(--mute)">（${groupCount(g)} 件）</small></label>`).join('')}<span style="display:flex;gap:8px;margin-top:6px"><button data-s="export">書き出す（.json）</button><button data-s="import">読み込む…</button></span></div>
         <div class="row"><span><b>ログ</b><small>エラーや処理の記録</small></span><button data-s="log">ログを表示${errs ? `<span class="badge">${errs}</span>` : ''}</button></div>` : ''}
       </div></aside>`;
     d.querySelector('.bd').scrollTop = scroll;
+    renderSyncRow();
   }
   function onSettingsClick(e) {
     const b = e.target.closest('[data-s]'); if (!b || b.tagName === 'SELECT' || b.tagName === 'INPUT') return;
@@ -3604,14 +3607,17 @@
     else if (k === 'tab') { setTab = b.dataset.v; renderSettings(); }
     else if (k === 'theme') setTheme(b.dataset.v);
     else if (k === 'log') { closeSettings(); showLog(); }
-    else if (k === 'sclear') { if (confirm(tr('調べた販売者の結果（手入力を含む）をすべて消去しますか？'))) { sellerDb = {}; saveSellerDb(); sellerSel.clear(); log('info', '販売者の調査結果を消去'); renderSettings(); if (root.classList.contains('on') && !busy) setView(view); } }
-    else if (k === 'pwclear') { if (confirm(tr('記録した解凍パスワードをすべて消去しますか？'))) { try { localStorage.removeItem(LS_UNZIPPW); } catch (e) { /* 無視 */ } log('info', '解凍パスワードを消去'); renderSettings(); } }
+    else if (k === 'sclear') { if (confirm(tr('調べた販売者の結果（手入力を含む）をすべて消去しますか？'))) { sellerDb = {}; saveSellerDb(); syncCleared(LS_SELLER); sellerSel.clear(); log('info', '販売者の調査結果を消去'); renderSettings(); if (root.classList.contains('on') && !busy) setView(view); } }
+    else if (k === 'pwclear') { if (confirm(tr('記録した解凍パスワードをすべて消去しますか？'))) { try { localStorage.setItem(LS_UNZIPPW, '[]'); } catch (e) { /* 無視 */ } syncCleared(LS_UNZIPPW); log('info', '解凍パスワードを消去'); renderSettings(); } }
+    else if (k === 'syncnow') syncNow('手動').then((ok) => { status(ok ? 'PikPak と同期しました' : '同期できませんでした（「ログを表示」で理由を確認できます）'); renderSettings(); });
     else if (k === 'export') exportData();
     else if (k === 'import') importData();
     else if (k === 'changelog') window.open('https://github.com/Noel-Labs39/pikpak-distill/blob/main/CHANGELOG.md', '_blank', 'noopener');
   }
   function onSettingsChange(e) {
     const t = e.target, k = t.dataset.s;
+    if (k === 'syncon') { saveSyncCfg({ asked: true, on: t.checked }); if (t.checked) syncNow('オンにした'); renderSettings(); return; }
+    if (k === 'syncpw') { saveSyncCfg({ pw: t.checked }); if (t.checked) syncNow('解凍パスワード'); return; }
     if (k === 'lang') { setLang(t.value); return; }
     if (k === 'expg') { exportSel[t.value] = t.checked; return; }
     if (k === 'openmode') { setOpenPref(t.value); if (root.classList.contains('on')) setWin(t.value); return; }
@@ -4042,7 +4048,7 @@
     else ['left', 'top', 'width', 'height'].forEach((k) => root.style.removeProperty(k));
   }
   function setWin(m) { winMode = m === 'full' ? 'full' : 'pop'; applyWin(); if (document.getElementById('pd-set')) renderSettings(); }
-  function showRoot() { if (!root.classList.contains('on')) winMode = isPhone() ? 'full' : openPref(); applyWin(); root.classList.add('on'); checkRotate(); checkUpdate(); libPeek(); }
+  function showRoot() { if (!root.classList.contains('on')) winMode = isPhone() ? 'full' : openPref(); applyWin(); root.classList.add('on'); checkRotate(); checkUpdate(); libPeek(); setTimeout(() => { syncAsk(); if (Date.now() - syncAt > 60e3) syncNow('開いたとき'); }, 1500); }
   // 見出しをつかんで移動
   root.addEventListener('mousedown', (e) => {
     if (winMode !== 'pop' || e.button !== 0 || !e.target.closest('.brand') || e.target.closest('button,input,select,label,a,.pd-quota,.seg')) return;
@@ -4519,6 +4525,149 @@
     };
     inp.click();
   }
+  // ---------- PikPak で同期（調査結果・判断・設定を PikPak のフォルダに置き、どの環境でも同じものを使う） ----------
+  const SYNC_DIR = 'Dedupe（設定・同期）';
+  const SYNC_FILE = 'dedupe-sync.json';
+  const LS_SYNC = 'ppdup:sync:v1'; // { on, asked, pw, last, err }
+  const LS_SYNCMETA = 'ppdup:syncmeta:v1'; // キー → { h: 中身の目印, at: 変わった時刻, clr: 消去した時刻 }
+  const SYNC_KEYS = {
+    'ppdup:seller:v1': 'seller', 'ppdup:decision:v1': 'union', 'ppdup:unzippw:v1': 'union',
+    // 端末ごとに違ってよいもの（ウィンドウの位置・開き方など）は同期しない
+    'ppdup:theme:v1': 'last', 'ppdup:lang:v1': 'last', 'ppdup:opt:junk:v1': 'last', 'ppdup:opt:cleanname:v1': 'last', 'ppdup:opt:seller:v1': 'last',
+    'ppdup:player:v1': 'last', 'ppdup:player:q:v1': 'last', 'ppdup:rate:v1': 'last', 'ppdup:frames:v1': 'last', 'ppdup:seller:cfg:v1': 'last',
+  };
+  const syncCfg = () => { try { return { on: true, ...(JSON.parse(localStorage.getItem(LS_SYNC) || '{}') || {}) }; } catch (e) { return { on: true }; } };
+  const saveSyncCfg = (p) => { try { localStorage.setItem(LS_SYNC, JSON.stringify({ ...syncCfg(), ...p })); } catch (e) { /* 無視 */ } };
+  const syncKeys = () => Object.keys(SYNC_KEYS).filter((k) => k !== 'ppdup:unzippw:v1' || syncCfg().pw);
+  const strHash = (s) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return s.length + ':' + h; };
+  function syncMeta() { try { return JSON.parse(localStorage.getItem(LS_SYNCMETA) || '{}') || {}; } catch (e) { return {}; } }
+  const saveSyncMeta = (m) => { try { localStorage.setItem(LS_SYNCMETA, JSON.stringify(m)); } catch (e) { /* 無視 */ } };
+  // 手元で変わったキーに時刻を付ける（変わったものがあれば true）
+  function syncTouch() {
+    const m = syncMeta(); let ch = false;
+    syncKeys().forEach((k) => { const v = lsGet(k); const h = v == null ? '' : strHash(v); if (!m[k] || m[k].h !== h) { m[k] = { ...(m[k] || {}), h, at: Date.now() }; ch = true; } });
+    if (ch) saveSyncMeta(m);
+    return ch;
+  }
+  // 「調べた結果をすべて消去」など、消したことを別の環境にも伝える
+  function syncCleared(k) { const m = syncMeta(); m[k] = { ...(m[k] || {}), clr: Date.now() }; saveSyncMeta(m); }
+  const parseJ = (v, d) => { try { const o = JSON.parse(v); return o == null ? d : o; } catch (e) { return d; } };
+  function syncMerge(local, remote) {
+    const out = {};
+    new Set([...Object.keys(local), ...Object.keys(remote)]).forEach((k) => {
+      const a = local[k], b = remote[k], kind = SYNC_KEYS[k];
+      if (!kind) return;
+      if (!a || !b) { out[k] = a || b; return; }
+      const clr = Math.max(a.clr || 0, b.clr || 0);
+      if (kind === 'last') { out[k] = (b.at || 0) > (a.at || 0) ? b : a; return; }
+      const va = parseJ(a.v, null), vb = parseJ(b.v, null);
+      let v;
+      if (Array.isArray(va) || Array.isArray(vb)) v = [...new Set([...(Array.isArray(va) ? va : []), ...(Array.isArray(vb) ? vb : [])])];
+      else if (kind === 'seller') {
+        v = {};
+        [vb || {}, va || {}].forEach((o) => Object.entries(o).forEach(([id, r]) => { if (!r || (r.at || 0) < clr) return; if (!v[id] || (r.at || 0) > (v[id].at || 0)) v[id] = r; }));
+      } else v = { ...(vb || {}), ...(va || {}) };
+      out[k] = { v: JSON.stringify(v), at: Math.max(a.at || 0, b.at || 0), clr };
+    });
+    return out;
+  }
+  // Thunder 方式のハッシュ（PikPak のファイル作成に必要）
+  async function gcidOf(buf) {
+    const sha = async (b) => new Uint8Array(await crypto.subtle.digest('SHA-1', b));
+    let ps = 0x40000; while (buf.length / ps > 0x200 && ps < 0x200000) ps <<= 1;
+    const parts = []; for (let i = 0; i < buf.length || i === 0; i += ps) { parts.push(await sha(buf.subarray(i, i + ps))); if (!buf.length) break; }
+    const all = new Uint8Array(parts.length * 20); parts.forEach((p, i) => all.set(p, i * 20));
+    return [...await sha(all)].map((x) => x.toString(16).padStart(2, '0')).join('').toUpperCase();
+  }
+  async function syncFolder() {
+    const home = await apiList('');
+    const f = home.find((x) => x.kind === 'drive#folder' && x.name === SYNC_DIR);
+    return f ? f.id : apiMkdir('', SYNC_DIR);
+  }
+  async function syncRead(dir) {
+    const list = (await apiList(dir)).filter((x) => x.kind === 'drive#file' && /^dedupe-sync.*\.json$/.test(x.name)).sort((a, b) => Date.parse(b.modified_time || b.created_time || 0) - Date.parse(a.modified_time || a.created_time || 0));
+    if (!list.length) return { files: [], data: null };
+    const f = await apiGet(list[0].id);
+    const url = f.web_content_link || ((f.links || {})['application/octet-stream'] || {}).url;
+    let j = null; if (url) { try { j = await (await fetch(url, { cache: 'no-store', credentials: 'omit' })).json(); } catch (e) { j = null; } }
+    return { files: list, data: j && j.app === 'pikpak-distill' && j.keys ? j.keys : null };
+  }
+  async function syncWrite(dir, keys) {
+    const buf = new TextEncoder().encode(JSON.stringify({ app: 'pikpak-distill', ver: VER, at: new Date().toISOString(), note: 'PikPak Distill – Dedupe の設定と調査結果です。消すと、次に開いたときに手元の内容から作り直します。', keys }));
+    const d = await api('/files', { method: 'POST', captcha: 'POST:/drive/v1/files', body: JSON.stringify({ kind: 'drive#file', name: SYNC_FILE, parent_id: dir, folder_type: 'NORMAL', size: String(buf.length), hash: await gcidOf(buf), upload_type: 'UPLOAD_TYPE_FORM' }) });
+    if (d.form && d.form.url) {
+      const fd = new FormData(); Object.entries(d.form.multi_parts || {}).forEach(([k, v]) => fd.append(k, v));
+      fd.append('file', new Blob([buf], { type: 'application/json' }), SYNC_FILE);
+      const r = await fetch(d.form.url, { method: d.form.method || 'POST', body: fd, credentials: 'omit' });
+      if (!r.ok) throw new Error('同期ファイルを送れませんでした（HTTP ' + r.status + '）');
+    }
+    return (d.file || {}).id || '';
+  }
+  let syncBusy = false, syncAt = 0;
+  async function syncNow(why) {
+    const c = syncCfg();
+    if (!c.on || !c.asked || syncBusy || !sessionValid()) return false;
+    syncBusy = true; renderSyncRow('同期しています…');
+    try {
+      syncTouch();
+      const m = syncMeta(), local = {};
+      syncKeys().forEach((k) => { const v = lsGet(k); if (v != null || (m[k] && m[k].clr)) local[k] = { v: v == null ? (SYNC_KEYS[k] === 'last' ? null : '{}') : v, at: !c.last && SYNC_KEYS[k] === 'last' ? 0 : (m[k] && m[k].at) || 0, clr: (m[k] && m[k].clr) || 0 }; }); // 初めて同期する環境では、設定は PikPak 側を優先する
+      const dir = await syncFolder();
+      const R = await syncRead(dir);
+      const merged = R.data ? syncMerge(local, R.data) : local;
+      // 手元に反映
+      let changed = [];
+      Object.entries(merged).forEach(([k, o]) => { if (!syncKeys().includes(k) || o.v == null) return; if (lsGet(k) !== o.v) { try { localStorage.setItem(k, o.v); changed.push(k); } catch (e) { /* 無視 */ } } m[k] = { h: strHash(o.v), at: o.at || 0, clr: o.clr || 0 }; });
+      saveSyncMeta(m);
+      if (changed.length) syncApply(changed);
+      // PikPak 側と違えば、新しいファイルを置いて古いものを消す
+      const same = R.data && JSON.stringify(R.data) === JSON.stringify(merged);
+      if (!same) {
+        const id = await syncWrite(dir, merged);
+        const old = R.files.map((x) => x.id).filter((x) => x && x !== id);
+        if (old.length) await api('/files:batchDelete', { method: 'POST', body: JSON.stringify({ ids: old }) }).catch(() => {});
+      }
+      saveSyncCfg({ last: Date.now(), err: '' }); syncAt = Date.now();
+      log('info', `PikPak で同期（${why}${changed.length ? `・取り込み ${changed.length} 項目` : ''}${same ? '' : '・保存'}）`);
+      return true;
+    } catch (e) {
+      if (e.session) { syncBusy = false; return false; }
+      saveSyncCfg({ err: String(e.message || e).slice(0, 200) }); log('warn', 'PikPak での同期に失敗：' + (e.message || e), why);
+      return false;
+    } finally { syncBusy = false; renderSyncRow(); }
+  }
+  // ほかの環境の内容を取り込んだら、画面に反映する
+  function syncApply(keys) {
+    if (keys.includes(LS_SELLER)) { sellerDb = parseJ(lsGet(LS_SELLER), {}) || {}; }
+    if (keys.includes(LS_DECISION)) { decision = parseJ(lsGet(LS_DECISION), {}) || {}; }
+    if (keys.includes(LS_THEME)) applyTheme();
+    if (keys.includes(LS_LANG) && resolveLang() !== LANG) setLang(langPref());
+    try { if (root.classList.contains('on') && !busy) { if (typeof selPlan !== 'undefined' && hasScan()) { /* 販売者の一覧は次に開いたときに作り直す */ } renderNav(); } } catch (e) { /* 無視 */ }
+    status(`ほかの環境の内容を取り込みました（${keys.length} 項目）`);
+  }
+  function renderSyncRow(msg) {
+    const el = document.querySelector('#pd-set [data-r=syncrow]'); if (!el) return;
+    const c = syncCfg();
+    el.textContent = msg || (!c.asked || !c.on ? 'オフ（このブラウザにだけ保存）' : c.err ? '前回は失敗：' + c.err : c.last ? '最後に同期：' + new Date(c.last).toLocaleString(loc(), { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'まだ同期していません');
+  }
+  // 初めて開いたときに一度だけ聞く
+  function syncAsk() {
+    if (syncCfg().asked || document.getElementById('pd-dlg') || !sessionValid()) return;
+    const d = document.createElement('div'); d.id = 'pd-dlg';
+    d.innerHTML = `<div class="box" style="width:min(520px,94vw)"><h3>調査結果と設定を PikPak で同期しますか？</h3>
+      <div style="line-height:1.8">販売者の調査結果・重複の判断・設定を、PikPak のホームに作る「${esc(SYNC_DIR)}」フォルダに保存します。<b>ほかのブラウザやアプリでも、同じ PikPak にログインするだけで同じ内容を使えます。</b></div>
+      <div class="note" style="margin:10px 0 16px">ログイン情報は保存しません。あとから「設定」→「情報」で切り替えられます。</div>
+      <div class="acts"><button data-no>同期しない</button><button class="danger" data-yes style="background:#306fff;border-color:#306fff">同期する</button></div></div>`;
+    document.body.appendChild(d);
+    if (LANG === 'en') d.querySelectorAll('*').forEach(trNode);
+    d.querySelector('[data-no]').onclick = () => { saveSyncCfg({ asked: true, on: false }); d.remove(); };
+    d.querySelector('[data-yes]').onclick = () => { saveSyncCfg({ asked: true, on: true }); d.remove(); syncNow('はじめて'); };
+  }
+  // 変わったら 20 秒ほど待ってまとめて保存。開いたときと 10 分おきに取り込み
+  setInterval(() => {
+    const c = syncCfg(); if (!c.on || !c.asked || syncBusy || !sessionValid()) return;
+    if (syncTouch() || Date.now() - syncAt > 10 * 60e3) syncNow(Date.now() - syncAt > 10 * 60e3 ? '定期' : '変更');
+  }, 20e3);
   // ---------- 一括解凍（PikPak のサーバー側で解凍する。成功したパスワードを記録して次から自動で試す） ----------
   const LS_UNZIPPW = 'ppdup:unzippw:v1';
   const DEC = 'https://api-drive.mypikpak.com/decompress/v1';

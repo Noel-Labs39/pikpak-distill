@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.0.9
+// @version      4.0.10
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.0.9'; // @version と合わせて更新する
+  const VER = '4.0.10'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -482,7 +482,8 @@
       try {
         const hd = apiHeaders();
         if (opt.captcha) { const ct = await getCaptcha(opt.captcha, tries > 0); if (ct) hd['x-captcha-token'] = ct; }
-        const { captcha: _c, raw: _r, ...o2 } = opt;
+        if (opt._nocap) delete hd['x-captcha-token'];
+        const { captcha: _c, raw: _r, _cap: _k, _nocap: _n, ...o2 } = opt;
         res = await http(/^https?:/.test(path) ? path : API + path, { ...o2, headers: hd });
       }
       catch (e) {
@@ -507,7 +508,12 @@
         }
         if (opt.raw && res.status !== 401 && !/captcha/i.test(String(data.error || ''))) return { ok: false, status: res.status, data };
         if (res.status === 401 || /unauthenticated|token/i.test(String(data.error || ''))) { log('warn', msg + '（自動で回復します）', where); throw sessionError('ログインの有効期限が切れています'); }
-        if (/captcha/i.test(String(data.error || '')) || /認証コード/.test(msg)) { log('warn', msg + '（自動で回復します）', where); throw sessionError('認証の確認が必要です（' + msg + '）'); }
+        if (/captcha/i.test(String(data.error || '')) || /認証コード/.test(msg)) {
+          // 画面から借りた確認用トークンが古くなっただけのことが多い。まず付けずに、次に取り直して試し、それでもだめなら再読み込み
+          if (!opt._cap) { cap.captcha = ''; opt = { ...opt, _cap: 1, _nocap: true }; continue; }
+          if (opt._cap === 1 && !opt.captcha) { opt = { ...opt, _cap: 2, _nocap: false, captcha: (opt.method || 'GET') + ':/drive/v1' + path.split('?')[0].replace(/^https?:\/\/[^/]+\/drive\/v1/, '') }; continue; }
+          log('warn', msg + '（自動で回復します）', where); throw sessionError('認証の確認が必要です（' + msg + '）');
+        }
         log('error', msg, where);
         throw new Error(msg);
       }
@@ -552,8 +558,8 @@
     if (err) throw err;
     // スキャン起点（例：My Pack）自身も仕分け対象にするため登録（名前の変更対象にはしない）
     const rootId = startTrail[startTrail.length - 1];
-    const rootName = ((crumbs().pop() || {}).name) || 'スキャン起点';
-    outFolders.unshift({ id: rootId, name: rootName, parentId: startTrail.length > 1 ? startTrail[startTrail.length - 2] : '', path: '', trail: startTrail, trailNames: crumbs().map((c) => c.name), isRoot: true });
+    const rootName = rootId === 'root' ? 'ホーム' : ((crumbs().pop() || {}).name) || 'スキャン起点';
+    outFolders.unshift({ id: rootId, name: rootName, parentId: startTrail.length > 1 ? startTrail[startTrail.length - 2] : '', path: '', trail: startTrail, trailNames: rootId === 'root' ? [] : crumbs().map((c) => c.name), isRoot: true });
     return { files: outFiles, folders: outFolders };
   }
   const apiGet = (id) => api('/files/' + id);
@@ -2011,8 +2017,14 @@
     status('読み込み中…', 0);
     try {
       const where = crumbs().map((c) => c.name).filter(Boolean).join(' › ') || 'ホーム';
-      const eta = scanEta(currentTrail());
-      const r = await scanApi(currentTrail(), { onProgress: (d, total, n) => { const e = eta.tick(d, total); status(`読み込み中… フォルダ ${d} / ${e.expectedLabel} ／ ファイル ${n} 件`, e.frac, e.text); } });
+      let trail = currentTrail();
+      // 開いていたフォルダが消えた・移動した（まとめた・ゴミ箱へ移したなど）ときは、ホームを読み込む
+      if (trail.length && trail[trail.length - 1] !== 'root') {
+        const chk = await api('/files/' + trail[trail.length - 1], { raw: true });
+        if (!chk.ok || (chk.data && chk.data.trashed)) { trail = ['root']; status('開いていたフォルダが見つからないため、ホームを読み込みます'); log('warn', '開いていたフォルダが見つからないため、ホームを読み込みました', 'scan'); }
+      }
+      const eta = scanEta(trail);
+      const r = await scanApi(trail, { onProgress: (d, total, n) => { const e = eta.tick(d, total); status(`読み込み中… フォルダ ${d} / ${e.expectedLabel} ／ ファイル ${n} 件`, e.frac, e.text); } });
       eta.done(r.folders.length, r.files.length);
       files = r.files; folders = r.folders; saveAll();
       meta = { at: Date.now(), where, nfo: folders.length, nfi: files.length };

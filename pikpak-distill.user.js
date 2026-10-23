@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.0.13
+// @version      4.0.14
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.0.13'; // @version と合わせて更新する
+  const VER = '4.0.14'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1053,6 +1053,39 @@
   .sv-ask{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mute);margin-top:4px}
   .sv-stale{margin:8px 0;padding:8px 12px;border-radius:8px;background:#fff3dc;color:#8a5600;font-size:12.5px}
   html.pd-dark .sv-stale{background:#3a2c12;color:#f0c46c}
+  .qp-stage{position:relative;overflow:hidden;width:100%;touch-action:pan-x pan-y;cursor:pointer}
+  .qp-stage.qp-zoomed{touch-action:none;cursor:grab}
+  .qp-stage video{transform-origin:0 0;will-change:transform}
+  #pd-lib .lb-pvv .qp-stage{height:100%;display:flex;align-items:center}
+  .qp-osd{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:8px 16px;border-radius:10px;background:#000b;color:#fff;font:700 16px system-ui,sans-serif;pointer-events:none;z-index:4;white-space:nowrap}
+  .qp-osd[hidden],.qp-mini[hidden]{display:none}
+  .qp-mini{position:absolute;right:10px;top:10px;width:96px;aspect-ratio:16/9;border:1px solid #fff9;background:#0007;z-index:4;pointer-events:none}
+  .qp-mini i{position:absolute;border:1.5px solid #fff;box-sizing:border-box}
+  .qp-badge{position:absolute;left:10px;top:10px;z-index:4;font:700 11px system-ui,sans-serif;padding:2px 8px;border-radius:99px;background:#306fff;color:#fff;opacity:0;transition:opacity .2s;pointer-events:none}
+  .qp-on .qp-badge{opacity:.9}
+  .qp-on > .qp-stage{box-shadow:inset 0 0 0 2px #306fff}
+  .qp-ui{position:relative;background:#000;color:#fff;font:13px/1.4 system-ui,-apple-system,"Hiragino Sans","Yu Gothic UI",sans-serif}
+  .qp-ui.qp-on{box-shadow:inset 2px 0 0 #306fff,inset -2px 0 0 #306fff,inset 0 -2px 0 #306fff}
+  .qp-ui.qp-auto:not(.qp-on){opacity:.15;transition:opacity .2s}
+  .qp-ui .pd-sk{background:transparent}
+  .qp-ctl{display:flex;align-items:center;gap:4px;padding:2px 10px 8px;flex-wrap:wrap}
+  .qp-ctl button svg{display:block}
+  .qp-ctl button{display:inline-flex;align-items:center;justify-content:center;height:30px!important;min-width:30px;padding:0 8px!important;border:0!important;border-radius:6px!important;background:transparent!important;color:#fff!important;font:600 13px system-ui,sans-serif!important;cursor:pointer;line-height:30px}
+  .qp-ctl button:hover{background:#ffffff26!important}
+  .qp-ctl button[data-qp=gear]{background:#306fff!important}
+  .qp-ctl .qp-t{font:12px ui-monospace,monospace;color:#ddd;margin:0 6px;white-space:nowrap}
+  .qp-ctl .qp-sp{flex:1}
+  .qp-ctl input[type=range]{width:80px;accent-color:#306fff}
+  .qp-ctl select{height:28px;border-radius:6px;border:1px solid #ffffff55;background:#000;color:#fff;font:12px system-ui,sans-serif}
+  .qp-set{position:absolute;right:10px;bottom:46px;width:300px;max-width:calc(100% - 20px);background:#fff;color:#1c1f26;border-radius:12px;box-shadow:0 12px 30px #0009;padding:12px 14px;z-index:6;display:flex;flex-direction:column;gap:6px;font-size:12px}
+  html.pd-dark .qp-set{background:#1d2027;color:#e6e8ee}
+  .qp-set[hidden]{display:none}
+  .qp-set label{display:flex;align-items:center;gap:8px;justify-content:space-between}
+  .qp-set select{width:150px;background:inherit;color:inherit;border:1px solid #c5c9d2}
+  .qp-set small{color:#6a7080}
+  :fullscreen{background:#000}
+  :fullscreen .qp-stage video{max-height:calc(100vh - 140px)!important}
+  #pd-player .pl:fullscreen{width:100vw;border-radius:0}
   .pd-sk{position:relative;height:16px;padding:5px 12px;background:#000;cursor:pointer}
   .pd-sk > .sktr{position:relative;height:6px;border-radius:3px;background:#3a3f4b;overflow:hidden}
   .pd-sk:hover > .tr{height:8px;margin-top:-1px}
@@ -1399,7 +1432,7 @@
   #pd-player .pl-h button,#pd-player .pl-h select,#pd-player .pl-h a{font:inherit;background:#2b2e35;color:#eee;border:1px solid #3a3f4b;border-radius:6px;padding:4px 10px;text-decoration:none;cursor:pointer}
   #pd-player .pl-h button:disabled{opacity:.35;cursor:default}
   #pd-player .pl-b{position:relative;background:#000;min-height:300px;display:flex;flex-direction:column;align-items:stretch;justify-content:center}
-  #pd-player video{width:100%;max-height:78vh;display:block;background:#000}
+  #pd-player video{width:100%;max-height:calc(100vh - 150px);display:block;background:#000}
   #pd-player .pl-msg{padding:40px;color:#bbb;text-align:center}
   #pd-player .pl-f{padding:6px 12px;color:#999;display:flex;gap:4px}
   #pd-player .pl-err{position:absolute;left:0;right:0;bottom:56px;padding:10px 16px;background:#000c;color:#ffb4b4}
@@ -3561,12 +3594,15 @@
   function mountVideo(box, x, S, onFail, opt = {}) {
     const t = opt.t || 0;
     // 前の動画のシークバー（とサムネイル用の影の動画）を片付ける
-    const oldBar = box.nextElementSibling && box.nextElementSibling.classList.contains('pd-sk') ? box.nextElementSibling : null;
-    if (oldBar) { if (oldBar._grab) oldBar._grab.close(); oldBar.remove(); }
-    box.innerHTML = '<video controls autoplay playsinline preload="auto"></video>';
+    const oldBar = box.nextElementSibling && (box.nextElementSibling.classList.contains('pd-sk') || box.nextElementSibling.classList.contains('qp-ui')) ? box.nextElementSibling : null;
+    if (oldBar) { oldBar.querySelectorAll('.pd-sk').forEach((b) => { if (b._grab) { b._grab.close(); b._grab = null; } }); if (oldBar._grab) oldBar._grab.close(); oldBar.remove(); }
+    // ブラウザ標準のコントロールは使わず、下の操作バーに一本化する
+    box.innerHTML = '<div class="qp-stage"><video autoplay playsinline preload="auto"></video></div>';
     const v = box.querySelector('video');
     v.addEventListener('loadedmetadata', () => { if (t) v.currentTime = t; v.defaultPlaybackRate = getRate(); v.playbackRate = getRate(); if (opt.onMeta) opt.onMeta(v); }, { once: true });
-    if (opt.seekbar !== false) { const tmp = document.createElement('div'); box.after(tmp); attachSeekbar(tmp, v, x, S); const bar = tmp.querySelector('.pd-sk'); tmp.replaceWith(bar); }
+    const ui = document.createElement('div'); ui.className = 'qp-ui'; box.after(ui);
+    if (opt.seekbar !== false) attachSeekbar(ui, v, x, S);
+    qpAttach(box, v, ui, opt.qp || {});
     let hls = null;
     const viaHls = async () => {
       hls = new S.H({ maxBufferLength: 60, enableWorker: true });
@@ -3662,7 +3698,9 @@
         <div class="row"><span><b>フォルダ一覧の操作</b><small>${esc(helpTree)}</small></span></div>` : ''}
         ${sec('play') ? `<h3 data-sec="play">再生</h3>
         <div class="row col"><b>▶ 再生ボタン・ダブルクリックのとき</b>${Object.keys(MODES).map((k) => `<label><input type="radio" name="pdmode" data-s="mode" value="${k}"${p.mode === k ? ' checked' : ''}> ${MODES[k]}</label>`).join('')}</div>
-        <div class="row"><span><b>外部プレーヤー（${OS_NAME}）</b><small>${IS_MAC ? 'IINA・Infuse はアプリが入っていれば直接起動します。' : OS === 'win' ? 'PotPlayer はアプリが入っていれば直接起動します。GOM Player・VLC などは「既定のアプリで開く」を選び、.m3u ファイルを開くアプリにそのプレーヤーを設定してください。' : 'VLC・mpv・Celluloid などは「既定のアプリで開く」を選び、.m3u ファイルを開くアプリにそのプレーヤーを設定してください。'}</small></span><select data-s="ext">${extList().map((k) => `<option value="${k}"${p.ext === k ? ' selected' : ''}>${esc(EXT_PLAYERS[k].short)}</option>`).join('')}</select></div>` : ''}
+        <div class="row"><span><b>外部プレーヤー（${OS_NAME}）</b><small>${IS_MAC ? 'IINA・Infuse はアプリが入っていれば直接起動します。' : OS === 'win' ? 'PotPlayer はアプリが入っていれば直接起動します。GOM Player・VLC などは「既定のアプリで開く」を選び、.m3u ファイルを開くアプリにそのプレーヤーを設定してください。' : 'VLC・mpv・Celluloid などは「既定のアプリで開く」を選び、.m3u ファイルを開くアプリにそのプレーヤーを設定してください。'}</small></span><select data-s="ext">${extList().map((k) => `<option value="${k}"${p.ext === k ? ' selected' : ''}>${esc(EXT_PLAYERS[k].short)}</option>`).join('')}</select></div>
+        <div class="row"><span><b>簡易プレーヤーの操作</b><small>Space / K 再生・一時停止、← → 移動（Shift で大きく）、J / L 戻る・進む、, . 1 コマ、↑ ↓ 音量、M 消音、0〜9 位置、[ ] 速度、F 全画面、ホイール・ピンチ・Z / X ズーム（R・ダブルクリックで戻す）、Enter 外部プレーヤー</small></span></div>
+        ${Object.keys(QP_OPTS).map((k) => `<div class="row"><span><b>${esc(QP_OPTS[k][0])}</b></span>${qpSelect(k, 'data-s="qp"')}</div>`).join('')}` : ''}
         ${sec('org') ? `<h3>整理</h3>
         <label class="row"><span><b>作品と関係ないファイルを除外する</b><small>広告・宣伝のファイルや 10MB 以下のファイルなどを、ほかの作業の対象から外します</small></span><input type="checkbox" data-s="junk"${junkEnabled() ? ' checked' : ''}></label>
         <label class="row"><span><b>ファイル名を整える</b><small>オフにすると、このステップを使わず次へ進みます</small></span><input type="checkbox" data-s="name"${nameEnabled() ? ' checked' : ''}></label>` : ''}
@@ -3705,6 +3743,7 @@
       else { saveSyncCfg({ pw: false }); idb.del('sync').catch(() => {}); try { localStorage.removeItem(LS_PWX); } catch (e) { /* 無視 */ } }
       return;
     }
+    if (k === 'qp') { saveQpCfg({ [t.dataset.k]: qpVal(t.dataset.k, t.value) }); return; }
     if (k === 'lang') { setLang(t.value); return; }
     if (k === 'expg') { exportSel[t.value] = t.checked; return; }
     if (k === 'blur' || k === 'blurhov') { try { localStorage.setItem(k === 'blur' ? LS_BLUR : LS_BLURHOV, t.checked ? '1' : '0'); } catch (e) { /* 無視 */ } applyBlur(); renderSettings(); return; }
@@ -3755,14 +3794,14 @@
         const cur = (box.querySelector('video') || {}).currentTime || 0;
         killHls(qlHls); qlHls = null;
         if (!S.playable(x)) { box.innerHTML = '<div class="pl-msg">この画質（HLS）はこのブラウザの中では再生できません。別の画質か外部プレーヤーを選んでください。</div>'; return; }
-        const m = mountVideo(box, x, S, fail, { t: cur, onMeta: meta });
+        const m = mountVideo(box, x, S, fail, { t: cur, onMeta: meta, qp: { ext: () => openExternal(id) } });
         setTimeout(() => { qlHls = m.hls; }, 0);
       };
       if (acts && S.src.length > 1 && !acts.querySelector('[data-qlq]')) {
         acts.insertAdjacentHTML('afterbegin', `<select data-qlq title="画質">${S.src.map((x, k) => `<option value="${k}"${k === S.first ? ' selected' : ''}>${esc(x.label)}${x.hls ? '・変換' : ''}${S.playable(x) ? '' : '（このブラウザでは再生不可）'}</option>`).join('')}</select>`);
         acts.querySelector('[data-qlq]').onchange = (e) => load(+e.target.value);
       }
-      const m = mountVideo(box, S.src[S.first], S, fail, { onMeta: meta });
+      const m = mountVideo(box, S.src[S.first], S, fail, { onMeta: meta, qp: { ext: () => openExternal(id) } });
       setTimeout(() => { qlHls = m.hls; }, 0);
       d.classList.add('playing');
       log('info', 'プレビューで再生：' + f.name);
@@ -3799,7 +3838,7 @@
     const prev = d.querySelector('[data-pl=prev]'), next = d.querySelector('[data-pl=next]');
     prev.onclick = () => { if (i > 0) { treeSelect(vids[i - 1].id, null); renderTree(); playFile(vids[i - 1].id, { full: !!document.fullscreenElement }); } };
     next.onclick = () => { if (i < vids.length - 1) { treeSelect(vids[i + 1].id, null); renderTree(); playFile(vids[i + 1].id, { full: !!document.fullscreenElement }); } };
-    const goFull = () => { const v = d.querySelector('video') || d.querySelector('.pl'); const fn = v && (v.requestFullscreen || v.webkitRequestFullscreen); if (fn) Promise.resolve(fn.call(v)).catch(() => status('全画面にできませんでした。プレーヤーの ⛶ を押してください。')); };
+    const goFull = () => { const v = d.querySelector('.pl'); const fn = v && (v.requestFullscreen || v.webkitRequestFullscreen); if (fn) Promise.resolve(fn.call(v)).catch(() => status('全画面にできませんでした。プレーヤーの ⛶ を押してください。')); };
     d.querySelector('[data-pl=full]').onclick = goFull;
     d.querySelector('[data-pl=ext]').onclick = () => { const v = d.querySelector('video'); if (v) v.pause(); openExternal(id); };
     d.querySelector('[data-pl=set]').onclick = () => openSettings('play');
@@ -3825,7 +3864,7 @@
         const cur = (box.querySelector('video') || {}).currentTime || t || 0;
         stopHls();
         if (!S.playable(x)) { box.innerHTML = '<div class="pl-msg">この画質（HLS）はこのブラウザの中では再生できません。別の画質か「↗ 外部プレーヤー」を選んでください。</div>'; return; }
-        const m = mountVideo(box, x, S, fail, { t: cur, onMeta: (v) => { inf.textContent = v.videoWidth ? ` ・ ${v.videoWidth}×${v.videoHeight}${x.hls ? '（変換）' : ''}` : ''; } });
+        const m = mountVideo(box, x, S, fail, { t: cur, qp: { ext: () => openExternal(id), full: goFull, next: i >= 0 && i < vids.length - 1 ? () => next.click() : null, prev: i > 0 ? () => prev.click() : null }, onMeta: (v) => { inf.textContent = v.videoWidth ? ` ・ ${v.videoWidth}×${v.videoHeight}${x.hls ? '（変換）' : ''}` : ''; } });
         setTimeout(() => { curHls = m.hls; }, 0);
         m.v.focus();
       };
@@ -4184,14 +4223,6 @@
   }
   const rateSelect = () => `<select data-rate title="再生速度（[ ] で 0.25 ずつ、\\ で 1 倍）">${[...new Set([...RATES, getRate()])].sort((a, b) => a - b).map((r) => `<option value="${r}"${r === getRate() ? ' selected' : ''}>${r}×</option>`).join('')}</select>`;
   document.addEventListener('change', (e) => { if (e.target.matches && e.target.matches('select[data-rate]')) setRate(+e.target.value); }, true);
-  document.addEventListener('keydown', (e) => {
-    if (!document.querySelector('#pd-ql video, #pd-player video')) return;
-    const t = e.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT')) return;
-    if (e.metaKey || e.ctrlKey || e.altKey) return;
-    if (e.key === ']') { e.preventDefault(); status('再生速度：' + setRate(getRate() + 0.25) + '×'); }
-    else if (e.key === '[') { e.preventDefault(); status('再生速度：' + setRate(getRate() - 0.25) + '×'); }
-    else if (e.key === '\\') { e.preventDefault(); status('再生速度：' + setRate(1) + '×'); }
-  }, true);
   // 影の video：見えないところでシークして、その位置の画面をキャンバスに描く（コマ一覧・シークバーのサムネイル）
   function makeGrabber(x, S) {
     const v = document.createElement('video');
@@ -4255,6 +4286,180 @@
   // コマを作るときは軽い画質（変換画質の低いもの）を使う
   // iPhone など hls.js が使えない環境では、HLS の動画を絵として取り出せない（真っ黒・止まる）ため、オリジナル画質（MP4）を使う
   const lightSrc = (S) => { if (!(S.H && S.H.isSupported && S.H.isSupported())) { const o = S.src.find((x) => !x.hls && !x.dl) || S.src.find((x) => !x.hls); if (o) return o; } const c = S.src.filter((x) => !x.dl && S.playable(x)); return c.filter((x) => !x.origin && x.h).sort((a, b) => a.h - b.h)[0] || c[c.length - 1] || S.src[S.first]; };
+  // ---------- 簡易プレーヤーの操作（常に出る操作バー・マウスを乗せたらキー操作・ズーム） ----------
+  const LS_QP = 'ppdup:qp:v1';
+  const QP_DEF = { step: 5, big: 30, jl: 10, vol: 10, wheel: 'zoom', hover: true, bar: 'always' };
+  const qpCfg = () => { let c = {}; try { c = JSON.parse(localStorage.getItem(LS_QP) || '{}') || {}; } catch (e) { c = {}; } return { ...QP_DEF, ...c }; };
+  const saveQpCfg = (p) => { const c = { ...qpCfg(), ...p }; try { localStorage.setItem(LS_QP, JSON.stringify(c)); } catch (e) { /* 無視 */ } document.querySelectorAll('.qp-ui').forEach((u) => u.classList.toggle('qp-auto', c.bar === 'auto')); return c; };
+  const QP_OPTS = {
+    step: ['← / → の移動幅', [3, 5, 10, 15], (v) => v + ' 秒'],
+    big: ['Shift + ← / →', [15, 30, 60], (v) => (v >= 60 ? v / 60 + ' 分' : v + ' 秒')],
+    jl: ['J / L・±ボタンの移動幅', [5, 10, 15, 30], (v) => v + ' 秒'],
+    vol: ['音量の刻み（↑ / ↓）', [5, 10, 20], (v) => v + '%'],
+    wheel: ['マウスホイール', ['zoom', 'vol', 'seek'], (v) => ({ zoom: 'ズーム', vol: '音量', seek: 'シーク' })[v]],
+    hover: ['マウスを乗せたらキー操作', [true, false], (v) => (v ? 'オン' : 'オフ（押したとき）')],
+    bar: ['操作バー', ['always', 'auto'], (v) => (v === 'always' ? '常に表示' : 'マウスを乗せたとき')],
+  };
+  const qpSelect = (k, attr) => { const c = qpCfg(), [, vals, lab] = QP_OPTS[k]; return `<select ${attr} data-k="${k}">${vals.map((v) => `<option value="${v}"${c[k] === v ? ' selected' : ''}>${esc(lab(v))}</option>`).join('')}</select>`; };
+  const qpVal = (k, s) => { const v = QP_OPTS[k][1].find((x) => String(x) === s); return v === undefined ? QP_DEF[k] : v; };
+  const QP_IC = { play: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M4 2.5v11l9-5.5z" fill="currentColor"/></svg>', pause: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M4 2.5h3v11H4zM9 2.5h3v11H9z" fill="currentColor"/></svg>' };
+  let qpActive = null;
+  function qpSetActive(P) {
+    if (qpActive === P) return;
+    if (qpActive) qpActive.root.forEach((el) => el.classList.remove('qp-on'));
+    qpActive = P; if (P) P.root.forEach((el) => el.classList.add('qp-on'));
+  }
+  // video を包んだ枠（stage）と、下の操作バー（ui）を作る
+  function qpAttach(box, v, ui, opt) {
+    const stage = box.querySelector('.qp-stage');
+    stage.insertAdjacentHTML('beforeend', '<div class="qp-osd" hidden></div><div class="qp-mini" hidden><i></i></div><span class="qp-badge">⌨ キー操作 ON</span>');
+    const osd = stage.querySelector('.qp-osd'), mini = stage.querySelector('.qp-mini'), mr = mini.querySelector('i');
+    const P = { v, root: [box, ui], opt, z: 1, tx: 0, ty: 0 };
+    // ---- ズーム（マウスの位置を中心に。動画の枠の大きさは変えない） ----
+    const apply = () => {
+      const W = stage.clientWidth, H = stage.clientHeight;
+      P.tx = Math.min(0, Math.max(W - W * P.z, P.tx)); P.ty = Math.min(0, Math.max(H - H * P.z, P.ty));
+      v.style.transform = P.z > 1.001 ? `translate(${P.tx}px,${P.ty}px) scale(${P.z})` : '';
+      stage.classList.toggle('qp-zoomed', P.z > 1.001);
+      mini.hidden = !(P.z > 1.001);
+      if (P.z > 1.001) { mr.style.cssText = `left:${-P.tx / (W * P.z) * 100}%;top:${-P.ty / (H * P.z) * 100}%;width:${100 / P.z}%;height:${100 / P.z}%`; }
+      const zb = ui.querySelector('[data-qp=zoom]'); if (zb) zb.textContent = '🔍 ' + Math.round(P.z * 100) + '%';
+    };
+    const zoomAt = (nz, px, py, show = true) => {
+      nz = Math.max(1, Math.min(4, nz));
+      if (px === undefined) { px = stage.clientWidth / 2; py = stage.clientHeight / 2; }
+      P.tx = px - (px - P.tx) * nz / P.z; P.ty = py - (py - P.ty) * nz / P.z; P.z = nz;
+      if (nz <= 1.001) { P.z = 1; P.tx = 0; P.ty = 0; }
+      apply(); if (show) flash('🔍 ' + Math.round(P.z * 100) + '%');
+    };
+    P.zoomAt = zoomAt; P.zoomReset = () => { zoomAt(1, 0, 0, false); flash('🔍 100%'); };
+    const local = (e) => { const r = stage.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+    P.lastXY = null;
+    stage.addEventListener('mousemove', (e) => { P.lastXY = local(e); });
+    stage.addEventListener('wheel', (e) => {
+      const c = qpCfg(); const [x, y] = local(e);
+      // トラックパッドのピンチは ctrlKey 付きのホイールとして届く：設定に関係なくズーム
+      if (e.ctrlKey || c.wheel === 'zoom') { e.preventDefault(); zoomAt(P.z * Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015)), x, y); }
+      else if (c.wheel === 'vol') { e.preventDefault(); P.vol(e.deltaY < 0 ? c.vol : -c.vol); }
+      else if (c.wheel === 'seek') { e.preventDefault(); P.seek(e.deltaY < 0 ? c.step : -c.step); }
+    }, { passive: false });
+    // タッチ：2 本指でピンチ（2 本指のまん中を中心に）・拡大中は 1 本指／2 本指で移動
+    let pin = null, pan = null;
+    stage.addEventListener('touchstart', (e) => {
+      qpSetActive(P);
+      if (e.touches.length === 2) {
+        const r = stage.getBoundingClientRect(), [a, b] = e.touches;
+        const mx = (a.clientX + b.clientX) / 2 - r.left, my = (a.clientY + b.clientY) / 2 - r.top;
+        pin = { d: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY) || 1, z: P.z, cx: (mx - P.tx) / P.z, cy: (my - P.ty) / P.z }; pan = null; e.preventDefault();
+      } else if (e.touches.length === 1 && P.z > 1.001) { pan = { x: e.touches[0].clientX, y: e.touches[0].clientY, tx: P.tx, ty: P.ty }; }
+    }, { passive: false });
+    stage.addEventListener('touchmove', (e) => {
+      if (pin && e.touches.length === 2) {
+        e.preventDefault();
+        const r = stage.getBoundingClientRect(), [a, b] = e.touches;
+        const mx = (a.clientX + b.clientX) / 2 - r.left, my = (a.clientY + b.clientY) / 2 - r.top;
+        P.z = Math.max(1, Math.min(4, pin.z * Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY) / pin.d));
+        P.tx = mx - pin.cx * P.z; P.ty = my - pin.cy * P.z; apply();
+      } else if (pan && e.touches.length === 1) { e.preventDefault(); P.tx = pan.tx + e.touches[0].clientX - pan.x; P.ty = pan.ty + e.touches[0].clientY - pan.y; apply(); }
+    }, { passive: false });
+    stage.addEventListener('touchend', (e) => { if (e.touches.length < 2) pin = null; if (!e.touches.length) pan = null; if (P.z <= 1.001) zoomAt(1, 0, 0, false); });
+    // マウス：拡大中はドラッグで移動。押すだけなら再生・一時停止、ダブルクリックで拡大を戻す
+    let drag = null, clickT = null;
+    stage.addEventListener('mousedown', (e) => {
+      if (e.button !== 0 || e.target.closest('.qp-mini')) return;
+      drag = { x: e.clientX, y: e.clientY, tx: P.tx, ty: P.ty, moved: false };
+      const mv = (ev) => { if (!drag) return; const dx = ev.clientX - drag.x, dy = ev.clientY - drag.y; if (Math.abs(dx) + Math.abs(dy) > 4) drag.moved = true; if (P.z > 1.001 && drag.moved) { P.tx = drag.tx + dx; P.ty = drag.ty + dy; apply(); } };
+      const up = () => { window.removeEventListener('mousemove', mv); window.removeEventListener('mouseup', up); const moved = drag && drag.moved; drag = null; if (!moved) { clearTimeout(clickT); clickT = setTimeout(() => P.toggle(), 220); } };
+      window.addEventListener('mousemove', mv); window.addEventListener('mouseup', up);
+      e.preventDefault();
+    });
+    stage.addEventListener('dblclick', (e) => { e.preventDefault(); clearTimeout(clickT); if (P.z > 1.001) P.zoomReset(); else P.full(); });
+    // ---- 画面中央の一瞬の表示 ----
+    let osdT = null;
+    const flash = (t) => { osd.textContent = t; osd.hidden = false; clearTimeout(osdT); osdT = setTimeout(() => { osd.hidden = true; }, 700); };
+    P.flash = flash;
+    // ---- 操作 ----
+    P.toggle = () => { if (v.paused) { v.play().catch(() => {}); flash('▶'); } else { v.pause(); flash('⏸'); } };
+    P.seek = (d) => { if (!v.duration) return; v.currentTime = Math.max(0, Math.min(v.duration - 0.05, v.currentTime + d)); flash((d < 0 ? '◀◀ ' : '▶▶ ') + (d < 0 ? '-' : '+') + (Math.abs(d) >= 60 ? Math.abs(d) / 60 + ' 分' : Math.abs(d) + ' 秒')); };
+    P.vol = (d) => { v.muted = false; v.volume = Math.max(0, Math.min(1, Math.round((v.volume * 100 + d)) / 100)); flash('🔊 ' + Math.round(v.volume * 100) + '%'); };
+    P.full = () => {
+      if (document.fullscreenElement) { document.exitFullscreen().catch(() => {}); return; }
+      if (opt.full) { opt.full(); return; }
+      const el = box.parentElement || box; const fn = el.requestFullscreen || el.webkitRequestFullscreen;
+      if (fn) Promise.resolve(fn.call(el)).catch(() => {}); else { const f2 = v.webkitEnterFullscreen; if (f2) f2.call(v); }
+    };
+    // ---- 操作バー ----
+    const jl = qpCfg().jl;
+    const ctl = document.createElement('div'); ctl.className = 'qp-ctl';
+    ctl.innerHTML = `${opt.prev ? '<button data-qp="prev" title="前の動画（P）">⏮</button>' : ''}<button data-qp="play" title="再生・一時停止（Space / K）">⏸</button>${opt.next ? '<button data-qp="next" title="次の動画（N）">⏭</button>' : ''}<button data-qp="back" title="戻る（J）">-${jl}</button><button data-qp="fwd" title="進む（L）">+${jl}</button><span class="qp-t" data-qp="time">00:00 / 00:00</span><span class="qp-sp"></span><button data-qp="mute" title="消音（M）">🔊</button><input type="range" data-qp="vol" min="0" max="100" value="${Math.round(v.volume * 100)}" aria-label="音量">${rateSelect()}<button data-qp="zoom" title="ズーム（ホイール・ピンチ・Z / X、押すと 100% に戻す）">🔍 100%</button><button data-qp="gear" title="簡易プレーヤーの設定" aria-label="設定">⚙</button><button data-qp="full" title="全画面（F）">⛶</button><div class="qp-set" hidden></div>`;
+    ui.appendChild(ctl);
+    const q = (k) => ctl.querySelector(`[data-qp=${k}]`), setPanel = ctl.querySelector('.qp-set');
+    const syncUi = () => {
+      q('play').innerHTML = v.paused ? QP_IC.play : QP_IC.pause;
+      q('time').textContent = `${fmtT(v.currentTime || 0)} / ${fmtT(v.duration || 0)}`;
+      q('mute').textContent = v.muted || !v.volume ? '🔇' : '🔊';
+      const r = q('vol'); if (document.activeElement !== r) r.value = v.muted ? 0 : Math.round(v.volume * 100);
+    };
+    ['play', 'pause', 'timeupdate', 'durationchange', 'volumechange', 'loadedmetadata'].forEach((ev) => v.addEventListener(ev, syncUi));
+    const renderSet = () => { setPanel.innerHTML = `<b>簡易プレーヤーの設定</b>${Object.keys(QP_OPTS).map((k) => `<label><span>${esc(QP_OPTS[k][0])}</span>${qpSelect(k, 'data-qpset')}</label>`).join('')}<small>右上の ⚙ 設定 →「再生」にも同じ項目があります</small>`; };
+    ctl.addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-qp]'); if (!b) return;
+      const k = b.dataset.qp; const c = qpCfg();
+      if (k === 'play') P.toggle(); else if (k === 'back') P.seek(-c.jl); else if (k === 'fwd') P.seek(c.jl);
+      else if (k === 'prev' && opt.prev) opt.prev(); else if (k === 'next' && opt.next) opt.next();
+      else if (k === 'mute') { v.muted = !v.muted; flash(v.muted ? '🔇 消音' : '🔊 ' + Math.round(v.volume * 100) + '%'); }
+      else if (k === 'zoom') P.zoomReset(); else if (k === 'full') P.full();
+      else if (k === 'gear') { if (setPanel.hidden) renderSet(); setPanel.hidden = !setPanel.hidden; }
+    });
+    ctl.addEventListener('input', (e) => { if (e.target.dataset.qp === 'vol') { v.volume = +e.target.value / 100; v.muted = !+e.target.value; } });
+    ctl.addEventListener('change', (e) => {
+      const t = e.target; if (t.dataset.qpset === undefined) return;
+      saveQpCfg({ [t.dataset.k]: qpVal(t.dataset.k, t.value) });
+      if (t.dataset.k === 'jl') document.querySelectorAll('.qp-ctl').forEach((x) => { const n = qpCfg().jl; const bb = x.querySelector('[data-qp=back]'), ff = x.querySelector('[data-qp=fwd]'); if (bb) bb.textContent = '-' + n; if (ff) ff.textContent = '+' + n; });
+      if (document.getElementById('pd-set')) renderSettings();
+    });
+    // ---- マウスを乗せたら（設定がオフなら押したら）キー操作の対象にする ----
+    [box, ui].forEach((el) => {
+      el.addEventListener('mouseenter', () => { if (qpCfg().hover) qpSetActive(P); });
+      el.addEventListener('mousedown', () => qpSetActive(P));
+    });
+    ui.classList.toggle('qp-auto', qpCfg().bar === 'auto');
+    window.addEventListener('resize', apply);
+    syncUi();
+    if (!qpActive || !qpActive.v.isConnected) qpSetActive(P);
+    return P;
+  }
+  // プレーヤーの外を押したら、キー操作の対象から外す（フォルダ一覧の ← → などを横取りし続けないため）
+  document.addEventListener('mousedown', (e) => {
+    if (!qpActive) return;
+    if (!qpActive.v.isConnected) { qpActive = null; return; }
+    if (!qpActive.root.some((el) => el.contains(e.target))) qpSetActive(null);
+  }, true);
+  window.addEventListener('keydown', (e) => {
+    const P = qpActive; if (!P) return;
+    if (!P.v.isConnected) { qpActive = null; return; }
+    const t = e.target; if (t && (t.tagName === 'INPUT' && t.type !== 'range' && t.type !== 'checkbox' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return;
+    if (e.metaKey || e.ctrlKey || e.altKey || document.getElementById('pd-dlg')) return;
+    const c = qpCfg(), k = e.key, v = P.v;
+    const done = () => { e.preventDefault(); e.stopImmediatePropagation(); };
+    if (k === ' ' || k === 'k' || k === 'K') { done(); P.toggle(); }
+    else if (k === 'ArrowLeft') { done(); P.seek(-(e.shiftKey ? c.big : c.step)); }
+    else if (k === 'ArrowRight') { done(); P.seek(e.shiftKey ? c.big : c.step); }
+    else if (k === 'j' || k === 'J') { done(); P.seek(-c.jl); }
+    else if (k === 'l' || k === 'L') { done(); P.seek(c.jl); }
+    else if (k === ',' || k === '.') { done(); if (!v.paused) v.pause(); v.currentTime = Math.max(0, v.currentTime + (k === ',' ? -1 : 1) / 30); P.flash(k === ',' ? '◀ 1 コマ' : '1 コマ ▶'); }
+    else if (k === 'ArrowUp') { done(); P.vol(c.vol); }
+    else if (k === 'ArrowDown') { done(); P.vol(-c.vol); }
+    else if (k === 'm' || k === 'M') { done(); v.muted = !v.muted; P.flash(v.muted ? '🔇 消音' : '🔊 ' + Math.round(v.volume * 100) + '%'); }
+    else if (/^[0-9]$/.test(k) && !e.shiftKey) { done(); if (v.duration) { v.currentTime = v.duration * (+k) / 10; P.flash(k + '0%'); } }
+    else if (k === ']' || k === '[' || k === '\\') { done(); P.flash(setRate(k === '\\' ? 1 : getRate() + (k === ']' ? 0.25 : -0.25)) + '×'); }
+    else if (k === 'f' || k === 'F') { done(); P.full(); }
+    else if (k === 'z' || k === 'Z' || k === 'x' || k === 'X') { done(); const xy = P.lastXY || []; P.zoomAt(P.z * (k.toLowerCase() === 'z' ? 1.25 : 0.8), xy[0], xy[1]); }
+    else if (k === 'r' || k === 'R') { done(); P.zoomReset(); }
+    else if ((k === 'n' || k === 'N') && P.opt.next) { done(); P.opt.next(); }
+    else if ((k === 'p' || k === 'P') && P.opt.prev) { done(); P.opt.prev(); }
+    else if (k === 'Enter' && P.opt.ext) { done(); v.pause(); P.opt.ext(); }
+  }, true);
   const fmtT = (s) => { s = Math.max(0, Math.round(s)); const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60, ss = s % 60; return (h ? h + ':' + String(m).padStart(2, '0') : String(m).padStart(2, '0')) + ':' + String(ss).padStart(2, '0'); };
   // 自分のシークバー（動画の下）：マウスを乗せるとその位置の画面を小さく出す。押すとその位置へ
   function attachSeekbar(box, v, x, S) {
@@ -4284,6 +4489,14 @@
     });
     bar.addEventListener('mouseleave', () => { tip.hidden = true; want = -1; });
     bar.addEventListener('click', (e) => { v.currentTime = tAt(e); });
+    // ドラッグでも移動
+    bar.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return; e.preventDefault(); try { bar.setPointerCapture(e.pointerId); } catch (er) { /* 無視 */ }
+      v.currentTime = tAt(e); upd();
+      const mv = (ev) => { v.currentTime = tAt(ev); upd(); };
+      const up = () => { bar.removeEventListener('pointermove', mv); bar.removeEventListener('pointerup', up); bar.removeEventListener('pointercancel', up); };
+      bar.addEventListener('pointermove', mv); bar.addEventListener('pointerup', up); bar.addEventListener('pointercancel', up);
+    });
     tip.hidden = true; cv.style.display = 'none';
   }
   function closeGrab(scope) { (scope ? [scope] : []).forEach((el) => { if (!el) return; el.querySelectorAll('*').forEach((n) => { if (n._grab) { n._grab.close(); n._grab = null; } }); if (el._grab) { el._grab.close(); el._grab = null; } }); }
@@ -4559,7 +4772,7 @@
       const x = tr.length ? tr[tr.length - 1] : S.src.find((q) => !q.dl && S.playable(q));
       if (!x) { box.innerHTML = '<div class="pl-msg">このブラウザの中では再生できません。「↗ 外部プレーヤーで見る」を使ってください。</div>'; return; }
       const fail = (q, why) => { if (!box.querySelector('.pl-err')) box.insertAdjacentHTML('beforeend', `<div class="pl-msg pl-err">再生できませんでした${why ? `（${esc(why)}）` : ''}。「↗ 外部プレーヤーで見る」を試してください。</div>`); };
-      const m = mountVideo(box, x, S, fail, { seekbar: false, onMeta: (v) => { const i = p.querySelector('[data-lbpvi]'); if (i) i.textContent = `（${x.label}${v.videoHeight ? `・${v.videoWidth}×${v.videoHeight}` : ''}）`; } });
+      const m = mountVideo(box, x, S, fail, { qp: { ext: () => { libPvClose(); openExternal(id, '', it.name); } }, onMeta: (v) => { const i = p.querySelector('[data-lbpvi]'); if (i) i.textContent = `（${x.label}${v.videoHeight ? `・${v.videoWidth}×${v.videoHeight}` : ''}）`; } });
       setTimeout(() => { if (run === libPvRun) libPvHls = m.hls; else killHls(m.hls); }, 0);
       log('info', `左メニューからプレビュー：${x.label}`, it.name);
     } catch (err) {

@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.0.14
+// @version      4.0.15
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.0.14'; // @version と合わせて更新する
+  const VER = '4.0.15'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1787,6 +1787,32 @@
     d.querySelector('[data-copy]').onclick = async () => { try { await navigator.clipboard.writeText(text()); d.querySelector('[data-copy]').textContent = 'コピーしました'; } catch (e) { d.querySelector('[data-copy]').textContent = 'コピー失敗'; } };
     d.querySelector('[data-save]').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text()], { type: 'text/plain' })); a.download = 'pikpak-distill-log.txt'; a.click(); };
     d.querySelector('[data-clear]').onclick = () => { if (confirm(tr('ログを消去しますか？'))) { try { localStorage.removeItem(LS_LOG); } catch (e) { /* 無視 */ } d.remove(); updateLogBadge(); } };
+  }
+
+  // 左メニューの「再読み込み」：いきなり始めず、確認してから（読み込み中はファイルの操作ができないため）
+  function askRescan() {
+    if (document.getElementById('pd-dlg')) return;
+    const back = view;
+    const where = (meta && meta.where) || crumbs().map((c) => c.name).filter(Boolean).join(' › ') || 'ホーム';
+    let st = null; try { st = (JSON.parse(localStorage.getItem(LS_SCANSTAT) || '{}') || {})[String(currentTrail().slice(-1)[0] || 'root')]; } catch (e) { st = null; }
+    const when = meta ? new Date(meta.at).toLocaleString(loc(), { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+    const d = document.createElement('div'); d.id = 'pd-dlg';
+    d.innerHTML = `<div class="box" role="dialog" aria-label="再読み込み"><h3>PikPak の中身を読み込み直しますか？</h3>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px">
+        <div>📁 読み込む場所：<b>${esc(where)}</b></div>
+        ${meta ? `<div>🕘 前回：<b>${esc(when)}</b>（フォルダ ${meta.nfo.toLocaleString()} ／ ファイル ${meta.nfi.toLocaleString()}）</div>` : ''}
+        <div>⏱ かかる時間：<b>${st ? `前回は ${fmtDur(st.ms)}` : '数十秒〜数分'}</b></div>
+      </div>
+      <div class="note" style="margin-bottom:16px">PikPak で追加・削除・移動したものを反映します。<b>読み込み中は、移動・削除・名前の変更などの操作ができません</b>（途中で「中断」できます）。ファイルは何も変更しません。</div>
+      <div class="acts"><button data-no>やめる</button><button data-go style="background:#306fff;border-color:#306fff;color:#fff;font-weight:700">読み込みを始める</button></div></div>`;
+    document.body.appendChild(d);
+    const close = () => { d.remove(); document.removeEventListener('keydown', onKey, true); };
+    const onKey = (e) => { if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); close(); } };
+    document.addEventListener('keydown', onKey, true);
+    d.addEventListener('mousedown', (e) => { if (e.target === d) close(); });
+    d.querySelector('[data-no]').onclick = close;
+    d.querySelector('[data-go]').onclick = () => { close(); if (busy) return; afterScan = back; runScan(); };
+    d.querySelector('[data-go]').focus();
   }
 
   // ---------- 件数（ステップの案内用） ----------
@@ -4122,7 +4148,7 @@
     if (a === 'tview') { if (!busy) treeView(t.dataset.v); return; }
     if (a === 'tqs') { tree.qs = t.dataset.v; saveTree(); syncTqs(); if (view === 'tree') renderTree(); return; }
     if (a === 'toflow') { if (!busy) { if (view === 'tree') view = 'scan'; openFlow(); } return; }
-    if (a === 'rescan') { if (!busy) { afterScan = view; runScan(); } return; }
+    if (a === 'rescan') { if (!busy) askRescan(); return; }
     if (a === 'addlink') { if (!busy || view !== 'tree') { const c = view === 'tree' ? treeBase() : currentFolderId(); openAdd(isHomeId(c) ? 'DL' : c); } return; }
     if (a === 'spause') { lookupSt.paused = !lookupSt.paused; refreshSellerChrome(); status(lookupSt.paused ? '販売者の調査を一時停止しています（「再開」で続けます）' : '販売者の調査を再開しました'); return; }
     if (a === 'stop') { window.__ppdupStop = true; status('中断しています…（いまの処理が終わったら止まります）'); return; }

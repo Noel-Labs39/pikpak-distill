@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.0.15
+// @version      4.0.16
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.0.15'; // @version と合わせて更新する
+  const VER = '4.0.16'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -725,6 +725,14 @@
   const LS_META = 'ppdup:scanmeta:v1';
   const css = `
   #ppdup-btn{position:fixed;right:20px;bottom:76px;z-index:99998;display:flex;align-items:center;gap:8px;padding:6px 16px 6px 6px;border:1px solid #3a3f4b;border-radius:999px;background:#14161c;color:#fff;font:700 13px system-ui,sans-serif;cursor:pointer;box-shadow:0 4px 14px #0005}
+  #ppdup-btn{touch-action:none;user-select:none;-webkit-user-select:none}
+  #ppdup-btn .grip{font-style:normal;color:#8b91a1;letter-spacing:-3px;margin-left:2px;cursor:grab}
+  #ppdup-btn.drag{cursor:grabbing;opacity:.9;box-shadow:0 10px 30px #0008;transition:none}
+  #pd-fabpos{position:fixed;z-index:100006;width:220px;background:#1d2027;color:#e6e8ee;border:1px solid #2c303a;border-radius:12px;box-shadow:0 12px 40px #0008;padding:8px;display:flex;flex-direction:column;gap:2px;font:13px/1.4 system-ui,"Hiragino Sans","Yu Gothic",sans-serif}
+  #pd-fabpos b{font-size:11px;color:#8b91a1;padding:4px 8px}
+  #pd-fabpos button{border:0;background:none;color:inherit;font:inherit;text-align:left;padding:8px 10px;border-radius:8px;cursor:pointer}
+  #pd-fabpos button:hover{background:#2a2f3a}
+  #pd-fabpos small{color:#8b91a1;font-size:11px;padding:4px 8px}
   #ppdup-btn svg{width:30px;height:30px;border-radius:9px}
   #ppdup-btn:hover{filter:brightness(1.08)}
   #ppdup-fab{position:fixed;right:20px;bottom:128px;z-index:99998;width:320px;box-sizing:border-box;background:#1d2027;color:#e6e8ee;border:1px solid #2c303a;border-radius:14px;box-shadow:0 12px 40px #0008;padding:8px;font:13px/1.4 system-ui,"Hiragino Sans","Yu Gothic",sans-serif;display:none}
@@ -1504,7 +1512,7 @@
     minus: SVG('<path d="M6 12h12"/>'),
     link: SVG('<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.2 1.2"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.2-1.2"/>'),
   };
-  const btn = document.createElement('button'); btn.id = 'ppdup-btn'; btn.innerHTML = LOGO + '<span>Dedupe</span>'; btn.title = 'PikPak Distill – Dedupe（クリックでメニュー）'; document.body.appendChild(btn);
+  const btn = document.createElement('button'); btn.id = 'ppdup-btn'; btn.innerHTML = LOGO + '<span>Dedupe</span><i class="grip" aria-hidden="true">⋮⋮</i>'; btn.title = 'PikPak Distill – Dedupe（クリックでメニュー・ドラッグで移動・右クリックで置き場所）'; document.body.appendChild(btn);
   const fab = document.createElement('div'); fab.id = 'ppdup-fab'; document.body.appendChild(fab);
   const root = document.createElement('div'); root.id = 'ppdup';
   root.innerHTML = `
@@ -3720,6 +3728,7 @@
         <div class="row"><span><b>フォルダ一覧の表示</b></span><select data-s="tview"><option value="list"${tree.view === 'list' ? ' selected' : ''}>☰ リスト</option><option value="thumb"${tree.view === 'thumb' ? ' selected' : ''}>▤ サムネイル</option><option value="tile"${tree.view === 'tile' ? ' selected' : ''}>▦ タイル</option></select></div>
         <label class="row"><span><b>サムネイルをぼかす</b><small>人に画面を見られても分からないよう、サムネイル・プレビュー・コマをぼかします（このブラウザだけの設定）</small></span><input type="checkbox" data-s="blur"${blurOn() ? ' checked' : ''}></label>
         <label class="row"><span><b>マウスを乗せたら、はっきり表示</b><small>「サムネイルをぼかす」がオンのとき、マウスを乗せた（スマホは押している）間だけぼかしを外します</small></span><input type="checkbox" data-s="blurhov"${blurHov() ? ' checked' : ''}${blurOn() ? '' : ' disabled'}></label>
+        <div class="row"><span><b>入口ボタン（Dedupe）の位置</b><small>ボタンはドラッグで好きな場所へ動かせます（右クリックで置き場所を選べます）。既定は PikPak の左メニューの空き</small></span><button data-s="fabreset"${fabSaved() ? '' : ' disabled'}>元に戻す</button></div>
         <label class="row"><span><b>ホバーでサムネイル</b><small>マウスを乗せたときにサムネイルを大きく表示します</small></span><input type="checkbox" data-s="hover"${tree.hover !== false ? ' checked' : ''}></label>
         <div class="row"><span><b>フォルダ一覧の操作</b><small>${esc(helpTree)}</small></span></div>` : ''}
         ${sec('play') ? `<h3 data-sec="play">再生</h3>
@@ -3754,6 +3763,7 @@
     else if (k === 'tab') { setTab = b.dataset.v; renderSettings(); }
     else if (k === 'theme') setTheme(b.dataset.v);
     else if (k === 'log') { closeSettings(); showLog(); }
+    else if (k === 'fabreset') { setFabPos(null, '入口ボタンを元の位置に戻しました'); renderSettings(); }
     else if (k === 'sclear') { if (confirm(tr('調べた販売者の結果（手入力を含む）をすべて消去しますか？'))) { sellerDb = {}; saveSellerDb(); syncCleared(LS_SELLER); sellerSel.clear(); log('info', '販売者の調査結果を消去'); renderSettings(); if (root.classList.contains('on') && !busy) setView(view); } }
     else if (k === 'pwclear') { if (confirm(tr('記録した解凍パスワードをすべて消去しますか？'))) { clearPws(); syncCleared(LS_PWX); log('info', '解凍パスワードを消去'); renderSettings(); } }
     else if (k === 'syncnow') syncNow('手動').then((ok) => { status(ok ? 'PikPak と同期しました' : '同期できませんでした（「ログを表示」で理由を確認できます）'); renderSettings(); });
@@ -5648,6 +5658,91 @@
   });
   document.addEventListener('click', (e) => { if (fab.classList.contains('on') && !fab.contains(e.target) && e.target !== btn) closeFab(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeFab(); });
+  // ---------- 入口ボタンの位置（ドラッグで移動・端にくっつく・このブラウザに保存） ----------
+  const LS_FABPOS = 'ppdup:fabpos:v1', FAB_M = 12;
+  const fabKey = () => location.host;
+  const fabSaved = () => { try { return (JSON.parse(localStorage.getItem(LS_FABPOS) || '{}') || {})[fabKey()] || null; } catch (e) { return null; } };
+  const fabSave = (p) => { let all = {}; try { all = JSON.parse(localStorage.getItem(LS_FABPOS) || '{}') || {}; } catch (e) { all = {}; } if (p) all[fabKey()] = p; else delete all[fabKey()]; try { localStorage.setItem(LS_FABPOS, JSON.stringify(all)); } catch (e) { /* 無視 */ } };
+  // 既定の位置：PikPak の左メニューの空き（容量表示のすぐ上）。見つからなければ左下
+  function fabDefault() {
+    const W = innerWidth, H = innerHeight, bw = btn.offsetWidth || 120, bh = btn.offsetHeight || 42;
+    let cap = null;
+    const it = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, { acceptNode: (n) => (/\d[\d.]*\s*[TGM]B\s*\/\s*\d/.test(n.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP) });
+    for (let n = it.nextNode(); n; n = it.nextNode()) {
+      const el = n.parentElement; if (!el || el.closest(UI_SEL)) continue;
+      const r = el.getBoundingClientRect(); if (r.width && r.left < 360 && r.top > H * 0.4) { cap = r; break; }
+    }
+    if (cap) return { side: 'l', x: Math.max(FAB_M, cap.left), y: Math.max(FAB_M, cap.top - bh - 14), auto: true };
+    return { side: 'l', x: FAB_M + 8, y: H - bh - FAB_M - 8, auto: true };
+  }
+  // 保存は「左右どちらの端か」と「上からの位置の割合」：画面の大きさが変わっても同じあたりに戻る
+  function placeFab() {
+    const s = fabSaved(), W = innerWidth, H = innerHeight, bw = btn.offsetWidth || 120, bh = btn.offsetHeight || 42;
+    let x, y;
+    if (s) { x = s.side === 'r' ? W - bw - FAB_M : FAB_M; y = s.fy * H; }
+    else { const d = fabDefault(); x = d.x; y = d.y; }
+    x = Math.max(FAB_M, Math.min(W - bw - FAB_M, x)); y = Math.max(FAB_M, Math.min(H - bh - FAB_M, y));
+    btn.style.left = x + 'px'; btn.style.top = y + 'px'; btn.style.right = 'auto'; btn.style.bottom = 'auto';
+    placeFabMenu();
+  }
+  // メニューはボタンのそばに（ボタンが下半分なら上へ、左にあれば左揃え）
+  function placeFabMenu() {
+    const r = btn.getBoundingClientRect(), W = innerWidth, H = innerHeight, fw = 320;
+    fab.style.left = Math.max(FAB_M, Math.min(W - fw - FAB_M, r.left + r.width / 2 < W / 2 ? r.left : r.right - fw)) + 'px'; fab.style.right = 'auto';
+    if (r.top + r.height / 2 > H / 2) { fab.style.top = 'auto'; fab.style.bottom = (H - r.top + 8) + 'px'; }
+    else { fab.style.bottom = 'auto'; fab.style.top = (r.bottom + 8) + 'px'; }
+    fab.style.maxHeight = Math.max(200, (r.top + r.height / 2 > H / 2 ? r.top : H - r.bottom) - 24) + 'px'; fab.style.overflowY = 'auto';
+  }
+  function setFabPos(p, msg) { fabSave(p); placeFab(); if (msg) status(msg); }
+  let fabDrag = null, fabMoved = false;
+  btn.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    const r = btn.getBoundingClientRect();
+    fabDrag = { id: e.pointerId, dx: e.clientX - r.left, dy: e.clientY - r.top, sx: e.clientX, sy: e.clientY, on: false }; fabMoved = false;
+  });
+  addEventListener('pointermove', (e) => {
+    if (!fabDrag || e.pointerId !== fabDrag.id) return;
+    if (!fabDrag.on) { if (Math.hypot(e.clientX - fabDrag.sx, e.clientY - fabDrag.sy) < 6) return; fabDrag.on = true; try { btn.setPointerCapture(e.pointerId); } catch (er) { /* 無視 */ } btn.classList.add('drag'); closeFab(); }
+    const W = innerWidth, H = innerHeight;
+    btn.style.left = Math.max(0, Math.min(W - btn.offsetWidth, e.clientX - fabDrag.dx)) + 'px';
+    btn.style.top = Math.max(0, Math.min(H - btn.offsetHeight, e.clientY - fabDrag.dy)) + 'px';
+  });
+  const fabEnd = (e) => {
+    if (!fabDrag || e.pointerId !== fabDrag.id) return;
+    const was = fabDrag.on; fabDrag = null; btn.classList.remove('drag');
+    if (!was) return;
+    fabMoved = true;
+    const r = btn.getBoundingClientRect();
+    // 離したら一番近い左右の端にくっつく
+    setFabPos({ side: r.left + r.width / 2 < innerWidth / 2 ? 'l' : 'r', fy: Math.max(0, r.top) / innerHeight });
+  };
+  addEventListener('pointerup', fabEnd, true); addEventListener('pointercancel', fabEnd, true);
+  // ドラッグしたあとの click ではメニューを開かない
+  btn.addEventListener('click', (e) => { if (fabMoved) { fabMoved = false; e.stopImmediatePropagation(); e.preventDefault(); } else placeFabMenu(); }, true);
+  // 右クリックで置き場所をすぐ選ぶ
+  btn.addEventListener('contextmenu', (e) => {
+    e.preventDefault(); closeFab();
+    let m = document.getElementById('pd-fabpos'); if (m) m.remove();
+    m = document.createElement('div'); m.id = 'pd-fabpos';
+    m.innerHTML = `<b>入口ボタンの位置</b>${[['def', '元の位置（左メニューの空き）'], ['lt', '左上へ'], ['lb', '左下へ'], ['rb', '右下へ'], ['rt', '右上へ']].map(([k, l]) => `<button data-fp="${k}">${l}</button>`).join('')}<small>ボタンはドラッグでも動かせます</small>`;
+    document.body.appendChild(m);
+    const r = btn.getBoundingClientRect();
+    m.style.left = Math.max(8, Math.min(innerWidth - m.offsetWidth - 8, r.left)) + 'px';
+    m.style.top = (r.top > innerHeight / 2 ? Math.max(8, r.top - m.offsetHeight - 8) : r.bottom + 8) + 'px';
+    const off = (ev) => { if (!m.contains(ev.target)) { m.remove(); document.removeEventListener('mousedown', off, true); } };
+    document.addEventListener('mousedown', off, true);
+    m.addEventListener('click', (ev) => {
+      const b = ev.target.closest('[data-fp]'); if (!b) return;
+      const k = b.dataset.fp, bh = btn.offsetHeight || 42;
+      m.remove(); document.removeEventListener('mousedown', off, true);
+      if (k === 'def') setFabPos(null, '入口ボタンを元の位置に戻しました');
+      else setFabPos({ side: k[0], fy: k[1] === 't' ? (FAB_M + 60) / innerHeight : (innerHeight - bh - FAB_M - 8) / innerHeight });
+    });
+  });
+  addEventListener('resize', () => placeFab());
+  placeFab();
+  // PikPak の左メニューは読み込みのあとに出てくるので、既定の位置のときはしばらく置き直す
+  { let n = 0; const tm = setInterval(() => { if (fabSaved() || ++n > 20) { clearInterval(tm); return; } if (!fabDrag) placeFab(); }, 1000); }
   updateLogBadge();
   renderLangBtn(); applyTheme();
   if (LANG === 'en') document.querySelectorAll(UI_SEL).forEach(trNode);

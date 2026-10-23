@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.0.12
+// @version      4.0.13
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.0.12'; // @version と合わせて更新する
+  const VER = '4.0.13'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1125,6 +1125,29 @@
   #pd-lib .lb-t b,#pd-lib .lb-t small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   #pd-lib .lb-t small{color:var(--mute);font-size:12px}
   #pd-lib .lb-t .uz-bar{flex:none;width:100%;max-width:320px}
+  #pd-lib .lb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(176px,1fr));gap:12px}
+  #pd-lib .lb-card{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;cursor:pointer;outline:none;user-select:none}
+  #pd-lib .lb-card:hover{border-color:var(--ctl-line)}
+  #pd-lib .lb-card.cur,#pd-lib .lb-card:focus-visible{border-color:var(--pri);box-shadow:0 0 0 2px var(--pri-soft)}
+  #pd-lib .lb-th{position:relative;aspect-ratio:16/9;background:var(--panel2);display:flex;align-items:center;justify-content:center}
+  #pd-lib .lb-th img{width:100%;height:100%;object-fit:cover;display:block}
+  #pd-lib .lb-th .ph svg{width:34px;height:42px}
+  #pd-lib .lb-th .lb-play{position:absolute;right:6px;bottom:6px;font-size:10px;padding:2px 6px;border-radius:6px;background:#000a;color:#fff}
+  #pd-lib .lb-th input{position:absolute;left:6px;top:6px;width:18px;height:18px;margin:0}
+  #pd-lib .lb-ct{padding:7px 9px;display:flex;flex-direction:column;gap:2px;min-width:0}
+  #pd-lib .lb-ct b{font-size:12px;font-weight:600;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-all}
+  #pd-lib .lb-ct small{color:var(--mute);font-size:11px}
+  #pd-lib .lk-ft .lb-sel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #pd-lib button.sub{border-color:transparent;background:none;color:var(--mute);font-weight:500}
+  #pd-lib .lb-pv{position:fixed;inset:0;z-index:1;background:#000a;display:flex;align-items:center;justify-content:center}
+  #pd-lib .lb-pvbox{width:min(960px,96vw);max-height:94vh;display:flex;flex-direction:column;background:var(--panel);border-radius:14px;overflow:hidden;box-shadow:0 18px 50px #0008}
+  #pd-lib .lb-pvbox .lk-hd b{font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #pd-lib .lb-pvv{position:relative;background:#000;aspect-ratio:16/9;max-height:70vh;display:flex;align-items:center;justify-content:center;color:#ccc}
+  #pd-lib .lb-pvv video{width:100%;height:100%;background:#000}
+  #pd-lib .lb-pvv .pl-msg{position:absolute;inset:0 0 auto;background:#000b;padding:10px 14px;text-align:center}
+  #pd-lib .lb-pvft{display:flex;align-items:center;gap:8px;padding:10px 18px;flex-wrap:wrap}
+  #pd-lib .lb-pvft .tx{flex:1 1 300px;min-width:0;color:var(--mute);font-size:12px}
+  #pd-lib .lb-pvft .tx b{color:var(--fg)}
   #pd-lib .lb-all{display:flex;gap:6px;align-items:center}
   #pd-lib .lk-ft{display:flex;align-items:center;gap:8px;padding:12px 18px;border-top:1px solid var(--line);flex-wrap:wrap}
   #pd-lib .lk-ft .tx{flex:1;min-width:0;color:var(--mute)}
@@ -3459,7 +3482,7 @@
 
   // 再生（PikPak の再生用リンクを取得して、この画面の中で再生する）
   // HLS（PikPak の変換画質）は Chrome / Edge / Firefox では標準で再生できないため hls.js を使う（Safari は標準で再生可）
-  const LS_PLQ = 'ppdup:player:q:v1'; // 前回選んだ画質の種類（orig＝オリジナル／trans＝変換画質）
+  const LS_PLQ = 'ppdup:player:q:v2'; // 前回選んだ画質の種類（orig＝オリジナル／trans＝変換画質）
   const LS_PLAY = 'ppdup:player:v1'; // 再生のしかた { mode: inline|window|full|external, ext }
   let curHls = null, qlHls = null;
   const TS_DL = 'https://web-vod-xdrive.mypikpak.com/ts_downloader', TS_CLIENT = 'UElLUEFLX1dFQg';
@@ -3527,8 +3550,10 @@
     const hevcOk = (() => { try { return !!(MS && MS.isTypeSupported && (MS.isTypeSupported('video/mp4; codecs="hvc1.1.6.L93.B0"') || MS.isTypeSupported('video/mp4; codecs="hev1.1.6.L93.B0"'))); } catch (e) { return false; } })();
     const playable = (x) => (!x.hls || canHls) && (!/^(hevc|h265)$/.test(x.codec || '') || !x.hls || hevcOk);
     let pref = 'trans'; try { pref = localStorage.getItem(LS_PLQ) || 'trans'; } catch (e) { /* 無視 */ }
-    // 最初の画質：前回選んだ種類（なければデータが軽くカクつきにくい変換画質）
-    let first = src.findIndex((x) => !x.dl && playable(x) && (pref === 'orig' ? x.origin : !x.origin));
+    // 最初の画質：前回選んだ種類。初めは PikPak が用意している一番軽い変換画質（すぐ始まり、通信も少ない）
+    //   本編をきちんと見るときは、外部プレーヤー（オリジナル画質）をすすめる
+    const trans = src.map((x, i) => [x, i]).filter(([x]) => !x.dl && !x.origin && playable(x));
+    let first = pref === 'orig' ? src.findIndex((x) => !x.dl && playable(x) && x.origin) : trans.length ? trans[trans.length - 1][1] : -1;
     if (first < 0) first = src.findIndex((x) => playable(x));
     return { src, H, nativeHls, playable, first: Math.max(0, first) };
   }
@@ -3566,8 +3591,8 @@
     return { v, get hls() { return hls; } };
   }
   // 外部プレーヤーで開く（リンクは時間がたつと無効になるため、その都度取得する）
-  async function openExternal(id, ext) {
-    const f = fileById(id); if (!f) return;
+  async function openExternal(id, ext, name) {
+    const f = fileById(id) || (name ? { name } : null); if (!f) return;
     ext = ext || playPref().ext;
     if (!ensureSession('tree')) return;
     status('外部プレーヤー用のリンクを取得中…', 0.5);
@@ -4402,18 +4427,20 @@
   let libSt = null, libBadge = { dl: 0, trash: 0 };
   const encF = (o) => encodeURIComponent(JSON.stringify(o));
   const phaseTxt = { PHASE_TYPE_RUNNING: 'ダウンロード中', PHASE_TYPE_PENDING: '順番待ち', PHASE_TYPE_ERROR: '失敗', PHASE_TYPE_COMPLETE: '完了' };
+  const LIB_GRID = new Set(['recent', 'hist', 'star']);
   async function libFetch(tab) {
     if (tab === 'dl') {
       const d = await api(`/tasks?type=offline&limit=100&thumbnail_size=SIZE_SMALL&filters=${encF({ phase: { in: 'PHASE_TYPE_RUNNING,PHASE_TYPE_PENDING,PHASE_TYPE_ERROR,PHASE_TYPE_COMPLETE' } })}`);
       return (d.tasks || []).map((t) => ({ id: t.id, fid: t.file_id || '', name: t.name || t.file_name || '', size: +t.file_size || 0, phase: t.phase, pct: +t.progress || 0, msg: t.message || '', at: t.created_time || '' }));
     }
     if (tab === 'hist') {
-      const d = await api(`/events?thumbnail_size=SIZE_SMALL&limit=100&filters=${encF({ type: { in: 'TYPE_PLAY' } })}`);
+      const d = await api(`/events?thumbnail_size=SIZE_MEDIUM&limit=100&filters=${encF({ type: { in: 'TYPE_PLAY' } })}`);
       const seen = new Set(), out = [];
       (d.events || []).forEach((e) => {
         const r = e.reference_resource || {}; const id = String(e.file_id || r.id || '');
         if (!id || seen.has(id) || r.trashed) return; seen.add(id);
-        out.push({ id, name: r.name || e.file_name || id, size: +(r.size || e.file_size) || 0, at: e.event_time || e.created_time || e.updated_time || '' });
+        const sf = fileById(id);
+        out.push({ id, name: r.name || e.file_name || id, size: +(r.size || e.file_size) || 0, at: e.event_time || e.created_time || e.updated_time || '', thumb: r.thumbnail_link || e.thumbnail_link || (sf && sf.thumb) || '' });
       });
       return out;
     }
@@ -4421,8 +4448,8 @@
       const fl = tab === 'star' ? { trashed: { eq: false }, system_tag: { in: 'STAR' } } : { trashed: { eq: true } };
       const out = []; let tk = '', n = 0;
       do {
-        const d = await api(`/files?thumbnail_size=SIZE_SMALL&limit=500&parent_id=*&filters=${encF(fl)}${tk ? '&page_token=' + encodeURIComponent(tk) : ''}`);
-        (d.files || []).forEach((f) => out.push({ id: f.id, name: f.name, size: +f.size || 0, folder: f.kind === 'drive#folder', at: f.modified_time || f.created_time || '' }));
+        const d = await api(`/files?thumbnail_size=SIZE_MEDIUM&limit=500&parent_id=*&filters=${encF(fl)}${tk ? '&page_token=' + encodeURIComponent(tk) : ''}`);
+        (d.files || []).forEach((f) => out.push({ id: f.id, name: f.name, size: +f.size || 0, folder: f.kind === 'drive#folder', at: f.modified_time || f.created_time || '', thumb: f.thumbnail_link || '' }));
         tk = d.next_page_token || '';
       } while (tk && ++n < 20);
       return out;
@@ -4431,25 +4458,46 @@
     if (!hasScan()) return null;
     const lim = Date.now() - libSt.days * 864e5;
     return files.filter((f) => f.ct && Date.parse(f.ct) >= lim).sort((a, b) => Date.parse(b.ct) - Date.parse(a.ct)).slice(0, 500)
-      .map((f) => ({ id: f.id, name: f.name, size: f.size, at: f.ct, path: f.path }));
+      .map((f) => ({ id: f.id, name: f.name, size: f.size, at: f.ct, path: f.path, thumb: f.thumb || '' }));
   }
+  const libIsVid = (it) => !!it && !it.folder && VIDEO_EXT.has(extOf(it.name));
+  const libItem = (id) => libSt && libSt.items.find((i) => i.id === id);
   function openLib(tab) {
     if (!ensureSession(view)) return;
     closeCtx(); closeQL();
-    libSt = { tab: tab || 'trash', items: [], sel: new Set(), loading: false, err: '', days: 7, busy: false };
+    libSt = { tab: tab || 'trash', items: [], sel: new Set(), cur: '', loading: false, err: '', days: 7, busy: false };
     let d = document.getElementById('pd-lib');
     if (!d) {
       d = document.createElement('div'); d.id = 'pd-lib'; document.body.appendChild(d);
       d.addEventListener('mousedown', (e) => { if (e.target === d && !libSt.busy) closeLib(); });
       d.addEventListener('click', (e) => {
-        const b = e.target.closest('button'); if (!b || b.disabled || !libSt) return;
+        if (!libSt) return;
+        const b = e.target.closest('button');
+        if (!b) {
+          // カードを押すと選ぶ（再生はダブルクリック・Enter・下のボタン）
+          const c = e.target.closest('[data-lbc]'); if (!c || e.target.closest('input')) return;
+          libSt.cur = c.dataset.lbc; d.querySelectorAll('.lb-card.cur').forEach((x) => x.classList.remove('cur')); c.classList.add('cur'); libFoot(); return;
+        }
+        if (b.disabled) return;
         const x = b.dataset;
         if (x.lbclose !== undefined) { if (!libSt.busy) closeLib(); }
         else if (x.lbtab) { if (!libSt.busy) libLoad(x.lbtab); }
         else if (x.lbdays) { libSt.days = +x.lbdays; libLoad('recent'); }
         else if (x.lbreload !== undefined) libLoad(libSt.tab);
         else if (x.lbopen) libReveal(x.lbopen);
+        else if (x.lbpv) libPreview(x.lbpv);
+        else if (x.lbext) { const it = libItem(x.lbext); libPvClose(); openExternal(x.lbext, '', it && it.name); }
+        else if (x.lbpvx !== undefined) libPvClose();
         else if (x.lbdo) libDo(x.lbdo);
+      });
+      d.addEventListener('dblclick', (e) => {
+        const c = e.target.closest('[data-lbc]'); if (!c || !libSt || e.target.closest('input,button')) return;
+        const it = libItem(c.dataset.lbc); if (libIsVid(it)) libPreview(it.id); else if (it) libReveal(it.id);
+      });
+      d.addEventListener('keydown', (e) => {
+        const c = e.target.closest && e.target.closest('[data-lbc]'); if (!c || !libSt) return;
+        if (e.key === 'Enter') { e.preventDefault(); const it = libItem(c.dataset.lbc); if (libIsVid(it)) libPreview(it.id); else if (it) libReveal(it.id); }
+        else if (e.key === ' ') { e.preventDefault(); c.click(); }
       });
       d.addEventListener('change', (e) => {
         const t = e.target; if (!libSt) return;
@@ -4459,10 +4507,16 @@
     }
     libLoad(libSt.tab);
   }
-  function closeLib() { const d = document.getElementById('pd-lib'); if (d) d.remove(); libSt = null; renderRail(); }
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.getElementById('pd-lib') && libSt && !libSt.busy) { e.preventDefault(); e.stopImmediatePropagation(); closeLib(); } }, true);
+  function closeLib() { libPvClose(); const d = document.getElementById('pd-lib'); if (d) d.remove(); libSt = null; renderRail(); }
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || !document.getElementById('pd-lib') || !libSt || libSt.busy) return;
+    if (document.fullscreenElement) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    if (document.querySelector('#pd-lib .lb-pv')) libPvClose(); else closeLib();
+  }, true);
   async function libLoad(tab) {
-    libSt.tab = tab; libSt.items = []; libSt.sel.clear(); libSt.err = ''; libSt.loading = true; renderLib(); renderRail();
+    libPvClose();
+    libSt.tab = tab; libSt.items = []; libSt.sel.clear(); libSt.cur = ''; libSt.err = ''; libSt.loading = true; renderLib(); renderRail();
     const my = libSt;
     try {
       const r = await libFetch(tab);
@@ -4477,6 +4531,41 @@
   function libReveal(id) {
     if (!fileById(id) && !dirById(id)) { status('この項目は、読み込んだ範囲の外にあるか、読み込んだあとに追加されたものです。「再読み込み」すると場所を開けます'); return; }
     closeLib(); if (view !== 'tree') openTree(); revealInTree(id);
+  }
+  // ---- 左メニューの中で見る簡易プレビュー（PikPak が用意している軽い変換画質。本編は外部プレーヤーをすすめる） ----
+  let libPvRun = 0, libPvHls = null;
+  function libPvClose() {
+    libPvRun++;
+    const p = document.querySelector('#pd-lib .lb-pv'); if (!p) return;
+    unloadMedia(p); killHls(libPvHls); libPvHls = null; p.remove();
+    const c = libSt && libSt.cur && document.querySelector(`#pd-lib [data-lbc="${CSS.escape(libSt.cur)}"]`); if (c) c.focus();
+  }
+  async function libPreview(id) {
+    const it = libItem(id); if (!it || !libIsVid(it)) return;
+    const d = document.getElementById('pd-lib'); if (!d) return;
+    libPvClose(); libSt.cur = id;
+    const run = ++libPvRun;
+    const p = document.createElement('div'); p.className = 'lb-pv';
+    p.innerHTML = `<div class="lb-pvbox" role="dialog" aria-label="プレビュー"><div class="lk-hd"><b title="${esc(it.name)}">${esc(it.name)}</b><span class="sp"></span><button class="x" data-lbpvx aria-label="閉じる">${IC.x}</button></div>
+      <div class="lb-pvv"><div class="pl-msg">再生の準備中…</div></div>
+      <div class="lb-pvft"><span class="tx"><b>簡易プレビュー（低画質）</b>・本編をきちんと見るなら、外部プレーヤー（オリジナル画質）がおすすめです<span data-lbpvi></span></span><button data-lbopen="${esc(id)}">場所を開く</button><button class="pri" data-lbext="${esc(id)}">↗ 外部プレーヤーで見る（オリジナル画質）</button></div></div>`;
+    d.appendChild(p);
+    const box = p.querySelector('.lb-pvv');
+    try {
+      const S = await loadSources(id);
+      if (run !== libPvRun || !document.body.contains(p)) return;
+      // オリジナル画質は選ばない：一番軽い変換画質。なければ再生できるもの
+      const tr = S.src.filter((x) => !x.dl && !x.origin && S.playable(x));
+      const x = tr.length ? tr[tr.length - 1] : S.src.find((q) => !q.dl && S.playable(q));
+      if (!x) { box.innerHTML = '<div class="pl-msg">このブラウザの中では再生できません。「↗ 外部プレーヤーで見る」を使ってください。</div>'; return; }
+      const fail = (q, why) => { if (!box.querySelector('.pl-err')) box.insertAdjacentHTML('beforeend', `<div class="pl-msg pl-err">再生できませんでした${why ? `（${esc(why)}）` : ''}。「↗ 外部プレーヤーで見る」を試してください。</div>`); };
+      const m = mountVideo(box, x, S, fail, { seekbar: false, onMeta: (v) => { const i = p.querySelector('[data-lbpvi]'); if (i) i.textContent = `（${x.label}${v.videoHeight ? `・${v.videoWidth}×${v.videoHeight}` : ''}）`; } });
+      setTimeout(() => { if (run === libPvRun) libPvHls = m.hls; else killHls(m.hls); }, 0);
+      log('info', `左メニューからプレビュー：${x.label}`, it.name);
+    } catch (err) {
+      if (err.session) { closeLib(); handleErr(err, view); return; }
+      if (run === libPvRun) box.innerHTML = `<div class="pl-msg pl-err">再生用リンクを取得できませんでした：${esc(err.message || err)}</div>`;
+    }
   }
   async function libDo(op) {
     const ids = [...libSt.sel]; const my = libSt;
@@ -4498,12 +4587,33 @@
     my.busy = false;
     if (libSt === my) { if (op === 'empty' || op === 'del' || op === 'restore') refreshQuota(true); libLoad(my.tab); }
   }
+  // 下の操作ボタン（サムネイル表示のタブは、選んだカードに対する操作）
+  function libActs() {
+    const S = libSt, tab = S.tab, n = S.sel.size, dis = S.busy || S.loading ? ' disabled' : '';
+    if (LIB_GRID.has(tab)) {
+      const it = libItem(S.cur), v = libIsVid(it), id = it ? esc(it.id) : '';
+      const name = it ? `<b title="${esc(it.name)}">${esc(it.name)}</b>` : 'カードを選んでください（ダブルクリックでプレビュー）';
+      return `<span class="tx lb-sel">${S.busy ? '処理しています…' : name}</span>${tab === 'recent' ? `<span class="seg">${[7, 30].map((x) => `<button data-lbdays="${x}" class="${S.days === x ? 'on' : ''}"${dis}>直近 ${x} 日</button>`).join('')}</span>` : ''}${tab === 'star' ? `<button data-lbdo="unstar"${n ? '' : ' disabled'}${dis}>スターを外す（${n}）</button>` : ''}<button class="sub" data-lbopen="${id}"${it ? '' : ' disabled'} title="フォルダ一覧でこの項目の場所を開く">場所を開く</button><button data-lbpv="${id}"${v ? '' : ' disabled'} title="PikPak が用意している軽い画質で、この画面の中ですぐ見る">▶ プレビュー（低画質）</button><button class="pri" data-lbext="${id}"${v ? '' : ' disabled'} title="本編をきちんと見るときに。オリジナル画質で外部プレーヤーを開きます">↗ 外部プレーヤー（本編）</button>`;
+    }
+    return `<span class="tx">${S.busy ? '処理しています…' : ''}</span>` + {
+      dl: `<button data-lbdo="cancel"${n ? '' : ' disabled'}${dis}>一覧から外す（${n}）</button>`,
+      trash: `<button data-lbdo="restore"${n ? '' : ' disabled'}${dis}>元に戻す（${n}）</button><button class="dng" data-lbdo="del"${n ? '' : ' disabled'}${dis}>完全に削除（${n}）</button><button class="dng" data-lbdo="empty"${S.items.length ? '' : ' disabled'}${dis}>ゴミ箱を空にする</button>`,
+    }[tab];
+  }
+  function libFoot() { const f = document.querySelector('#pd-lib .lk-ft'); if (f && libSt) f.innerHTML = libActs(); }
   function renderLib() {
     const d = document.getElementById('pd-lib'); if (!d || !libSt) return;
-    const S = libSt, tab = S.tab;
+    const S = libSt, tab = S.tab, grid = LIB_GRID.has(tab);
     const when = (t) => { const v = Date.parse(t); return v ? new Date(v).toLocaleString(loc(), { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''; };
     const tabs = LIB_TABS.map(([k, l]) => `<button class="lb-tab${k === tab ? ' on' : ''}" data-lbtab="${k}">${LIB_IC[k]}<span>${l}</span>${k === 'dl' && libBadge.dl ? `<i>${libBadge.dl}</i>` : k === 'trash' && libBadge.trash ? `<i>${libBadge.trash}</i>` : ''}</button>`).join('');
-    const selectable = tab !== 'recent' && tab !== 'hist';
+    const selectable = tab === 'dl' || tab === 'trash' || tab === 'star';
+    const cb = (it) => `<input type="checkbox" data-lbi="${esc(it.id)}"${S.sel.has(it.id) ? ' checked' : ''}${S.busy ? ' disabled' : ''} aria-label="選ぶ">`;
+    const card = (it) => {
+      const r = { name: it.name, ext: extOf(it.name) };
+      const th = it.thumb ? `<img loading="lazy" referrerpolicy="no-referrer" src="${esc(it.thumb)}" alt="">` : `<span class="ph">${it.folder ? ICON_DIR : ICON_FILE(r)}</span>`;
+      const info = [it.size && !it.folder ? fmt(it.size) : '', when(it.at)].filter(Boolean).join('・');
+      return `<div class="lb-card${S.cur === it.id ? ' cur' : ''}" data-lbc="${esc(it.id)}" tabindex="0" title="${esc(it.name)}${tab === 'recent' && it.path ? '\n' + esc(it.path) : ''}"><div class="lb-th">${th}${libIsVid(it) ? '<span class="lb-play">▶</span>' : ''}${selectable ? cb(it) : ''}</div><div class="lb-ct"><b>${esc(it.name)}</b><small>${esc(info)}</small></div></div>`;
+    };
     const row = (it) => {
       let tag = '', info = [it.size ? fmt(it.size) : '', when(it.at)];
       if (tab === 'dl') {
@@ -4511,31 +4621,29 @@
         tag = `<span class="lk-tag ${cls}">${phaseTxt[it.phase] || it.phase}${it.phase === 'PHASE_TYPE_RUNNING' ? ` ${it.pct}%` : ''}</span>`;
         if (it.phase === 'PHASE_TYPE_ERROR' && it.msg) info.push(it.msg);
       }
-      if (tab === 'recent' && it.path) info.unshift(it.path);
-      const openId = tab === 'dl' ? it.fid : tab === 'trash' ? '' : it.id;
+      const openId = tab === 'dl' && it.phase === 'PHASE_TYPE_COMPLETE' ? it.fid : '';
       const bar = tab === 'dl' && it.phase === 'PHASE_TYPE_RUNNING' ? `<span class="uz-bar"><i style="width:${it.pct}%"></i></span>` : '';
-      return `<div class="lb-row">${selectable ? `<input type="checkbox" data-lbi="${esc(it.id)}"${S.sel.has(it.id) ? ' checked' : ''}${S.busy ? ' disabled' : ''}>` : ''}<span class="lb-t"><b title="${esc(it.name)}">${it.folder ? '📁 ' : ''}${esc(it.name)}</b><small>${esc(info.filter(Boolean).join('・'))}</small>${bar}</span>${tag}${openId && (tab !== 'dl' || it.phase === 'PHASE_TYPE_COMPLETE') ? `<button data-lbopen="${esc(openId)}" title="フォルダ一覧でこの項目の場所を開く">場所を開く</button>` : ''}</div>`;
+      return `<div class="lb-row">${cb(it)}<span class="lb-t"><b title="${esc(it.name)}">${it.folder ? '📁 ' : ''}${esc(it.name)}</b><small>${esc(info.filter(Boolean).join('・'))}</small>${bar}</span>${tag}${openId ? `<button data-lbopen="${esc(openId)}" title="フォルダ一覧でこの項目の場所を開く">場所を開く</button>` : ''}</div>`;
     };
     let body;
     if (S.loading) body = '<div class="empty">読み込み中…</div>';
     else if (S.err === 'scan') body = '<div class="empty">「最近追加したもの」は、読み込んだ内容から作ります。先に左の「再読み込み」で PikPak の中身を読み込んでください。</div>';
     else if (S.err) body = `<div class="empty">読み込めませんでした：${esc(S.err)}</div>`;
     else if (!S.items.length) body = `<div class="empty">${{ dl: 'ダウンロードのタスクはありません', recent: `この ${S.days} 日間に追加したものはありません`, hist: '再生した履歴はありません', star: 'スター付きの項目はありません', trash: 'ゴミ箱は空です' }[tab]}</div>`;
-    else body = S.items.map(row).join('');
+    else body = grid ? `<div class="lb-grid">${S.items.map(card).join('')}</div>` : S.items.map(row).join('');
     const n = S.sel.size, dis = S.busy || S.loading ? ' disabled' : '';
-    const acts = {
-      dl: `<button data-lbdo="cancel"${n ? '' : ' disabled'}${dis}>一覧から外す（${n}）</button>`,
-      recent: `<span class="seg">${[7, 30].map((x) => `<button data-lbdays="${x}" class="${S.days === x ? 'on' : ''}"${dis}>直近 ${x} 日</button>`).join('')}</span>`,
-      hist: '', star: `<button data-lbdo="unstar"${n ? '' : ' disabled'}${dis}>スターを外す（${n}）</button>`,
-      trash: `<button data-lbdo="restore"${n ? '' : ' disabled'}${dis}>元に戻す（${n}）</button><button class="dng" data-lbdo="del"${n ? '' : ' disabled'}${dis}>完全に削除（${n}）</button><button class="dng" data-lbdo="empty"${S.items.length ? '' : ' disabled'}${dis}>ゴミ箱を空にする</button>`,
-    }[tab];
-    const note = { dl: 'クラウドダウンロード（リンク・マグネットの追加）の状況。「一覧から外す」はタスクを消すだけで、ダウンロード済みのファイルは消しません。', recent: '追加日の新しい順。読み込んだ範囲（' + esc(dirLabel((scanRoot() || {}).id) || '—') + '）のファイルだけが出ます。', hist: 'PikPak で再生した動画（新しい順）。', star: 'PikPak でスターを付けた項目。', trash: `ゴミ箱の中身${quota ? `（${fmtCap(quota.trash)}）` : ''}。「完全に削除」「空にする」は元に戻せません。` }[tab];
+    const pvTip = 'ダブルクリックで低画質のプレビュー、本編は「↗ 外部プレーヤー」（オリジナル画質）がおすすめ。';
+    const note = { dl: 'クラウドダウンロード（リンク・マグネットの追加）の状況。「一覧から外す」はタスクを消すだけで、ダウンロード済みのファイルは消しません。', recent: '追加日の新しい順（読み込んだ範囲：' + esc(dirLabel((scanRoot() || {}).id) || '—') + '）。' + pvTip, hist: 'PikPak で再生した動画（新しい順）。' + pvTip, star: 'PikPak でスターを付けた項目。' + pvTip, trash: `ゴミ箱の中身${quota ? `（${fmtCap(quota.trash)}）` : ''}。「完全に削除」「空にする」は元に戻せません。` }[tab];
     const all = selectable && S.items.length ? `<label class="note lb-all"><input type="checkbox" data-lball${n && n === S.items.length ? ' checked' : ''}${dis}> すべて選ぶ</label>` : '';
-    d.innerHTML = `<div class="lk-box" role="dialog" aria-label="${esc(LIB_TABS.find((x) => x[0] === tab)[1])}"><div class="lk-hd"><b>${LIB_TABS.find((x) => x[0] === tab)[1]}</b><span class="note">${S.items.length && !S.loading ? S.items.length + ' 項目' : ''}</span><span class="sp"></span><button data-lbreload title="読み込み直す"${dis}>更新</button><button class="x" data-lbclose aria-label="閉じる">${IC.x}</button></div>
+    const html = `<div class="lk-box" role="dialog" aria-label="${esc(LIB_TABS.find((x) => x[0] === tab)[1])}"><div class="lk-hd"><b>${LIB_TABS.find((x) => x[0] === tab)[1]}</b><span class="note">${S.items.length && !S.loading ? S.items.length + ' 項目' : ''}</span><span class="sp"></span><button data-lbreload title="読み込み直す"${dis}>更新</button><button class="x" data-lbclose aria-label="閉じる">${IC.x}</button></div>
       <div class="lb-tabs">${tabs}</div>
       <div class="lb-note">${note}</div>
       <div class="lk-list">${all}${body}</div>
-      <div class="lk-ft"><span class="tx">${S.busy ? '処理しています…' : ''}</span>${acts}</div></div>`;
+      <div class="lk-ft">${libActs()}</div></div>`;
+    // プレビューを開いたままでも一覧だけ描き直す（動画は止めない）
+    const old = d.querySelector('.lk-box'); const sc = old ? (old.querySelector('.lk-list') || {}).scrollTop || 0 : 0;
+    if (old) old.outerHTML = html; else d.insertAdjacentHTML('afterbegin', html);
+    if (sc) { const l = d.querySelector('.lk-list'); if (l) l.scrollTop = sc; }
   }
   // ---------- 新しいバージョンのお知らせ（12 時間に 1 回、GitHub の最新版の番号だけを確かめる） ----------
   const LS_UPD = 'ppdup:update:v1';

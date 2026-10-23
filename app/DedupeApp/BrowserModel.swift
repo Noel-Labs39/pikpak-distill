@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import CryptoKit
 import WebKit
 
 struct Popup: Identifiable {
@@ -16,6 +17,8 @@ final class BrowserModel: ObservableObject {
     static let scriptURL = URL(string: "https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js")!
     // スクリプトの @require（動画再生用の hls.js）。アプリでは自動で読まれないため、ここで先に組み込む
     static let hlsURL = URL(string: "https://cdn.jsdelivr.net/npm/hls.js@1.6.15/dist/hls.min.js")!
+    // hls.js の中身の目印（SHA-256）。一致しないもの（書き換えられたもの）は使わない
+    static let hlsSHA256 = "413a83e2bb0c77ed0bf0be105d539d17ef45dfd984a0b13ecd3b14a901383938"
     private var hls = ""
 
     // 保存しておいたスクリプト（アプリを開くたびに GitHub の最新版で上書きする）
@@ -39,8 +42,9 @@ final class BrowserModel: ObservableObject {
     // 1. GitHub の最新版 → 2. 前回保存した版 → 3. アプリに同梱した版 の順に使う
     func loadScript() async {
         let hlsFile = cached("hls.min.js")
-        if let d = await fetch(Self.hlsURL, mustContain: "Hls") { try? d.write(to: hlsFile) }
-        hls = (try? String(contentsOf: hlsFile, encoding: .utf8)) ?? ""
+        let ok = { (d: Data) in SHA256.hash(data: d).map { String(format: "%02x", $0) }.joined() == Self.hlsSHA256 }
+        if let d = await fetch(Self.hlsURL, mustContain: "Hls"), ok(d) { try? d.write(to: hlsFile) }
+        if let d = try? Data(contentsOf: hlsFile), ok(d) { hls = String(data: d, encoding: .utf8) ?? "" } else { hls = "" }
         if let d = await fetch(Self.scriptURL, mustContain: "@version"), let s = String(data: d, encoding: .utf8) {
             try? d.write(to: cacheFile)
             script = s

@@ -36,6 +36,17 @@ jobs:
           echo "version=$v" >> "$GITHUB_OUTPUT"
           echo "tag=v$v" >> "$GITHUB_OUTPUT"
 
+      - name: Check @require hashes
+        # @require の #sha256= が、配信元の中身と一致するか確かめる（一致しないと、利用者の画面でスクリプトが動かなくなる）
+        run: |
+          grep -E '^// @require ' pikpak-distill.user.js | while read -r _ _ u; do
+            url="${u%%#sha256=*}"; want="${u##*#sha256=}"
+            [ "$url" = "$u" ] && continue
+            got=$(curl -fsSL "$url" | sha256sum | cut -c1-64)
+            if [ "$got" != "$want" ]; then echo "::error::@require のハッシュが一致しません：$url（$got）"; exit 1; fi
+            echo "OK $url"
+          done
+
       - name: Skip if the release already exists
         id: check
         env:

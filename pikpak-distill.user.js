@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.0.11
+// @version      4.0.12
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.0.11'; // @version と合わせて更新する
+  const VER = '4.0.12'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -3641,7 +3641,7 @@
         ${sec('org') ? `<h3>整理</h3>
         <label class="row"><span><b>作品と関係ないファイルを除外する</b><small>広告・宣伝のファイルや 10MB 以下のファイルなどを、ほかの作業の対象から外します</small></span><input type="checkbox" data-s="junk"${junkEnabled() ? ' checked' : ''}></label>
         <label class="row"><span><b>ファイル名を整える</b><small>オフにすると、このステップを使わず次へ進みます</small></span><input type="checkbox" data-s="name"${nameEnabled() ? ' checked' : ''}></label>` : ''}
-        ${sec('org') ? `<div class="row"><span><b>解凍パスワード</b><small>解凍できたパスワード ${pwList().length} 件（次から自動で順に試します）。このブラウザにだけ保存</small></span><button data-s="pwclear"${pwList().length ? '' : ' disabled'}>消去</button></div>` : ''}
+        ${sec('org') ? `<div class="row"><span><b>解凍パスワード</b><small>解凍できたパスワード ${pwList().length} 件（次から自動で順に試します）。このブラウザにだけ暗号化して保存</small></span><button data-s="pwclear"${pwList().length ? '' : ' disabled'}>消去</button></div>` : ''}
         ${sec('org') ? `<h3>販売者ごとに仕分け</h3>
         <label class="row"><span><b>このステップを使う</b><small>オフにすると「8. 販売者ごとに仕分け」を使いません</small></span><input type="checkbox" data-s="seller"${sellerEnabled() ? ' checked' : ''}></label>
         <div class="row"><span><b>まとめるフォルダ</b><small>ホームの直下に作ります</small></span><input type="text" data-s="scfg" data-k="root" value="${esc(sellerCfg().root)}" style="width:150px;font:inherit;padding:6px 10px;border:1px solid var(--ctl-line);border-radius:8px;background:var(--ctl);color:inherit"></div>
@@ -3651,7 +3651,7 @@
         <div class="row"><span><b>調べた結果</b><small>${Object.keys(sellerDb).length} 件（手入力 ${Object.values(sellerDb).filter((r) => r.src === 'manual').length} 件を含む）。このブラウザにだけ保存</small></span><button data-s="sclear"${Object.keys(sellerDb).length ? '' : ' disabled'}>消去</button></div>` : ''}
         ${sec('info') ? `<h3>情報</h3>
         <div class="row"><span><b>PikPak Distill – Dedupe</b><small class="ver">v${VER} · Noel Labs</small></span><button data-s="changelog">更新履歴</button></div>
-        <div class="row"><span><b>PikPak で同期する</b><small>調査結果・判断・設定を PikPak の「${esc(SYNC_DIR)}」に保存し、ほかのブラウザやアプリと共有します（ログイン情報は含めません）</small><small data-r="syncrow"></small><label style="display:flex;gap:6px;align-items:center;margin-top:4px"><input type="checkbox" data-s="syncpw"${syncCfg().pw ? ' checked' : ''}> 解凍パスワードも同期する</label></span><span style="display:flex;gap:8px;align-items:center"><button data-s="syncnow"${syncCfg().on && syncCfg().asked ? '' : ' disabled'}>今すぐ同期</button><input type="checkbox" data-s="syncon" title="同期する"${syncCfg().on && syncCfg().asked ? ' checked' : ''}></span></div>
+        <div class="row"><span><b>PikPak で同期する</b><small>調査結果・判断・設定を PikPak の「${esc(SYNC_DIR)}」に保存し、ほかのブラウザやアプリと共有します（ログイン情報は含めません）</small><small data-r="syncrow"></small><label style="display:flex;gap:6px;align-items:center;margin-top:4px"><input type="checkbox" data-s="syncpw"${syncCfg().pw ? ' checked' : ''}> 解凍パスワードも同期する（合言葉で暗号化）</label></span><span style="display:flex;gap:8px;align-items:center"><button data-s="syncnow"${syncCfg().on && syncCfg().asked ? '' : ' disabled'}>今すぐ同期</button><input type="checkbox" data-s="syncon" title="同期する"${syncCfg().on && syncCfg().asked ? ' checked' : ''}></span></div>
         <div class="row col"><b>書き出し／読み込み</b><small class="note" style="display:block">別のブラウザやパソコンへ移すときに使います（ログイン情報は含めません）</small>${Object.keys(EXPORT_GROUPS).map((g) => `<label><input type="checkbox" data-s="expg" value="${g}"${exportSel[g] ? ' checked' : ''}> ${EXPORT_GROUPS[g].label}<small style="color:var(--mute)">（${groupCount(g)} 件）</small></label>`).join('')}<span style="display:flex;gap:8px;margin-top:6px"><button data-s="export">書き出す（.json）</button><button data-s="import">読み込む…</button></span></div>
         <div class="row"><span><b>ログ</b><small>エラーや処理の記録</small></span><button data-s="log">ログを表示${errs ? `<span class="badge">${errs}</span>` : ''}</button></div>` : ''}
       </div></aside>`;
@@ -3666,7 +3666,7 @@
     else if (k === 'theme') setTheme(b.dataset.v);
     else if (k === 'log') { closeSettings(); showLog(); }
     else if (k === 'sclear') { if (confirm(tr('調べた販売者の結果（手入力を含む）をすべて消去しますか？'))) { sellerDb = {}; saveSellerDb(); syncCleared(LS_SELLER); sellerSel.clear(); log('info', '販売者の調査結果を消去'); renderSettings(); if (root.classList.contains('on') && !busy) setView(view); } }
-    else if (k === 'pwclear') { if (confirm(tr('記録した解凍パスワードをすべて消去しますか？'))) { try { localStorage.setItem(LS_UNZIPPW, '[]'); } catch (e) { /* 無視 */ } syncCleared(LS_UNZIPPW); log('info', '解凍パスワードを消去'); renderSettings(); } }
+    else if (k === 'pwclear') { if (confirm(tr('記録した解凍パスワードをすべて消去しますか？'))) { clearPws(); syncCleared(LS_PWX); log('info', '解凍パスワードを消去'); renderSettings(); } }
     else if (k === 'syncnow') syncNow('手動').then((ok) => { status(ok ? 'PikPak と同期しました' : '同期できませんでした（「ログを表示」で理由を確認できます）'); renderSettings(); });
     else if (k === 'export') exportData();
     else if (k === 'import') importData();
@@ -3675,7 +3675,11 @@
   function onSettingsChange(e) {
     const t = e.target, k = t.dataset.s;
     if (k === 'syncon') { saveSyncCfg({ asked: true, on: t.checked }); if (t.checked) syncNow('オンにした'); renderSettings(); return; }
-    if (k === 'syncpw') { saveSyncCfg({ pw: t.checked }); if (t.checked) syncNow('解凍パスワード'); return; }
+    if (k === 'syncpw') {
+      if (t.checked) { syncPassKey().then(async (have) => { const pass = askPass(have ? '解凍パスワードを、合言葉で暗号化して同期します（前に決めた合言葉を入れてください）。' : 'ほかの端末と同じ合言葉を決めてください。解凍パスワードは、この合言葉で暗号化してから PikPak に保存します。', !have); if (!pass) { t.checked = false; return; } await setSyncPass(pass); saveSyncCfg({ pw: true }); syncNow('解凍パスワード'); renderSettings(); }); }
+      else { saveSyncCfg({ pw: false }); idb.del('sync').catch(() => {}); try { localStorage.removeItem(LS_PWX); } catch (e) { /* 無視 */ } }
+      return;
+    }
     if (k === 'lang') { setLang(t.value); return; }
     if (k === 'expg') { exportSel[t.value] = t.checked; return; }
     if (k === 'blur' || k === 'blurhov') { try { localStorage.setItem(k === 'blur' ? LS_BLUR : LS_BLURHOV, t.checked ? '1' : '0'); } catch (e) { /* 無視 */ } applyBlur(); renderSettings(); return; }
@@ -4577,18 +4581,20 @@
     settings: { label: '設定', keys: ['ppdup:theme:v1', 'ppdup:lang:v1', 'ppdup:open:v1', 'ppdup:popban:v1', 'ppdup:popgeom:v1', 'ppdup:opt:junk:v1', 'ppdup:opt:cleanname:v1', 'ppdup:opt:seller:v1', 'ppdup:player:v1', 'ppdup:player:q:v1', 'ppdup:rate:v1', 'ppdup:frames:v1', 'ppdup:tree:v1', 'ppdup:seller:cfg:v1', 'ppdup:scanstat:v1'] },
     seller: { label: '販売者の調査結果と手入力', keys: ['ppdup:seller:v1'], merge: true },
     decision: { label: '重複の判断（残す・削除の記録）', keys: ['ppdup:decision:v1'], merge: true },
-    unzip: { label: '解凍パスワード', keys: ['ppdup:unzippw:v1'], merge: true },
+    unzip: { label: '解凍パスワード（合言葉で暗号化）', keys: ['ppdup:unzippw:x'], merge: true, enc: true },
   };
   let exportSel = { settings: true, seller: true, decision: true, unzip: true };
   const lsGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
   const groupCount = (g, src) => {
+    if (EXPORT_GROUPS[g].enc && !src) return pwCache.length;
     let n = 0;
     EXPORT_GROUPS[g].keys.forEach((k) => { const v = src ? src[k] : lsGet(k); if (v == null) return; if (!EXPORT_GROUPS[g].merge) { n++; return; } try { const o = JSON.parse(v); n += Array.isArray(o) ? o.length : Object.keys(o || {}).length; } catch (e) { n++; } });
     return n;
   };
-  function exportData() {
+  async function exportData() {
     const data = {};
-    Object.keys(EXPORT_GROUPS).forEach((g) => { if (!exportSel[g]) return; EXPORT_GROUPS[g].keys.forEach((k) => { const v = lsGet(k); if (v != null) data[k] = v; }); });
+    Object.keys(EXPORT_GROUPS).forEach((g) => { if (!exportSel[g] || EXPORT_GROUPS[g].enc) return; EXPORT_GROUPS[g].keys.forEach((k) => { const v = lsGet(k); if (v != null) data[k] = v; }); });
+    if (exportSel.unzip) { await pwReady; if (pwCache.length) { const pass = askPass('解凍パスワードを、合言葉で暗号化して書き出します。', true); if (pass) data[LS_PWX] = await pwExportBox(pwCache, pass); else status('解凍パスワードは書き出しませんでした'); } }
     const blob = new Blob([JSON.stringify({ app: 'pikpak-distill', ver: VER, at: new Date().toISOString(), data }, null, 1)], { type: 'application/json' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
     const d = new Date(); a.download = `pikpak-distill_${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}.json`;
@@ -4620,6 +4626,7 @@
         let n = 0;
         gs.filter((g) => d.querySelector(`[data-ig="${g}"]`).checked).forEach((g) => EXPORT_GROUPS[g].keys.forEach((k) => {
           if (!(k in src)) return;
+          if (k === LS_PWX) { const pass = askPass('書き出したときの合言葉を入れると、解凍パスワードを読み込みます。'); if (pass) pwImportBox(src[k], pass).then((l) => { const n = addPws(l); log('info', `解凍パスワードを ${n} 件読み込みました`); }).catch(() => alert(tr('合言葉が違うため、解凍パスワードは読み込めませんでした'))); return; }
           let v = src[k];
           if (mode === 'merge' && EXPORT_GROUPS[g].merge) { try { const cur = JSON.parse(lsGet(k) || 'null'); const inc = JSON.parse(v); if (Array.isArray(cur) && Array.isArray(inc)) v = JSON.stringify([...new Set([...inc, ...cur])]); else if (cur && typeof cur === 'object' && inc && typeof inc === 'object') v = JSON.stringify({ ...cur, ...inc }); } catch (e) { /* そのまま */ } }
           try { localStorage.setItem(k, v); n++; } catch (e) { /* 無視 */ }
@@ -4637,14 +4644,14 @@
   const LS_SYNC = 'ppdup:sync:v1'; // { on, asked, pw, last, err }
   const LS_SYNCMETA = 'ppdup:syncmeta:v1'; // キー → { h: 中身の目印, at: 変わった時刻, clr: 消去した時刻 }
   const SYNC_KEYS = {
-    'ppdup:seller:v1': 'seller', 'ppdup:decision:v1': 'union', 'ppdup:unzippw:v1': 'union',
+    'ppdup:seller:v1': 'seller', 'ppdup:decision:v1': 'union', 'ppdup:unzippw:x': 'pwx',
     // 端末ごとに違ってよいもの（ウィンドウの位置・開き方など）は同期しない
     'ppdup:theme:v1': 'last', 'ppdup:lang:v1': 'last', 'ppdup:opt:junk:v1': 'last', 'ppdup:opt:cleanname:v1': 'last', 'ppdup:opt:seller:v1': 'last',
     'ppdup:player:v1': 'last', 'ppdup:player:q:v1': 'last', 'ppdup:rate:v1': 'last', 'ppdup:frames:v1': 'last', 'ppdup:seller:cfg:v1': 'last',
   };
   const syncCfg = () => { try { return { on: true, ...(JSON.parse(localStorage.getItem(LS_SYNC) || '{}') || {}) }; } catch (e) { return { on: true }; } };
   const saveSyncCfg = (p) => { try { localStorage.setItem(LS_SYNC, JSON.stringify({ ...syncCfg(), ...p })); } catch (e) { /* 無視 */ } };
-  const syncKeys = () => Object.keys(SYNC_KEYS).filter((k) => k !== 'ppdup:unzippw:v1' || syncCfg().pw);
+  const syncKeys = () => Object.keys(SYNC_KEYS).filter((k) => k !== 'ppdup:unzippw:x' || syncCfg().pw);
   const strHash = (s) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return s.length + ':' + h; };
   function syncMeta() { try { return JSON.parse(localStorage.getItem(LS_SYNCMETA) || '{}') || {}; } catch (e) { return {}; } }
   const saveSyncMeta = (m) => { try { localStorage.setItem(LS_SYNCMETA, JSON.stringify(m)); } catch (e) { /* 無視 */ } };
@@ -4666,6 +4673,7 @@
       if (!a || !b) { out[k] = a || b; return; }
       const clr = Math.max(a.clr || 0, b.clr || 0);
       if (kind === 'last') { out[k] = (b.at || 0) > (a.at || 0) ? b : a; return; }
+      if (kind === 'pwx') { out[k] = a; return; } // 相手の分は取り込み済み（mergePwSyncBox）。手元の暗号文で上書き
       const va = parseJ(a.v, null), vb = parseJ(b.v, null);
       let v;
       if (Array.isArray(va) || Array.isArray(vb)) v = [...new Set([...(Array.isArray(va) ? va : []), ...(Array.isArray(vb) ? vb : [])])];
@@ -4720,6 +4728,8 @@
       syncKeys().forEach((k) => { const v = lsGet(k); if (v != null || (m[k] && m[k].clr)) local[k] = { v: v == null ? (SYNC_KEYS[k] === 'last' ? null : '{}') : v, at: !c.last && SYNC_KEYS[k] === 'last' ? 0 : (m[k] && m[k].at) || 0, clr: (m[k] && m[k].clr) || 0 }; }); // 初めて同期する環境では、設定は PikPak 側を優先する
       const dir = await syncFolder();
       const R = await syncRead(dir);
+      if (c.pw && R.data && R.data[LS_PWX] && R.data[LS_PWX].v) { const ok = await mergePwSyncBox(R.data[LS_PWX].v); if (!ok) delete m[LS_PWX]; }
+      if (c.pw) { await pwReady; await refreshPwSyncBox(); const v = lsGet(LS_PWX); if (v != null) local[LS_PWX] = { v, at: Date.now(), clr: (m[LS_PWX] && m[LS_PWX].clr) || 0 }; }
       const merged = R.data ? syncMerge(local, R.data) : local;
       // 手元に反映
       let changed = [];
@@ -4778,8 +4788,77 @@
   const LS_UNZIPPW = 'ppdup:unzippw:v1';
   const DEC = 'https://api-drive.mypikpak.com/decompress/v1';
   const isArchive = (name) => { const n = String(name || '').toLowerCase(); if (/\.part0*([2-9]|\d{2,})\.rar$/.test(n)) return false; return /\.(zip|rar|7z)$/.test(n) || /\.(7z|zip)\.0*1$/.test(n); };
-  const pwList = () => { try { const a = JSON.parse(localStorage.getItem(LS_UNZIPPW) || '[]'); return Array.isArray(a) ? a.filter((x) => typeof x === 'string') : []; } catch (e) { return []; } };
-  const savePw = (pw) => { if (!pw) return; const a = [pw, ...pwList().filter((x) => x !== pw)].slice(0, 50); try { localStorage.setItem(LS_UNZIPPW, JSON.stringify(a)); } catch (e) { /* 無視 */ } };
+  // ---------- 解凍パスワードの暗号化（AES-GCM） ----------
+  //   ・この端末：ブラウザの中に「取り出せない鍵」を作って暗号化（IndexedDB に保存。鍵そのものは読み出せない）
+  //   ・書き出し・PikPak での同期：ノエルさんが決めた合言葉から鍵を作って暗号化（PBKDF2-SHA256 60 万回）
+  //   ・平文では保存しない（以前の平文の記録は、開いたときに暗号化して置き換える）
+  const LS_PWENC = 'ppdup:unzippw:v2', LS_PWX = 'ppdup:unzippw:x';
+  const PBKDF2_N = 600000;
+  const b64 = (u8) => btoa(String.fromCharCode(...new Uint8Array(u8)));
+  const unb64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+  const idb = (() => {
+    let dbp = null;
+    const open = () => dbp || (dbp = new Promise((res, rej) => { const r = indexedDB.open('ppdup-keys', 1); r.onupgradeneeded = () => r.result.createObjectStore('k'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }));
+    const tx = (mode, fn) => open().then((db) => new Promise((res, rej) => { const t = db.transaction('k', mode); const q = fn(t.objectStore('k')); t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error); }));
+    return { get: (k) => tx('readonly', (s) => s.get(k)), set: (k, v) => tx('readwrite', (s) => s.put(v, k)), del: (k) => tx('readwrite', (s) => s.delete(k)) };
+  })();
+  let devKeyP = null;
+  const deviceKey = () => devKeyP || (devKeyP = (async () => {
+    let k = await idb.get('dev');
+    if (!k) { k = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']); await idb.set('dev', k); }
+    return k;
+  })());
+  async function aesEnc(key, obj) { const iv = crypto.getRandomValues(new Uint8Array(12)); const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(JSON.stringify(obj))); return { i: b64(iv), c: b64(ct) }; }
+  async function aesDec(key, box) { const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(box.i) }, key, unb64(box.c)); return JSON.parse(new TextDecoder().decode(pt)); }
+  async function passKey(pass, salt) {
+    const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pass.normalize('NFKC')), 'PBKDF2', false, ['deriveKey']);
+    return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: PBKDF2_N, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+  }
+  // 合言葉を 2 回入れてもらう（短すぎるものは断る）
+  function askPass(why, twice) {
+    const a = prompt(tr(why + '\n\n合言葉（8 文字以上）を入れてください。忘れると、ほかの端末や書き出したファイルからは戻せません。'));
+    if (a == null) return null;
+    if (a.length < 8) { alert(tr('合言葉は 8 文字以上にしてください')); return null; }
+    if (twice && prompt(tr('確認のため、もう一度入れてください')) !== a) { alert(tr('合言葉が一致しませんでした')); return null; }
+    return a;
+  }
+  // 書き出し用：合言葉で暗号化（塩はファイルに入れる）
+  async function pwExportBox(list, pass) { const salt = crypto.getRandomValues(new Uint8Array(16)); const box = await aesEnc(await passKey(pass, salt), list); return JSON.stringify({ v: 1, s: b64(salt), ...box }); }
+  async function pwImportBox(str, pass) { const o = JSON.parse(str); return aesDec(await passKey(pass, unb64(o.s)), o); }
+  // 同期用：PikPak のアカウントごとに決まる塩＋合言葉の鍵（この端末に「取り出せない鍵」として保存）
+  async function acctSalt() { const c = readCred(); let sub = ''; try { sub = JSON.parse(atob(String(c && c.auth).replace(/^Bearer\s+/i, '').split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))).sub || ''; } catch (e) { /* 無視 */ } return new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode('ppdup-sync:' + sub))); }
+  async function setSyncPass(pass) { await idb.set('sync', await passKey(pass, await acctSalt())); }
+  const syncPassKey = () => idb.get('sync').catch(() => null);
+  // 手元の一覧（メモリ上だけに平文で持つ）
+  let pwCache = [], pwReady = null;
+  const pwList = () => pwCache;
+  async function pwPersist() {
+    try { localStorage.setItem(LS_PWENC, JSON.stringify(await aesEnc(await deviceKey(), pwCache))); localStorage.removeItem(LS_UNZIPPW); } catch (e) { log('warn', '解凍パスワードを暗号化して保存できませんでした：' + (e.message || e)); }
+    refreshPwSyncBox();
+  }
+  const savePw = (pw) => { if (!pw) return; pwCache = [pw, ...pwCache.filter((x) => x !== pw)].slice(0, 50); pwPersist(); };
+  const addPws = (list) => { const n = pwCache.length; pwCache = [...new Set([...pwCache, ...(Array.isArray(list) ? list : []).filter((x) => typeof x === 'string' && x)])].slice(0, 50); if (pwCache.length !== n) pwPersist(); return pwCache.length - n; };
+  async function clearPws() { pwCache = []; try { localStorage.removeItem(LS_PWENC); localStorage.removeItem(LS_UNZIPPW); localStorage.removeItem(LS_PWX); } catch (e) { /* 無視 */ } }
+  pwReady = (async () => {
+    try {
+      const enc = lsGet(LS_PWENC);
+      if (enc) pwCache = await aesDec(await deviceKey(), JSON.parse(enc));
+      // 以前の平文の記録 → 暗号化して置き換え
+      const old = lsGet(LS_UNZIPPW);
+      if (old) { let a = []; try { a = JSON.parse(old); } catch (e) { a = []; } addPws(a); await pwPersist(); log('info', '解凍パスワードを暗号化して保存し直しました'); }
+    } catch (e) { log('warn', '解凍パスワードを読み出せませんでした（この端末の鍵が変わった可能性があります）：' + (e.message || e)); }
+  })();
+  // 同期用の暗号化した一覧（合言葉の鍵があるときだけ）
+  async function refreshPwSyncBox() {
+    if (!syncCfg().pw) return;
+    const k = await syncPassKey(); if (!k) return;
+    try { localStorage.setItem(LS_PWX, JSON.stringify(await aesEnc(k, pwCache))); } catch (e) { /* 無視 */ }
+  }
+  // 同期で受け取った暗号化した一覧を取り込む（合言葉が違えば取り込まない）
+  async function mergePwSyncBox(str) {
+    const k = await syncPassKey(); if (!k || !str) return false;
+    try { const n = addPws(await aesDec(k, JSON.parse(str))); if (n) log('info', `ほかの端末の解凍パスワードを ${n} 件取り込みました`); return true; } catch (e) { status('合言葉が違うため、解凍パスワードを同期できません（設定 → 情報 で合言葉を入れ直してください）'); log('warn', '解凍パスワードの同期：合言葉が違います'); return false; }
+  }
   const pwSignal = (d) => { const code = +(d && (d.error_code != null ? d.error_code : d.code)) || 0; const st = String((d && (d.status || d.status_code || d.error)) || '').toUpperCase(); return code === 10023 || /PASS_?WORD/.test(st); };
   let uzSt = null; // { items: [...], trash: true, busy }
   async function uzList(it, pw) {
@@ -4797,6 +4876,7 @@
       let r = await uzList(it, '');
       if (r.pw) {
         // 記録したパスワードを順に試す（最大 10 個）
+        await pwReady;
         for (const pw of pwList().slice(0, 10)) { const t = await uzList(it, pw); if (t.ok) { r = t; it.pw = pw; it.autoPw = true; break; } await sleep(250); }
       }
       if (r.ok) { it.st = 'ready'; it.n = r.n; it.usize = r.size; it.on = true; }

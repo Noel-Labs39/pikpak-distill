@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.0.16
+// @version      4.1.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.0.16'; // @version と合わせて更新する
+  const VER = '4.1.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1481,6 +1481,132 @@
   #pd-dlg button{font:inherit;padding:6px 14px;border:1px solid #c5c9d2;border-radius:8px;background:#fff;color:inherit;cursor:pointer}
   #pd-dlg button.danger{background:#d64545;color:#fff;border-color:#d64545;font-weight:700}
   html.pd-dark #pd-dlg .box{background:#1d2027;color:#e6e8ee}html.pd-dark #pd-dlg button{background:#252932;border-color:#3a3f4b}
+  /* ===== v4.1：デリログ風の見た目（丸み・やわらかい色・左の常設メニュー・ダッシュボード） ===== */
+  #ppdup{--rf:"Hiragino Maru Gothic ProN","Hiragino Maru Gothic Pro","M PLUS Rounded 1c","Kosugi Maru","Yu Gothic UI","Hiragino Sans","Meiryo",system-ui,sans-serif;font-family:var(--rf)}
+  #ppdup:not(.pop):not(.narrow){padding-left:236px}
+  #ppdup:not(.pop):not(.narrow) .rail{box-sizing:border-box;width:236px;align-items:stretch;padding:14px 12px 12px;background:var(--panel);gap:2px}
+  #ppdup:not(.pop):not(.narrow) .rail > button:not(.rl-sub):not(.rl-acct){width:auto;flex-direction:row;justify-content:flex-start;gap:12px;padding:10px 12px;border-radius:12px;font-size:14px;font-weight:800;color:var(--fg);text-align:left}
+  #ppdup:not(.pop):not(.narrow) .rail > button span{flex:1}
+  #ppdup:not(.pop):not(.narrow) .rail svg{width:20px;height:20px;color:var(--mute)}
+  #ppdup:not(.pop):not(.narrow) .rail button.on{background:var(--pri-soft);color:var(--pri)}
+  #ppdup:not(.pop):not(.narrow) .rail button.on svg{color:var(--pri)}
+  #ppdup:not(.pop):not(.narrow) .rail .rb{position:static;font-size:11px;line-height:18px;min-width:18px;padding:0 6px;font-weight:800}
+  #ppdup .rail .rl-sep{height:1px;background:var(--line);margin:10px 6px;flex:none}
+  #ppdup .rail .rl-sub{width:auto!important;flex-direction:row!important;padding:7px 12px!important;font-size:12px!important;font-weight:700;color:var(--mute)!important;text-align:left;border-radius:10px}
+  #ppdup .rail .rl-acct{margin-top:auto;width:auto!important;flex-direction:row!important;align-items:center!important;gap:10px!important;padding:10px 12px!important;border:1px solid var(--line)!important;border-radius:16px!important;text-align:left;color:var(--fg)!important}
+  #ppdup .rail .rl-acct i{width:34px;height:34px;flex:none;border-radius:50%;background:var(--panel2);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px var(--ok)}
+  #ppdup .rail .rl-acct.ng i{box-shadow:0 0 0 2px var(--danger)}
+  #ppdup .rail .rl-acct svg{width:18px!important;height:18px!important}
+  #ppdup .rail .rl-acct span{display:flex!important;flex-direction:column;min-width:0}
+  #ppdup .rail .rl-acct b{font-size:12px}
+  #ppdup .rail .rl-acct small{font-size:11px;color:var(--ok);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #ppdup .rail .rl-acct.ng small{color:var(--danger)}
+  /* アイコンだけ（☰ でたたむ）・ポップアップ */
+  #ppdup.navmin:not(.pop):not(.narrow){padding-left:78px}
+  #ppdup.navmin:not(.pop):not(.narrow) .rail{width:78px;align-items:center;padding:12px 0 10px}
+  #ppdup.navmin:not(.pop):not(.narrow) .rail > button:not(.rl-sub):not(.rl-acct){width:56px;flex-direction:column;justify-content:center;padding:10px 0;font-size:0}
+  #ppdup.navmin:not(.pop):not(.narrow) .rail > button span{display:none}
+  #ppdup.navmin:not(.pop):not(.narrow) .rail .rb{position:absolute;top:3px;right:4px;font-size:10px;line-height:15px;min-width:15px;padding:0 4px}
+  #ppdup.navmin .rail .rl-sub,#ppdup.navmin .rail .rl-sep,#ppdup.pop .rail .rl-sub,#ppdup.pop .rail .rl-sep{display:none!important}
+  #ppdup.navmin .rail .rl-acct,#ppdup.pop .rail .rl-acct{border:0!important;padding:6px!important}
+  #ppdup.navmin .rail .rl-acct span,#ppdup.pop .rail .rl-acct span{display:none!important}
+  #ppdup.pop [data-a=navtoggle]{display:none}
+  #ppdup.pop header .thm,#ppdup.pop header .hbtn[data-a=lang],#ppdup.pop .hbtn.hacct > span,#ppdup.pop header .wbtn-full > span{display:none!important}
+  #ppdup.pop .hbtn.hacct{padding:0 5px!important}
+  /* 狭い画面・スマホ：左メニューは ☰ で右から出す */
+  #ppdup.narrow{padding-left:0!important}
+  #ppdup.narrow .rail{display:none}
+  #ppdup.narrow.navopen::before{content:"";position:absolute;inset:0;background:#1e243066;z-index:5}
+  #ppdup.narrow.navopen .rail{box-sizing:border-box;display:flex;position:absolute;left:auto;right:0;top:0;bottom:0;width:min(300px,86vw);z-index:6;align-items:stretch;padding:16px 14px;background:var(--panel);box-shadow:-10px 0 30px #0003;gap:2px}
+  #ppdup.narrow.navopen .rail > button:not(.rl-sub):not(.rl-acct){width:auto;flex-direction:row;justify-content:flex-start;gap:12px;padding:12px;border-radius:12px;font-size:15px;font-weight:800;color:var(--fg)}
+  #ppdup.narrow.navopen .rail > button:not(.rl-acct) > span{display:block!important;flex:1;text-align:left}
+  #ppdup.narrow.navopen .rail .rb{position:static}
+  /* 上のバー */
+  #ppdup header{border-bottom:1px solid var(--line)}
+  #ppdup .hbtn{border-radius:12px!important;border:1px solid var(--line)!important;background:var(--panel)!important}
+  #ppdup header .hbtn[data-a=lang] > span,#ppdup header .brand > .hbtn[data-a=addlink] > span{display:none}
+  #ppdup header .hbtn[data-a=lang],#ppdup header .brand > .hbtn[data-a=addlink]{width:38px;padding:0!important;justify-content:center}
+  @media (max-width:1500px){#ppdup header .hbtn[data-a=settings] > span,#ppdup header .hxl > span{display:none}#ppdup header .hbtn[data-a=settings],#ppdup header .hxl{width:38px;padding:0!important;justify-content:center}}
+  #ppdup.narrow header .thm,#ppdup.narrow header .hbtn[data-a=lang],#ppdup.narrow header .brand > .hbtn[data-a=addlink],#ppdup.narrow header .hbtn[data-a=settings]{display:none!important}
+  #ppdup.narrow .hbtn.hacct > span{display:none}
+  #ppdup.narrow .brand .ver,#ppdup.narrow .wm small{display:none!important}
+  #ppdup.narrow .brand{flex-wrap:nowrap}
+  #ppdup.narrow .brand .sp{flex:1}
+  #ppdup:not(.pop) header .pd-quota{flex:0 1 210px;width:210px}
+  #ppdup:not(.pop) header .pd-quota .ql{display:none}
+  @media (max-width:1700px){#ppdup:not(.pop) header .thm,#ppdup:not(.pop) header .hbtn[data-a=lang]{display:none!important}#ppdup:not(.pop) header .hq input{width:150px}}
+  @media (max-width:1500px){#ppdup:not(.pop) header .hbtn.hacct > span,#ppdup:not(.pop) header .brand .ver{display:none}#ppdup:not(.pop) header .hbtn.hacct{padding:0 5px!important}}
+  #ppdup .hbtn.hic{width:38px;padding:0!important;justify-content:center}
+  #ppdup .hbtn.hacct{border-radius:20px!important;padding:0 12px 0 5px!important;gap:6px}
+  #ppdup .hbtn.hacct svg{width:26px!important;height:26px!important;padding:4px;box-sizing:border-box;border-radius:50%;background:var(--panel2);box-shadow:0 0 0 2px var(--ok)}
+  #ppdup .hbtn.hacct.ng svg{box-shadow:0 0 0 2px var(--danger)}
+  #ppdup .hbtn.hacct.ng{color:var(--danger)}
+  #pd-acct{position:fixed;z-index:100006;width:280px;background:var(--panel,#fff);color:var(--fg,#1c1f26);border:1px solid var(--line,#dde0e6);border-radius:16px;box-shadow:0 14px 40px #0003;padding:14px 16px;display:flex;flex-direction:column;gap:6px;font:13px/1.5 system-ui,"Hiragino Sans",sans-serif}
+  html.pd-dark #pd-acct{background:#1d2027;color:#e6e8ee;border-color:#2c303a}
+  #pd-acct small{color:#6a7080;font-size:12px}
+  #pd-acct .ln{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #8881}
+  #pd-acct .acts{display:flex;gap:8px;margin-top:6px}
+  #pd-acct button{flex:1;height:34px;border:1px solid #c5c9d2;border-radius:17px;background:none;color:inherit;font:inherit;font-weight:700;cursor:pointer}
+  #pd-acct button:disabled{opacity:.45}
+  /* ダッシュボード */
+  #ppdup .db{display:flex;flex-direction:column;gap:16px;max-width:1400px;padding-bottom:10px}
+  #ppdup .db-main{margin-bottom:6px}
+  #ppdup .db-hd{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  #ppdup .db-hd h2{margin:0 6px 0 0;font-size:21px;font-weight:800}
+  #ppdup .db-hd .sp{flex:1}
+  #ppdup .db-chip{height:32px;padding:0 14px;border-radius:16px;display:inline-flex;align-items:center;font-weight:800;border:1px solid var(--line);background:var(--panel)}
+  #ppdup .db-chip.on{background:var(--pri);border-color:var(--pri);color:#fff}
+  #ppdup .db-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+  #ppdup .db-st{background:var(--panel);border-radius:18px;padding:14px 18px;box-shadow:0 2px 10px #0000000d;display:flex;flex-direction:column;gap:2px;min-width:0}
+  #ppdup .db-st span{font-size:12px;color:var(--mute)}
+  #ppdup .db-st b{font-size:28px;font-weight:800;line-height:1.2}
+  #ppdup .db-st b small{font-size:13px}
+  #ppdup .db-st.pri b{color:var(--pri)}
+  #ppdup .db-st em{font-style:normal;font-size:11px;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #ppdup .db-main{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:14px;align-items:start}
+  #ppdup .db-tasks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  #ppdup .db-tk{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:14px 16px;border:0;border-radius:18px;background:var(--tk-bg);color:#1e2430;font:inherit;text-align:left;cursor:pointer;transition:transform .1s}
+  #ppdup .db-tk:hover{transform:translateY(-1px);box-shadow:0 4px 14px #0000001a}
+  #ppdup .db-tk .n{width:24px;height:24px;border-radius:50%;background:#fff;color:var(--tk-fg);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+  #ppdup .db-tk b{font-size:15px}
+  #ppdup .db-tk em{font-style:normal;font-size:12px;color:#4a5160}
+  #ppdup .db-tk .go{margin-top:2px;font-size:13px;font-weight:800;color:var(--tk-fg)}
+  #ppdup .db-tk.zero{background:var(--panel);box-shadow:inset 0 0 0 1px var(--line);color:var(--fg)}
+  #ppdup .db-tk.zero em{color:var(--mute)}
+  #ppdup .db-tk.zero .n{background:var(--panel2)}
+  #ppdup .db-tk.next{box-shadow:0 0 0 2px var(--tk-fg)}
+  html.pd-dark #ppdup .db-tk:not(.zero){filter:brightness(.92)}
+  #ppdup .db-card{background:var(--panel);border-radius:18px;padding:14px 18px;box-shadow:0 2px 10px #0000000d;display:flex;flex-direction:column;gap:10px}
+  #ppdup .db-ct{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800}
+  #ppdup .db-ct > i{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+  #ppdup .db-ct .sp{flex:1}
+  #ppdup .db-ct .lnk{border:0;background:none;color:var(--pri);font:inherit;font-size:12px;font-weight:800;cursor:pointer}
+  #ppdup .db-ths{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  #ppdup .db-th{display:flex;flex-direction:column;gap:3px;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;min-width:0}
+  #ppdup .db-th .im{aspect-ratio:16/10;border-radius:10px;background:var(--panel2);overflow:hidden;display:flex;align-items:center;justify-content:center}
+  #ppdup .db-th .im img{width:100%;height:100%;object-fit:cover}
+  #ppdup .db-th .im svg{width:28px;height:34px}
+  #ppdup .db-th b{font-size:11px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #ppdup .db-th small{font-size:10px;color:var(--mute)}
+  /* 右下のボタン群（狭い画面では、下から出るメニュー） */
+  #ppdup .sv-dock{position:sticky;bottom:0;align-self:flex-end;display:flex;flex-direction:column;gap:10px;padding:8px;border-radius:30px;background:var(--panel);box-shadow:0 10px 30px #0000002a;z-index:3}
+  #ppdup .sv-dock .dk-h,#ppdup .sv-dock .dk-q{display:none}
+  #ppdup .sv-dock .dk-b{display:flex;gap:10px}
+  #ppdup .sv-dock button{height:44px;padding:0 18px;border:1px solid var(--line);border-radius:22px;background:var(--panel);color:var(--fg);font:inherit;font-size:14px;font-weight:800;cursor:pointer;white-space:nowrap}
+  #ppdup .sv-dock button.pri{background:var(--pri);border-color:var(--pri);color:#fff}
+  @media (max-width:1100px){#ppdup .db-stats{grid-template-columns:repeat(2,minmax(0,1fr))}#ppdup .db-main{grid-template-columns:1fr}}
+  #ppdup.narrow .db-tasks{grid-template-columns:1fr 1fr}
+  #ppdup.narrow .db-hd .note{display:none}
+  #ppdup.narrow .db{padding-bottom:90px}
+  #ppdup.narrow .sv-dock{position:fixed;left:0;right:0;bottom:0;align-self:auto;border-radius:24px 24px 0 0;padding:6px 14px 16px}
+  #ppdup.narrow .sv-dock .dk-h{display:flex;justify-content:center;height:18px;border:0;padding:0;background:none}
+  #ppdup.narrow .sv-dock .dk-h i{width:44px;height:5px;border-radius:3px;background:var(--ctl-line)}
+  #ppdup.narrow .sv-dock .dk-b{flex-wrap:wrap}
+  #ppdup.narrow .sv-dock .dk-b button{flex:1 1 40%;height:48px;border-radius:24px}
+  #ppdup.narrow .sv-dock .dk-b button.pri{flex-basis:100%;order:-1}
+  #ppdup.narrow .sv-dock.open .dk-q{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  #ppdup .sv-dock .dk-q button{height:auto;padding:12px 8px;border-radius:16px;display:flex;flex-direction:column;align-items:flex-start;gap:2px;background:var(--panel2);border:0}
+  #ppdup .sv-dock .dk-q small{font-size:11px;color:var(--mute);font-weight:500}
   `;
   const style = document.createElement('style'); style.textContent = css; document.head.appendChild(style);
 
@@ -1526,15 +1652,23 @@
       <button data-a="lib" data-v="trash" data-rail="lib-trash" title="ゴミ箱（中身を見る・元に戻す・完全に削除）"><svg viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V4.8h5V7"/><path d="M6 7l1 12.2A1.5 1.5 0 0 0 8.5 20.6h7a1.5 1.5 0 0 0 1.5-1.4L18 7"/><path d="M10 11v6M14 11v6"/></svg><span>ゴミ箱</span><i class="rb" data-r="rb-trash"></i></button>
       <button data-a="addlink" data-rail="add" title="リンク・マグネットを追加"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.2 1.2"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.2-1.2"/></svg><span>リンク</span></button>
       <button data-a="rescan" data-rail="scan" title="最新の状態を読み込み直す"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg><span>再読み込み</span></button>
+      <button data-a="settings" data-rail="set" title="設定（表示・再生・整理・情報）"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>設定</span></button>
+      <div class="rl-sep"></div>
+      <button class="rl-sub" data-a="log">ログ・不具合の報告</button>
+      <button class="rl-sub" data-a="setinfo">書き出し／読み込み</button>
+      <button class="rl-sub" data-a="changelog">更新履歴（v${VER}）</button>
+      <button class="rl-acct" data-a="acct" data-r="acct" title="PikPak のログイン状態と同期"></button>
     </aside>
     <header>
-      <div class="brand">${LOGO}<h1 class="wm" aria-label="PikPak Distill – Dedupe"><small>PIKPAK DISTILL</small><span class="gw"><i aria-hidden="true">Dedupe</i><i aria-hidden="true">Dedupe</i><b>Dedupe</b></span></h1><span class="ver" title="いま動いているバージョン">v${VER}</span><span class="sp"></span>
+      <div class="brand"><button class="hbtn hic" data-a="navtoggle" title="メニュー" aria-label="メニュー"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>${LOGO}<h1 class="wm" aria-label="PikPak Distill – Dedupe"><small>PIKPAK DISTILL</small><span class="gw"><i aria-hidden="true">Dedupe</i><i aria-hidden="true">Dedupe</i><b>Dedupe</b></span></h1><span class="ver" title="いま動いているバージョン">v${VER}</span><span class="sp"></span>
         <label class="hq" title="名前で絞り込み">${IC.search}<input type="text" data-a="tq" placeholder="名前で絞り込み・検索"></label><span class="seg hqs" data-r="tqs" title="探す範囲"><button data-a="tqs" data-v="here">このフォルダ</button><button data-a="tqs" data-v="all">すべて</button></span>
         <div class="pd-quota" data-r="quota"></div>
         <span class="seg thm" data-r="theme" role="group" aria-label="テーマ"></span>
         <button class="hbtn" data-a="lang" title="表示言語を切り替える">${IC.globe}<span class="raw" data-r="langname"></span></button>
         <button class="hbtn" data-a="addlink" title="リンク・マグネットを追加（追加する前に、もうあるか確かめる）">${IC.link}<span>リンクを追加</span></button>
-        <button class="hbtn" data-a="settings" title="設定（表示・再生・整理・情報）">${IC.gear}<span>設定</span><i data-r="logbadge"></i></button>
+        <button class="hbtn hic" data-a="bell" title="お知らせ（エラー・新しいバージョン）" aria-label="お知らせ"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><i data-r="logbadge"></i></button>
+        <button class="hbtn hacct" data-a="acct" data-r="acctbtn" title="PikPak のログイン状態と同期"></button>
+        <button class="hbtn" data-a="settings" title="設定（表示・再生・整理・情報）">${IC.gear}<span>設定</span></button>
         <button class="hbtn wbtn-full" data-a="tofull" title="PikPak の画面を Dedupe に切り替えて、広い画面で使う">${IC.expand}<span>全画面で開く</span></button>
         <button class="hbtn hxl wbtn-min" data-a="mini" title="小さくする（右下のボタンに戻す。作業中の内容はそのまま）">${IC.minus}<span>小さくする</span></button>
         <button class="hbtn hxl" data-a="close" title="Dedupe を閉じて、PikPak の画面に戻る（作業中の内容はそのまま）">${IC.x}<span>Dedupe を閉じる</span></button>
@@ -1847,8 +1981,49 @@
       b.classList.toggle('on', libSt ? k === 'lib-' + libSt.tab : k === 'tree' ? view === 'tree' : k === 'flow' ? view !== 'tree' && mode === 'flow' : false);
       if (k === 'tree' || k === 'scan' || k === 'flow') b.disabled = busy;
     });
+    renderAcct();
     [['dl', libBadge.dl], ['trash', libBadge.trash]].forEach(([k, n]) => { const e = root.querySelector(`[data-r=rb-${k}]`); if (e) e.textContent = n ? (n > 99 ? '99+' : n) : ''; });
   }
+  // PikPak のログイン状態と同期（左メニューの下・上のバーのアカウントボタン）
+  function renderAcct() {
+    const ok = sessionValid(), sc = syncCfg();
+    const sync = sc.on && sc.asked ? `同期オン${sc.last ? '（' + new Date(sc.last).toLocaleString(loc(), { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) + '）' : ''}` : '同期オフ';
+    const card = root.querySelector('[data-r=acct]'), btn = root.querySelector('[data-r=acctbtn]');
+    const ic = '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/></svg>';
+    if (card) { card.className = 'rl-acct ' + (ok ? 'ok' : 'ng'); card.innerHTML = `<i>${ic}</i><span><b>${ok ? 'PikPak にログイン中' : 'ログインが必要です'}</b><small>● ${esc(ok ? sync : 'PikPak の画面でログインしてください')}</small></span>`; }
+    if (btn) { btn.className = 'hbtn hacct ' + (ok ? 'ok' : 'ng'); btn.innerHTML = `${ic}<span>${ok ? 'ログイン中' : '要ログイン'}</span>`; }
+  }
+  function openAcct(anchor) {
+    let m = document.getElementById('pd-acct'); if (m) { m.remove(); return; }
+    const ok = sessionValid(), sc = syncCfg();
+    m = document.createElement('div'); m.id = 'pd-acct';
+    m.innerHTML = `<b>${ok ? 'PikPak にログイン中' : 'ログインが必要です'}</b><small>${ok ? 'Dedupe は PikPak のログインをそのまま使います（パスワードは扱いません）' : 'PikPak の画面でログインしてから、もう一度開いてください'}</small>
+      <div class="ln"><span>PikPak で同期</span><b>${sc.on && sc.asked ? 'オン' : 'オフ'}</b></div>${sc.last ? `<div class="ln"><span>前回の同期</span><b>${new Date(sc.last).toLocaleString(loc(), { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</b></div>` : ''}
+      ${quota && quota.usage ? `<div class="ln"><span>使用量</span><b>${fmtCap(quota.usage)} / ${quota.limit > 0 ? fmtCap(quota.limit) : '—'}</b></div>` : ''}
+      <div class="acts"><button data-ac="sync"${ok && sc.on && sc.asked ? '' : ' disabled'}>今すぐ同期</button><button data-ac="set">同期の設定</button></div>`;
+    document.body.appendChild(m);
+    const r = anchor.getBoundingClientRect();
+    m.style.top = (r.bottom + 8 + m.offsetHeight > innerHeight ? Math.max(8, r.top - m.offsetHeight - 8) : r.bottom + 8) + 'px';
+    m.style.left = Math.max(8, Math.min(innerWidth - m.offsetWidth - 8, r.right - m.offsetWidth)) + 'px';
+    const off = (ev) => { if (!m.contains(ev.target) && !anchor.contains(ev.target)) { m.remove(); document.removeEventListener('mousedown', off, true); } };
+    document.addEventListener('mousedown', off, true);
+    m.addEventListener('click', (ev) => {
+      const b = ev.target.closest('[data-ac]'); if (!b || b.disabled) return;
+      m.remove(); document.removeEventListener('mousedown', off, true);
+      if (b.dataset.ac === 'sync') syncNow('手動').then((x) => { status(x ? 'PikPak と同期しました' : '同期できませんでした（「ログ」で理由を確認できます）'); renderAcct(); });
+      else openSettings('info');
+    });
+  }
+  // 左メニュー：広い表示／アイコンだけ（PC）、右から出す（スマホ・狭い画面）
+  const LS_NAVMIN = 'ppdup:navmin:v1';
+  const narrowUI = () => innerWidth < 760 || root.classList.contains('phone');
+  function applyNav() { let mn = false; try { mn = localStorage.getItem(LS_NAVMIN) === '1'; } catch (e) { /* 無視 */ } root.classList.toggle('navmin', mn); root.classList.toggle('narrow', narrowUI()); }
+  function toggleNav() {
+    if (narrowUI()) { root.classList.toggle('navopen'); return; }
+    const mn = !root.classList.contains('navmin'); try { localStorage.setItem(LS_NAVMIN, mn ? '1' : '0'); } catch (e) { /* 無視 */ } applyNav();
+  }
+  addEventListener('resize', () => { applyNav(); if (!narrowUI()) root.classList.remove('navopen'); });
+  root.addEventListener('click', (e) => { if (root.classList.contains('navopen') && (e.target === root || e.target.closest('.rail button'))) setTimeout(() => root.classList.remove('navopen'), 0); });
   function renderNav() {
     renderRail();
     const c = counts();
@@ -2017,10 +2192,47 @@
   // 初めて読み込むときは、いきなり読み込まずに案内を出す（「次からは確認しない」で省略）
   const LS_SCANASK = 'ppdup:scanask:v1';
   const scanAsk = () => { try { return localStorage.getItem(LS_SCANASK) !== '0'; } catch (e) { return true; } };
+  // 読み込み済みのときのダッシュボード（大きな数字・作業カード・最近追加したもの・右下のボタン群）
+  const DASH_TINT = { junk: ['#fdebe1', '#c2561a'], name: ['#f1ebff', '#6a3fd1'], sort: ['#e6f6ee', '#17703f'], ren: ['#fff4dc', '#8a5600'], dup: ['#e8efff', '#306fff'], clean: ['#e3f4f7', '#0f6f80'], seller: ['#fde8f0', '#b4235f'] };
+  function renderDash(where, c, next) {
+    const done = allDone(c);
+    const when = new Date(meta.at).toLocaleString(loc(), { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const staleH = Math.floor((Date.now() - meta.at) / 3600000);
+    const stat = (l, v, u, d, cls) => `<div class="db-st${cls ? ' ' + cls : ''}"><span>${l}</span><b>${v}<small>${u}</small></b><em>${d}</em></div>`;
+    const qv = quota && quota.usage ? fmtCap(quota.usage).split(' ') : ['—', ''];
+    const todo = WORK.filter((k) => c[k] > 0).length;
+    const card = (k) => {
+      const i = STEPS.findIndex((x) => x.v === k), [bg, fg] = DASH_TINT[k];
+      const off = (k === 'name' && !nameEnabled()) || (k === 'junk' && !junkEnabled()) || (k === 'seller' && !sellerEnabled());
+      const n = c[k] || 0, warn = (k === 'clean' && !n && c.cleanSkip) || (k === 'junk' && !n && c.junkReview);
+      const v = off ? 'オフ' : n ? `${n} ${UNIT_OF[k]}` : warn ? `要確認 ${warn} 件` : '対象なし';
+      return `<button class="db-tk${off || (!n && !warn) ? ' zero' : ''}${k === next ? ' next' : ''}" data-step="${k}" style="--tk-bg:${bg};--tk-fg:${fg}" title="${esc(STEPS[i].d)}"><span class="n">${i + 1}</span><b>${esc(STEPS[i].t)}</b><em>${esc(v)}</em><span class="go">${k === next ? 'おすすめ：' : ''}${off ? '設定で使う' : n || warn ? '確認する' : '見る'} →</span></button>`;
+    };
+    const rec = files.filter((f) => f.ct).sort((a, b) => Date.parse(b.ct) - Date.parse(a.ct)).slice(0, 6);
+    const th = (f) => `<button class="db-th" data-a="lib" data-v="recent" title="${esc(f.name)}"><span class="im">${f.thumb ? `<img loading="lazy" referrerpolicy="no-referrer" src="${esc(f.thumb)}" alt="">` : ICON_FILE({ name: f.name, ext: extOf(f.name) })}</span><b>${esc(f.name)}</b><small>${new Date(Date.parse(f.ct)).toLocaleDateString(loc(), { month: 'numeric', day: 'numeric' })}・${fmt(f.size)}</small></button>`;
+    const nx = next && STEPS.find((s) => s.v === next);
+    const quick = [['tree', 'フォルダ一覧', '見る・再生'], ['lib:dl', 'クラウドDL', libBadge.dl ? libBadge.dl + ' 件 進行中' : '進み具合'], ['lib:recent', '最近の追加', '直近 7 日'], ['lib:hist', '再生履歴', '続きから'], ['lib:star', 'スター', 'スター付き'], ['lib:trash', 'ゴミ箱', quota ? fmtCap(quota.trash) : '中身を見る']];
+    $('[data-r=main]').innerHTML = `<div class="db">
+      <div class="db-hd"><h2>整理</h2><span class="db-chip on" title="読み込んだ場所">${esc(where)}</span><span class="sp"></span><span class="note">前回の読み込み：${esc(when)}（フォルダ ${meta.nfo.toLocaleString()} ／ ファイル ${meta.nfi.toLocaleString()}）</span></div>
+      ${staleH >= 6 ? `<div class="sv-stale">前回の読み込みから ${staleH >= 48 ? Math.floor(staleH / 24) + ' 日' : staleH + ' 時間'}たっています。PikPak で追加・削除したものは「読み込み直す」で反映されます。</div>` : ''}
+      <div class="db-stats">${stat('使用量', qv[0], ' ' + (qv[1] || ''), quota && quota.limit > 0 ? `${fmtCap(quota.limit)} 中 ${Math.round(quota.usage / quota.limit * 100)}%` : '契約容量', 'pri')}${stat('ファイル', meta.nfi.toLocaleString(), ' 件', `フォルダ ${meta.nfo.toLocaleString()}`)}${stat('重複', String(c.dup || 0), ' 組', '同じ作品が複数')}${stat('残っている作業', String(todo), ' 件', done ? 'すべて完了' : nx ? 'おすすめ：' + esc(nx.t) : '')}</div>
+      <div class="db-main">
+        <div class="db-tasks">${WORK.map(card).join('')}</div>
+        <div class="db-card"><div class="db-ct"><i></i>最近追加したもの<span class="sp"></span><button class="lnk" data-a="lib" data-v="recent">すべて見る →</button></div><div class="db-ths">${rec.map(th).join('') || '<div class="note">この 30 日に追加したものはありません</div>'}</div></div>
+      </div>
+      <label class="sv-opt" title="オンにすると、作品と関係ないファイルを、仕分け・名前の変更・重複比較の対象から外します（「2. 不要ファイルを削除」で確認・削除できます）"><span class="sw"><input type="checkbox" data-a="junkopt"${junkEnabled() ? ' checked' : ''}><i></i></span><span><b>作品と関係ないファイルを除外する</b><small>広告・宣伝のファイルや 10MB 以下のファイルなどを、ほかの作業の対象から外します</small></span></label>
+      <div class="sv-dock"><button class="dk-h" data-a="dockx" aria-label="メニューを広げる"><i></i></button>
+        <div class="dk-b"><button data-a="addlink">リンクを追加</button><button data-a="rescan">読み込み直す</button>${nx ? `<button class="pri" data-step="${nx.v}">おすすめ：${STEPS.indexOf(nx) + 1}. ${esc(nx.t)} →</button>` : '<button class="pri" data-a="tree">フォルダ一覧へ →</button>'}</div>
+        <div class="dk-q">${quick.map(([k, t, d]) => `<button ${k === 'tree' ? 'data-a="tree"' : `data-a="lib" data-v="${k.slice(4)}"`}><b>${t}</b><small>${esc(d)}</small></button>`).join('')}</div>
+      </div>
+    </div>`;
+    status(done ? '整理はすべて完了しています。PikPak で操作したら「読み込み直す」で最新にできます。' : '読み込み済みです。カードから作業を選べます。');
+  }
   function renderScan() {
     const where = crumbs().map((c) => c.name).filter(Boolean).join(' › ') || (currentFolderId() === 'root' ? 'ホーム' : 'いま開いているフォルダ');
     const c = counts();
     const next = c && (WORK.find((k) => c[k] > 0));
+    if (meta && c && !busy) { renderDash(crumbs().map((x) => x.name).filter(Boolean).join(' › ') || meta.where || 'ホーム', c, next); return; }
     const val = (k) => {
       if ((k === 'name' && !nameEnabled()) || (k === 'junk' && !junkEnabled()) || (k === 'seller' && !sellerEnabled())) return { v: 'オフ', cls: 'off' };
       if (c[k]) return { v: c[k], u: UNIT_OF[k], cls: 'todo' };
@@ -4139,6 +4351,12 @@
     if (a === 'banclose') { try { localStorage.setItem(LS_POPBAN, '0'); } catch (err) { /* 無視 */ } applyWin(); return; }
     if (a === 'log') { showLog(); return; }
     if (a === 'settings') { openSettings(); return; }
+    if (a === 'setinfo') { openSettings('info'); return; }
+    if (a === 'changelog') { window.open('https://github.com/Noel-Labs39/pikpak-distill/blob/main/CHANGELOG.md', '_blank', 'noopener'); return; }
+    if (a === 'navtoggle') { toggleNav(); return; }
+    if (a === 'acct') { openAcct(t); return; }
+    if (a === 'bell') { const u = updRead(); if (u.latest && verNewer(u.latest, VER) && u.skip !== u.latest) { const el = $('[data-r=upd]'); if (el) { el.hidden = false; el.scrollIntoView({ block: 'nearest' }); } } showLog(); return; }
+    if (a === 'dockx') { const dk = t.closest('.sv-dock'); if (dk) dk.classList.toggle('open'); return; }
     if (a === 'slookup') { runSellerLookup(); return; }
     if (t.dataset.sfilter) { sellerFilter = t.dataset.sfilter; render(); return; }
     if (a === 'sshowunk') { sellerFilter = selPlan.some((p) => p.kind === 'unknown') ? 'unknown' : 'review'; render(); const tb = $('[data-r=main] .sl-tabs'); if (tb) tb.scrollIntoView({ block: 'start', behavior: 'smooth' }); return; }
@@ -4229,7 +4447,7 @@
     else ['left', 'top', 'width', 'height'].forEach((k) => root.style.removeProperty(k));
   }
   function setWin(m) { winMode = m === 'full' ? 'full' : 'pop'; applyWin(); if (document.getElementById('pd-set')) renderSettings(); }
-  function showRoot() { if (!root.classList.contains('on')) winMode = isPhone() ? 'full' : openPref(); applyWin(); root.classList.add('on'); checkRotate(); checkUpdate(); libPeek(); setTimeout(() => { syncAsk(); if (Date.now() - syncAt > 60e3) syncNow('開いたとき'); }, 1500); }
+  function showRoot() { if (!root.classList.contains('on')) winMode = isPhone() ? 'full' : openPref(); applyWin(); applyNav(); root.classList.add('on'); checkRotate(); checkUpdate(); libPeek(); setTimeout(() => { syncAsk(); if (Date.now() - syncAt > 60e3) syncNow('開いたとき'); }, 1500); }
   // 見出しをつかんで移動
   root.addEventListener('mousedown', (e) => {
     if (winMode !== 'pop' || e.button !== 0 || !e.target.closest('.brand') || e.target.closest('button,input,select,label,a,.pd-quota,.seg')) return;

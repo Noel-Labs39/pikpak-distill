@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.2.4
+// @version      4.2.5
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.2.4'; // @version と合わせて更新する
+  const VER = '4.2.5'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -5739,8 +5739,8 @@
     const pill = (cls, t) => `<span class="lk-tag ${cls}">${esc(t)}</span>`;
     const item = (it, i) => {
       const mode = addMode(it);
-      const tag = it.st === 'loading' ? pill('pend', '中身を確認中…') : it.st === 'new' ? pill('pend', '未確認') : it.exists ? pill('warn', 'もうあります') : it.st === 'err' ? pill('warn', '中身を確認できません') : pill(mode === 'part' ? 'pri' : 'ok', mode === 'part' ? '一部だけ保存' : 'すべて保存');
-      const info = it.exists ? `${esc(it.exists.path)} に同じ品番${it.exists.size ? `（${fmt(it.exists.size)}）` : ''}${it.on ? '・それでも追加します' : '・追加しません'}`
+      const tag = it.failed ? pill('del', '失敗') : it.st === 'loading' ? pill('pend', '中身を確認中…') : it.st === 'new' ? pill('pend', '未確認') : it.exists ? pill('warn', 'もうあります') : it.st === 'err' ? pill('warn', '中身を確認できません') : pill(mode === 'part' ? 'pri' : 'ok', mode === 'part' ? '一部だけ保存' : 'すべて保存');
+      const info = it.failed ? `${esc(it.failed)}（チェックを入れ直すと、もう一度追加します）` : it.exists ? `${esc(it.exists.path)} に同じ品番${it.exists.size ? `（${fmt(it.exists.size)}）` : ''}${it.on ? '・それでも追加します' : '・追加しません'}`
         : it.st === 'err' ? `${esc(it.err || '')}（すべて保存として追加はできます）` : it.files ? `${it.files.filter((f) => f.on).length} / ${it.files.length} ファイル・${fmt(it.files.filter((f) => f.on).reduce((s, f) => s + f.size, 0))}` : it.kind === 'url' ? 'クラウドダウンロードに追加' : '';
       const fl = it.files && it.files.length > 1 || (it.files && it.files.length === 1 && (it.files[0].junk || it.files[0].exists)) ? it.files.map((f, k) => {
         const part = mode === 'part';
@@ -5771,6 +5771,8 @@
   function openAdd(pid) {
     closeFab(); closeCtx();
     let text = ''; try { text = sessionStorage.getItem(SS_ADDTEXT) || ''; sessionStorage.removeItem(SS_ADDTEXT); } catch (e) { /* 無視 */ }
+    // 一覧に無い（消した・移した）フォルダが保存先になっていたら、既定の保存先に戻す
+    if (pid && pid !== 'DL' && !isHomeId(pid) && !dirById(pid)) pid = 'DL';
     addSt = { pid: pid || 'DL', text, items: [], busy: false, msg: '' };
     let d = document.getElementById('pd-add');
     if (!d) {
@@ -5806,7 +5808,7 @@
   function onAddChange(e) {
     const t = e.target;
     if (t.dataset.adpid !== undefined) { addSt.pid = t.value; return; }
-    if (t.dataset.adi !== undefined) { const it = addSt.items[+t.dataset.adi]; if (it) it.on = t.checked; renderAdd(); return; }
+    if (t.dataset.adi !== undefined) { const it = addSt.items[+t.dataset.adi]; if (it) { it.on = t.checked; if (t.checked) it.failed = ''; } renderAdd(); return; }
     if (t.dataset.adf) {
       const [i, k] = t.dataset.adf.split(':').map(Number); const it = addSt.items[i]; if (!it) return;
       it.files[k].on = t.checked; it.note = '';
@@ -5822,6 +5824,11 @@
     if (!list.length) return;
     if (!sessionValid()) { try { sessionStorage.setItem(SS_ADDTEXT, addSt.text); } catch (e) { /* 無視 */ } ensureSession(view); return; }
     const pid = addSt.pid === 'DL' ? '' : apiPid(addSt.pid);
+    // 保存先のフォルダが本当にあるかを先に確かめる（消した・移したフォルダを選んだままだと、全部「存在しない」で失敗するため）
+    if (pid) {
+      let okDest = false; try { const g = await apiGet(pid); okDest = !!g && !g.trashed && g.kind === 'drive#folder'; } catch (e) { if (e.session) { handleErr(e, view); return; } okDest = false; }
+      if (!okDest) { addSt.msg = `保存先のフォルダ「${addSt.pid === 'root' ? 'ホーム' : fullPath(addSt.pid)}」が PikPak に見つかりません（削除・移動された可能性があります）。上の「保存先」を選び直してから、もう一度「追加」を押してください。`; renderAdd(); return; }
+    }
     addSt.busy = true; addSt.stop = false; addSt.prog = { phase: 'add', done: 0, total: list.length, cur: '', t0: Date.now() }; renderAdd();
     let ok = 0, ng = 0, dupl = 0, nfile = 0, skipped = 0, already = 0;
     const errs = [], addedTops = [];
@@ -5871,6 +5878,8 @@
         if (err.session) { try { sessionStorage.setItem(SS_ADDTEXT, addSt.text); } catch (e) { /* 無視 */ } addSt.busy = false; handleErr(err, view); return; }
         if (/exist|already|重複|已存在/i.test(err.message)) { dupl++; it.on = false; continue; }
         ng++; errs.push(`${it.name || it.url}：${err.message}`);
+        // 失敗したものはチェックを外して「失敗」と理由を出す（そのままもう一度押せる状態にしない。直してからチェックを入れ直す）
+        it.failed = /存在しない|not.?found|not exist/i.test(err.message) ? '保存先のフォルダが見つかりません（削除・移動された可能性があります。保存先を選び直してください）' : err.message; it.on = false;
       }
       await sleep(400);
     }

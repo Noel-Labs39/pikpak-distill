@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.1.1
+// @version      4.2.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.1.1'; // @version と合わせて更新する
+  const VER = '4.2.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -2156,6 +2156,7 @@
     $('[data-r=main]').scrollTop = 0;
     renderQuota(); refreshQuota();
     if (v === 'tree') prefetchUp();
+    ddKick();
   }
   // 案M：ステップ 2〜7 は、実行ボタンを一覧の下の帯に固定し、終わった結果を一覧の上に出す
   const STEPV = ['junk', 'name', 'sort', 'ren', 'dup', 'clean'];
@@ -3303,7 +3304,7 @@
     tree.base = !id || id === ix.rootId ? '' : id; saveTree();
     treeSel.clear(); treeCur = ''; treeAnchor = ''; closeQL();
     if (tree.base) treeOpen.add(tree.base);
-    renderTree(); $('[data-r=main]').scrollTop = 0;
+    renderTree(); $('[data-r=main]').scrollTop = 0; ddKick();
     status(tree.base ? `「${dirLabel(id)}」を最上位にして表示しています（${KEY.up} または上のパスで戻れます）` : '読み込んだ場所から表示しています');
     if (needLoad(tree.base)) loadAndRender([tree.base]);
   }
@@ -3943,6 +3944,7 @@
         <div class="row"><span><b>フォルダ一覧の表示</b></span><select data-s="tview"><option value="list"${tree.view === 'list' ? ' selected' : ''}>☰ リスト</option><option value="thumb"${tree.view === 'thumb' ? ' selected' : ''}>▤ サムネイル</option><option value="tile"${tree.view === 'tile' ? ' selected' : ''}>▦ タイル</option></select></div>
         <label class="row"><span><b>サムネイルをぼかす</b><small>人に画面を見られても分からないよう、サムネイル・プレビュー・コマをぼかします（このブラウザだけの設定）</small></span><input type="checkbox" data-s="blur"${blurOn() ? ' checked' : ''}></label>
         <label class="row"><span><b>マウスを乗せたら、はっきり表示</b><small>「サムネイルをぼかす」がオンのとき、マウスを乗せた（スマホは押している）間だけぼかしを外します</small></span><input type="checkbox" data-s="blurhov"${blurHov() ? ' checked' : ''}${blurOn() ? '' : ' disabled'}></label>
+        <label class="row"><span><b>起動時に Dedupe を全画面で開く</b><small>PikPak を開いたら、最初から Dedupe の画面で使います（✕ で閉じれば PikPak の画面に戻ります）。開いている画面は URL に残るので、戻る・再読み込み・ブックマークで同じ画面に戻れます</small></span><input type="checkbox" data-s="autostart"${autoStart() ? ' checked' : ''}></label>
         <div class="row"><span><b>入口ボタン（Dedupe）の位置</b><small>ボタンはドラッグで好きな場所へ動かせます（右クリックで置き場所を選べます）。既定は PikPak の左メニューの空き</small></span><button data-s="fabreset"${fabSaved() ? '' : ' disabled'}>元に戻す</button></div>
         <label class="row"><span><b>ホバーでサムネイル</b><small>マウスを乗せたときにサムネイルを大きく表示します</small></span><input type="checkbox" data-s="hover"${tree.hover !== false ? ' checked' : ''}></label>
         <div class="row"><span><b>フォルダ一覧の操作</b><small>${esc(helpTree)}</small></span></div>` : ''}
@@ -3994,6 +3996,7 @@
       else { saveSyncCfg({ pw: false }); idb.del('sync').catch(() => {}); try { localStorage.removeItem(LS_PWX); } catch (e) { /* 無視 */ } }
       return;
     }
+    if (k === 'autostart') { try { localStorage.setItem(LS_AUTO, t.checked ? '1' : '0'); } catch (err) { /* 無視 */ } status(t.checked ? '次に PikPak を開いたときから、Dedupe を全画面で開きます' : '起動時には開かないようにしました'); return; }
     if (k === 'qp') { saveQpCfg({ [t.dataset.k]: qpVal(t.dataset.k, t.value) }); return; }
     if (k === 'lang') { setLang(t.value); return; }
     if (k === 'expg') { exportSel[t.value] = t.checked; return; }
@@ -4348,7 +4351,7 @@
     }
     if (t.dataset.frg !== undefined) { const g = visibleGroups().find((x) => x.key === t.dataset.frg); if (g) { const del = g.items.find((f, i) => stateOf(f, i) === 'del'); openFrames([g.items[0].id, (del || g.items[1]).id]); } return; }
     if (t.dataset.g !== undefined) { if (busy) return; const g = visibleGroups().find((x) => x.key === t.dataset.g); if (g) runDelete([g]); return; }
-    if (a === 'close' || a === 'mini') { root.classList.remove('on'); return; }
+    if (a === 'close' || a === 'mini') { root.classList.remove('on'); ddKick(); return; }
     if (a === 'tofull') { setWin('full'); return; }
     if (a === 'fullnext') { setOpenPref('full'); setWin('full'); status('次からは全画面で開きます（設定の「表示」→「開き方」で戻せます）'); return; }
     if (a === 'banclose') { try { localStorage.setItem(LS_POPBAN, '0'); } catch (err) { /* 無視 */ } applyWin(); return; }
@@ -4975,9 +4978,9 @@
         else if (t.dataset.lball !== undefined) { libSt.sel = new Set(t.checked ? libSt.items.map((i) => i.id) : []); renderLib(); }
       });
     }
-    libLoad(libSt.tab);
+    libLoad(libSt.tab); ddKick();
   }
-  function closeLib() { libPvClose(); const d = document.getElementById('pd-lib'); if (d) d.remove(); libSt = null; renderRail(); }
+  function closeLib() { libPvClose(); const d = document.getElementById('pd-lib'); if (d) d.remove(); libSt = null; renderRail(); ddKick(); }
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape' || !document.getElementById('pd-lib') || !libSt || libSt.busy) return;
     if (document.fullscreenElement) return;
@@ -5964,10 +5967,60 @@
   placeFab();
   // PikPak の左メニューは読み込みのあとに出てくるので、既定の位置のときはしばらく置き直す
   { let n = 0; const tm = setInterval(() => { if (fabSaved() || ++n > 20) { clearInterval(tm); return; } if (!fabDrag) placeFab(); }, 1000); }
+  // ---------- 起動時に全画面で開く・画面ごとの URL（#dd/…）：戻る・再読み込み・ブックマークで同じ画面へ ----------
+  const LS_AUTO = 'ppdup:autostart:v1';
+  const autoStart = () => { try { return localStorage.getItem(LS_AUTO) === '1'; } catch (e) { return false; } };
+  let ddApplying = false;
+  function ddState() {
+    if (!root.classList.contains('on')) return '';
+    if (libSt) return 'lib/' + libSt.tab;
+    if (view === 'tree') return 'tree/' + (hasScan() ? (tree.base || '') : (tree.base || ''));
+    return (mode === 'single' ? 'task/' : 'step/') + (view || 'scan');
+  }
+  function ddFromUrl() { const m = /#dd\/(.*)$/.exec(location.hash); return m ? decodeURIComponent(m[1]) : null; }
+  function ddSync() {
+    if (ddApplying) return;
+    const s = ddState(), cur = ddFromUrl() || '';
+    if (s === cur) return;
+    const base = location.pathname + location.search;
+    // PikPak の画面（Vue Router）が持っている履歴の情報はそのまま引き継ぐ
+    try { history.pushState(history.state, '', s ? base + '#dd/' + s.split('/').map(encodeURIComponent).join('/') : base); } catch (e) { /* 無視 */ }
+  }
+  function ddKick() { clearTimeout(ddKick.t); ddKick.t = setTimeout(ddSync, 30); }
+  function ddApply(s) {
+    ddApplying = true;
+    try {
+      if (!s) { if (root.classList.contains('on')) { if (libSt) closeLib(); root.classList.remove('on'); } return; }
+      if (!sessionValid() || busy) return;
+      const i = s.indexOf('/'), k = i < 0 ? s : s.slice(0, i), v = i < 0 ? '' : s.slice(i + 1);
+      if (k === 'lib') { if (!root.classList.contains('on')) openFlow(); if (!libSt || libSt.tab !== v) openLib(v); return; }
+      if (libSt) closeLib();
+      if (k === 'tree') {
+        mode = 'single'; root.classList.add('single'); showRoot(); updateLogBadge();
+        if (v && v !== tree.base) { tree.base = v; saveTree(); }
+        if (view !== 'tree') openTree(); else if (hasScan()) setBase(v);
+      } else if (k === 'task') openTask(v || 'scan');
+      else { openFlow(); if (hasScan() && v && view !== v) setView(v); }
+    } finally { ddApplying = false; if (s && autoStart() && root.classList.contains('on') && winMode !== 'full') setWin('full'); }
+  }
+  addEventListener('popstate', () => { const s = ddFromUrl() || ''; if (s !== ddState()) ddApply(s); });
+  function ddStart() {
+    let resuming = false; try { const r = JSON.parse(sessionStorage.getItem(SS_RESUME) || 'null'); resuming = !!r && Date.now() - r.at < 2 * 60 * 1000; } catch (e) { resuming = false; }
+    if (resuming) return;
+    const s = ddFromUrl();
+    const go = () => {
+      if (!sessionValid()) return;
+      if (s) ddApply(s); else if (autoStart() && /^\/drive/.test(location.pathname)) { ddApplying = true; try { openFlow(); } finally { ddApplying = false; } ddKick(); }
+      else return;
+      if (winMode !== 'full') setWin('full');
+    };
+    setTimeout(go, 300);
+  }
   updateLogBadge();
   renderLangBtn(); applyTheme();
   if (LANG === 'en') document.querySelectorAll(UI_SEL).forEach(trNode);
   resumeAfterReload();
+  ddStart();
 
   window.PPDup = { buildCleanPlan, buildSortPlan, buildRenamePlan, get folders() { return folders; }, scanApi, buildGroups, render, get files() { return files; }, set files(v) { files = v; } };
 })();

@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.2.1
+// @version      4.2.2
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.2.1'; // @version と合わせて更新する
+  const VER = '4.2.2'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -5735,7 +5735,7 @@
     const checked = addSt.items.some((x) => x.st === 'ok' || x.st === 'err');
     const nLinks = parseLinks(addSt.text).length;
     const dn = addSt.done;
-    const doneCard = dn ? `<div class="lk-done"><div class="ic">${dn.ng && !dn.ok ? '!' : '✓'}</div><b>${dn.ok} 件を追加しました</b><small>${dn.nfile ? `すぐ保存したファイル ${dn.nfile}。` : ''}${dn.dupl ? `PikPak に同じタスクがあった ${dn.dupl} 件。` : ''}${dn.ng ? `失敗 ${dn.ng} 件（下の一覧に残しています）。` : ''}クラウドダウンロードの分は、完了すると保存先に出ます。</small>${dn.names.length ? `<ul>${dn.names.slice(0, 8).map((n) => `<li>${esc(n)}</li>`).join('')}${dn.names.length > 8 ? `<li>ほか ${dn.names.length - 8} 件</li>` : ''}</ul>` : ''}</div>` : '';
+    const doneCard = dn ? `<div class="lk-done"><div class="ic">${dn.ng && !dn.ok ? '!' : '✓'}</div><b>${dn.ok ? `${dn.ok} 件を追加しました` : '追加するものはありませんでした'}</b><small>${dn.nfile ? `すぐ保存したファイル ${dn.nfile}。` : ''}${dn.dupl ? `PikPak に同じタスクがあった ${dn.dupl} 件。` : ''}${dn.already ? `保存先に同じものがあった ${dn.already} 件は追加しませんでした。` : ''}${dn.skipped ? `保存先にすでにあったファイル ${dn.skipped} 個は入れていません。` : ''}${dn.ng ? `失敗 ${dn.ng} 件（下の一覧に残しています）。` : ''}クラウドダウンロードの分は、完了すると保存先に出ます。</small>${dn.names.length ? `<ul>${dn.names.slice(0, 8).map((n) => `<li>${esc(n)}</li>`).join('')}${dn.names.length > 8 ? `<li>ほか ${dn.names.length - 8} 件</li>` : ''}</ul>` : ''}</div>` : '';
     d.innerHTML = `<div class="lk-box" role="dialog" aria-label="リンク・マグネットを追加">
       <div class="lk-hd"><b>リンク・マグネットを追加</b><span class="sp"></span><span class="note">保存先</span><select data-adpid>${addDestOptions().map(([id, l]) => `<option value="${esc(id)}"${(addSt.pid || 'DL') === id ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select><button class="x" data-adclose title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
       <div class="lk-in"><textarea rows="4" placeholder="magnet:?xt=urn:btih:…&#10;https://…&#10;（.torrent ファイルはここにドロップ）" spellcheck="false">${esc(addSt.text)}</textarea>
@@ -5801,8 +5801,8 @@
     if (!sessionValid()) { try { sessionStorage.setItem(SS_ADDTEXT, addSt.text); } catch (e) { /* 無視 */ } ensureSession(view); return; }
     const pid = addSt.pid === 'DL' ? '' : apiPid(addSt.pid);
     addSt.busy = true; renderAdd();
-    let ok = 0, ng = 0, dupl = 0, nfile = 0;
-    const errs = [];
+    let ok = 0, ng = 0, dupl = 0, nfile = 0, skipped = 0, already = 0;
+    const errs = [], addedTops = [];
     for (const it of list) {
       try {
         if (addMode(it) === 'part') {
@@ -5810,14 +5810,29 @@
           // 既定の保存先のときは、PikPak の既定の保存フォルダ（My Pack）の中に作る
           let base = pid;
           if (!base) { const home = await apiList(''); const mp = home.find((x) => x.kind === 'drive#folder' && (x.folder_type === 'DOWNLOAD' || x.name === 'My Pack')); if (mp) base = mp.id; }
-          const sib = new Set((await apiList(base || '')).map((x) => x.name.toLowerCase()));
-          let nm = String(it.rootName || it.name || 'magnet').replace(/[\/\\]/g, '・').slice(0, 200), c = 1;
-          while (sib.has(nm.toLowerCase())) nm = `${String(it.rootName || it.name).replace(/[\/\\]/g, '・').slice(0, 200)} (${++c})`;
-          const top = await apiMkdir(base, nm);
+          // 保存先をその場で確かめる：同じ名前のフォルダがあれば、そこへ足りないファイルだけを入れる（同じものを二重に保存しない）
+          const baseList = await apiList(base || '');
+          const nm = String(it.rootName || it.name || 'magnet').replace(/[\/\\]/g, '・').slice(0, 200);
+          const same = baseList.find((x) => x.kind === 'drive#folder' && x.name.toLowerCase() === nm.toLowerCase());
+          let top, have = new Set();
+          if (same) {
+            top = same.id;
+            const walk = async (id, pre) => { for (const x of await apiList(id)) { if (x.kind === 'drive#folder') await walk(x.id, pre + x.name + '/'); else have.add((pre + x.name).toLowerCase() + '|' + (+x.size || 0)); } };
+            await walk(top, '');
+          } else top = await apiMkdir(base, nm);
+          addedTops.push({ id: top, name: nm, base: base || '' });
           const dirs = new Map([['', top]]);
-          for (const f of it.files.filter((x) => x.on)) {
+          const want = it.files.filter((x) => x.on);
+          const todo = want.filter((f) => !have.has(((f.dir ? f.dir + '/' : '') + f.name).toLowerCase() + '|' + f.size));
+          skipped += want.length - todo.length;
+          if (same && !todo.length) { it.on = false; it.done = true; it.already = true; already++; log('info', `保存先に同じものがあるため追加しません：${nm}`); continue; }
+          for (const f of todo) {
             let cur = '', p = top;
-            for (const part of (f.dir ? f.dir.split('/') : [])) { cur = cur ? cur + '/' + part : part; if (!dirs.has(cur)) dirs.set(cur, await apiMkdir(p, part)); p = dirs.get(cur); }
+            for (const part of (f.dir ? f.dir.split('/') : [])) {
+              cur = cur ? cur + '/' + part : part;
+              if (!dirs.has(cur)) { const ex = same ? (await apiList(p)).find((x) => x.kind === 'drive#folder' && x.name === part) : null; dirs.set(cur, ex ? ex.id : await apiMkdir(p, part)); }
+              p = dirs.get(cur);
+            }
             await api('/files', { method: 'POST', captcha: 'POST:/drive/v1/files', body: JSON.stringify({ kind: 'drive#file', name: f.name, size: String(f.size), hash: f.gcid.toUpperCase(), upload_type: 'UPLOAD_TYPE_RESUMABLE', folder_type: 'NORMAL', objProvider: { provider: 'UPLOAD_TYPE_UNKNOWN' }, parent_id: p }) });
             nfile++;
           }
@@ -5838,7 +5853,16 @@
     addSt.busy = false;
     addSt.msg = `${ok} 件を追加しました${nfile ? `（すぐ保存したファイル ${nfile}）` : ''}${dupl ? `・PikPak に同じタスクがあった ${dupl} 件` : ''}${ng ? `・失敗 ${ng} 件：${errs.slice(0, 3).join(' ／ ')}` : ''}。クラウドダウンロードの分は、完了すると保存先に出ます。`;
     // 追加できたものは一覧と入力欄から外し、終わった画面（結果と次の操作）を出す
-    addSt.done = { ok, nfile, dupl, ng, names: addSt.items.filter((x) => x.done).map((x) => x.name || x.rootName || x.url) };
+    // 読み込んだ範囲の中に保存したものは、Dedupe の一覧にもすぐ反映する（再読み込みしなくてよい）
+    for (const t of addedTops) {
+      try {
+        if (!hasScan() || !(folders.some((d) => d.id === t.base) || (scanRoot() && scanRoot().id === t.base))) continue;
+        if (folders.some((d) => d.id === t.id)) { const gone = new Set([t.id, ...folders.filter((d) => ancestorsOf(d.id).includes(t.id)).map((d) => d.id)]); folders = folders.filter((d) => !gone.has(d.id) || d.id === t.id); files = files.filter((f) => !gone.has(f.parentId)); folders = folders.filter((d) => d.id !== t.id); }
+        await addToScan({ id: t.id, name: t.name, kind: 'drive#folder' }, t.base);
+      } catch (e) { log('warn', '追加したフォルダを一覧に反映できませんでした：' + (e.message || e), t.name); }
+    }
+    if (addedTops.length && hasScan()) { treeIdx = null; if (view === 'tree') renderTree(); else if (view === 'scan') render(); renderNav(); }
+    addSt.done = { ok, nfile, dupl, ng, skipped, already, names: addSt.items.filter((x) => x.done && !x.already).map((x) => x.name || x.rootName || x.url) };
     addSt.items = addSt.items.filter((x) => !x.done);
     addSt.text = addSt.items.map((x) => x.url).join('\n');
     { const ta = document.querySelector('#pd-add textarea'); if (ta) ta.value = addSt.text; }

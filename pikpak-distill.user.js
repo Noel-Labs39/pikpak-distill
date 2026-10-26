@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.1.0
+// @version      4.1.1
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.1.0'; // @version と合わせて更新する
+  const VER = '4.1.1'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1501,6 +1501,8 @@
   #ppdup .rail .rl-acct b{font-size:12px}
   #ppdup .rail .rl-acct small{font-size:11px;color:var(--ok);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   #ppdup .rail .rl-acct.ng small{color:var(--danger)}
+  #ppdup .rail .rl-acct small.t{color:var(--mute);font-weight:500}
+  #ppdup.narrow .rail .rl-acct small{white-space:normal}
   /* アイコンだけ（☰ でたたむ）・ポップアップ */
   #ppdup.navmin:not(.pop):not(.narrow){padding-left:78px}
   #ppdup.navmin:not(.pop):not(.narrow) .rail{width:78px;align-items:center;padding:12px 0 10px}
@@ -1987,10 +1989,11 @@
   // PikPak のログイン状態と同期（左メニューの下・上のバーのアカウントボタン）
   function renderAcct() {
     const ok = sessionValid(), sc = syncCfg();
-    const sync = sc.on && sc.asked ? `同期オン${sc.last ? '（' + new Date(sc.last).toLocaleString(loc(), { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) + '）' : ''}` : '同期オフ';
+    const sync = sc.on && sc.asked ? '同期オン' : '同期オフ';
+    const syncT = sc.on && sc.asked && sc.last ? '前回 ' + new Date(sc.last).toLocaleString(loc(), { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
     const card = root.querySelector('[data-r=acct]'), btn = root.querySelector('[data-r=acctbtn]');
     const ic = '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/></svg>';
-    if (card) { card.className = 'rl-acct ' + (ok ? 'ok' : 'ng'); card.innerHTML = `<i>${ic}</i><span><b>${ok ? 'PikPak にログイン中' : 'ログインが必要です'}</b><small>● ${esc(ok ? sync : 'PikPak の画面でログインしてください')}</small></span>`; }
+    if (card) { card.className = 'rl-acct ' + (ok ? 'ok' : 'ng'); card.innerHTML = `<i>${ic}</i><span><b>${ok ? 'PikPak にログイン中' : 'ログインが必要です'}</b><small>● ${esc(ok ? sync : 'PikPak の画面でログインしてください')}</small>${ok && syncT ? `<small class="t">${esc(syncT)}</small>` : ''}</span>`; }
     if (btn) { btn.className = 'hbtn hacct ' + (ok ? 'ok' : 'ng'); btn.innerHTML = `${ic}<span>${ok ? 'ログイン中' : '要ログイン'}</span>`; }
   }
   function openAcct(anchor) {

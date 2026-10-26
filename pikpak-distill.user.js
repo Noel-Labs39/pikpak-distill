@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.2.0
+// @version      4.2.1
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.2.0'; // @version と合わせて更新する
+  const VER = '4.2.1'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1237,6 +1237,13 @@
   #pd-add .lk-f .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   #pd-add .lk-f .nm i{font-style:normal;color:var(--mute)}
   #pd-add .lk-f .sz{width:80px;text-align:right;color:var(--mute);font-size:12px}
+  #pd-add .lk-done{margin:auto;max-width:560px;width:100%;display:flex;flex-direction:column;align-items:center;gap:8px;padding:24px;text-align:center}
+  #pd-add .lk-done .ic{width:56px;height:56px;border-radius:50%;background:#e3f6ec;color:#17703f;font:800 28px/56px system-ui,sans-serif}
+  html.pd-dark #pd-add .lk-done .ic{background:#17331f;color:#6fdc9a}
+  #pd-add .lk-done b{font-size:17px}
+  #pd-add .lk-done small{color:var(--mute);font-size:12px}
+  #pd-add .lk-done ul{margin:6px 0 0;padding:10px 14px;list-style:none;width:100%;box-sizing:border-box;background:var(--panel);border:1px solid var(--line);border-radius:12px;text-align:left;font-size:12px}
+  #pd-add .lk-done li{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:3px 0}
   #pd-add .lk-tag,#pd-unzip .lk-tag,#pd-lib .lk-tag{font-size:11px;padding:1px 8px;border-radius:99px;font-weight:700;white-space:nowrap;background:var(--panel2);color:var(--mute)}
   #pd-add .lk-tag.ok,#pd-unzip .lk-tag.ok,#pd-lib .lk-tag.ok{background:#e3f6ec;color:#17703f}
   #pd-add .lk-tag.pri,#pd-unzip .lk-tag.pri,#pd-lib .lk-tag.pri{background:var(--pri-soft);color:var(--pri)}
@@ -5727,13 +5734,15 @@
     const sum = addSummary();
     const checked = addSt.items.some((x) => x.st === 'ok' || x.st === 'err');
     const nLinks = parseLinks(addSt.text).length;
+    const dn = addSt.done;
+    const doneCard = dn ? `<div class="lk-done"><div class="ic">${dn.ng && !dn.ok ? '!' : '✓'}</div><b>${dn.ok} 件を追加しました</b><small>${dn.nfile ? `すぐ保存したファイル ${dn.nfile}。` : ''}${dn.dupl ? `PikPak に同じタスクがあった ${dn.dupl} 件。` : ''}${dn.ng ? `失敗 ${dn.ng} 件（下の一覧に残しています）。` : ''}クラウドダウンロードの分は、完了すると保存先に出ます。</small>${dn.names.length ? `<ul>${dn.names.slice(0, 8).map((n) => `<li>${esc(n)}</li>`).join('')}${dn.names.length > 8 ? `<li>ほか ${dn.names.length - 8} 件</li>` : ''}</ul>` : ''}</div>` : '';
     d.innerHTML = `<div class="lk-box" role="dialog" aria-label="リンク・マグネットを追加">
       <div class="lk-hd"><b>リンク・マグネットを追加</b><span class="sp"></span><span class="note">保存先</span><select data-adpid>${addDestOptions().map(([id, l]) => `<option value="${esc(id)}"${(addSt.pid || 'DL') === id ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select><button class="x" data-adclose title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
       <div class="lk-in"><textarea rows="4" placeholder="magnet:?xt=urn:btih:…&#10;https://…&#10;（.torrent ファイルはここにドロップ）" spellcheck="false">${esc(addSt.text)}</textarea>
         <div class="lk-row"><span class="note">1 行に 1 つ。マグネット・http(s)・40 桁のハッシュ・.torrent（ドロップ）に対応。同じリンクと文中のほかの文字は取り除きます。${hasScan() ? '読み込んだライブラリと照らして、もうある作品を知らせます。' : '<b>まだ読み込んでいないため、もうあるかは確かめられません</b>（先に「Dedupe スキャン」で読み込むと確かめられます）。'}</span><span class="sp"></span><button class="${checked ? '' : 'pri'}" data-adcheck${addSt.busy || !nLinks ? ' disabled' : ''}>${addSt.busy ? '確認中…' : `中身を確認（${nLinks} 件）`}</button></div>
         ${addSt.msg ? `<div class="lk-msg">${esc(addSt.msg)}</div>` : ''}</div>
-      <div class="lk-list">${addSt.items.map(item).join('') || '<div class="empty">リンクを貼り付けて「中身を確認」を押すと、ここに中身が出ます</div>'}</div>
-      <div class="lk-ft"><span class="tx">${sum.text}</span><button data-adclose>キャンセル</button><button class="${checked ? 'pri' : ''}" data-adgo${sum.n && !addSt.busy ? '' : ' disabled'}>${sum.n} 件を追加</button></div></div>`;
+      <div class="lk-list">${addSt.items.map(item).join('') || (dn ? doneCard : '<div class="empty">リンクを貼り付けて「中身を確認」を押すと、ここに中身が出ます</div>')}</div>
+      <div class="lk-ft">${dn && !addSt.items.length ? `<span class="tx"><b>追加が終わりました</b>（次のリンクを貼り付ければ、続けて追加できます）</span><button data-addl>クラウドDLを見る</button><button class="pri" data-adclose>閉じる</button>` : `<span class="tx">${sum.text}</span><button data-adclose>${dn ? '閉じる' : 'キャンセル'}</button><button class="${checked ? 'pri' : ''}" data-adgo${sum.n && !addSt.busy ? '' : ' disabled'}>${sum.n} 件を追加</button>`}</div></div>`;
     if (LANG === 'en') d.querySelectorAll('*').forEach(trNode);
     const nta = d.querySelector('textarea');
     nta.addEventListener('input', () => { addSt.text = nta.value; const b = d.querySelector('[data-adcheck]'); const n = parseLinks(nta.value).length; if (b && !addSt.busy) { b.disabled = !n; b.textContent = tr(`中身を確認（${n} 件）`); } });
@@ -5768,7 +5777,8 @@
   function onAddClick(e) {
     const b = e.target.closest('button'); if (!b || b.disabled) return;
     if (b.dataset.adclose !== undefined) { if (!addSt.busy) closeAdd(); return; }
-    if (b.dataset.adcheck !== undefined) { previewLinks(); return; }
+    if (b.dataset.adcheck !== undefined) { addSt.done = null; addSt.msg = ''; previewLinks(); return; }
+    if (b.dataset.addl !== undefined) { closeAdd(); if (!root.classList.contains('on')) openFlow(); openLib('dl'); return; }
     if (b.dataset.adgo !== undefined) { runAdd(); }
   }
   function onAddChange(e) {
@@ -5827,8 +5837,12 @@
     }
     addSt.busy = false;
     addSt.msg = `${ok} 件を追加しました${nfile ? `（すぐ保存したファイル ${nfile}）` : ''}${dupl ? `・PikPak に同じタスクがあった ${dupl} 件` : ''}${ng ? `・失敗 ${ng} 件：${errs.slice(0, 3).join(' ／ ')}` : ''}。クラウドダウンロードの分は、完了すると保存先に出ます。`;
+    // 追加できたものは一覧と入力欄から外し、終わった画面（結果と次の操作）を出す
+    addSt.done = { ok, nfile, dupl, ng, names: addSt.items.filter((x) => x.done).map((x) => x.name || x.rootName || x.url) };
     addSt.items = addSt.items.filter((x) => !x.done);
     addSt.text = addSt.items.map((x) => x.url).join('\n');
+    { const ta = document.querySelector('#pd-add textarea'); if (ta) ta.value = addSt.text; }
+    if (!addSt.items.length) addSt.msg = '';
     renderAdd(); status(addSt.msg); refreshQuota();
     if (view === 'tree' && nfile) refreshView();
   }

@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.3.3
+// @version      4.3.4
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.3.3'; // @version と合わせて更新する
+  const VER = '4.3.4'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1532,6 +1532,18 @@
   #pd-dlg button{font:inherit;padding:6px 14px;border:1px solid #c5c9d2;border-radius:8px;background:#fff;color:inherit;cursor:pointer}
   #pd-dlg button.danger{background:#d64545;color:#fff;border-color:#d64545;font-weight:700}
   html.pd-dark #pd-dlg .box{background:#1d2027;color:#e6e8ee}html.pd-dark #pd-dlg button{background:#252932;border-color:#3a3f4b}
+  /* 追加したもの〜ゴミ箱：メインの画面に広げて表示 */
+  #ppdup.libv > main,#ppdup.libv > .tb,#ppdup.libv > .tsel,#ppdup.libv header nav{display:none!important}
+  #pd-lib.emb{position:relative;inset:auto;z-index:1;flex:1 1 auto;min-height:0;display:flex;align-items:stretch;justify-content:stretch;background:var(--bg)}
+  #pd-lib.emb .lk-box{width:100%;max-height:none;flex:1;border-radius:0;box-shadow:none;background:var(--bg)}
+  #pd-lib.emb .lk-hd{background:var(--panel)}
+  #pd-lib.emb .lb-tabs,#pd-lib.emb .lb-note{background:var(--panel)}
+  #pd-lib.emb .lk-list{padding:16px 22px}
+  #pd-lib.emb .lk-ft{background:var(--panel)}
+  #pd-lib .lb-grid.sz-s{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+  #pd-lib .lb-grid.sz-m{grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+  #pd-lib .lb-grid.sz-l{grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:18px}
+  #pd-lib .lb-grid.sz-l .lb-ct b{font-size:14px}
   /* 共通の型（StepKit） */
   #ppdup .kit-ex{padding:10px 16px}
   #ppdup .kit-ex summary{cursor:pointer;font-weight:800;font-size:13px;color:var(--pri)}
@@ -2216,6 +2228,7 @@
       : `<span class="okbadge">✓ 完了${view === 'clean' && c && c.cleanSkip ? `（要確認 ${c.cleanSkip} 件）` : ''}</span>${nextHtml(c)}`;
   }
   function setView(v) {
+    if (libSt && !ddApplying) closeLib();
     if (v !== 'scan' && !hasScan()) v = 'scan';
     view = v;
     if (v === 'clean') cplan = stepOn('clean') ? buildCleanPlan(files, folders) : [];
@@ -5043,8 +5056,8 @@
     libSt = { tab: tab || 'trash', items: [], sel: new Set(), cur: '', loading: false, err: '', days: 7, busy: false };
     let d = document.getElementById('pd-lib');
     if (!d) {
-      d = document.createElement('div'); d.id = 'pd-lib'; document.body.appendChild(d);
-      d.addEventListener('mousedown', (e) => { if (e.target === d && !libSt.busy) closeLib(); });
+      // 整理・フォルダ一覧と同じく、メインの画面に広げて表示する（小さなポップアップにはしない）
+      d = document.createElement('div'); d.id = 'pd-lib'; d.className = 'emb'; const mainEl = root.querySelector('[data-r=main]'); root.insertBefore(d, mainEl);
       d.addEventListener('click', (e) => {
         if (!libSt) return;
         const b = e.target.closest('button');
@@ -5059,6 +5072,7 @@
         else if (x.lbtab) { if (!libSt.busy) libLoad(x.lbtab); }
         else if (x.lbdays) { libSt.days = +x.lbdays; libLoad('recent'); }
         else if (x.lbreload !== undefined) libLoad(libSt.tab);
+        else if (x.lbsz) { try { localStorage.setItem('ppdup:libsize:v1', x.lbsz); } catch (e) { /* 無視 */ } renderLib(); }
         else if (x.lbopen) libReveal(x.lbopen);
         else if (x.lbre) { const it = libItem(x.lbre); if (it && it.url) { try { sessionStorage.setItem(SS_ADDTEXT, it.url); } catch (e) { /* 無視 */ } closeLib(); openAdd('DL'); } }
         else if (x.lbadd !== undefined) { closeLib(); openAdd('DL'); }
@@ -5082,9 +5096,10 @@
         else if (t.dataset.lball !== undefined) { libSt.sel = new Set(t.checked ? libSt.items.map((i) => i.id) : []); renderLib(); }
       });
     }
+    root.classList.add('libv'); closePlayer(); hideHover();
     libLoad(libSt.tab); ddKick();
   }
-  function closeLib() { libPvClose(); const d = document.getElementById('pd-lib'); if (d) d.remove(); libSt = null; renderRail(); ddKick(); }
+  function closeLib() { libPvClose(); const d = document.getElementById('pd-lib'); if (d) d.remove(); root.classList.remove('libv'); libSt = null; renderRail(); ddKick(); }
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape' || !document.getElementById('pd-lib') || !libSt || libSt.busy) return;
     if (document.fullscreenElement) return;
@@ -5205,17 +5220,18 @@
       const bar = tab === 'dl' && it.st === 'run' ? `<span class="uz-bar"><i style="width:${it.pct}%"></i></span>` : '';
       return `<div class="lb-row">${cb(it)}<span class="lb-t"><b title="${esc(it.name)}">${it.folder ? '📁 ' : ''}${esc(it.name)}</b><small>${esc(info.filter(Boolean).join('・'))}</small>${bar}</span>${tag}${retry}${openId ? `<button data-lbopen="${esc(openId)}" title="フォルダ一覧でこの項目の場所を開く">場所を開く</button>` : ''}</div>`;
     };
+    const lsz = (() => { try { return localStorage.getItem('ppdup:libsize:v1') || 'm'; } catch (e) { return 'm'; } })();
     let body;
     if (S.loading) body = '<div class="empty">読み込み中…</div>';
     else if (S.err === 'scan') body = '<div class="empty">「最近追加したもの」は、読み込んだ内容から作ります。先に左の「再読み込み」で PikPak の中身を読み込んでください。</div>';
     else if (S.err) body = `<div class="empty">読み込めませんでした：${esc(S.err)}</div>`;
     else if (!S.items.length) body = `<div class="empty">${{ dl: 'まだ何も追加していません（Dedupe の「リンクを追加」で追加したものと、PikPak のダウンロードがここに出ます）', recent: `この ${S.days} 日間に追加したものはありません`, hist: '再生した履歴はありません', star: 'スター付きの項目はありません', trash: 'ゴミ箱は空です' }[tab]}</div>`;
-    else body = grid ? `<div class="lb-grid">${S.items.map(card).join('')}</div>` : S.items.map(row).join('');
+    else body = grid ? `<div class="lb-grid sz-${lsz}">${S.items.map(card).join('')}</div>` : S.items.map(row).join('');
     const n = S.sel.size, dis = S.busy || S.loading ? ' disabled' : '';
     const pvTip = 'ダブルクリックで低画質のプレビュー、本編は「↗ 外部プレーヤー」（オリジナル画質）がおすすめ。';
     const note = { dl: 'リンク・マグネットで追加したもの（直近 60 日）。すぐ保存した分は保存先にあるかを、クラウドダウンロードの分は進み具合を確かめて表示します。「一覧から外す」は記録とタスクを消すだけで、保存したファイルは消しません。', recent: '追加日の新しい順（読み込んだ範囲：' + esc(dirLabel((scanRoot() || {}).id) || '—') + '）。' + pvTip, hist: 'PikPak で再生した動画（新しい順）。' + pvTip, star: 'PikPak でスターを付けた項目。' + pvTip, trash: `ゴミ箱の中身${quota ? `（${fmtCap(quota.trash)}）` : ''}。「完全に削除」「空にする」は元に戻せません。` }[tab];
     const all = selectable && S.items.length ? `<label class="note lb-all"><input type="checkbox" data-lball${n && n === S.items.length ? ' checked' : ''}${dis}> すべて選ぶ</label>` : '';
-    const html = `<div class="lk-box" role="dialog" aria-label="${esc(LIB_TABS.find((x) => x[0] === tab)[1])}"><div class="lk-hd"><b>${LIB_TABS.find((x) => x[0] === tab)[1]}</b><span class="note">${S.items.length && !S.loading ? S.items.length + ' 項目' : ''}</span><span class="sp"></span><button data-lbreload title="読み込み直す"${dis}>更新</button><button class="x" data-lbclose aria-label="閉じる">${IC.x}</button></div>
+    const html = `<div class="lk-box" role="dialog" aria-label="${esc(LIB_TABS.find((x) => x[0] === tab)[1])}"><div class="lk-hd"><b>${LIB_TABS.find((x) => x[0] === tab)[1]}</b><span class="note">${S.items.length && !S.loading ? S.items.length + ' 項目' : ''}</span><span class="sp"></span>${grid ? `<span class="seg lb-sz" title="サムネイルの大きさ">${[['s', '小'], ['m', '中'], ['l', '大']].map(([k, l]) => `<button data-lbsz="${k}" class="${lsz === k ? 'on' : ''}">${l}</button>`).join('')}</span>` : ''}<button data-lbreload title="読み込み直す"${dis}>更新</button><button class="x" data-lbclose aria-label="閉じる">${IC.x}</button></div>
       <div class="lb-tabs">${tabs}</div>
       <div class="lb-note">${note}</div>
       <div class="lk-list">${all}${body}</div>

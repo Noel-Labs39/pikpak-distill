@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.3.1
+// @version      4.3.2
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.3.1'; // @version と合わせて更新する
+  const VER = '4.3.2'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -2156,7 +2156,7 @@
     if (view === 'seller') {
       html = head + `<label class="optsw" title="オフにすると、このステップを使わず次へ進みます"><input type="checkbox" data-a="selleropt"${sellerEnabled() ? ' checked' : ''}> このステップを使う</label>`;
     }
-    if (view === 'junk') html = head + `<label class="optsw" title="オフにすると、不要ファイルの判定を使わず、すべてのファイルをほかのステップの対象にします"><input type="checkbox" data-a="junkopt"${junkEnabled() ? ' checked' : ''}> このステップを使う</label><span class="sep"></span>`;
+    if (view === 'junk') html = head + kopt('junk');
     if (view === 'name') html = head + kopt('name');
     if (view === 'dup') html = head + `
       <select data-a="mode" title="まとめ方"><option value="name">同じファイル名でまとめる</option><option value="id">同じ品番でまとめる（-1/-2違いも含む）</option></select>
@@ -2177,9 +2177,8 @@
       const main = $('[data-r=main]');
       const hasNext = !!(main && main.querySelector('.pd-next, .pd-hero .acts'));
       let tx = '';
-      if (view === 'junk') { const n = jplan.filter(junkChecked).length; tx = !junkEnabled() || !jplan.length ? '' : n ? `<b>削除するもの ${n} 件</b><small>PikPak のゴミ箱へ移動します</small>` : '<b>チェックの入ったファイルがありません</b><small>削除するものにチェックを入れてください</small>'; }
-      else if (view === 'dup') { const g = visibleGroups(); tx = g.length ? `<b>表示中 ${g.length} 組</b><small>チェックした（削除の）ファイルを PikPak のゴミ箱へ移動します</small>` : ''; }
-      else if (KIT_VERB[view]) { const all = kitItems(view), n = kitTargets(view).length, un = UNIT_OF[view] || '件'; const off = all.filter((it) => (it.st === 'todo' || it.st === 'fail') && kitOffS[view].has(it.id)).length, rv = all.filter((it) => it.st === 'review').length; tx = !stepOn(view) || !all.some((it) => it.st === 'todo' || it.st === 'fail') ? '' : n ? `<b>チェックした ${n} ${un}を${KIT_VERB[view]}します</b><small>${[off ? `チェックなし ${off}` : '', rv ? `要確認 ${rv}` : ''].filter(Boolean).join('・')}${off || rv ? ' は対象外。' : ''}まずは「先頭1件だけ試す」で動きを確かめてください</small>` : '<b>チェックの入ったものがありません</b><small>実行するものにチェックを入れてください</small>'; }
+      if (view === 'dup') { const g = visibleGroups(), n = delList(g).length; tx = g.length ? (n ? `<b>チェックした ${n} 件を削除します</b><small>表示中 ${g.length} 組。各組の一番大きいファイルは最初からチェックなし（残す）。確認画面のあと、PikPak のゴミ箱へ移します</small>` : '<b>チェックの入ったファイルがありません</b><small>削除するファイルにチェックを入れてください</small>') : ''; }
+      else if (KIT_VERB[view]) { const all = kitItems(view), n = kitTargets(view).length, un = UNIT_OF[view] || '件'; const off = all.filter((it) => (it.st === 'todo' || it.st === 'fail') && kitIsOff(view, it.id)).length, rv = all.filter((it) => it.st === 'review').length; tx = !stepOn(view) || !all.some((it) => it.st === 'todo' || it.st === 'fail') ? '' : n ? `<b>チェックした ${n} ${un}を${KIT_VERB[view]}します</b><small>${[off ? `チェックなし ${off}` : '', rv ? `要確認 ${rv}` : ''].filter(Boolean).join('・')}${off || rv ? ' は対象外。' : ''}${view === 'junk' ? '確認画面のあと、PikPak のゴミ箱へ移します' : 'まずは「先頭1件だけ試す」で動きを確かめてください'}</small>` : '<b>チェックの入ったものがありません</b><small>実行するものにチェックを入れてください</small>'; }
       else { const n = remaining(view, c); tx = n > 0 ? `<b>対象 ${n} ${UNIT_OF[view] || '件'}</b><small>まずは「先頭1件だけ試す」で動きを確かめてください</small>` : ''; }
       if (btx) btx.innerHTML = tx;
       if (!tx) { bar.classList.add('done'); if (hasNext) { el.innerHTML = ''; bar.classList.add('hide'); return; } }
@@ -2194,16 +2193,11 @@
       refreshSellerChrome();
       return;
     }
-    if (view === 'junk') {
-      const n = jplan.filter(junkChecked).length;
-      el.innerHTML = junkEnabled() && jplan.length ? `<button class="danger" data-a="junkdel"${n ? '' : ' disabled'}>チェックしたものを削除（${n} 件）</button>` : `<span class="okbadge">✓ 完了</span>${nextHtml(c)}`;
-      return;
-    }
     if (view === 'dup') {
-      el.innerHTML = visibleGroups().length ? '<button data-a="csv">CSV保存</button><button class="danger" data-a="delall">チェックしたものを削除</button>' : `<span class="okbadge">✓ 完了</span>${nextHtml(c)}`;
+      el.innerHTML = visibleGroups().length ? (() => { const n = delList(visibleGroups()).length; return `<button data-a="csv">CSV保存</button><button class="danger" data-a="delall"${n ? '' : ' disabled'}>チェックした ${n} 件を削除</button>`; })() : `<span class="okbadge">✓ 完了</span>${nextHtml(c)}`;
       return;
     }
-    if (KIT_VERB[view]) { const n = kitTargets(view).length, un = UNIT_OF[view] || '件'; el.innerHTML = stepOn(view) && kitItems(view).some((it) => it.st === 'todo' || it.st === 'fail') ? `<button data-a="${view}1"${n ? '' : ' disabled'}>先頭1件だけ試す</button><button class="pri" data-a="${view}all"${n ? '' : ' disabled'}>チェックした ${n} ${un}を${KIT_VERB[view]}</button>` : `<span class="okbadge">✓ 完了${view === 'clean' && c && c.cleanSkip ? `（要確認 ${c.cleanSkip} 件）` : ''}</span>${nextHtml(c)}`; return; }
+    if (KIT_VERB[view]) { const n = kitTargets(view).length, un = UNIT_OF[view] || '件'; el.innerHTML = stepOn(view) && kitItems(view).some((it) => it.st === 'todo' || it.st === 'fail') ? (view === 'junk' ? `<button class="danger" data-a="junkdel"${n ? '' : ' disabled'}>チェックした ${n} ${un}を削除</button>` : `<button data-a="${view}1"${n ? '' : ' disabled'}>先頭1件だけ試す</button><button class="pri" data-a="${view}all"${n ? '' : ' disabled'}>チェックした ${n} ${un}を${KIT_VERB[view]}</button>`) : `<span class="okbadge">✓ 完了${view === 'clean' && c && c.cleanSkip ? `（要確認 ${c.cleanSkip} 件）` : ''}</span>${nextHtml(c)}`; return; }
     el.innerHTML = remaining(view, c) > 0
       ? `<button data-a="${view}1">先頭1件だけ試す</button><button class="pri" data-a="${view}all">${label[view]}</button>`
       : `<span class="okbadge">✓ 完了${view === 'clean' && c && c.cleanSkip ? `（要確認 ${c.cleanSkip} 件）` : ''}</span>${nextHtml(c)}`;
@@ -2241,6 +2235,7 @@
     const t = ($('[data-r=status]') || {}).textContent || '';
     if (!t || busy) return;
     lastResult[v] = { text: t, at: Date.now() };
+    if (view === v && v === 'seller') { const old = $('[data-r=main] .st-res'); if (old) old.remove(); renderSeller(); return; }
     if (view === v) { const old = $('[data-r=main] .st-res'); if (old) old.remove(); ensureStepChrome(); if (LANG === 'en') root.querySelectorAll('[data-r=main] .st-res *').forEach(trNode); }
   }
   function render() {
@@ -2412,35 +2407,7 @@
   }
 
   // ---------- 2. 不要ファイルを削除 ----------
-  function renderJunk() {
-    const explain = `<div class="pd-explain"><h3>このステップでできること</h3>
-      <div class="note">読み込んだファイルのうち、作品と関係ないものを見分けて削除します。オンの間は、ここで見つけたファイルを「ファイル名を整える」「作品ごとに仕分け」「フォルダ名を揃える」「重複を比べて削除」の対象から外すので、広告ファイルの名前でフォルダが作られたり、フォルダ名が広告の名前になったりしません（削除しなくても外れます）。</div>
-      <ul class="note">
-        <li><b>広告・宣伝</b>：<code>.url</code> <code>.txt</code> <code>.html</code> <code>.exe</code> <code>.apk</code> <code>.torrent</code> などのファイル、品番がなく「最新地址」「广告」「福利」などの宣伝の言葉やサイトのアドレス（<code>xxx.com</code> など）が入ったファイル</li>
-        <li><b>10MB以下</b>：画像・説明ファイル・短い宣伝動画など（字幕ファイルは「要確認」に回します）</li>
-        <li><b>宣伝向けの名前</b>：品番がなく、宣伝によく使われる文字だけの名前。小さいファイルは削除の対象、50MB 以上や品番が入ったものは作品の可能性があるため「要確認」に回します</li>
-      </ul>
-      <div class="note" style="margin-top:6px">「要確認」は最初はチェックなしです。削除はPikPakのゴミ箱へ移動します（確認画面で完全削除も選べます）。削除したあとに空になったフォルダは、「7. (1)を外す・片付け」でまとめて片付けられます。使わない場合は、右上の「このステップを使う」のチェックを外してください。</div></div>`;
-    if (!junkEnabled()) { $('[data-r=main]').innerHTML = explain + `<div class="pd-hero"><h2>このステップはオフになっています</h2><div class="note">すべてのファイルを、ほかのステップの対象にします。</div><div class="acts" style="margin-top:16px">${nextHtml(undefined, 'pri big')}</div></div>`; if (!busy) status('不要ファイルの除外はオフです。'); return; }
-    if (!jplan.length) { $('[data-r=main]').innerHTML = explain + doneCard(); if (!busy) status('作品と関係ないファイルは見つかりませんでした。'); return; }
-    const row = (p) => {
-      const on = junkChecked(p);
-      return `<div class="pd-row ${on ? 'del' : ''}" data-id="${esc(p.id)}"><label class="pd-chk" title="チェック＝削除する"><input type="checkbox" data-jchk="${esc(p.id)}"${on ? ' checked' : ''}></label>
-        <div class="pd-th" style="width:96px;height:54px">${p.thumb ? `<img loading="lazy" referrerpolicy="no-referrer" src="${esc(p.thumb)}" alt="">` : ''}</div>
-        <div class="pd-info"><div class="pd-name">${esc(p.name)} <span class="pd-tag">${esc(p.reason)}</span></div><div class="pd-path">${esc(p.path)}</div></div>
-        <div class="pd-sz"><b>${fmt(p.size)}</b></div></div>`;
-    };
-    const sec = (lv, title, note) => {
-      const l = jplan.filter((p) => p.level === lv);
-      if (!l.length) return '';
-      return `<div class="pd-g"><div class="pd-gh"><span>${title} ${l.length} 件</span><span class="note">${note}</span><span class="sp"></span><button data-a="jall" data-lv="${lv}">すべてチェック</button><button data-a="jnone" data-lv="${lv}">すべて外す</button></div>${l.map(row).join('')}</div>`;
-    };
-    $('[data-r=main]').innerHTML = explain
-      + sec('del', '作品と関係ないファイル', 'ほかのステップの対象から外しています')
-      + sec('review', '要確認', '作品の可能性があるもの。削除する場合はチェックしてください（ほかのステップの対象のままです）')
-      + nextButton();
-    if (!busy) { const sel = jplan.filter(junkChecked); status(`チェック（削除する） ${sel.length} 件・${fmt(sel.reduce((a, p) => a + p.size, 0))}`); }
-  }
+  function renderJunk() { renderKit('junk'); }
   async function runJunk() {
     const list = jplan.filter(junkChecked).map((p) => files.find((f) => f.id === p.id)).filter(Boolean);
     if (!list.length) { status('チェックの入ったファイルがありません'); return; }
@@ -2459,24 +2426,30 @@
   // どのステップも「見出し・タブ（実行する／要確認／変更なし／失敗／すべて）・チェック＝実行する・今 → 後の行・下の実行の帯」で組む。
   // 実行は途中で止めずに最後まで進め、失敗は「失敗」タブに理由つきで残す
   const cleanOff = new Set(); // 7. 片付けでチェックを外した項目
-  const kitOffS = { name: nameOff, clean: cleanOff, sort: new Set(), ren: new Set() };
-  const kitFail = { name: new Map(), sort: new Map(), ren: new Map(), clean: new Map() };
-  const kitTab = { name: 'todo', sort: 'todo', ren: 'todo', clean: 'todo' };
-  const kitQ = { name: '', sort: '', ren: '', clean: '' };
+  const kitOffS = { junk: new Set(), name: nameOff, clean: cleanOff, sort: new Set(), ren: new Set() };
+  const kitFail = { junk: new Map(), name: new Map(), sort: new Map(), ren: new Map(), clean: new Map() };
+  const kitTab = { junk: 'todo', name: 'todo', sort: 'todo', ren: 'todo', clean: 'todo' };
+  const kitQ = { junk: '', name: '', sort: '', ren: '', clean: '' };
+  const KIT_OPT_J = 1;
   const KIT_OPT = { sort: 'ppdup:opt:sort:v1', ren: 'ppdup:opt:ren:v1', clean: 'ppdup:opt:clean:v1' };
-  const stepOn = (v) => (v === 'name' ? nameEnabled() : KIT_OPT[v] ? (() => { try { return localStorage.getItem(KIT_OPT[v]) !== '0'; } catch (e) { return true; } })() : true);
+  const stepOn = (v) => (v === 'name' ? nameEnabled() : v === 'junk' ? junkEnabled() : KIT_OPT[v] ? (() => { try { return localStorage.getItem(KIT_OPT[v]) !== '0'; } catch (e) { return true; } })() : true);
   const KIT_EX = {
+    junk: '作品と関係ないファイル（広告・宣伝の <code>.url</code> <code>.txt</code> <code>.html</code> <code>.exe</code> など、品番がなく宣伝の言葉やサイトのアドレスだけの名前、10MB 以下の画像・短い宣伝動画）を見分けてゴミ箱へ移します。オンの間は、ここで見つけたファイルをほかのステップの対象から外します。作品の可能性があるもの（50MB 以上・品番入り・字幕）は「要確認」に回し、最初はチェックなしです。空になったフォルダは「7. 片付け」でまとめて片付けられます。',
     name: `FC2 のファイル名を <code>FC2-PPV-品番</code> の形にそろえます（例：<code>4k688.com@FC2-PPV-4988183_1.mp4</code> → <code>FC2-PPV-4988183-1.mp4</code>）。サイト名・広告などの余計な文字は消し、<code>_1</code>・<code>part2</code>・<code>cd1</code> などの分割番号は <code>-1</code> の形で残します。同じ場所に同じ名前ができる場合は <code>(1)</code> を付けます。FC2 以外のファイル・中身・置き場所は変えません。`,
     sort: '複数の作品が混ざったフォルダの中で、作品ごとに品番のフォルダを作って（あれば既存のフォルダへ）ファイルを移します。同じ名前のファイルがあるときは <code>(1)</code> を付けます。削除はしません。',
     ren: 'フォルダ名を、中のファイル名（品番）に揃えます。中に複数の作品があるフォルダや、品番が決まらないフォルダは「要確認」に回して変更しません。同じ名前のフォルダがすでにあるときは重ならない名前にします。',
     clean: '重複の削除のあとに残ったものを片付けます：空のフォルダをゴミ箱へ（実行直前にも空か確かめます）、「X の中に X だけ」のフォルダの中身を 1 つ上へ、不要になった <code>(1)</code> を外す。このステップで処理できないものは「要確認」に出します。',
   };
-  const KIT_VERB = { name: '変更', sort: '移動', ren: '変更', clean: '実行' };
+  KIT_EX.dup = '同じファイル名（または同じ品番）のファイルをまとめ、サムネイル・サイズで比べて削除するものを選びます。各組の一番大きいファイルは高画質の候補として最初からチェックなし（残す）。組の 2 本を「コマで比べる」で見比べられます。全部にチェックした組は、確認画面で「強制削除」を選ばない限り削除しません。';
+  KIT_EX.seller = '作品フォルダの品番から販売者を調べ（fd2ppv.cc → 見つからなければ fc2cmadb.com、FC2 以外は配信元）、ホーム/販売者別/販売者名（販売者ID）/ へ移動します。調べるだけでは何も動かしません。分からないものは外部サイトで確かめて手で入力できます。';
+  const kitExHtml = (v) => `<details class="pd-explain kit-ex"><summary>このステップでできること</summary><div class="note">${KIT_EX[v]}</div></details>`;
+  const KIT_VERB = { junk: '削除', name: '変更', sort: '移動', ren: '変更', clean: '実行' };
   const tg = (t, c) => ({ tag: t, tc: c || '' });
   const sortKey = (g) => g.cid + ':' + g.work;
   function kitItems(v) {
     const fail = kitFail[v];
     const fx = (it) => (fail.has(it.id) ? { ...it, st: 'fail', err: fail.get(it.id) } : it);
+    if (v === 'junk') return jplan.map((p) => fx({ id: p.id, st: 'todo', grp: p.level === 'del' ? '作品と関係ないファイル（ほかのステップの対象から外しています）' : '要確認：作品の可能性があるもの（削除するならチェック）', before: p.name, after: '', note: `${p.path}　${fmt(p.size)}`, thumb: p.thumb || '', open: p.id, ...tg(p.reason, p.level === 'del' ? 'del' : 'warn'), danger: true }));
     if (v === 'name') return nplan.filter((p) => p.status === 'todo').map((p) => fx({ id: p.id, st: 'todo', grp: p.path || '（読み込んだフォルダの直下）', before: p.cur, after: p.target, note: p.note || '', thumb: (fileById(p.id) || {}).thumb || '', open: p.id, ...tg('名前を変更', 'pri') }));
     if (v === 'sort') return splan.filter((g) => g.status !== 'done').map((g) => { const ren = g.items.filter((x) => x.to !== x.name); return fx({ id: sortKey(g), st: 'todo', grp: g.cpath || '（読み込んだフォルダの直下）', before: g.items.length === 1 ? g.items[0].name : `${g.items.length} 本（${g.items.map((x) => x.name).join('、')}）`, after: `📁 ${g.work}/`, note: ren.length ? '同じ名前があるため：' + ren.map((x) => `${x.name} → ${x.to}`).join('、') : '', thumb: ((fileById(g.items[0].id) || {}).thumb) || '', open: g.cid, ...(g.folderNew ? tg('新しいフォルダ', 'ok') : tg('既存のフォルダへ', 'pri')) }); });
     if (v === 'ren') return rplan.map((p) => { const st = p.status === 'rename' || p.status === 'dup' ? 'todo' : p.status === 'skip' ? 'review' : 'same'; const pp = p.path.slice(0, p.path.length - p.cur.length).replace(/\/$/, '') || '（読み込んだフォルダの直下）'; return fx({ id: p.id, st, grp: pp, before: p.cur, after: p.target || '（未定）', note: p.note || '', open: p.id, ...tg(STLABEL[p.status], p.status === 'skip' ? 'warn' : p.status === 'same' ? '' : 'pri'), folder: true }); });
@@ -2486,10 +2459,13 @@
     }
     return [];
   }
-  const kitRaw = (v, id) => (v === 'name' ? nplan.find((p) => p.id === id) : v === 'sort' ? splan.find((g) => sortKey(g) === id) : v === 'ren' ? rplan.find((p) => p.id === id) : cplan.find((p) => p.id === id));
-  const kitOn = (v, it) => (it.st === 'todo' || it.st === 'fail') && !kitOffS[v].has(it.id);
+  const kitRaw = (v, id) => (v === 'junk' ? jplan.find((p) => p.id === id) : v === 'name' ? nplan.find((p) => p.id === id) : v === 'sort' ? splan.find((g) => sortKey(g) === id) : v === 'ren' ? rplan.find((p) => p.id === id) : cplan.find((p) => p.id === id));
+  // チェックを外したか（2. 不要ファイルは「要確認」が最初からチェックなしなので、専用の記録を使う）
+  const kitIsOff = (v, id) => (v === 'junk' ? (() => { const p = jplan.find((x) => x.id === id); return !p || !junkChecked(p); })() : kitOffS[v].has(id));
+  const kitSetOff = (v, id, off) => { if (v === 'junk') junkSel.set(id, !off); else if (off) kitOffS[v].add(id); else kitOffS[v].delete(id); };
+  const kitOn = (v, it) => (it.st === 'todo' || it.st === 'fail') && !kitIsOff(v, it.id);
   function kitTargets(v) { return kitItems(v).filter((it) => kitOn(v, it)); }
-  function kitPlan(v) { if (v === 'name') nplan = buildNamePlan(workFiles(), folders); if (v === 'sort') splan = buildSortPlan(workFiles(), folders); if (v === 'ren') rplan = buildRenamePlan(workFiles(), folders); if (v === 'clean') cplan = buildCleanPlan(files, folders); }
+  function kitPlan(v) { if (v === 'junk') jplan = junkEnabled() ? buildJunkPlan(files, folders) : []; if (v === 'name') nplan = buildNamePlan(workFiles(), folders); if (v === 'sort') splan = buildSortPlan(workFiles(), folders); if (v === 'ren') rplan = buildRenamePlan(workFiles(), folders); if (v === 'clean') cplan = buildCleanPlan(files, folders); }
   function renderKit(v) {
     const main = $('[data-r=main]');
     const s = STEPS.find((x) => x.v === v);
@@ -2502,16 +2478,16 @@
     const list = all.filter((it) => (tab === 'all' || it.st === tab) && (!q || (it.before + ' ' + it.after + ' ' + it.grp).toLowerCase().includes(q)));
     const groups = new Map(); list.forEach((it) => { if (!groups.has(it.grp)) groups.set(it.grp, []); groups.get(it.grp).push(it); });
     const row = (it) => {
-      const can = it.st === 'todo' || it.st === 'fail', on = can && !kitOffS[v].has(it.id);
+      const can = it.st === 'todo' || it.st === 'fail', on = can && !kitIsOff(v, it.id);
       const th = it.folder ? `<span class="kit-ic">${ICON_DIR}</span>` : it.thumb ? `<img loading="lazy" referrerpolicy="no-referrer" src="${esc(it.thumb)}" alt="">` : `<span class="kit-ic">${ICON_FILE({ name: it.before, ext: extOf(it.before) })}</span>`;
       return `<div class="pd-row kit-row ${on ? (it.danger ? 'del' : 'sel') : ''}${it.st === 'fail' ? ' fail' : ''}" data-id="${esc(it.id)}"><label class="pd-chk"><input type="checkbox" data-kchk="${esc(it.id)}"${on ? ' checked' : ''}${can ? '' : ' disabled'}></label>
         <div class="pd-th kit-th">${th}</div>
         <div class="pd-info"><div class="pd-name">${esc(it.before)}${it.after ? ` <span class="note">→</span> <b class="kit-to">${esc(it.after)}</b>` : ''}</div>${it.note ? `<div class="note">${esc(it.note)}</div>` : ''}${it.st === 'fail' ? `<div class="kit-err">失敗：${esc(it.err)}</div>` : ''}</div>
         <span class="pd-tag kit-tag ${it.tc}">${esc(it.tag)}</span>${it.open ? `<button class="kit-open" data-kopen="${esc(it.open)}" title="フォルダ一覧でこの項目の場所を開く">場所を開く</button>` : ''}</div>`;
     };
-    const body = [...groups].map(([g, l]) => { const chk = l.filter((it) => it.st === 'todo' || it.st === 'fail'); const allOn = chk.length && chk.every((it) => !kitOffS[v].has(it.id)); return `<div class="pd-g"><div class="pd-gh">${chk.length ? `<input type="checkbox" data-kgrp="${esc(g)}"${allOn ? ' checked' : ''} title="このまとまりをすべてチェック／外す">` : ''}<span>${esc(g)}</span><span class="note">${l.length} ${UNIT_OF[v] || '件'}</span></div>${l.map(row).join('')}</div>`; }).join('') || '<div class="empty">この区分に該当するものはありません</div>';
+    const body = [...groups].map(([g, l]) => { const chk = l.filter((it) => it.st === 'todo' || it.st === 'fail'); const allOn = chk.length && chk.every((it) => !kitIsOff(v, it.id)); return `<div class="pd-g"><div class="pd-gh">${chk.length ? `<input type="checkbox" data-kgrp="${esc(g)}"${allOn ? ' checked' : ''} title="このまとまりをすべてチェック／外す">` : ''}<span>${esc(g)}</span><span class="note">${l.length} ${UNIT_OF[v] || '件'}</span></div>${l.map(row).join('')}</div>`; }).join('') || '<div class="empty">この区分に該当するものはありません</div>';
     main.innerHTML = ex + kitTabsHtml(v, n) + body + nextButton();
-    if (!busy) status(n('todo') + n('fail') ? '内容を確かめて、まずは「先頭1件だけ試す」で動きを確かめてください。' : 'このステップで実行するものはありません。');
+    if (!busy) status(n('todo') + n('fail') ? (v === 'junk' ? '削除するものにチェックを入れて、下の「チェックした n 件を削除」を押してください（PikPak のゴミ箱へ移します）。'.replace('n 件', kitTargets(v).length + ' 件') : '内容を確かめて、まずは「先頭1件だけ試す」で動きを確かめてください。') : 'このステップで実行するものはありません。');
   }
   function kitTabsHtml(v, n) {
     const T = [['todo', '実行する'], ['review', '要確認'], ['same', '変更なし'], ['fail', '失敗'], ['all', 'すべて']].filter(([k]) => k === 'todo' || k === 'all' || n(k));
@@ -2573,7 +2549,8 @@
     return groups;
   }
   const delList = (groups) => groups.flatMap((g) => g.items.filter((f, i) => stateOf(f, i) === 'del'));
-  function renderDup() {
+  function renderDup() { renderDup0(); const m = $('[data-r=main]'); if (m && !m.querySelector('.kit-ex')) m.insertAdjacentHTML('afterbegin', kitExHtml('dup')); }
+  function renderDup0() {
     const groups = visibleGroups();
     const main = $('[data-r=main]');
     if (!groups.length) { const qq = $('[data-a=q]'), nn = $('[data-a=nearonly]'); main.innerHTML = (qq && qq.value) || (nn && nn.checked) ? '<div class="empty">絞り込みに該当する重複はありません。</div>' : doneCard(); if (!busy) status('重複はありません。'); renderActs(); return; }
@@ -2890,6 +2867,13 @@
     if (LANG === 'en') root.querySelectorAll('[data-r=slbar] *, [data-r=main] .sl-guide *').forEach(trNode);
   }
   function renderSeller() {
+    renderSeller0(); const m = $('[data-r=main]'); if (!m) return;
+    if (!m.querySelector('.kit-ex')) m.insertAdjacentHTML('afterbegin', kitExHtml('seller'));
+    // 実行結果のカード（ほかのステップと同じく一覧の上に残す）
+    const r = lastResult.seller;
+    if (r && !m.querySelector('.st-res')) { const bad = /失敗|できません|停止|エラー|止め/.test(r.text); m.insertAdjacentHTML('afterbegin', `<div class="st-res${bad ? ' warn' : ''}" role="status"><span class="ic">${bad ? '!' : '✓'}</span><span class="tx">${esc(r.text)}</span><button data-a="resclose" title="閉じる" aria-label="閉じる">${IC.x}</button></div>`); }
+  }
+  function renderSeller0() {
     const cfg = sellerCfg();
     if (!sellerEnabled()) { $('[data-r=main]').innerHTML = `<div class="pd-hero"><h2>このステップはオフになっています</h2><div class="note">右上の「このステップを使う」か、設定の「整理」でオンにできます。</div></div>${nextButton()}`; if (!busy) status('販売者ごとの仕分けはオフです。'); return; }
     const by = (k) => selPlan.filter((p) => p.kind === k);
@@ -4471,11 +4455,11 @@
     if (sg) { selPlan.filter((p) => p.kind !== 'pending' && (sg === 'k:fix' ? !!p.fix : sg === 'k:unknown' ? p.kind === 'unknown' : sg === 'k:review' ? p.kind === 'review' : p.kind === 'seller' && !p.fix && 's:' + p.seller.sid === sg)).forEach((p) => sellerSel.set(p.id, e.target.checked)); render(); renderActs(); return; }
     if (e.target.dataset && e.target.dataset.a === 'selleropt') { try { localStorage.setItem(LS_OPT_SELLER, e.target.checked ? '1' : '0'); } catch (err) { /* 無視 */ } log('info', '販売者ごとの仕分けを' + (e.target.checked ? 'オン' : 'オフ') + 'に変更'); setView(view); return; }
     const kid = e.target.dataset && e.target.dataset.kchk;
-    if (kid && kitOffS[view]) { if (e.target.checked) kitOffS[view].delete(kid); else kitOffS[view].add(kid); const row = e.target.closest('.pd-row'); const it = kitItems(view).find((x) => x.id === kid); if (row) row.classList.toggle(it && it.danger ? 'del' : 'sel', e.target.checked); renderActs(); return; }
+    if (kid && KIT_VERB[view]) { kitSetOff(view, kid, !e.target.checked); const row = e.target.closest('.pd-row'); const it = kitItems(view).find((x) => x.id === kid); if (row) row.classList.toggle(it && it.danger ? 'del' : 'sel', e.target.checked); renderActs(); return; }
     const kg = e.target.dataset && e.target.dataset.kgrp;
-    if (kg !== undefined && kitOffS[view]) { kitItems(view).filter((it) => it.grp === kg && (it.st === 'todo' || it.st === 'fail')).forEach((it) => { if (e.target.checked) kitOffS[view].delete(it.id); else kitOffS[view].add(it.id); }); render(); return; }
+    if (kg !== undefined && KIT_VERB[view]) { kitItems(view).filter((it) => it.grp === kg && (it.st === 'todo' || it.st === 'fail')).forEach((it) => { kitSetOff(view, it.id, !e.target.checked); }); render(); return; }
     const ko = e.target.dataset && e.target.dataset.kopt;
-    if (ko) { if (ko === 'name') { try { localStorage.setItem(LS_OPT_NAME, e.target.checked ? '1' : '0'); } catch (err) { /* 無視 */ } } else { try { localStorage.setItem(KIT_OPT[ko], e.target.checked ? '1' : '0'); } catch (err) { /* 無視 */ } } log('info', `${STEPS.find((x) => x.v === ko).t}を${e.target.checked ? 'オン' : 'オフ'}`); if (!busy) setView(ko); return; }
+    if (ko) { if (ko === 'junk') { try { localStorage.setItem(LS_OPT_JUNK, e.target.checked ? '1' : '0'); } catch (err) { /* 無視 */ } } else if (ko === 'name') { try { localStorage.setItem(LS_OPT_NAME, e.target.checked ? '1' : '0'); } catch (err) { /* 無視 */ } } else { try { localStorage.setItem(KIT_OPT[ko], e.target.checked ? '1' : '0'); } catch (err) { /* 無視 */ } } log('info', `${STEPS.find((x) => x.v === ko).t}を${e.target.checked ? 'オン' : 'オフ'}`); if (!busy) setView(ko); return; }
     const nid = e.target.dataset && e.target.dataset.nchk;
     if (nid) { if (e.target.checked) nameOff.delete(nid); else nameOff.add(nid); const row = e.target.closest('.pd-row'); if (row) row.classList.toggle('sel', e.target.checked); return; }
     const cid = e.target.dataset && e.target.dataset.cchk;

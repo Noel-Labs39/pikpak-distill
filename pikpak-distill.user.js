@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.3.2
+// @version      4.3.3
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.3.2'; // @version と合わせて更新する
+  const VER = '4.3.3'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -701,6 +701,19 @@
     } else { const f = files.find((x) => x.id === p.id); if (f) f.name = p.target; }
     p.cur = p.target; p.status = 'done';
     return true;
+  }
+  // 削除：フォルダ（置き場所）ごとに試し、失敗した分は理由を残して最後まで続ける（ログインが切れたときだけ止める）
+  async function deleteEach(list, hard, onProgress) {
+    const byP = new Map(); list.forEach((f) => { if (!byP.has(f.parentId)) byP.set(f.parentId, []); byP.get(f.parentId).push(f); });
+    let n = 0, d = 0; const fails = new Map(); const t0 = Date.now();
+    for (const items of byP.values()) {
+      if (window.__ppdupStop) break;
+      try { n += await deleteApi(items, hard); }
+      catch (err) { if (err.session) throw err; items.forEach((f) => fails.set(f.id, err.message || String(err))); log('warn', '削除できませんでした：' + (err.message || err), items[0].path); }
+      d += items.length; if (onProgress) onProgress(d, list.length, d ? `あと約 ${fmtDur((Date.now() - t0) / d * (list.length - d))}` : '');
+    }
+    refreshQuota(true);
+    return { n, fails };
   }
   async function deleteApi(list, hard, onProgress) {
     const byP = new Map(); list.forEach((f) => { if (!byP.has(f.parentId)) byP.set(f.parentId, []); byP.get(f.parentId).push(f); });
@@ -2416,9 +2429,11 @@
     if (!ans) return;
     busy = true; renderNav(); renderActs(); window.__ppdupStop = false;
     try {
-      const n = await deleteApi(list, ans.hard, (d, t) => status(`削除中… ${d}/${t}`, d / t));
-      list.forEach((f) => junkSel.delete(f.id));
-      busy = false; setView('junk'); status(`${n} 件を${ans.hard ? '完全に削除' : 'ゴミ箱へ移動'}しました。`); log('info', `不要ファイルの削除 ${n} 件（${ans.hard ? '完全削除' : 'ゴミ箱'}）`); refreshView();
+      const { n, fails } = await deleteEach(list, ans.hard, (d, t, e) => status(`削除しています… ${d} / ${t}`, d / t, e));
+      list.forEach((f) => { if (!fails.has(f.id)) { junkSel.delete(f.id); kitFail.junk.delete(f.id); } });
+      fails.forEach((m, id) => kitFail.junk.set(id, m));
+      kitTab.junk = fails.size ? 'fail' : 'todo';
+      busy = false; setView('junk'); status(`${n} 件を${ans.hard ? '完全に削除' : 'ゴミ箱へ移動'}しました${fails.size ? `・失敗 ${fails.size} 件（「失敗」タブに理由があります。チェックしたまま押すと、もう一度試します）` : ''}。`); log('info', `不要ファイルの削除 ${n} 件（${ans.hard ? '完全削除' : 'ゴミ箱'}）`); refreshView();
     } catch (err) { busy = false; setView('junk'); handleErr(err, 'junk', '削除を停止しました：' + err.message); }
   }
 
@@ -2540,7 +2555,22 @@
 
 
   // ---------- 6. 重複を比べて削除 ----------
-  function visibleGroups() {
+  const dupFail = new Map(); let dupTab = 'todo';
+  function dupAllGroups() {
+    const m = $('[data-a=mode]'), n = $('[data-a=nearonly]'), qq = $('[data-a=q]');
+    let groups = buildGroups(workFiles(), m ? m.value : 'name');
+    if (n && n.checked) groups = groups.filter((g) => g.near);
+    const q = qq ? qq.value.trim().toLowerCase() : '';
+    if (q) groups = groups.filter((g) => g.items.some((x) => x.name.toLowerCase().includes(q)));
+    return groups;
+  }
+  const dupCat = (g) => (g.items.some((f) => dupFail.has(f.id)) ? 'fail' : g.items.some((f, i) => stateOf(f, i) === 'del') ? 'todo' : 'keep');
+  function visibleGroups() { const all = dupAllGroups(); if (dupTab !== 'all' && !all.some((g) => dupCat(g) === dupTab)) dupTab = 'all'; return dupTab === 'all' ? all : all.filter((g) => dupCat(g) === dupTab); }
+  function dupTabsHtml() {
+    const all = dupAllGroups(), n = (k) => (k === 'all' ? all.length : all.filter((g) => dupCat(g) === k).length);
+    return `<div class="kit-tabs">${[['todo', '削除するものあり'], ['keep', '残すだけ'], ['fail', '失敗'], ['all', 'すべて']].filter(([k]) => k === 'todo' || k === 'all' || n(k)).map(([k, l]) => `<button class="kit-tab${dupTab === k ? ' on' : ''}${k === 'fail' ? ' bad' : ''}" data-dtab="${k}">${l}<i>${n(k)}</i></button>`).join('')}</div>`;
+  }
+  function visibleGroups0() {
     const m = $('[data-a=mode]'), n = $('[data-a=nearonly]'), qq = $('[data-a=q]');
     let groups = buildGroups(workFiles(), m ? m.value : 'name');
     if (n && n.checked) groups = groups.filter((g) => g.near);
@@ -2549,7 +2579,7 @@
     return groups;
   }
   const delList = (groups) => groups.flatMap((g) => g.items.filter((f, i) => stateOf(f, i) === 'del'));
-  function renderDup() { renderDup0(); const m = $('[data-r=main]'); if (m && !m.querySelector('.kit-ex')) m.insertAdjacentHTML('afterbegin', kitExHtml('dup')); }
+  function renderDup() { renderDup0(); const m = $('[data-r=main]'); if (!m) return; if (dupAllGroups().length && !m.querySelector('.kit-tabs')) m.insertAdjacentHTML('afterbegin', dupTabsHtml()); if (!m.querySelector('.kit-ex')) m.insertAdjacentHTML('afterbegin', kitExHtml('dup')); m.querySelectorAll('.pd-row[data-id]').forEach((r) => { const e = dupFail.get(r.dataset.id); if (e && !r.querySelector('.kit-err')) { r.classList.add('fail', 'kit-row'); const i = r.querySelector('.pd-info'); if (i) i.insertAdjacentHTML('beforeend', `<div class="kit-err">失敗：${esc(e)}</div>`); } }); }
   function renderDup0() {
     const groups = visibleGroups();
     const main = $('[data-r=main]');
@@ -2610,8 +2640,10 @@
     const targets = ans.force ? list.concat(skipped.flatMap((g) => g.items)) : list;
     busy = true; renderNav(); window.__ppdupStop = false;
     try {
-      const n = await deleteApi(targets, ans.hard, (d, t) => status(`削除中… ${d}/${t}`, d / t));
-      busy = false; render(); renderNav(); status(`${n} 件を${ans.hard ? '完全に削除' : 'ゴミ箱へ移動'}しました${ans.force ? `（強制削除 ${skipped.length} 組を含む）` : ''}。`); log('info', `削除 ${n} 件（${ans.hard ? '完全削除' : 'ゴミ箱'}${ans.force ? '・強制削除 ' + skipped.length + ' 組' : ''}）`); refreshView();
+      const { n, fails } = await deleteEach(targets, ans.hard, (d, t, e) => status(`削除しています… ${d} / ${t}`, d / t, e));
+      targets.forEach((f) => dupFail.delete(f.id)); fails.forEach((m, id) => dupFail.set(id, m));
+      dupTab = fails.size ? 'fail' : 'todo';
+      busy = false; render(); renderNav(); status(`${n} 件を${ans.hard ? '完全に削除' : 'ゴミ箱へ移動'}しました${ans.force ? `（強制削除 ${skipped.length} 組を含む）` : ''}${fails.size ? `・失敗 ${fails.size} 件（「失敗」タブに理由があります）` : ''}。`); log('info', `削除 ${n} 件（${ans.hard ? '完全削除' : 'ゴミ箱'}${ans.force ? '・強制削除 ' + skipped.length + ' 組' : ''}）`); refreshView();
     } catch (err) { busy = false; render(); renderNav(); handleErr(err, 'dup', '削除を停止しました：' + err.message); }
   }
 
@@ -2777,6 +2809,7 @@
   const sellerChecked = (p) => ((p.kind === 'pending' && p.fix !== 'nest') || (p.kind === 'dupw' && !p.merge) ? false : sellerSel.has(p.id) ? sellerSel.get(p.id) : (p.fix === 'nest' || p.kind === 'dupw' || (p.kind === 'seller' && !p.fix)));
   const SELLER_KIND = { seller: '決まった', unknown: '販売者不明', review: '要確認', pending: '未調査' };
   let sellerFilter = 'all'; // 絞り込みのタブ
+  const sellerFail = new Map(); // 移動できなかった作品 → 理由
   let sellerAck = false; // ②「確かめる・入力」を済ませて ③ へ進んだか
   // 外部サイトで確かめる（品番は各サイトの形に直して開く）
   function extSites(k) {
@@ -2877,7 +2910,7 @@
     const cfg = sellerCfg();
     if (!sellerEnabled()) { $('[data-r=main]').innerHTML = `<div class="pd-hero"><h2>このステップはオフになっています</h2><div class="note">右上の「このステップを使う」か、設定の「整理」でオンにできます。</div></div>${nextButton()}`; if (!busy) status('販売者ごとの仕分けはオフです。'); return; }
     const by = (k) => selPlan.filter((p) => p.kind === k);
-    if (sellerFilter !== 'all' && !(sellerFilter === 'fix' ? selPlan.some((p) => p.fix) : by(sellerFilter).length)) sellerFilter = 'all';
+    if (sellerFilter !== 'all' && !(sellerFilter === 'fix' ? selPlan.some((p) => p.fix) : sellerFilter === 'fail' ? selPlan.some((p) => sellerFail.has(p.id)) : by(sellerFilter).length)) sellerFilter = 'all';
     const show = sellerFilter;
     const ix = buildTreeIndex();
     const R = folders.find((d) => d.isRoot);
@@ -2886,6 +2919,7 @@
     by('seller').filter((p) => !p.fix).forEach((p) => { const k = p.seller.sid; if (!sellers.has(k)) sellers.set(k, { s: p.seller, items: [] }); sellers.get(k).items.push(p); });
     const groups = [];
     const fixes = selPlan.filter((p) => p.fix);
+    if (show === 'fail') groups.push({ key: 'k:fail', title: '失敗（移動できなかった作品）', dest: '', items: selPlan.filter((p) => sellerFail.has(p.id)), cls: ' warn', hint: '理由を確かめて、チェックしたまま「移動」を押すともう一度試します' });
     if (show === 'all' || show === 'fix') if (fixes.length) groups.push({ key: 'k:fix', title: '置き場所の修正（入れ子・販売者違いなど）', dest: '', items: fixes, cls: ' warn', hint: '入れ子は My Pack へ出します（初めからチェック）。ほかは正しい販売者フォルダへ（初めはチェックなし）' });
     if (show === 'all' || show === 'unknown') if (by('unknown').length) groups.push({ key: 'k:unknown', title: cfg.unknown, dest: `${cfg.root}/${cfg.unknown}/`, items: by('unknown'), cls: ' unk', hint: '入力すると、その販売者の組へ移ります' });
     if (show === 'all' || show === 'review') if (by('review').length) groups.push({ key: 'k:review', title: cfg.review, dest: `${cfg.root}/${cfg.review}/`, items: by('review'), cls: ' warn', hint: '自動では移動しません（初めはチェックなし）' });
@@ -2905,7 +2939,7 @@
 : p.kind === 'pending' || p.kind === 'dupw' ? '' : p.fix ? `<div class="pd-act" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span class="note">→ ${p.fix === 'nest' ? 'My Pack/' : `${esc(sellerCfg().root)}/${esc(sellerFolderName(p.seller))}/`}</span><button data-sext="${esc(p.id)}">外部サイト ▾</button><button data-sedit="${esc(p.id)}">販売者を変更</button></div>` : `<div class="pd-act" style="display:flex;gap:6px;flex-wrap:wrap"><button data-sext="${esc(p.id)}">外部サイト ▾</button><button data-sedit="${esc(p.id)}">販売者を変更</button></div>`;
       return `<div class="pd-row sl-row${on ? ' sel' : ''}" data-srow="${esc(p.id)}"><label class="pd-chk"><input type="checkbox" data-schk="${esc(p.id)}"${on ? ' checked' : ''}${(p.kind === 'pending' && p.fix !== 'nest') || (p.kind === 'dupw' && !p.merge) ? ' disabled' : ''}></label>
         <div class="pd-th" style="width:112px;height:63px">${thumb(p)}</div>
-        <div class="pd-info"><div class="pd-name">${esc(p.name)}</div><div class="pd-path">今の場所：${esc((p.path || '').replace(/\/[^/]*$/, '') || '/')}/・${sz(p)}</div><div class="sl-why"><span class="sl-b ${bc}">${bt}</span><span class="note">${esc(p.note)}</span></div></div>
+        <div class="pd-info"><div class="pd-name">${esc(p.name)}</div><div class="pd-path">今の場所：${esc((p.path || '').replace(/\/[^/]*$/, '') || '/')}/・${sz(p)}</div><div class="sl-why"><span class="sl-b ${bc}">${bt}</span><span class="note">${esc(p.note)}</span></div>${sellerFail.has(p.id) ? `<div class="kit-err">失敗：${esc(sellerFail.get(p.id))}</div>` : ''}</div>
         ${input}</div>`;
     };
     const tagNew = (g) => { if (!g.sid) return ''; const ex = sellerFolderExists(g.sid); return `<span class="pd-tag" style="${ex ? '' : 'background:var(--pri-soft);color:var(--pri)'}">${ex ? '既にあるフォルダ' : '新しく作るフォルダ'}</span>`; };
@@ -2914,7 +2948,7 @@
       return `<div class="pd-g${g.cls}"><div class="pd-gh">${g.key === 'k:pending' || (g.key === 'k:dupw' && !all.length) ? '' : `<input type="checkbox" data-sgrp="${esc(g.key)}"${all.length && on.length === all.length ? ' checked' : ''} title="この組をすべて選ぶ／外す">`}<b>${esc(g.title)}</b>${g.sid ? `<span class="note raw">（${esc(g.sid)}）</span>` : ''}${tagNew(g)}${g.dest ? `<span class="note">→ ${esc(g.dest)}</span>` : ''}<span class="sp" style="flex:1"></span>${g.hint ? `<span class="note">${esc(g.hint)}</span>` : ''}<span class="note">${g.items.length} 作品</span></div>${g.items.map(row).join('')}</div>`;
     }).join('');
     const tab = (k, label, color, n) => `<button role="tab" data-sfilter="${k}" class="${show === k ? 'on' : ''}" aria-selected="${show === k}"${n || k === 'all' ? '' : ' disabled'}><i style="background:${color}"></i>${label}<b>${n}</b></button>`;
-    const tabs = selPlan.length ? `<div class="sl-tabs" role="tablist" aria-label="表示">${tab('all', 'すべて', '#c5c9d2', selPlan.length)}${tab('unknown', '販売者不明', '#8b91a1', by('unknown').length)}${tab('review', '要確認', '#c27a00', by('review').length)}${tab('pending', '未調査', '#dde0e6', by('pending').length)}${fixes.length ? tab('fix', '置き場所の修正', '#c27a00', fixes.length) : ''}${by('dupw').length ? tab('dupw', '同じ品番が複数', '#8b91a1', by('dupw').length) : ''}${tab('seller', `決まった（${sellers.size} 販売者）`, '#306fff', by('seller').length)}</div>` : '';
+    const tabs = selPlan.length ? `<div class="sl-tabs" role="tablist" aria-label="表示">${tab('all', 'すべて', '#c5c9d2', selPlan.length)}${selPlan.some((p) => sellerFail.has(p.id)) ? tab('fail', '失敗', '#d64545', selPlan.filter((p) => sellerFail.has(p.id)).length) : ''}${tab('unknown', '販売者不明', '#8b91a1', by('unknown').length)}${tab('review', '要確認', '#c27a00', by('review').length)}${tab('pending', '未調査', '#dde0e6', by('pending').length)}${fixes.length ? tab('fix', '置き場所の修正', '#c27a00', fixes.length) : ''}${by('dupw').length ? tab('dupw', '同じ品番が複数', '#8b91a1', by('dupw').length) : ''}${tab('seller', `決まった（${sellers.size} 販売者）`, '#306fff', by('seller').length)}</div>` : '';
     $('[data-r=main]').innerHTML = `${selPlan.length ? sellerGuideHtml() : ''}${tabs}
       ${homeScan ? '' : '<div class="pd-explain"><b>ホームから読み込んでいません。</b><div class="note">移動先の「' + esc(cfg.root) + '」はホームの直下に作るため、移動した作品は読み込んだ場所の外に出て、重複チェックなどの対象から外れます。ホームを開いて読み込み直すと、仕分け後もまとめて管理できます。</div></div>'}
       ${body || '<div class="empty">' + (selPlan.length ? '表示する作品はありません' : '✓ 仕分けが必要な作品フォルダはありません（FC2-PPV-品番・HEYZO・カリビアンコムなどの品番の名前のフォルダが対象です）') + '</div>'}
@@ -3142,17 +3176,17 @@
         (lists.get(dest) || []).push({ id: p.id, name: p.name, kind: 'drive#folder' });
         const it = folders.find((d) => d.id === p.id);
         if (it) { if (homeScan && folders.some((d) => d.id === dest)) cacheMoveFolder(p.id, dest); else dropFromScan(it); }
-        ok++; saveAll();
+        ok++; sellerFail.delete(p.id); saveAll();
         } catch (err) {
           // ログイン切れ以外は、その作品だけ飛ばして続ける
           if (err.session) throw err;
-          skip++; failed.push(p.name); log('error', `移動できませんでした：${p.name}（${err.message}）`, 'seller');
+          skip++; failed.push(p.name); sellerFail.set(p.id, err.message || String(err)); log('error', `移動できませんでした：${p.name}（${err.message}）`, 'seller');
         }
         await sleep(100);
       }
     } catch (err) { saveAll(); busy = false; setView('seller'); handleErr(err, 'seller', `停止：${err.message}（${ok} 作品完了）`); return; }
     if (meta) { meta.nfo = folders.length; meta.nfi = files.length; try { localStorage.setItem(LS_META, JSON.stringify(meta)); } catch (e) { /* 無視 */ } }
-    busy = false; setView('seller');
+    busy = false; if (failed.length) sellerFilter = 'fail'; setView('seller');
     status(`${ok} 作品を移動しました（入れ子を My Pack へ出したものは、続けてもう一度仕分けてください）${skip ? `（移動しなかった ${skip} 件${failed.length ? `・うち失敗 ${failed.length} 件：${failed.slice(0, 3).join('・')}${failed.length > 3 ? ' …' : ''}（ログに詳細）` : '：同じ名前があった・移動先が自分自身など'}）` : ''}。`);
     log('info', `販売者ごとに仕分け ${ok} 作品${skip ? `（移動しなかった ${skip}）` : ''}`); refreshView();
   }
@@ -4428,6 +4462,7 @@
     const m = /^(name|sort|ren|clean|seller)(1|all)$/.exec(a || '');
     if (m) { const v0 = view; if (m[2] === '1') Promise.resolve(RUN[m[1]](true)).then(() => captureResult(v0)); else if (KIT_VERB[m[1]] || confirm(tr(CONFIRM[m[1]]))) Promise.resolve(RUN[m[1]](false)).then(() => captureResult(v0)); return; }
     if (t.dataset.ktab) { kitTab[view] = t.dataset.ktab; render(); return; }
+    if (t.dataset.dtab) { dupTab = t.dataset.dtab; render(); return; }
     if (t.dataset.kopen) { const id = t.dataset.kopen; if (!busy) { openTree(); revealInTree(id); } return; }
     if (a === 'kreplan') { if (!busy) { kitFail[view] && kitFail[view].clear(); setView(view); status('計画を作り直しました（PikPak の最新の内容にするには「読み込み直す」）'); } return; }
     if (a === 'csv') {

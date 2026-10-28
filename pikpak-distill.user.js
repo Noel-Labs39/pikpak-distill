@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.3.9
+// @version      4.3.11
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.3.9'; // @version と合わせて更新する
+  const VER = '4.3.11'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1674,6 +1674,7 @@
   #ppdup:not(.pop) header .pd-quota .ql{display:none}
   @media (max-width:1700px){#ppdup:not(.pop) header .thm,#ppdup:not(.pop) header .hbtn[data-a=lang]{display:none!important}#ppdup:not(.pop) header .hq input{width:150px}}
   @media (max-width:1500px){#ppdup:not(.pop) header .hbtn.hacct > span,#ppdup:not(.pop) header .brand .ver{display:none}#ppdup:not(.pop) header .hbtn.hacct{padding:0 5px!important}}
+  #ppdup .hbtn[data-a=edgescroll].on{background:var(--pri-soft)!important;border-color:var(--pri)!important;color:var(--pri)}
   #ppdup .hbtn.hic{width:38px;padding:0!important;justify-content:center}
   #ppdup .hbtn.hacct{border-radius:20px!important;padding:0 12px 0 5px!important;gap:6px}
   #ppdup .hbtn.hacct svg{width:26px!important;height:26px!important;padding:4px;box-sizing:border-box;border-radius:50%;background:var(--panel2);box-shadow:0 0 0 2px var(--ok)}
@@ -1804,6 +1805,7 @@
         <span class="seg thm" data-r="theme" role="group" aria-label="テーマ"></span>
         <button class="hbtn" data-a="lang" title="表示言語を切り替える">${IC.globe}<span class="raw" data-r="langname"></span></button>
         <button class="hbtn" data-a="addlink" title="リンク・マグネットを追加（追加する前に、もうあるか確かめる）">${IC.link}<span>リンクを追加</span></button>
+        <button class="hbtn hic" data-a="edgescroll" data-r="edgebtn" title="端でスクロール：マウスを一覧の下（上）の端へ持っていくと、ゆっくりスクロールします" aria-label="端でスクロール"><svg viewBox="0 0 24 24"><path d="M12 4v16M8 8l4-4 4 4M8 16l4 4 4-4"/></svg></button>
         <button class="hbtn hic" data-a="bell" title="お知らせ（エラー・新しいバージョン）" aria-label="お知らせ"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><i data-r="logbadge"></i></button>
         <button class="hbtn hacct" data-a="acct" data-r="acctbtn" title="PikPak のログイン状態と同期"></button>
         <button class="hbtn" data-a="settings" title="設定（表示・再生・整理・情報）">${IC.gear}<span>設定</span></button>
@@ -4071,6 +4073,7 @@
         <label class="row"><span><b>サムネイルをぼかす</b><small>人に画面を見られても分からないよう、サムネイル・プレビュー・コマをぼかします（このブラウザだけの設定）</small></span><input type="checkbox" data-s="blur"${blurOn() ? ' checked' : ''}></label>
         <label class="row"><span><b>マウスを乗せたら、はっきり表示</b><small>「サムネイルをぼかす」がオンのとき、マウスを乗せた（スマホは押している）間だけぼかしを外します</small></span><input type="checkbox" data-s="blurhov"${blurHov() ? ' checked' : ''}${blurOn() ? '' : ' disabled'}></label>
         <label class="row"><span><b>起動時に Dedupe を全画面で開く</b><small>PikPak を開いたら、最初から Dedupe の画面で使います（✕ で閉じれば PikPak の画面に戻ります）。開いている画面は URL に残るので、戻る・再読み込み・ブックマークで同じ画面に戻れます</small></span><input type="checkbox" data-s="autostart"${autoStart() ? ' checked' : ''}></label>
+        <label class="row"><span><b>端でスクロール</b><small>一覧の下（上）の端にマウスを持っていくと、ゆっくりスクロールします。上のバーの ⇕ ボタンでも切り替えられます</small></span><input type="checkbox" data-s="edge"${edgeOn() ? ' checked' : ''}></label>
         <div class="row"><span><b>入口ボタン（Dedupe）の位置</b><small>ボタンはドラッグで好きな場所へ動かせます（右クリックで置き場所を選べます）。既定は PikPak の左メニューの空き</small></span><button data-s="fabreset"${fabSaved() ? '' : ' disabled'}>元に戻す</button></div>
         <label class="row"><span><b>ホバーでサムネイル</b><small>マウスを乗せたときにサムネイルを大きく表示します</small></span><input type="checkbox" data-s="hover"${tree.hover !== false ? ' checked' : ''}></label>
         <div class="row"><span><b>フォルダ一覧の操作</b><small>${esc(helpTree)}</small></span></div>` : ''}
@@ -4122,6 +4125,7 @@
       else { saveSyncCfg({ pw: false }); idb.del('sync').catch(() => {}); try { localStorage.removeItem(LS_PWX); } catch (e) { /* 無視 */ } }
       return;
     }
+    if (k === 'edge') { setEdge(t.checked); return; }
     if (k === 'autostart') { try { localStorage.setItem(LS_AUTO, t.checked ? '1' : '0'); } catch (err) { /* 無視 */ } status(t.checked ? '次に PikPak を開いたときから、Dedupe を全画面で開きます' : '起動時には開かないようにしました'); return; }
     if (k === 'qp') { saveQpCfg({ [t.dataset.k]: qpVal(t.dataset.k, t.value) }); return; }
     if (k === 'lang') { setLang(t.value); return; }
@@ -4486,6 +4490,7 @@
     if (a === 'setinfo') { openSettings('info'); return; }
     if (a === 'changelog') { window.open('https://github.com/Noel-Labs39/pikpak-distill/blob/main/CHANGELOG.md', '_blank', 'noopener'); return; }
     if (a === 'navtoggle') { toggleNav(); return; }
+    if (a === 'edgescroll') { setEdge(!edgeOn()); status(edgeOn() ? '端でスクロールをオンにしました（一覧の下・上の端にマウスを持っていくと、ゆっくりスクロールします）' : '端でスクロールをオフにしました'); return; }
     if (a === 'acct') { openAcct(t); return; }
     if (a === 'bell') { const u = updRead(); if (u.latest && verNewer(u.latest, VER) && u.skip !== u.latest) { const el = $('[data-r=upd]'); if (el) { el.hidden = false; el.scrollIntoView({ block: 'nearest' }); } } showLog(); return; }
     if (a === 'dockx') { const dk = t.closest('.sv-dock'); if (dk) dk.classList.toggle('open'); return; }
@@ -6246,6 +6251,34 @@
   placeFab();
   // PikPak の左メニューは読み込みのあとに出てくるので、既定の位置のときはしばらく置き直す
   { let n = 0; const tm = setInterval(() => { if (fabSaved() || ++n > 20) { clearInterval(tm); return; } if (!fabDrag) placeFab(); }, 1000); }
+  // ---------- 端でスクロール：マウスを一覧の下（上）の端へ持っていくと、ゆっくりスクロール（上のバーのボタンで オン／オフ） ----------
+  const LS_EDGE = 'ppdup:edgescroll:v1';
+  const edgeOn = () => { try { return localStorage.getItem(LS_EDGE) === '1'; } catch (e) { return false; } };
+  function setEdge(on) { try { localStorage.setItem(LS_EDGE, on ? '1' : '0'); } catch (e) { /* 無視 */ } const b = root.querySelector('[data-r=edgebtn]'); if (b) b.classList.toggle('on', on); if (document.getElementById('pd-set')) renderSettings(); }
+  { const b = root.querySelector('[data-r=edgebtn]'); if (b) b.classList.toggle('on', edgeOn()); }
+  let edgeSc = null, edgeV = 0, edgeRaf = 0;
+  const EDGE_Z = 70; // 端から何 px で動き始めるか
+  const edgeTick = () => { edgeRaf = 0; if (!edgeSc || !edgeV) return; edgeSc.scrollTop += edgeV; edgeRaf = requestAnimationFrame(edgeTick); };
+  const edgeStop = () => { edgeV = 0; edgeSc = null; if (edgeRaf) cancelAnimationFrame(edgeRaf); edgeRaf = 0; };
+  document.addEventListener('mousemove', (e) => {
+    if (!edgeOn()) { if (edgeV) edgeStop(); return; }
+    const t = e.target;
+    // 下の帯・ボタン・入力欄・プレーヤーの上では動かさない（押したいものに届かなくなるため）
+    if (!t || !t.closest || t.closest('.st-bar,.sv-dock,.lk-ft,.sl-bar,.lk-hd,.lb-tabs,.kit-tabs,button,input,select,textarea,video,.qp-ui,.lb-pv,#pd-ql,#pd-player')) { edgeStop(); return; }
+    const sc = t.closest('#ppdup [data-r=main], #pd-lib .lk-list');
+    if (!sc || sc.scrollHeight <= sc.clientHeight + 2) { edgeStop(); return; }
+    const r = sc.getBoundingClientRect();
+    // 画面の下にある帯（下の実行ボタンの帯など）の分は、端の位置から外す
+    let bottom = r.bottom; const bar = sc.querySelector(':scope > .st-bar, :scope .sv-dock'); if (bar) { const br = bar.getBoundingClientRect(); if (br.top < bottom && br.bottom >= bottom - 4) bottom = br.top; }
+    const dB = bottom - e.clientY, dT = e.clientY - r.top;
+    let v = 0;
+    if (dB >= 0 && dB < EDGE_Z) v = Math.ceil((1 - dB / EDGE_Z) * 8);
+    else if (dT >= 0 && dT < EDGE_Z * 0.6) v = -Math.ceil((1 - dT / (EDGE_Z * 0.6)) * 8);
+    edgeSc = v ? sc : null; edgeV = v;
+    if (v && !edgeRaf) edgeRaf = requestAnimationFrame(edgeTick);
+  }, { passive: true });
+  document.addEventListener('mouseleave', edgeStop);
+  window.addEventListener('blur', edgeStop);
   // ---------- 起動時に全画面で開く・画面ごとの URL（#dd/…）：戻る・再読み込み・ブックマークで同じ画面へ ----------
   const LS_AUTO = 'ppdup:autostart:v1';
   const autoStart = () => { try { return localStorage.getItem(LS_AUTO) === '1'; } catch (e) { return false; } };

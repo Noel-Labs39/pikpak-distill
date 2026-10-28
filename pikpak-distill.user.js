@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.3.0
+// @version      4.3.1
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.3.0'; // @version と合わせて更新する
+  const VER = '4.3.1'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1713,7 +1713,7 @@
     <aside class="rail" data-r="rail">
       <button data-a="toflow" data-rail="flow" title="整理（1〜7のステップ）"><svg viewBox="0 0 24 24"><path d="M4 6h10M4 12h16M4 18h7" /><circle cx="18" cy="6" r="2"/><circle cx="15" cy="18" r="2"/></svg><span>整理</span></button>
       <button data-a="tree" data-rail="tree" title="フォルダ一覧（Finder やエクスプローラーのように、フォルダを開いて中身を見られます）"><svg viewBox="0 0 24 24"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/><path d="M7 11h10M7 15h6"/></svg><span>フォルダ​一覧</span></button>
-      <button data-a="lib" data-v="dl" data-rail="lib-dl" title="ダウンロード中（クラウドダウンロードの進み具合・失敗）"><svg viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 7.97"/><path d="M12 11v9M8.8 17l3.2 3 3.2-3"/></svg><span>クラウド​DL</span><i class="rb" data-r="rb-dl"></i></button>
+      <button data-a="lib" data-v="dl" data-rail="lib-dl" title="追加したもの（リンク・マグネットで追加した作品の保存状況とダウンロードの進み具合）"><svg viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 7.97"/><path d="M12 11v9M8.8 17l3.2 3 3.2-3"/></svg><span>追加したもの</span><i class="rb" data-r="rb-dl"></i></button>
       <button data-a="lib" data-v="recent" data-rail="lib-recent" title="最近追加したもの（追加日の新しい順）"><svg viewBox="0 0 24 24"><circle cx="11" cy="12" r="7.5"/><path d="M11 8v4.2l2.6 1.6"/><path d="M19.5 3.5v4M17.5 5.5h4"/></svg><span>最近の追加</span><i class="rb" data-r="rb-recent"></i></button>
       <button data-a="lib" data-v="hist" data-rail="lib-hist" title="再生した履歴"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/><path d="M10.5 9.2v5.6l4.4-2.8z"/></svg><span>再生履歴</span><i class="rb" data-r="rb-hist"></i></button>
       <button data-a="lib" data-v="star" data-rail="lib-star" title="スター付き"><svg viewBox="0 0 24 24"><path d="M12 3.8l2.5 5.1 5.6.8-4 3.9.9 5.6-5-2.6-5 2.6.9-5.6-4-3.9 5.6-.8z"/></svg><span>スター</span><i class="rb" data-r="rb-star"></i></button>
@@ -2283,7 +2283,7 @@
     const rec = files.filter((f) => f.ct).sort((a, b) => Date.parse(b.ct) - Date.parse(a.ct)).slice(0, 6);
     const th = (f) => `<button class="db-th" data-a="lib" data-v="recent" title="${esc(f.name)}"><span class="im">${f.thumb ? `<img loading="lazy" referrerpolicy="no-referrer" src="${esc(f.thumb)}" alt="">` : ICON_FILE({ name: f.name, ext: extOf(f.name) })}</span><b>${esc(f.name)}</b><small>${new Date(Date.parse(f.ct)).toLocaleDateString(loc(), { month: 'numeric', day: 'numeric' })}・${fmt(f.size)}</small></button>`;
     const nx = next && STEPS.find((s) => s.v === next);
-    const quick = [['tree', 'フォルダ一覧', '見る・再生'], ['lib:dl', 'クラウドDL', libBadge.dl ? libBadge.dl + ' 件 進行中' : '進み具合'], ['lib:recent', '最近の追加', '直近 7 日'], ['lib:hist', '再生履歴', '続きから'], ['lib:star', 'スター', 'スター付き'], ['lib:trash', 'ゴミ箱', quota ? fmtCap(quota.trash) : '中身を見る']];
+    const quick = [['tree', 'フォルダ一覧', '見る・再生'], ['lib:dl', '追加したもの', libBadge.dl ? libBadge.dl + ' 件 進行中' : '進み具合'], ['lib:recent', '最近の追加', '直近 7 日'], ['lib:hist', '再生履歴', '続きから'], ['lib:star', 'スター', 'スター付き'], ['lib:trash', 'ゴミ箱', quota ? fmtCap(quota.trash) : '中身を見る']];
     $('[data-r=main]').innerHTML = `<div class="db">
       <div class="db-hd"><h2>整理</h2><span class="db-chip on" title="読み込んだ場所">${esc(where)}</span><span class="sp"></span><span class="note">前回の読み込み：${esc(when)}（フォルダ ${meta.nfo.toLocaleString()} ／ ファイル ${meta.nfi.toLocaleString()}）</span></div>
       ${staleH >= 6 ? `<div class="sv-stale">前回の読み込みから ${staleH >= 48 ? Math.floor(staleH / 24) + ' 日' : staleH + ' 時間'}たっています。PikPak で追加・削除したものは「読み込み直す」で反映されます。</div>` : ''}
@@ -4954,7 +4954,12 @@
   }
   const LIB_IC = { dl: '<svg viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 7.97"/><path d="M12 11v9M8.8 17l3.2 3 3.2-3"/></svg>', recent: '<svg viewBox="0 0 24 24"><circle cx="11" cy="12" r="7.5"/><path d="M11 8v4.2l2.6 1.6"/><path d="M19.5 3.5v4M17.5 5.5h4"/></svg>', hist: '<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/><path d="M10.5 9.2v5.6l4.4-2.8z"/></svg>', star: '<svg viewBox="0 0 24 24"><path d="M12 3.8l2.5 5.1 5.6.8-4 3.9.9 5.6-5-2.6-5 2.6.9-5.6-4-3.9 5.6-.8z"/></svg>', trash: '<svg viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V4.8h5V7"/><path d="M6 7l1 12.2A1.5 1.5 0 0 0 8.5 20.6h7a1.5 1.5 0 0 0 1.5-1.4L18 7"/><path d="M10 11v6M14 11v6"/></svg>' };
   // ---------- 左メニュー：ダウンロード中・最近追加したもの・再生した履歴・スター付き・ゴミ箱 ----------
-  const LIB_TABS = [['dl', 'ダウンロード中'], ['recent', '最近追加したもの'], ['hist', '再生した履歴'], ['star', 'スター付き'], ['trash', 'ゴミ箱']];
+  // ---- 追加したもの：Dedupe でリンクを追加したときの記録（このブラウザに保存）と、PikPak のダウンロードタスクを合わせて見せる ----
+  const LS_ADDLOG = 'ppdup:addlog:v1';
+  const addLogRead = () => { try { return JSON.parse(localStorage.getItem(LS_ADDLOG) || '[]') || []; } catch (e) { return []; } };
+  const addLogWrite = (a) => { try { localStorage.setItem(LS_ADDLOG, JSON.stringify(a.slice(0, 300))); } catch (e) { /* 無視 */ } };
+  const addLogPush = (r) => { const a = addLogRead(); a.unshift({ ...r, lid: 'L' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), at: Date.now() }); addLogWrite(a); };
+  const LIB_TABS = [['dl', '追加したもの'], ['recent', '最近追加したもの'], ['hist', '再生した履歴'], ['star', 'スター付き'], ['trash', 'ゴミ箱']];
   let libSt = null, libBadge = { dl: 0, trash: 0 };
   const encF = (o) => encodeURIComponent(JSON.stringify(o));
   const phaseTxt = { PHASE_TYPE_RUNNING: 'ダウンロード中', PHASE_TYPE_PENDING: '順番待ち', PHASE_TYPE_ERROR: '失敗', PHASE_TYPE_COMPLETE: '完了' };
@@ -4962,7 +4967,27 @@
   async function libFetch(tab) {
     if (tab === 'dl') {
       const d = await api(`/tasks?type=offline&limit=100&thumbnail_size=SIZE_SMALL&filters=${encF({ phase: { in: 'PHASE_TYPE_RUNNING,PHASE_TYPE_PENDING,PHASE_TYPE_ERROR,PHASE_TYPE_COMPLETE' } })}`);
-      return (d.tasks || []).map((t) => ({ id: t.id, fid: t.file_id || '', name: t.name || t.file_name || '', size: +t.file_size || 0, phase: t.phase, pct: +t.progress || 0, msg: t.message || '', at: t.created_time || '' }));
+      const tasks = new Map((d.tasks || []).map((t) => [t.id, t]));
+      const ST = { PHASE_TYPE_RUNNING: 'run', PHASE_TYPE_PENDING: 'wait', PHASE_TYPE_ERROR: 'err', PHASE_TYPE_COMPLETE: 'ok' };
+      const lim = Date.now() - 60 * 864e5;
+      const logs = addLogRead().filter((r) => r.at >= lim);
+      const used = new Set();
+      const out = logs.map((r) => {
+        const t = r.task && tasks.get(r.task);
+        if (t) used.add(t.id);
+        return { id: r.lid, lid: r.lid, task: r.task || '', name: r.name, size: r.size || (t ? +t.file_size || 0 : 0), at: new Date(r.at).toISOString(), url: r.url || '', mode: r.mode, fid: (t && t.file_id) || r.fid || r.top || '', st: r.fail ? 'fail' : t ? ST[t.phase] || 'run' : 'check', pct: t ? +t.progress || 0 : 0, msg: r.fail || (t && t.message) || '', thumb: (t && t.thumbnail_link) || '' };
+      });
+      // タスクの見つからないもの（すぐ保存した分・完了して消えたタスク）は、保存先にあるかを確かめる
+      const chk = out.filter((x) => x.st === 'check');
+      for (let i = 0; i < chk.length; i += 6) {
+        await Promise.all(chk.slice(i, i + 6).map(async (x) => {
+          if (!x.fid) { x.st = x.mode === 'all' ? 'gone' : 'missing'; return; }
+          try { const f = await apiGet(x.fid); x.st = f && !f.trashed && f.phase !== 'PHASE_TYPE_ERROR' ? 'ok' : 'missing'; if (f && f.thumbnail_link) x.thumb = f.thumbnail_link; if (f && +f.size) x.size = +f.size; } catch (e) { if (e.session) throw e; x.st = 'missing'; }
+        }));
+      }
+      // Dedupe 以外（PikPak の画面など）で追加したダウンロード
+      (d.tasks || []).filter((t) => !used.has(t.id)).forEach((t) => out.push({ id: t.id, task: t.id, name: t.name || t.file_name || '', size: +t.file_size || 0, at: t.created_time || '', mode: 'pikpak', fid: t.file_id || '', st: ST[t.phase] || 'run', pct: +t.progress || 0, msg: t.message || '' }));
+      return out.sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
     }
     if (tab === 'hist') {
       const d = await api(`/events?thumbnail_size=SIZE_MEDIUM&limit=100&filters=${encF({ type: { in: 'TYPE_PLAY' } })}`);
@@ -5016,6 +5041,8 @@
         else if (x.lbdays) { libSt.days = +x.lbdays; libLoad('recent'); }
         else if (x.lbreload !== undefined) libLoad(libSt.tab);
         else if (x.lbopen) libReveal(x.lbopen);
+        else if (x.lbre) { const it = libItem(x.lbre); if (it && it.url) { try { sessionStorage.setItem(SS_ADDTEXT, it.url); } catch (e) { /* 無視 */ } closeLib(); openAdd('DL'); } }
+        else if (x.lbadd !== undefined) { closeLib(); openAdd('DL'); }
         else if (x.lbpv) libPreview(x.lbpv);
         else if (x.lbext) { const it = libItem(x.lbext); libPvClose(); openExternal(x.lbext, '', it && it.name); }
         else if (x.lbpvx !== undefined) libPvClose();
@@ -5053,7 +5080,7 @@
       const r = await libFetch(tab);
       if (libSt !== my || my.tab !== tab) return;
       if (r === null) my.err = 'scan'; else my.items = r;
-      if (tab === 'dl') libBadge.dl = r.filter((t) => t.phase === 'PHASE_TYPE_RUNNING' || t.phase === 'PHASE_TYPE_PENDING').length;
+      if (tab === 'dl') libBadge.dl = r.filter((t) => t.st === 'run' || t.st === 'wait').length;
       if (tab === 'trash') libBadge.trash = r.length;
     } catch (e) { if (libSt === my) my.err = e.message || String(e); }
     if (libSt !== my) return;
@@ -5112,7 +5139,7 @@
       else if (op === 'del') { await chunk((c) => api('/files:batchDelete', { method: 'POST', body: JSON.stringify({ ids: c }) })); msg = `${n} 項目を完全に削除しました`; }
       else if (op === 'empty') { await api('/files/trash:empty', { method: 'PATCH' }); msg = 'ゴミ箱を空にしました'; }
       else if (op === 'unstar') { await chunk((c) => api('/files:unstar', { method: 'POST', body: JSON.stringify({ ids: c }) })); msg = `${n} 項目のスターを外しました`; }
-      else if (op === 'cancel') { await chunk((c) => api(`/tasks?task_ids=${c.join(',')}&delete_files=false`, { method: 'DELETE' })); msg = `${n} 件をダウンロードの一覧から外しました（ダウンロード済みのファイルは残ります）`; }
+      else if (op === 'cancel') { const it2 = my.items.filter((x) => my.sel.has(x.id)); const tids = it2.map((x) => x.task).filter(Boolean), lids = new Set(it2.map((x) => x.lid).filter(Boolean)); for (let i = 0; i < tids.length; i += 100) await api(`/tasks?task_ids=${tids.slice(i, i + 100).join(',')}&delete_files=false`, { method: 'DELETE' }).catch((e) => { if (e.session) throw e; }); if (lids.size) addLogWrite(addLogRead().filter((r) => !lids.has(r.lid))); msg = `${n} 件をダウンロードの一覧から外しました（ダウンロード済みのファイルは残ります）`; }
       log('info', msg); status(msg);
     } catch (e) { if (e.session) { my.busy = false; closeLib(); throw e; } status('うまくいきませんでした：' + (e.message || e)); log('warn', '左メニューの操作に失敗：' + (e.message || e), op); }
     my.busy = false;
@@ -5127,7 +5154,7 @@
       return `<span class="tx lb-sel">${S.busy ? '処理しています…' : name}</span>${tab === 'recent' ? `<span class="seg">${[7, 30].map((x) => `<button data-lbdays="${x}" class="${S.days === x ? 'on' : ''}"${dis}>直近 ${x} 日</button>`).join('')}</span>` : ''}${tab === 'star' ? `<button data-lbdo="unstar"${n ? '' : ' disabled'}${dis}>スターを外す（${n}）</button>` : ''}<button class="sub" data-lbopen="${id}"${it ? '' : ' disabled'} title="フォルダ一覧でこの項目の場所を開く">場所を開く</button><button data-lbpv="${id}"${v ? '' : ' disabled'} title="PikPak が用意している軽い画質で、この画面の中ですぐ見る">▶ プレビュー（低画質）</button><button class="pri" data-lbext="${id}"${v ? '' : ' disabled'} title="本編をきちんと見るときに。オリジナル画質で外部プレーヤーを開きます">↗ 外部プレーヤー（本編）</button>`;
     }
     return `<span class="tx">${S.busy ? '処理しています…' : ''}</span>` + {
-      dl: `<button data-lbdo="cancel"${n ? '' : ' disabled'}${dis}>一覧から外す（${n}）</button>`,
+      dl: `<button data-lbdo="cancel"${n ? '' : ' disabled'}${dis}>一覧から外す（${n}）</button><button class="pri" data-lbadd${dis}>リンクを追加…</button>`,
       trash: `<button data-lbdo="restore"${n ? '' : ' disabled'}${dis}>元に戻す（${n}）</button><button class="dng" data-lbdo="del"${n ? '' : ' disabled'}${dis}>完全に削除（${n}）</button><button class="dng" data-lbdo="empty"${S.items.length ? '' : ' disabled'}${dis}>ゴミ箱を空にする</button>`,
     }[tab];
   }
@@ -5148,23 +5175,26 @@
     const row = (it) => {
       let tag = '', info = [it.size ? fmt(it.size) : '', when(it.at)];
       if (tab === 'dl') {
-        const cls = it.phase === 'PHASE_TYPE_ERROR' ? 'del' : it.phase === 'PHASE_TYPE_COMPLETE' ? 'ok' : 'pri';
-        tag = `<span class="lk-tag ${cls}">${phaseTxt[it.phase] || it.phase}${it.phase === 'PHASE_TYPE_RUNNING' ? ` ${it.pct}%` : ''}</span>`;
-        if (it.phase === 'PHASE_TYPE_ERROR' && it.msg) info.push(it.msg);
+        const T = { ok: ['ok', '保存済み'], run: ['pri', `ダウンロード中 ${it.pct}%`], wait: ['pri', '順番待ち'], err: ['del', '失敗'], fail: ['del', '追加できませんでした'], missing: ['warn', '見つかりません'], gone: ['mute', 'タスク終了'] }[it.st] || ['mute', it.st];
+        tag = `<span class="lk-tag ${T[0]}">${T[1]}</span>`;
+        info.unshift({ part: 'すぐ保存', all: 'クラウドダウンロード', pikpak: 'PikPak の画面などで追加' }[it.mode] || '');
+        if ((it.st === 'err' || it.st === 'fail') && it.msg) info.push(it.msg);
+        if (it.st === 'missing') info.push('保存先に見当たりません（削除・移動した可能性があります）');
       }
-      const openId = tab === 'dl' && it.phase === 'PHASE_TYPE_COMPLETE' ? it.fid : '';
-      const bar = tab === 'dl' && it.phase === 'PHASE_TYPE_RUNNING' ? `<span class="uz-bar"><i style="width:${it.pct}%"></i></span>` : '';
-      return `<div class="lb-row">${cb(it)}<span class="lb-t"><b title="${esc(it.name)}">${it.folder ? '📁 ' : ''}${esc(it.name)}</b><small>${esc(info.filter(Boolean).join('・'))}</small>${bar}</span>${tag}${openId ? `<button data-lbopen="${esc(openId)}" title="フォルダ一覧でこの項目の場所を開く">場所を開く</button>` : ''}</div>`;
+      const openId = tab === 'dl' && it.st === 'ok' ? it.fid : '';
+      const retry = tab === 'dl' && it.url && (it.st === 'fail' || it.st === 'err' || it.st === 'missing') ? `<button data-lbre="${esc(it.id)}" title="このリンクを、リンク追加の画面にもう一度入れます">もう一度追加</button>` : '';
+      const bar = tab === 'dl' && it.st === 'run' ? `<span class="uz-bar"><i style="width:${it.pct}%"></i></span>` : '';
+      return `<div class="lb-row">${cb(it)}<span class="lb-t"><b title="${esc(it.name)}">${it.folder ? '📁 ' : ''}${esc(it.name)}</b><small>${esc(info.filter(Boolean).join('・'))}</small>${bar}</span>${tag}${retry}${openId ? `<button data-lbopen="${esc(openId)}" title="フォルダ一覧でこの項目の場所を開く">場所を開く</button>` : ''}</div>`;
     };
     let body;
     if (S.loading) body = '<div class="empty">読み込み中…</div>';
     else if (S.err === 'scan') body = '<div class="empty">「最近追加したもの」は、読み込んだ内容から作ります。先に左の「再読み込み」で PikPak の中身を読み込んでください。</div>';
     else if (S.err) body = `<div class="empty">読み込めませんでした：${esc(S.err)}</div>`;
-    else if (!S.items.length) body = `<div class="empty">${{ dl: 'ダウンロードのタスクはありません', recent: `この ${S.days} 日間に追加したものはありません`, hist: '再生した履歴はありません', star: 'スター付きの項目はありません', trash: 'ゴミ箱は空です' }[tab]}</div>`;
+    else if (!S.items.length) body = `<div class="empty">${{ dl: 'まだ何も追加していません（Dedupe の「リンクを追加」で追加したものと、PikPak のダウンロードがここに出ます）', recent: `この ${S.days} 日間に追加したものはありません`, hist: '再生した履歴はありません', star: 'スター付きの項目はありません', trash: 'ゴミ箱は空です' }[tab]}</div>`;
     else body = grid ? `<div class="lb-grid">${S.items.map(card).join('')}</div>` : S.items.map(row).join('');
     const n = S.sel.size, dis = S.busy || S.loading ? ' disabled' : '';
     const pvTip = 'ダブルクリックで低画質のプレビュー、本編は「↗ 外部プレーヤー」（オリジナル画質）がおすすめ。';
-    const note = { dl: 'クラウドダウンロード（リンク・マグネットの追加）の状況。「一覧から外す」はタスクを消すだけで、ダウンロード済みのファイルは消しません。', recent: '追加日の新しい順（読み込んだ範囲：' + esc(dirLabel((scanRoot() || {}).id) || '—') + '）。' + pvTip, hist: 'PikPak で再生した動画（新しい順）。' + pvTip, star: 'PikPak でスターを付けた項目。' + pvTip, trash: `ゴミ箱の中身${quota ? `（${fmtCap(quota.trash)}）` : ''}。「完全に削除」「空にする」は元に戻せません。` }[tab];
+    const note = { dl: 'リンク・マグネットで追加したもの（直近 60 日）。すぐ保存した分は保存先にあるかを、クラウドダウンロードの分は進み具合を確かめて表示します。「一覧から外す」は記録とタスクを消すだけで、保存したファイルは消しません。', recent: '追加日の新しい順（読み込んだ範囲：' + esc(dirLabel((scanRoot() || {}).id) || '—') + '）。' + pvTip, hist: 'PikPak で再生した動画（新しい順）。' + pvTip, star: 'PikPak でスターを付けた項目。' + pvTip, trash: `ゴミ箱の中身${quota ? `（${fmtCap(quota.trash)}）` : ''}。「完全に削除」「空にする」は元に戻せません。` }[tab];
     const all = selectable && S.items.length ? `<label class="note lb-all"><input type="checkbox" data-lball${n && n === S.items.length ? ' checked' : ''}${dis}> すべて選ぶ</label>` : '';
     const html = `<div class="lk-box" role="dialog" aria-label="${esc(LIB_TABS.find((x) => x[0] === tab)[1])}"><div class="lk-hd"><b>${LIB_TABS.find((x) => x[0] === tab)[1]}</b><span class="note">${S.items.length && !S.loading ? S.items.length + ' 項目' : ''}</span><span class="sp"></span><button data-lbreload title="読み込み直す"${dis}>更新</button><button class="x" data-lbclose aria-label="閉じる">${IC.x}</button></div>
       <div class="lb-tabs">${tabs}</div>
@@ -5801,7 +5831,7 @@
         <div class="lk-row"><span class="note">1 行に 1 つ。マグネット・http(s)・40 桁のハッシュ・.torrent（ドロップ）に対応。同じリンクと文中のほかの文字は取り除きます。${hasScan() ? '読み込んだライブラリと照らして、もうある作品を知らせます。' : '<b>まだ読み込んでいないため、もうあるかは確かめられません</b>（先に「Dedupe スキャン」で読み込むと確かめられます）。'}</span><span class="sp"></span><button class="${checked ? '' : 'pri'}" data-adcheck${addSt.busy || !nLinks ? ' disabled' : ''}>${addSt.busy ? '確認中…' : `中身を確認（${nLinks} 件）`}</button></div>
         ${pg ? `<div class="lk-prog"><div class="hd"><span class="spin"></span><b>${pg.phase === 'check' ? '中身を確認しています' : '追加しています'}　${pg.done} / ${pg.total}</b><span class="sp"></span><span class="eta">${esc(etaTx)}</span></div><div class="bar"><i style="width:${pctV}%"></i></div><small>${pg.cur ? `いま：${esc(pg.cur)}　` : ''}${pg.phase === 'check' ? '1 件ごとに PikPak へ中身を問い合わせています（1 件数秒）。' : '保存先を確かめてから 1 件ずつ追加しています。'}この画面を閉じずにお待ちください。</small></div>` : addSt.msg ? `<div class="lk-msg">${esc(addSt.msg)}</div>` : ''}</div>
       <div class="lk-list">${addSt.items.map(item).join('') || (dn ? doneCard : '<div class="empty">リンクを貼り付けて「中身を確認」を押すと、ここに中身が出ます</div>')}</div>
-      <div class="lk-ft">${dn && !addSt.items.length ? `<span class="tx"><b>追加が終わりました</b>（次のリンクを貼り付ければ、続けて追加できます）</span><button data-addl>クラウドDLを見る</button><button class="pri" data-adclose>閉じる</button>` : (pg ? `<span class="tx"><b>${pg.phase === 'check' ? '確認中' : '追加中'}… ${pg.done} / ${pg.total}</b>（${esc(etaTx)}）</span><button data-adstop${addSt.stop ? ' disabled' : ''}>${addSt.stop ? '止めています…' : pg.phase === 'check' ? '確認を中断' : '追加を中断'}</button><button class="pri" disabled>${pg.phase === 'check' ? '確認中…' : '追加中…'}</button>` : `<span class="tx">${sum.text}</span><button data-adclose>${dn ? '閉じる' : 'キャンセル'}</button><button class="${checked ? 'pri' : ''}" data-adgo${sum.n && !addSt.busy ? '' : ' disabled'}>${sum.n} 件を追加</button>`)}</div></div>`;
+      <div class="lk-ft">${dn && !addSt.items.length ? `<span class="tx"><b>追加が終わりました</b>（次のリンクを貼り付ければ、続けて追加できます）</span><button data-addl>追加したものを見る</button><button class="pri" data-adclose>閉じる</button>` : (pg ? `<span class="tx"><b>${pg.phase === 'check' ? '確認中' : '追加中'}… ${pg.done} / ${pg.total}</b>（${esc(etaTx)}）</span><button data-adstop${addSt.stop ? ' disabled' : ''}>${addSt.stop ? '止めています…' : pg.phase === 'check' ? '確認を中断' : '追加を中断'}</button><button class="pri" disabled>${pg.phase === 'check' ? '確認中…' : '追加中…'}</button>` : `<span class="tx">${sum.text}</span><button data-adclose>${dn ? '閉じる' : 'キャンセル'}</button><button class="${checked ? 'pri' : ''}" data-adgo${sum.n && !addSt.busy ? '' : ' disabled'}>${sum.n} 件を追加</button>`)}</div></div>`;
     if (LANG === 'en') d.querySelectorAll('*').forEach(trNode);
     const nta = d.querySelector('textarea');
     nta.addEventListener('input', () => { addSt.text = nta.value; const b = d.querySelector('[data-adcheck]'); const n = parseLinks(nta.value).length; if (b && !addSt.busy) { b.disabled = !n; b.textContent = tr(`中身を確認（${n} 件）`); } });
@@ -5895,6 +5925,7 @@
           const todo = want.filter((f) => !have.has(((f.dir ? f.dir + '/' : '') + f.name).toLowerCase() + '|' + f.size));
           skipped += want.length - todo.length;
           if (same && !todo.length) { it.on = false; it.done = true; it.already = true; already++; log('info', `保存先に同じものがあるため追加しません：${nm}`); continue; }
+          addLogPush({ mode: 'part', name: nm, top, url: it.url, size: todo.reduce((a, f) => a + (+f.size || 0), 0), n: todo.length });
           for (const f of todo) {
             let cur = '', p = top;
             for (const part of (f.dir ? f.dir.split('/') : [])) {
@@ -5908,14 +5939,15 @@
         } else {
           const body = { kind: 'drive#file', upload_type: 'UPLOAD_TYPE_URL', url: { url: it.url }, params: { with_thumbnail: 'true', from: 'manual' } };
           if (pid) body.parent_id = pid; else body.folder_type = 'DOWNLOAD';
-          await api('/files', { method: 'POST', captcha: 'POST:/drive/v1/files', body: JSON.stringify(body) });
+          const res = await api('/files', { method: 'POST', captcha: 'POST:/drive/v1/files', body: JSON.stringify(body) });
+          addLogPush({ mode: 'all', name: it.name || it.rootName || it.url, task: (res && res.task && res.task.id) || '', fid: (res && res.file && res.file.id) || '', url: it.url, size: it.files ? it.files.reduce((a, f) => a + (+f.size || 0), 0) : 0 });
         }
         ok++; it.on = false; it.done = true;
         log('info', `リンクを追加（${addMode(it) === 'part' ? '一部だけ保存' : 'クラウドダウンロード'}）：${it.name || it.url}`);
       } catch (err) {
         if (err.session) { try { sessionStorage.setItem(SS_ADDTEXT, addSt.text); } catch (e) { /* 無視 */ } addSt.busy = false; handleErr(err, view); return; }
         if (/exist|already|重複|已存在/i.test(err.message)) { dupl++; it.on = false; continue; }
-        ng++; errs.push(`${it.name || it.url}：${err.message}`);
+        ng++; errs.push(`${it.name || it.url}：${err.message}`); addLogPush({ mode: addMode(it) === 'part' ? 'part' : 'all', name: it.name || it.rootName || it.url, url: it.url, fail: err.message || String(err) });
         // 失敗したものはチェックを外して「失敗」と理由を出す（そのままもう一度押せる状態にしない。直してからチェックを入れ直す）
         it.failed = /存在しない|not.?found|not exist/i.test(err.message) ? '保存先のフォルダが見つかりません（削除・移動された可能性があります。保存先を選び直してください）' : err.message; it.on = false;
       }

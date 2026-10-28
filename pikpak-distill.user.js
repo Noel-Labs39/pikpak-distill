@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.2.5
+// @version      4.3.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.2.5'; // @version と合わせて更新する
+  const VER = '4.3.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -894,6 +894,28 @@
   #ppdup .okbadge{color:var(--ok);font-weight:800;padding:0 6px}
   #ppdup .optsw{display:flex;align-items:center;gap:6px;font-weight:700;cursor:pointer}
   #ppdup .optsw input{width:18px;height:18px;accent-color:var(--pri)}
+  .kit-ex summary{cursor:pointer;font-weight:800;font-size:13px}
+  .kit-ex[open] summary{margin-bottom:6px}
+  .kit-tabs{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:4px 0 12px}
+  .kit-tabs .sp{flex:1}
+  .kit-tab{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 14px;border-radius:16px;border:1px solid var(--line);background:var(--panel);color:var(--fg);font:inherit;font-weight:700;cursor:pointer}
+  .kit-tab i{font-style:normal;font-size:12px;color:var(--mute)}
+  .kit-tab.on{background:var(--pri);border-color:var(--pri);color:#fff}.kit-tab.on i{color:#fff}
+  .kit-tab.bad:not(.on){color:var(--danger);border-color:var(--danger)}
+  .kit-tabs input[type=search]{height:32px;padding:0 12px;border-radius:16px;border:1px solid var(--ctl-line);background:var(--ctl);color:inherit;font:inherit;width:220px}
+  .pd-gh input[type=checkbox]{margin:0 4px 0 0;width:16px;height:16px}
+  .kit-row .kit-th{width:80px;height:45px;display:flex;align-items:center;justify-content:center;background:var(--panel2);border-radius:8px;overflow:hidden;flex:none}
+  .kit-row .kit-th img{width:100%;height:100%;object-fit:cover}
+  .kit-row .kit-ic svg{width:26px;height:26px}
+  .kit-row .kit-to{color:var(--pri)}
+  .kit-row .kit-err{color:var(--danger);font-size:12px;font-weight:700}
+  .kit-row.fail{background:var(--del)}
+  .kit-row .kit-tag{flex:none;white-space:nowrap}
+  .kit-row .kit-tag.pri{background:var(--pri-soft);color:var(--pri)}
+  .kit-row .kit-tag.ok{background:#e3f6ec;color:#17703f}
+  .kit-row .kit-tag.warn{background:#fff4dc;color:#8a5600}
+  .kit-row .kit-tag.del{background:#fde8e8;color:#b42318}
+  .kit-row .kit-open{flex:none;height:30px;padding:0 10px;border:1px solid var(--ctl-line);border-radius:8px;background:var(--ctl);color:inherit;font:inherit;font-size:12px;cursor:pointer}
   .pd-explain{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px}
   .pd-explain h3{margin:0 0 6px;font-size:14px}
   .pd-explain ul{margin:6px 0 0;padding-left:18px}
@@ -1497,6 +1519,34 @@
   #pd-dlg button{font:inherit;padding:6px 14px;border:1px solid #c5c9d2;border-radius:8px;background:#fff;color:inherit;cursor:pointer}
   #pd-dlg button.danger{background:#d64545;color:#fff;border-color:#d64545;font-weight:700}
   html.pd-dark #pd-dlg .box{background:#1d2027;color:#e6e8ee}html.pd-dark #pd-dlg button{background:#252932;border-color:#3a3f4b}
+  /* 共通の型（StepKit） */
+  #ppdup .kit-ex{padding:10px 16px}
+  #ppdup .kit-ex summary{cursor:pointer;font-weight:800;font-size:13px;color:var(--pri)}
+  #ppdup .kit-ex .note{margin-top:6px}
+  #ppdup .kit-tabs{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+  #ppdup .kit-tab{height:34px;padding:0 14px;border:1px solid var(--line);border-radius:17px;background:var(--panel);color:var(--fg);font:inherit;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+  #ppdup .kit-tab i{font-style:normal;font-size:12px;color:var(--mute)}
+  #ppdup .kit-tab.on{background:var(--pri);border-color:var(--pri);color:#fff}
+  #ppdup .kit-tab.on i{color:#fffc}
+  #ppdup .kit-tab.bad:not(.on){border-color:var(--danger);color:var(--danger)}
+  #ppdup .kit-tabs .sp{flex:1}
+  #ppdup .kit-tabs input[type=search]{height:34px;width:220px;max-width:100%;box-sizing:border-box;padding:0 14px;border:1px solid var(--ctl-line);border-radius:17px;background:var(--ctl);color:inherit;font:inherit}
+  #ppdup .pd-gh input[type=checkbox]{margin:0 4px 0 0;width:16px;height:16px}
+  #ppdup .kit-row{align-items:center}
+  #ppdup .kit-th{width:64px!important;height:40px!important;display:flex;align-items:center;justify-content:center;flex:none}
+  #ppdup .kit-th .kit-ic svg{width:24px;height:28px}
+  #ppdup .kit-to{color:var(--pri)}
+  #ppdup .kit-err{color:var(--danger);font-size:12px;font-weight:700;margin-top:2px}
+  #ppdup .kit-row.fail{box-shadow:inset 3px 0 0 var(--danger)}
+  #ppdup .kit-tag{white-space:nowrap}
+  #ppdup .kit-tag.pri{background:var(--pri-soft);color:var(--pri)}
+  #ppdup .kit-tag.ok{background:#e3f6ec;color:#17703f}
+  #ppdup .kit-tag.warn{background:#fff4dc;color:#8a5600}
+  #ppdup .kit-tag.del{background:#fde8e8;color:#b42318}
+  html.pd-dark #ppdup .kit-tag.ok{background:#17331f;color:#6fdc9a}
+  html.pd-dark #ppdup .kit-tag.warn{background:#3a2c12;color:#f0c46c}
+  html.pd-dark #ppdup .kit-tag.del{background:#3a1a1a;color:#ff8a80}
+  #ppdup .kit-open{flex:none;height:30px;padding:0 10px;border:1px solid var(--ctl-line);border-radius:8px;background:var(--ctl);color:inherit;font:inherit;font-size:12px;cursor:pointer}
   /* ===== v4.1：デリログ風の見た目（丸み・やわらかい色・左の常設メニュー・ダッシュボード） ===== */
   #ppdup{--rf:"Hiragino Maru Gothic ProN","Hiragino Maru Gothic Pro","M PLUS Rounded 1c","Kosugi Maru","Yu Gothic UI","Hiragino Sans","Meiryo",system-ui,sans-serif;font-family:var(--rf)}
   #ppdup:not(.pop):not(.narrow){padding-left:236px}
@@ -1983,12 +2033,12 @@
       junk: junkEnabled() ? buildJunkPlan(files, folders).filter((p) => p.level === 'del').length : 0,
       junkReview: junkEnabled() ? buildJunkPlan(files, folders).filter((p) => p.level === 'review').length : 0,
       name: nameEnabled() ? buildNamePlan(wf, folders).length : 0,
-      sort: buildSortPlan(wf, folders).length,
-      ren: buildRenamePlan(wf, folders).filter((p) => p.status === 'rename' || p.status === 'dup').length,
+      sort: stepOn('sort') ? buildSortPlan(wf, folders).length : 0,
+      ren: stepOn('ren') ? buildRenamePlan(wf, folders).filter((p) => p.status === 'rename' || p.status === 'dup').length : 0,
       dup: buildGroups(wf, 'name').length,
-      clean: buildCleanPlan(files, folders).filter((p) => p.status === 'todo').length,
+      clean: stepOn('clean') ? buildCleanPlan(files, folders).filter((p) => p.status === 'todo').length : 0,
       seller: sellerEnabled() ? buildSellerPlan(folders).filter((x) => x.kind !== 'dupw' || x.merge).length : 0,
-      cleanSkip: buildCleanPlan(files, folders).filter((p) => p.status === 'skip').length,
+      cleanSkip: stepOn('clean') ? buildCleanPlan(files, folders).filter((p) => p.status === 'skip').length : 0,
     };
   }
   const UNIT_OF = { junk: '件', name: '件', sort: '作品', ren: '件', dup: '組', clean: '件', seller: '作品' };
@@ -2101,13 +2151,13 @@
     const single = mode === 'single' ? `<span class="note">読み込み：${meta ? esc(new Date(meta.at).toLocaleString(loc(), { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })) : '未'}</span><button data-a="rescan" title="最新の状態を読み込んでから、この作業を続けます">再読み込み</button><button data-a="toflow" title="1〜7 のステップをすべて表示します（左メニューの「整理」と同じ）">1〜7 をすべて表示</button><span class="sep"></span>` : '';
     const head = `<div class="head"><b>${mode === 'single' ? '' : STEPS.indexOf(s) + 1 + '. '}${esc(s.t)}</b><span class="note">${esc(s.d)}</span></div><span class="sp"></span>${single}`;
     let html = '';
-    if (view === 'sort' || view === 'clean') html = head;
+    const kopt = (k) => `<label class="optsw" title="オフにすると、このステップを使わず次へ進みます"><input type="checkbox" data-kopt="${k}"${stepOn(k) ? ' checked' : ''}> このステップを使う</label><button data-a="kreplan" title="PikPak の最新の内容ではなく、読み込んだ内容から計画を作り直します">計画を作り直す</button><span class="sep"></span>`;
+    if (view === 'sort' || view === 'clean' || view === 'ren') html = head + kopt(view);
     if (view === 'seller') {
       html = head + `<label class="optsw" title="オフにすると、このステップを使わず次へ進みます"><input type="checkbox" data-a="selleropt"${sellerEnabled() ? ' checked' : ''}> このステップを使う</label>`;
     }
     if (view === 'junk') html = head + `<label class="optsw" title="オフにすると、不要ファイルの判定を使わず、すべてのファイルをほかのステップの対象にします"><input type="checkbox" data-a="junkopt"${junkEnabled() ? ' checked' : ''}> このステップを使う</label><span class="sep"></span>`;
-    if (view === 'name') html = head + `<label class="optsw" title="オフにすると、このステップを使わず次へ進みます"><input type="checkbox" data-a="nameopt"${nameEnabled() ? ' checked' : ''}> このステップを使う</label><span class="sep"></span>`;
-    if (view === 'ren') html = head + `<select data-a="renfilter"><option value="todo">変更するもの</option><option value="skip">要確認</option><option value="same">変更なし</option><option value="all">すべて</option></select>`;
+    if (view === 'name') html = head + kopt('name');
     if (view === 'dup') html = head + `
       <select data-a="mode" title="まとめ方"><option value="name">同じファイル名でまとめる</option><option value="id">同じ品番でまとめる（-1/-2違いも含む）</option></select>
       <label><input type="checkbox" data-a="nearonly"> サイズが近い組だけ</label>
@@ -2129,6 +2179,7 @@
       let tx = '';
       if (view === 'junk') { const n = jplan.filter(junkChecked).length; tx = !junkEnabled() || !jplan.length ? '' : n ? `<b>削除するもの ${n} 件</b><small>PikPak のゴミ箱へ移動します</small>` : '<b>チェックの入ったファイルがありません</b><small>削除するものにチェックを入れてください</small>'; }
       else if (view === 'dup') { const g = visibleGroups(); tx = g.length ? `<b>表示中 ${g.length} 組</b><small>チェックした（削除の）ファイルを PikPak のゴミ箱へ移動します</small>` : ''; }
+      else if (KIT_VERB[view]) { const all = kitItems(view), n = kitTargets(view).length, un = UNIT_OF[view] || '件'; const off = all.filter((it) => (it.st === 'todo' || it.st === 'fail') && kitOffS[view].has(it.id)).length, rv = all.filter((it) => it.st === 'review').length; tx = !stepOn(view) || !all.some((it) => it.st === 'todo' || it.st === 'fail') ? '' : n ? `<b>チェックした ${n} ${un}を${KIT_VERB[view]}します</b><small>${[off ? `チェックなし ${off}` : '', rv ? `要確認 ${rv}` : ''].filter(Boolean).join('・')}${off || rv ? ' は対象外。' : ''}まずは「先頭1件だけ試す」で動きを確かめてください</small>` : '<b>チェックの入ったものがありません</b><small>実行するものにチェックを入れてください</small>'; }
       else { const n = remaining(view, c); tx = n > 0 ? `<b>対象 ${n} ${UNIT_OF[view] || '件'}</b><small>まずは「先頭1件だけ試す」で動きを確かめてください</small>` : ''; }
       if (btx) btx.innerHTML = tx;
       if (!tx) { bar.classList.add('done'); if (hasNext) { el.innerHTML = ''; bar.classList.add('hide'); return; } }
@@ -2152,6 +2203,7 @@
       el.innerHTML = visibleGroups().length ? '<button data-a="csv">CSV保存</button><button class="danger" data-a="delall">チェックしたものを削除</button>' : `<span class="okbadge">✓ 完了</span>${nextHtml(c)}`;
       return;
     }
+    if (KIT_VERB[view]) { const n = kitTargets(view).length, un = UNIT_OF[view] || '件'; el.innerHTML = stepOn(view) && kitItems(view).some((it) => it.st === 'todo' || it.st === 'fail') ? `<button data-a="${view}1"${n ? '' : ' disabled'}>先頭1件だけ試す</button><button class="pri" data-a="${view}all"${n ? '' : ' disabled'}>チェックした ${n} ${un}を${KIT_VERB[view]}</button>` : `<span class="okbadge">✓ 完了${view === 'clean' && c && c.cleanSkip ? `（要確認 ${c.cleanSkip} 件）` : ''}</span>${nextHtml(c)}`; return; }
     el.innerHTML = remaining(view, c) > 0
       ? `<button data-a="${view}1">先頭1件だけ試す</button><button class="pri" data-a="${view}all">${label[view]}</button>`
       : `<span class="okbadge">✓ 完了${view === 'clean' && c && c.cleanSkip ? `（要確認 ${c.cleanSkip} 件）` : ''}</span>${nextHtml(c)}`;
@@ -2159,11 +2211,11 @@
   function setView(v) {
     if (v !== 'scan' && !hasScan()) v = 'scan';
     view = v;
-    if (v === 'clean') cplan = buildCleanPlan(files, folders);
+    if (v === 'clean') cplan = stepOn('clean') ? buildCleanPlan(files, folders) : [];
     if (v === 'junk') jplan = junkEnabled() ? buildJunkPlan(files, folders) : [];
     if (v === 'name') nplan = buildNamePlan(workFiles(), folders);
-    if (v === 'ren') rplan = buildRenamePlan(workFiles(), folders);
-    if (v === 'sort') splan = buildSortPlan(workFiles(), folders);
+    if (v === 'ren') rplan = stepOn('ren') ? buildRenamePlan(workFiles(), folders) : [];
+    if (v === 'sort') splan = stepOn('sort') ? buildSortPlan(workFiles(), folders) : [];
     if (v === 'seller') selPlan = sellerEnabled() ? buildSellerPlan(folders) : [];
     if (v !== 'tree') { closeQL(); closeCtx(); closePlayer(); hideHover(); }
     root.classList.toggle('treev', v === 'tree'); // フォルダ一覧ではステップの表示を隠す
@@ -2403,94 +2455,102 @@
     } catch (err) { busy = false; setView('junk'); handleErr(err, 'junk', '削除を停止しました：' + err.message); }
   }
 
-  // ---------- 3. ファイル名を整える ----------
-  function renderName() {
-    const on = nameEnabled();
-    const todo = nplan.filter((p) => p.status === 'todo');
-    const explain = `<div class="pd-explain"><h3>このステップでできること</h3>
-      <div class="note">FC2のファイル名を <code>FC2-PPV-品番</code> の形にそろえます。名前がそろうと、「重複を比べて削除」で同じ動画が同じ組にまとまり、フォルダ名との対応もそろいます。Enhancement Master の「FC2 クリーン命名」と同じ考え方です。</div>
-      <ul class="note">
-        <li>例：<code>4k688.com@FC2-PPV-4988183_1.mp4</code> → <code>FC2-PPV-4988183-1.mp4</code></li>
-        <li>サイト名・広告など、品番の前後にある余計な文字は消します</li>
-        <li>シリーズ／分割の番号（<code>_1</code>・<code>part2</code>・<code>cd1</code>・<code>_A</code>、タイトル末尾の <code>…編-3</code>、<code>第2話</code> など）は <code>-1</code>・<code>-3</code> の形で残します</li>
-        <li>同じ場所に同じ名前のファイルができる場合は <code>(1)</code> を付けます（重複の可能性があるため、あとで比べられます）</li>
-        <li>FC2 以外のファイルは変更しません。ファイルの中身や置き場所は変わりません</li>
-      </ul>
-      <div class="note" style="margin-top:6px">使わない場合は、右上の「このステップを使う」のチェックを外してください。次回以降もこの設定を覚えておきます。</div></div>`;
-    if (!on) { $('[data-r=main]').innerHTML = explain + `<div class="pd-hero"><h2>このステップはオフになっています</h2><div class="note">ファイル名は変更しません。</div><div class="acts" style="margin-top:16px">${nextHtml(undefined, 'pri big')}</div></div>`; if (!busy) status('ファイル名の整理はオフです。'); return; }
-    if (!todo.length) { $('[data-r=main]').innerHTML = explain + doneCard(); if (!busy) status('ファイル名はそろっています。'); return; }
-    const row = (p) => `<div class="pd-row ${nameOff.has(p.id) ? '' : 'sel'}"><label class="pd-chk"><input type="checkbox" data-nchk="${esc(p.id)}"${nameOff.has(p.id) ? '' : ' checked'}></label><div class="pd-info"><div class="pd-path">${esc(p.path || '（読み込んだフォルダの直下）')}</div>
-      <div class="pd-name">${esc(p.cur)} <span class="note">→</span> ${esc(p.target)}</div>${p.note ? `<div class="note">${esc(p.note)}</div>` : ''}</div></div>`;
-    $('[data-r=main]').innerHTML = explain + `<div class="pd-g"><div class="pd-gh"><span>変更するファイル ${todo.length} 件</span><span class="note">チェックを外したものは変更しません</span></div>${todo.map(row).join('')}</div>${nextButton()}`;
-    if (!busy) status('変更内容を確認して、まずは「先頭1件だけ試す」で確かめてください。');
-  }
-  async function runName(onlyFirst) {
-    const targets = nplan.filter((p) => p.status === 'todo' && !nameOff.has(p.id)).slice(0, onlyFirst ? 1 : undefined);
-    if (!targets.length || !ensureSession('name')) return;
-    busy = true; renderNav(); window.__ppdupStop = false; let ok = 0, skipped = 0;
-    for (const p of targets) {
-      if (window.__ppdupStop) break;
-      status(`ファイル名を変更中… ${ok + skipped + 1}/${targets.length}：${p.cur}`, (ok + skipped) / targets.length);
-      try { if (await cleanOne(p)) ok++; else skipped++; saveAll(); }
-      catch (err) { saveAll(); busy = false; setView('name'); handleErr(err, 'name', `停止：${p.cur}：${err.message}（${ok}件完了）`); return; }
-      await sleep(120);
+  // ---------- 3〜5・7：共通の型（StepKit） ----------
+  // どのステップも「見出し・タブ（実行する／要確認／変更なし／失敗／すべて）・チェック＝実行する・今 → 後の行・下の実行の帯」で組む。
+  // 実行は途中で止めずに最後まで進め、失敗は「失敗」タブに理由つきで残す
+  const cleanOff = new Set(); // 7. 片付けでチェックを外した項目
+  const kitOffS = { name: nameOff, clean: cleanOff, sort: new Set(), ren: new Set() };
+  const kitFail = { name: new Map(), sort: new Map(), ren: new Map(), clean: new Map() };
+  const kitTab = { name: 'todo', sort: 'todo', ren: 'todo', clean: 'todo' };
+  const kitQ = { name: '', sort: '', ren: '', clean: '' };
+  const KIT_OPT = { sort: 'ppdup:opt:sort:v1', ren: 'ppdup:opt:ren:v1', clean: 'ppdup:opt:clean:v1' };
+  const stepOn = (v) => (v === 'name' ? nameEnabled() : KIT_OPT[v] ? (() => { try { return localStorage.getItem(KIT_OPT[v]) !== '0'; } catch (e) { return true; } })() : true);
+  const KIT_EX = {
+    name: `FC2 のファイル名を <code>FC2-PPV-品番</code> の形にそろえます（例：<code>4k688.com@FC2-PPV-4988183_1.mp4</code> → <code>FC2-PPV-4988183-1.mp4</code>）。サイト名・広告などの余計な文字は消し、<code>_1</code>・<code>part2</code>・<code>cd1</code> などの分割番号は <code>-1</code> の形で残します。同じ場所に同じ名前ができる場合は <code>(1)</code> を付けます。FC2 以外のファイル・中身・置き場所は変えません。`,
+    sort: '複数の作品が混ざったフォルダの中で、作品ごとに品番のフォルダを作って（あれば既存のフォルダへ）ファイルを移します。同じ名前のファイルがあるときは <code>(1)</code> を付けます。削除はしません。',
+    ren: 'フォルダ名を、中のファイル名（品番）に揃えます。中に複数の作品があるフォルダや、品番が決まらないフォルダは「要確認」に回して変更しません。同じ名前のフォルダがすでにあるときは重ならない名前にします。',
+    clean: '重複の削除のあとに残ったものを片付けます：空のフォルダをゴミ箱へ（実行直前にも空か確かめます）、「X の中に X だけ」のフォルダの中身を 1 つ上へ、不要になった <code>(1)</code> を外す。このステップで処理できないものは「要確認」に出します。',
+  };
+  const KIT_VERB = { name: '変更', sort: '移動', ren: '変更', clean: '実行' };
+  const tg = (t, c) => ({ tag: t, tc: c || '' });
+  const sortKey = (g) => g.cid + ':' + g.work;
+  function kitItems(v) {
+    const fail = kitFail[v];
+    const fx = (it) => (fail.has(it.id) ? { ...it, st: 'fail', err: fail.get(it.id) } : it);
+    if (v === 'name') return nplan.filter((p) => p.status === 'todo').map((p) => fx({ id: p.id, st: 'todo', grp: p.path || '（読み込んだフォルダの直下）', before: p.cur, after: p.target, note: p.note || '', thumb: (fileById(p.id) || {}).thumb || '', open: p.id, ...tg('名前を変更', 'pri') }));
+    if (v === 'sort') return splan.filter((g) => g.status !== 'done').map((g) => { const ren = g.items.filter((x) => x.to !== x.name); return fx({ id: sortKey(g), st: 'todo', grp: g.cpath || '（読み込んだフォルダの直下）', before: g.items.length === 1 ? g.items[0].name : `${g.items.length} 本（${g.items.map((x) => x.name).join('、')}）`, after: `📁 ${g.work}/`, note: ren.length ? '同じ名前があるため：' + ren.map((x) => `${x.name} → ${x.to}`).join('、') : '', thumb: ((fileById(g.items[0].id) || {}).thumb) || '', open: g.cid, ...(g.folderNew ? tg('新しいフォルダ', 'ok') : tg('既存のフォルダへ', 'pri')) }); });
+    if (v === 'ren') return rplan.map((p) => { const st = p.status === 'rename' || p.status === 'dup' ? 'todo' : p.status === 'skip' ? 'review' : 'same'; const pp = p.path.slice(0, p.path.length - p.cur.length).replace(/\/$/, '') || '（読み込んだフォルダの直下）'; return fx({ id: p.id, st, grp: pp, before: p.cur, after: p.target || '（未定）', note: p.note || '', open: p.id, ...tg(STLABEL[p.status], p.status === 'skip' ? 'warn' : p.status === 'same' ? '' : 'pri'), folder: true }); });
+    if (v === 'clean') {
+      const GL = { trash: '空のフォルダをゴミ箱へ', flatten: '入れ子のフォルダをまとめる', rename: '(1) を外す' };
+      return cplan.filter((p) => p.status === 'todo' || p.status === 'skip').map((p) => fx({ id: p.id, st: p.status === 'todo' ? 'todo' : 'review', grp: p.status === 'skip' ? '要確認（このステップでは処理できません）' : GL[p.op] || p.op, before: p.cur, after: p.op === 'rename' ? p.target : p.op === 'flatten' ? `中身を 1 つ上の ${p.target} へ` : p.op === 'trash' ? 'ゴミ箱へ' : '', note: [p.path, p.note].filter(Boolean).join('　'), open: p.id, ...tg(p.kind === 'folder' ? 'フォルダ' : 'ファイル', p.op === 'trash' ? 'del' : ''), folder: p.kind === 'folder', danger: p.op === 'trash' }));
     }
-    busy = false; setView('name'); status(`${ok} 件のファイル名を整えました${skipped ? `（${skipped} 件は実行直前の確認で対象外になりました）` : ''}。`); log('info', `ファイル名の整理 ${ok} 件・対象外 ${skipped} 件`); refreshView();
+    return [];
   }
-
-  // ---------- 4. 作品ごとに仕分け ----------
-  function renderSort() {
-    const todo = splan.filter((g) => g.status !== 'done');
-    if (!todo.length) { $('[data-r=main]').innerHTML = doneCard(); if (!busy) status('仕分けは完了しています。'); return; }
-    const nNew = todo.filter((g) => g.folderNew).length, nFiles = todo.reduce((a, g) => a + g.items.length, 0), nRen = todo.reduce((a, g) => a + g.items.filter((x) => x.to !== x.name).length, 0);
-    $('[data-r=main]').innerHTML = `<div class="pd-g"><div class="pd-gh"><span>残り ${todo.length} 作品</span><span class="note">移動 ${nFiles} 本 ／ 新規フォルダ ${nNew} ／ 同名のため (1) を付ける ${nRen}</span></div>
-      ${todo.map((g) => `<div class="pd-row"><div class="pd-info"><div class="pd-path">${esc(g.cpath || '（読み込んだフォルダの直下）')}</div>
-        <div class="pd-name">${esc(g.work)} <span class="pd-tag">${g.folderNew ? '新規フォルダ' : '既存フォルダへ'}</span></div>
-        <div class="note">${g.items.map((x) => esc(x.name) + (x.to !== x.name ? ' → <b>' + esc(x.to) + '</b>' : '')).join('　')}</div></div></div>`).join('') || '<div class="empty">✓ 仕分けが必要なフォルダはありません</div>'}</div>${nextButton()}`;
-    if (!busy) status(todo.length ? '内容を確認して、まずは「先頭1件だけ試す」で動きを確かめてください。削除はしません。' : '仕分けは不要です。次のステップへ進んでください。');
+  const kitRaw = (v, id) => (v === 'name' ? nplan.find((p) => p.id === id) : v === 'sort' ? splan.find((g) => sortKey(g) === id) : v === 'ren' ? rplan.find((p) => p.id === id) : cplan.find((p) => p.id === id));
+  const kitOn = (v, it) => (it.st === 'todo' || it.st === 'fail') && !kitOffS[v].has(it.id);
+  function kitTargets(v) { return kitItems(v).filter((it) => kitOn(v, it)); }
+  function kitPlan(v) { if (v === 'name') nplan = buildNamePlan(workFiles(), folders); if (v === 'sort') splan = buildSortPlan(workFiles(), folders); if (v === 'ren') rplan = buildRenamePlan(workFiles(), folders); if (v === 'clean') cplan = buildCleanPlan(files, folders); }
+  function renderKit(v) {
+    const main = $('[data-r=main]');
+    const s = STEPS.find((x) => x.v === v);
+    const ex = `<details class="pd-explain kit-ex"${stepOn(v) ? '' : ' open'}><summary>このステップでできること</summary><div class="note">${KIT_EX[v]}</div></details>`;
+    if (!stepOn(v)) { main.innerHTML = ex + `<div class="pd-hero"><h2>このステップはオフになっています</h2><div class="note">「${esc(s.t)}」は行いません。使うときは右上の「このステップを使う」にチェックを入れてください。</div><div class="acts" style="margin-top:16px">${nextHtml(undefined, 'pri big')}</div></div>`; if (!busy) status('このステップはオフです。'); return; }
+    const all = kitItems(v);
+    const n = (st) => all.filter((it) => (st === 'all' ? true : it.st === st)).length;
+    if (!n('todo') && !n('fail') && kitTab[v] === 'todo') { main.innerHTML = ex + (n('review') ? `<div class="st-res"><span class="ic">!</span><span class="tx">実行するものはありません。要確認が ${n('review')} 件あります（「要確認」タブで確かめられます）</span></div>` : '') + kitTabsHtml(v, n) + doneCard(); if (!busy) status('このステップで実行するものはありません。'); return; }
+    const tab = kitTab[v], q = kitQ[v].trim().toLowerCase();
+    const list = all.filter((it) => (tab === 'all' || it.st === tab) && (!q || (it.before + ' ' + it.after + ' ' + it.grp).toLowerCase().includes(q)));
+    const groups = new Map(); list.forEach((it) => { if (!groups.has(it.grp)) groups.set(it.grp, []); groups.get(it.grp).push(it); });
+    const row = (it) => {
+      const can = it.st === 'todo' || it.st === 'fail', on = can && !kitOffS[v].has(it.id);
+      const th = it.folder ? `<span class="kit-ic">${ICON_DIR}</span>` : it.thumb ? `<img loading="lazy" referrerpolicy="no-referrer" src="${esc(it.thumb)}" alt="">` : `<span class="kit-ic">${ICON_FILE({ name: it.before, ext: extOf(it.before) })}</span>`;
+      return `<div class="pd-row kit-row ${on ? (it.danger ? 'del' : 'sel') : ''}${it.st === 'fail' ? ' fail' : ''}" data-id="${esc(it.id)}"><label class="pd-chk"><input type="checkbox" data-kchk="${esc(it.id)}"${on ? ' checked' : ''}${can ? '' : ' disabled'}></label>
+        <div class="pd-th kit-th">${th}</div>
+        <div class="pd-info"><div class="pd-name">${esc(it.before)}${it.after ? ` <span class="note">→</span> <b class="kit-to">${esc(it.after)}</b>` : ''}</div>${it.note ? `<div class="note">${esc(it.note)}</div>` : ''}${it.st === 'fail' ? `<div class="kit-err">失敗：${esc(it.err)}</div>` : ''}</div>
+        <span class="pd-tag kit-tag ${it.tc}">${esc(it.tag)}</span>${it.open ? `<button class="kit-open" data-kopen="${esc(it.open)}" title="フォルダ一覧でこの項目の場所を開く">場所を開く</button>` : ''}</div>`;
+    };
+    const body = [...groups].map(([g, l]) => { const chk = l.filter((it) => it.st === 'todo' || it.st === 'fail'); const allOn = chk.length && chk.every((it) => !kitOffS[v].has(it.id)); return `<div class="pd-g"><div class="pd-gh">${chk.length ? `<input type="checkbox" data-kgrp="${esc(g)}"${allOn ? ' checked' : ''} title="このまとまりをすべてチェック／外す">` : ''}<span>${esc(g)}</span><span class="note">${l.length} ${UNIT_OF[v] || '件'}</span></div>${l.map(row).join('')}</div>`; }).join('') || '<div class="empty">この区分に該当するものはありません</div>';
+    main.innerHTML = ex + kitTabsHtml(v, n) + body + nextButton();
+    if (!busy) status(n('todo') + n('fail') ? '内容を確かめて、まずは「先頭1件だけ試す」で動きを確かめてください。' : 'このステップで実行するものはありません。');
   }
-  async function runSort(onlyFirst) {
-    const targets = splan.filter((g) => g.status !== 'done').slice(0, onlyFirst ? 1 : undefined);
-    if (!targets.length || !ensureSession('sort')) return;
-    busy = true; renderNav(); window.__ppdupStop = false; let ok = 0;
-    for (const g of targets) {
+  function kitTabsHtml(v, n) {
+    const T = [['todo', '実行する'], ['review', '要確認'], ['same', '変更なし'], ['fail', '失敗'], ['all', 'すべて']].filter(([k]) => k === 'todo' || k === 'all' || n(k));
+    return `<div class="kit-tabs">${T.map(([k, l]) => `<button class="kit-tab${kitTab[v] === k ? ' on' : ''}${k === 'fail' ? ' bad' : ''}" data-ktab="${k}">${l}<i>${n(k)}</i></button>`).join('')}<span class="sp"></span><input type="search" data-kq placeholder="絞り込み（品番・名前）" value="${esc(kitQ[v])}"></div>`;
+  }
+  // 実行：止めずに最後まで。失敗は理由を残す（ログインが切れたときだけ止める）
+  async function runKit(v, onlyFirst) {
+    const targets = kitTargets(v).slice(0, onlyFirst ? 1 : undefined);
+    if (!targets.length || !ensureSession(v)) return;
+    busy = true; renderNav(); renderActs(); window.__ppdupStop = false;
+    let ok = 0, skipped = 0, ng = 0; const t0 = Date.now();
+    for (const it of targets) {
       if (window.__ppdupStop) break;
-      status(`仕分け中… ${ok + 1}/${targets.length}：${g.work}`, ok / targets.length);
-      try { await sortApi(g); ok++; saveAll(); }
-      catch (err) { saveAll(); busy = false; setView('sort'); handleErr(err, 'sort', `停止：${g.cpath} の ${g.work}：${err.message}（${ok}作品完了）`); return; }
-      await sleep(100);
+      const d = ok + skipped + ng;
+      status(`${KIT_VERB[v]}しています… ${d + 1} / ${targets.length}：${it.before}`, d / targets.length, d ? `あと約 ${fmtDur((Date.now() - t0) / d * (targets.length - d))}` : '残り時間を計算中…');
+      const p = kitRaw(v, it.id);
+      try {
+        if (!p) throw new Error('計画が見つかりません（作り直してください）');
+        const r = v === 'sort' ? (await sortApi(p), true) : v === 'ren' ? (await renameApi(p), true) : await cleanOne(p);
+        if (r === false) skipped++; else ok++;
+        kitFail[v].delete(it.id);
+      } catch (err) {
+        if (err.session) { if (v === 'ren') persistFolders(); else saveAll(); busy = false; setView(v); handleErr(err, v, `ログインが切れたため止めました（${ok} 件完了）`); return; }
+        ng++; kitFail[v].set(it.id, err.message || String(err)); log('warn', `${STEPS.find((x) => x.v === v).t}：失敗：${it.before}：${err.message || err}`);
+      }
+      if (v === 'ren') persistFolders(); else saveAll();
+      await sleep(v === 'sort' ? 100 : 130);
     }
-    busy = false; setView('sort'); status(`${ok} 作品を仕分けしました。`); log('info', `仕分け ${ok} 作品`); refreshView();
+    busy = false;
+    kitTab[v] = ng ? 'fail' : 'todo';
+    setView(v);
+    const unit = UNIT_OF[v] || '件';
+    status(`${ok} ${unit}を${KIT_VERB[v]}しました${skipped ? `（${skipped} 件は実行直前の確認で対象外になりました）` : ''}${ng ? `・失敗 ${ng} 件（「失敗」タブに理由があります。チェックしたまま実行すると、もう一度試します）` : ''}${window.__ppdupStop ? '・中断しました' : ''}。`);
+    log('info', `${STEPS.find((x) => x.v === v).t}：${ok} 件・対象外 ${skipped}・失敗 ${ng}`);
+    refreshView();
   }
-
-  // ---------- 5. フォルダ名を揃える ----------
-  const STLABEL = { same: '変更なし', rename: '変更', dup: '変更（重複回避）', skip: '要確認・対象外' };
-  function renderRen() {
-    const show = $('[data-a=renfilter]') ? $('[data-a=renfilter]').value : 'todo';
-    const list = rplan.filter((p) => show === 'all' || (show === 'todo' ? p.status === 'rename' || p.status === 'dup' : p.status === show));
-    const cnt = (s) => rplan.filter((p) => p.status === s).length;
-    if (show === 'todo' && !list.length) { $('[data-r=main]').innerHTML = doneCard(); if (!busy) status(`名前の変更は完了しています（要確認 ${cnt('skip')} 件は「要確認」で確認できます）。`); return; }
-    $('[data-r=main]').innerHTML = `<div class="pd-g"><div class="pd-gh"><span>変更 ${cnt('rename')} ／ 重複回避 ${cnt('dup')}</span><span class="note">要確認 ${cnt('skip')} ／ 一致済み ${cnt('same')}</span></div>
-      ${list.map((p) => `<div class="pd-row"><div class="pd-info"><div class="pd-path">${esc(p.path)}</div>
-        <div class="pd-name">${esc(p.cur)} <span class="note">→</span> ${p.target ? esc(p.target) : '<i>（未定）</i>'}</div>
-        ${p.note ? `<div class="note">${esc(p.note)}</div>` : ''}</div><div class="pd-sz"><span class="pd-tag">${STLABEL[p.status]}</span></div></div>`).join('') || '<div class="empty">✓ 該当なし</div>'}</div>${nextButton()}`;
-    if (!busy) status(cnt('rename') + cnt('dup') ? '変更内容を確認して、まずは「先頭1件だけ試す」で確かめてください。' : '名前の変更は不要です。次のステップへ進んでください。');
-  }
-  async function runRen(onlyFirst) {
-    const sh = $('[data-a=renfilter]') ? $('[data-a=renfilter]').value : 'todo';
-    const todo = rplan.filter((p) => p.status === 'rename' || p.status === 'dup');
-    const targets = (sh === 'all' || sh === 'todo' ? todo : []).slice(0, onlyFirst ? 1 : undefined);
-    if (!targets.length || !ensureSession('ren')) return;
-    busy = true; renderNav(); window.__ppdupStop = false; let ok = 0;
-    for (const p of targets) {
-      if (window.__ppdupStop) break;
-      status(`名前を変更中… ${ok + 1}/${targets.length}：${p.cur}`, ok / targets.length);
-      try { await renameApi(p); ok++; persistFolders(); }
-      catch (err) { persistFolders(); busy = false; setView('ren'); handleErr(err, 'ren', `停止：${p.cur} → ${p.target}：${err.message}（${ok}件完了）`); return; }
-      await sleep(150);
-    }
-    persistFolders(); busy = false; setView('ren'); status(`${ok} 件のフォルダ名を変更しました。`); log('info', `フォルダ名の変更 ${ok} 件`); refreshView();
-  }
+  const renderName = () => renderKit('name'), renderSort = () => renderKit('sort'), renderRen = () => renderKit('ren'), renderClean = () => renderKit('clean');
+  const runName = (o) => runKit('name', o), runSort = (o) => runKit('sort', o), runRen = (o) => runKit('ren', o), runClean = (o) => runKit('clean', o);
+  const STLABEL = { same: '変更なし', rename: 'フォルダ名を変更', dup: '変更（重複を避ける）', skip: '要確認' };
   function persistFolders() { // 変更後の名前をキャッシュへ反映（中のフォルダ・ファイルの場所の表示も更新）
     rplan.forEach((p) => {
       const f = folders.find((x) => x.id === p.id);
@@ -2501,6 +2561,7 @@
     });
     saveAll();
   }
+
 
   // ---------- 6. 重複を比べて削除 ----------
   function visibleGroups() {
@@ -2575,38 +2636,6 @@
       const n = await deleteApi(targets, ans.hard, (d, t) => status(`削除中… ${d}/${t}`, d / t));
       busy = false; render(); renderNav(); status(`${n} 件を${ans.hard ? '完全に削除' : 'ゴミ箱へ移動'}しました${ans.force ? `（強制削除 ${skipped.length} 組を含む）` : ''}。`); log('info', `削除 ${n} 件（${ans.hard ? '完全削除' : 'ゴミ箱'}${ans.force ? '・強制削除 ' + skipped.length + ' 組' : ''}）`); refreshView();
     } catch (err) { busy = false; render(); renderNav(); handleErr(err, 'dup', '削除を停止しました：' + err.message); }
-  }
-
-  // ---------- 7. (1)を外す ----------
-  const cleanOff = new Set(); // チェックを外した（実行しない）項目
-  function renderClean() {
-    const trash = cplan.filter((p) => p.status === 'todo' && p.op === 'trash'), ren = cplan.filter((p) => p.status === 'todo' && p.op === 'rename'), skip = cplan.filter((p) => p.status === 'skip');
-    const flat = cplan.filter((p) => p.status === 'todo' && p.op === 'flatten');
-    if (!trash.length && !ren.length && !skip.length && !flat.length) { $('[data-r=main]').innerHTML = doneCard(); if (!busy) status('片付けは完了しています。'); return; }
-    const row = (p, chk) => `<div class="pd-row ${chk && !cleanOff.has(p.id) ? (p.op === 'trash' ? 'del' : 'sel') : ''}">${chk ? `<label class="pd-chk"><input type="checkbox" data-cchk="${esc(p.id)}"${cleanOff.has(p.id) ? '' : ' checked'}></label>` : ''}<div class="pd-info"><div class="pd-path">${esc(p.path || '（読み込んだフォルダの直下）')}</div>
-      <div class="pd-name">${esc(p.cur)}${p.op === 'rename' ? ` <span class="note">→</span> ${esc(p.target)}` : p.op === 'flatten' ? ` <span class="note">の中身 → 1 つ上の</span> ${esc(p.target)}` : ''} <span class="pd-tag">${p.kind === 'folder' ? 'フォルダ' : 'ファイル'}</span></div>
-      ${p.note ? `<div class="note">${esc(p.note)}</div>` : ''}</div></div>`;
-    $('[data-r=main]').innerHTML = `
-      <div class="pd-g"><div class="pd-gh"><span>空フォルダをゴミ箱へ ${trash.length} 件</span><span class="note">中身が空のフォルダです。実行直前にも空であることを確認します（ゴミ箱から戻せます）</span></div>
-        ${trash.map((p) => row(p, true)).join('') || '<div class="empty">✓ 空フォルダはありません</div>'}</div>
-      ${flat.length ? `<div class="pd-g"><div class="pd-gh"><span>入れ子のフォルダをまとめる ${flat.length} 件</span><span class="note">「X の中に X だけ」のフォルダの中身を 1 つ上へ出します（オムニバスなど複数作品のフォルダは対象外）</span></div>${flat.map((p) => row(p, true)).join('')}</div>` : ''}
-      <div class="pd-g"><div class="pd-gh"><span>(1)を外す ${ren.length} 件</span><span class="note">フォルダ ${ren.filter((p) => p.kind === 'folder').length} ／ ファイル ${ren.filter((p) => p.kind === 'file').length}</span></div>
-        ${ren.map((p) => row(p, true)).join('') || '<div class="empty">✓ 外せる (1) はありません</div>'}</div>
-      ${skip.length ? `<div class="pd-g"><div class="pd-gh"><span>要確認 ${skip.length} 件</span><span class="note">このステップでは処理できないものです</span></div>${skip.map((p) => row(p, false)).join('')}</div>` : ''}`;
-    if (!busy) status('チェックの入ったものを実行します。重複を削除したあとは、先に「1. 読み込む」で読み込み直してから使ってください。');
-  }
-  async function runClean(onlyFirst) {
-    const targets = cplan.filter((p) => p.status === 'todo' && !cleanOff.has(p.id)).slice(0, onlyFirst ? 1 : undefined);
-    if (!targets.length || !ensureSession('clean')) return;
-    busy = true; renderNav(); window.__ppdupStop = false; let ok = 0, skipped = 0;
-    for (const p of targets) {
-      if (window.__ppdupStop) break;
-      status(`${p.op === 'trash' ? '空フォルダを片付けています' : p.op === 'flatten' ? '入れ子のフォルダをまとめています' : '(1)を外しています'}… ${ok + skipped + 1}/${targets.length}：${p.cur}`, (ok + skipped) / targets.length);
-      try { if (await cleanOne(p)) ok++; else skipped++; saveAll(); }
-      catch (err) { saveAll(); busy = false; setView('clean'); handleErr(err, 'clean', `停止：${p.cur}：${err.message}（${ok}件完了）`); return; }
-      await sleep(150);
-    }
-    busy = false; setView('clean'); status(`${ok} 件を実行しました${skipped ? `（${skipped} 件は実行直前の確認で対象外になりました）` : ''}。`); log('info', `片付け ${ok} 件・対象外 ${skipped} 件`); refreshView();
   }
 
   // ---------- フォルダ一覧（Finder / エクスプローラーに近い操作） ----------
@@ -4413,7 +4442,10 @@
     if (a === 'junkdel') return Promise.resolve(runJunk()).then(() => captureResult('junk'));
     if (a === 'jall' || a === 'jnone') { const lv = t.dataset.lv; jplan.filter((p) => p.level === lv).forEach((p) => junkSel.set(p.id, a === 'jall')); render(); renderActs(); return; }
     const m = /^(name|sort|ren|clean|seller)(1|all)$/.exec(a || '');
-    if (m) { const v0 = view; if (m[2] === '1') Promise.resolve(RUN[m[1]](true)).then(() => captureResult(v0)); else if (confirm(tr(CONFIRM[m[1]]))) Promise.resolve(RUN[m[1]](false)).then(() => captureResult(v0)); return; }
+    if (m) { const v0 = view; if (m[2] === '1') Promise.resolve(RUN[m[1]](true)).then(() => captureResult(v0)); else if (KIT_VERB[m[1]] || confirm(tr(CONFIRM[m[1]]))) Promise.resolve(RUN[m[1]](false)).then(() => captureResult(v0)); return; }
+    if (t.dataset.ktab) { kitTab[view] = t.dataset.ktab; render(); return; }
+    if (t.dataset.kopen) { const id = t.dataset.kopen; if (!busy) { openTree(); revealInTree(id); } return; }
+    if (a === 'kreplan') { if (!busy) { kitFail[view] && kitFail[view].clear(); setView(view); status('計画を作り直しました（PikPak の最新の内容にするには「読み込み直す」）'); } return; }
     if (a === 'csv') {
       const rows = [['判定', 'ファイル名', '場所', 'サイズ(MB)']];
       visibleGroups().forEach((g) => g.items.forEach((f, i) => rows.push([stateOf(f, i) === 'keep' ? '残す' : '削除する', f.name, f.path, (f.size / UNIT.MB).toFixed(2)])));
@@ -4438,6 +4470,12 @@
     const sg = e.target.dataset && e.target.dataset.sgrp;
     if (sg) { selPlan.filter((p) => p.kind !== 'pending' && (sg === 'k:fix' ? !!p.fix : sg === 'k:unknown' ? p.kind === 'unknown' : sg === 'k:review' ? p.kind === 'review' : p.kind === 'seller' && !p.fix && 's:' + p.seller.sid === sg)).forEach((p) => sellerSel.set(p.id, e.target.checked)); render(); renderActs(); return; }
     if (e.target.dataset && e.target.dataset.a === 'selleropt') { try { localStorage.setItem(LS_OPT_SELLER, e.target.checked ? '1' : '0'); } catch (err) { /* 無視 */ } log('info', '販売者ごとの仕分けを' + (e.target.checked ? 'オン' : 'オフ') + 'に変更'); setView(view); return; }
+    const kid = e.target.dataset && e.target.dataset.kchk;
+    if (kid && kitOffS[view]) { if (e.target.checked) kitOffS[view].delete(kid); else kitOffS[view].add(kid); const row = e.target.closest('.pd-row'); const it = kitItems(view).find((x) => x.id === kid); if (row) row.classList.toggle(it && it.danger ? 'del' : 'sel', e.target.checked); renderActs(); return; }
+    const kg = e.target.dataset && e.target.dataset.kgrp;
+    if (kg !== undefined && kitOffS[view]) { kitItems(view).filter((it) => it.grp === kg && (it.st === 'todo' || it.st === 'fail')).forEach((it) => { if (e.target.checked) kitOffS[view].delete(it.id); else kitOffS[view].add(it.id); }); render(); return; }
+    const ko = e.target.dataset && e.target.dataset.kopt;
+    if (ko) { if (ko === 'name') { try { localStorage.setItem(LS_OPT_NAME, e.target.checked ? '1' : '0'); } catch (err) { /* 無視 */ } } else { try { localStorage.setItem(KIT_OPT[ko], e.target.checked ? '1' : '0'); } catch (err) { /* 無視 */ } } log('info', `${STEPS.find((x) => x.v === ko).t}を${e.target.checked ? 'オン' : 'オフ'}`); if (!busy) setView(ko); return; }
     const nid = e.target.dataset && e.target.dataset.nchk;
     if (nid) { if (e.target.checked) nameOff.delete(nid); else nameOff.add(nid); const row = e.target.closest('.pd-row'); if (row) row.classList.toggle('sel', e.target.checked); return; }
     const cid = e.target.dataset && e.target.dataset.cchk;
@@ -4448,7 +4486,7 @@
   root.addEventListener('click', (e) => { const r = e.target.closest('[data-sr]'); if (r && view === 'tree' && !busy) revealInTree(r.dataset.sr); });
   const syncTqs = () => root.querySelectorAll('[data-a=tqs]').forEach((b) => b.classList.toggle('on', (tree.qs || 'here') === b.dataset.v));
   syncTqs();
-  root.addEventListener('input', (e) => { if (e.target.dataset.a === 'q') render(); if (e.target.dataset.a === 'tq') { tree.q = e.target.value; renderTree(); } });
+  root.addEventListener('input', (e) => { if (e.target.dataset.kq !== undefined && kitQ[view] !== undefined) { kitQ[view] = e.target.value; clearTimeout(kitQ.t); kitQ.t = setTimeout(() => { render(); const q = $('[data-kq]'); if (q) { q.focus(); q.setSelectionRange(q.value.length, q.value.length); } }, 250); return; } if (e.target.dataset.a === 'q') render(); if (e.target.dataset.a === 'tq') { tree.q = e.target.value; renderTree(); } });
   // ---------- 開き方（ポップアップ／全画面） ----------
   // ポップアップは PikPak の画面の上に重ねる小さな画面。見出しをつかんで移動、右下で大きさを変える。位置と大きさは覚えておく
   const LS_OPEN = 'ppdup:open:v1', LS_POPGEOM = 'ppdup:popgeom:v1', LS_POPBAN = 'ppdup:popban:v1';

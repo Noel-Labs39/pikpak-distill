@@ -1549,7 +1549,8 @@
   #ppdup.libv > main,#ppdup.libv > .tb,#ppdup.libv > .tsel,#ppdup.libv header nav{display:none!important}
   #pd-lib.emb{position:relative;inset:auto;z-index:1;flex:1 1 auto;min-height:0;display:flex;align-items:stretch;justify-content:stretch;background:var(--bg)}
   #pd-lib.emb .lk-box{width:100%;max-height:none;flex:1;border-radius:0;box-shadow:none;background:var(--bg)}
-  #pd-lib.emb .lk-hd{background:var(--panel)}
+  #pd-lib.emb .lk-hd{background:var(--panel);flex-wrap:wrap;row-gap:8px}
+  #pd-lib .lk-hd > b{white-space:nowrap;flex:none}
   #pd-lib.emb .lb-tabs,#pd-lib.emb .lb-note{background:var(--panel)}
   #pd-lib.emb .lk-list{padding:16px 22px;flex:1 1 auto;min-height:0}
   #pd-lib .lk-box > .lk-hd,#pd-lib .lk-box > .lb-tabs,#pd-lib .lk-box > .lb-note,#pd-lib .lk-box > .lk-ft{flex:none}
@@ -5346,8 +5347,8 @@
     }
     else body = S.items.map(row).join('');
     const n = S.sel.size, dis = S.busy || S.loading ? ' disabled' : '';
-    const pvTip = 'スペースで低画質のプレビュー、ダブルクリック・Enter は設定の「再生のしかた」（${esc(prefLabel())}）で開きます。本編は「↗ 外部プレーヤー」（オリジナル画質）がおすすめ。';
-    const note = { dl: 'リンク・マグネットで追加したもの（直近 60 日）。すぐ保存した分は保存先にあるかを、クラウドダウンロードの分は進み具合を確かめて表示します。「一覧から外す」は記録とタスクを消すだけで、保存したファイルは消しません。', recent: '追加日の新しい順（読み込んだ範囲：' + esc(dirLabel((scanRoot() || {}).id) || '—') + '）。' + pvTip, hist: 'PikPak で再生した動画（新しい順）。' + pvTip, star: 'PikPak でスターを付けた項目。' + pvTip, trash: `ゴミ箱の中身${quota ? `（${fmtCap(quota.trash)}）` : ''}。「完全に削除」「空にする」は元に戻せません。` }[tab];
+    const pvTip = `スペースで低画質のプレビュー、ダブルクリック・Enter は設定の「再生のしかた」（${esc(prefLabel())}）で開きます。本編は「↗ 外部プレーヤー」（オリジナル画質）がおすすめ。`;
+    const note = { dl: 'リンク・マグネットで追加したもの（直近 60 日）。すぐ保存した分は保存先にあるかを、クラウドダウンロードの分は進み具合を確かめて表示します。「一覧から外す」は記録とタスクを消すだけで、保存したファイルは消しません。', recent: '追加日の新しい順（読み込んだ範囲：' + esc(dirLabel((scanRoot() || {}).id) || '—') + '）。' + pvTip, hist: 'Dedupe と PikPak で再生した動画（新しい順）。Dedupe で再生した分はこのブラウザに記録します。' + pvTip, star: 'PikPak でスターを付けた項目。' + pvTip, trash: `ゴミ箱の中身${quota ? `（${fmtCap(quota.trash)}）` : ''}。「完全に削除」「空にする」は元に戻せません。` }[tab];
     const all = selectable && S.items.length ? `<label class="note lb-all"><input type="checkbox" data-lball${n && n === S.items.length ? ' checked' : ''}${dis}> すべて選ぶ</label>` : '';
     const html = `<div class="lk-box" role="dialog" aria-label="${esc(LIB_TABS.find((x) => x[0] === tab)[1])}"><div class="lk-hd"><b>${LIB_TABS.find((x) => x[0] === tab)[1]}</b><span class="note">${S.items.length && !S.loading ? S.items.length + ' 項目' : ''}</span><span class="sp"></span>${grid ? `<span class="seg lb-vw" title="表示のしかた">${[['list', tab === 'recent' ? '🌲 ツリー' : '☰ リスト'], ['thumb', '▤ サムネイル'], ['tile', '▦ タイル']].map(([k, l]) => `<button data-lbview="${k}" class="${lv === k ? 'on' : ''}">${l}</button>`).join('')}</span>${lv === 'list' && tab === 'recent' ? '<span class="seg"><button data-lbtall="open" title="すべて開く">⊞ 全展開</button><button data-lbtall="close" title="すべて閉じる">⊟ 全格納</button></span>' : ''}<button data-lbauto class="${libAuto() ? 'on' : ''}" title="プレビューで動画が終わったら、次の動画を続けて再生します">${libAuto() ? '✓ ' : ''}続けて再生</button>` : ''}${grid && lv === 'tile' ? `<span class="seg lb-sz" title="サムネイルの大きさ">${[['s', '小'], ['m', '中'], ['l', '大']].map(([k, l]) => `<button data-lbsz="${k}" class="${lsz === k ? 'on' : ''}">${l}</button>`).join('')}</span>` : ''}<button data-lbreload title="読み込み直す"${dis}>更新</button><button class="x" data-lbclose aria-label="閉じる">${IC.x}</button></div>
       <div class="lb-tabs">${tabs}</div>

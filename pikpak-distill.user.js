@@ -1290,6 +1290,10 @@
   #pd-add .lk-prog small{color:var(--mute);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   #pd-add .lk-prog .spin{width:14px;height:14px;border:2px solid var(--pri);border-right-color:transparent;border-radius:50%;animation:pdspin .8s linear infinite;flex:none}
   @keyframes pdspin{to{transform:rotate(360deg)}}
+  /* 項目が多くても一つ一つが縦に押しつぶされないように（一覧だけをスクロール） */
+  #pd-add .lk-list > *,#pd-unzip .lk-list > *,#pd-lib .lk-list > *{flex:none}
+  #pd-add .lk-box > :not(.lk-list),#pd-unzip .lk-box > :not(.lk-list){flex:none}
+  #pd-add .lk-list,#pd-unzip .lk-list{min-height:0}
   #pd-add .lk-done{margin:auto;max-width:560px;width:100%;display:flex;flex-direction:column;align-items:center;gap:8px;padding:24px;text-align:center}
   #pd-add .lk-done .ic{width:56px;height:56px;border-radius:50%;background:#e3f6ec;color:#17703f;font:800 28px/56px system-ui,sans-serif}
   html.pd-dark #pd-add .lk-done .ic{background:#17331f;color:#6fdc9a}

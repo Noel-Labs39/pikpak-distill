@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.3.4
+// @version      4.3.5
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.3.4'; // @version と合わせて更新する
+  const VER = '4.3.5'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1235,6 +1235,15 @@
   #ppdup .rail{overflow-y:auto;scrollbar-width:none}
   #ppdup .rail .rb{position:absolute;top:3px;right:6px;font-style:normal;font-size:10px;line-height:15px;min-width:15px;padding:0 4px;box-sizing:border-box;border-radius:99px;background:var(--pri);color:#fff}
   #ppdup .rail .rb:empty{display:none}
+  #ppdup .pd-rsban{display:flex;align-items:center;gap:12px;padding:10px 18px;background:#fff4dc;color:#5c3d00;border-bottom:1px solid #f0d9a6;font-size:13px}
+  #ppdup .pd-rsban[hidden]{display:none}
+  #ppdup .pd-rsban .ic{width:28px;height:28px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex:none}
+  #ppdup .pd-rsban .tx{flex:1;min-width:0;display:flex;flex-direction:column}
+  #ppdup .pd-rsban small{opacity:.8}
+  #ppdup .pd-rsban button{height:34px;padding:0 14px;border:1px solid #d9b56a;border-radius:17px;background:#fff;color:inherit;font:inherit;font-weight:700;cursor:pointer;white-space:nowrap}
+  #ppdup .pd-rsban button.pri{background:#306fff;border-color:#306fff;color:#fff}
+  html.pd-dark #ppdup .pd-rsban{background:#3a2c12;color:#f0d9a6;border-color:#5c4518}
+  html.pd-dark #ppdup .pd-rsban .ic,html.pd-dark #ppdup .pd-rsban button:not(.pri){background:#252932;border-color:#5c4518}
   #ppdup .pd-upd{display:flex;align-items:center;gap:12px;padding:8px 18px;background:#e8f0ff;color:#1c3d8f;border-bottom:1px solid #c6d6ff;font-size:13px}
   #ppdup .pd-upd[hidden]{display:none}
   #ppdup .pd-upd span{flex:1;min-width:0}
@@ -1769,6 +1778,7 @@
       <nav data-r="nav"></nav>
     </header>
     <div class="pd-upd" data-r="upd" hidden></div>
+    <div class="pd-rsban" data-r="rsban" hidden></div>
     <div class="pd-popban" data-r="popban"><span>PikPak の画面を Dedupe に切り替えて使うこともできます。一覧が広くなり、キー操作やドラッグも使いやすくなります。</span><button class="pri" data-a="tofull">全画面で開く</button><button data-a="fullnext">次から全画面で開く</button><button data-a="banclose">閉じる</button></div>
     <div class="tb" data-r="tb"></div>
     <div class="tsel" data-r="tsel"></div>
@@ -2307,7 +2317,7 @@
     const quick = [['tree', 'フォルダ一覧', '見る・再生'], ['lib:dl', '追加したもの', libBadge.dl ? libBadge.dl + ' 件 進行中' : '進み具合'], ['lib:recent', '最近の追加', '直近 7 日'], ['lib:hist', '再生履歴', '続きから'], ['lib:star', 'スター', 'スター付き'], ['lib:trash', 'ゴミ箱', quota ? fmtCap(quota.trash) : '中身を見る']];
     $('[data-r=main]').innerHTML = `<div class="db">
       <div class="db-hd"><h2>整理</h2><span class="db-chip on" title="読み込んだ場所">${esc(where)}</span><span class="sp"></span><span class="note">前回の読み込み：${esc(when)}（フォルダ ${meta.nfo.toLocaleString()} ／ ファイル ${meta.nfi.toLocaleString()}）</span></div>
-      ${staleH >= 6 ? `<div class="sv-stale">前回の読み込みから ${staleH >= 48 ? Math.floor(staleH / 24) + ' 日' : staleH + ' 時間'}たっています。PikPak で追加・削除したものは「読み込み直す」で反映されます。</div>` : ''}
+      ${staleH >= 6 && staleH < 24 ? `<div class="sv-stale">前回の読み込みから ${staleH >= 48 ? Math.floor(staleH / 24) + ' 日' : staleH + ' 時間'}たっています。PikPak で追加・削除したものは「読み込み直す」で反映されます。</div>` : ''}
       <div class="db-stats">${stat('使用量', qv[0], ' ' + (qv[1] || ''), quota && quota.limit > 0 ? `${fmtCap(quota.limit)} 中 ${Math.round(quota.usage / quota.limit * 100)}%` : '契約容量', 'pri')}${stat('ファイル', meta.nfi.toLocaleString(), ' 件', `フォルダ ${meta.nfo.toLocaleString()}`)}${stat('重複', String(c.dup || 0), ' 組', '同じ作品が複数')}${stat('残っている作業', String(todo), ' 件', done ? 'すべて完了' : nx ? 'おすすめ：' + esc(nx.t) : '')}</div>
       <div class="db-main">
         <div class="db-tasks">${WORK.map(card).join('')}</div>
@@ -2406,6 +2416,7 @@
     };
   }
   async function runScan() {
+    rsHide();
     if (busy) return;
     if (!ensureSession('scan')) return;
     busy = true; renderNav(); renderScan();
@@ -4462,6 +4473,8 @@
     if (a === 'tqs') { tree.qs = t.dataset.v; saveTree(); syncTqs(); if (view === 'tree') renderTree(); return; }
     if (a === 'toflow') { if (!busy) { if (view === 'tree') view = 'scan'; openFlow(); } return; }
     if (a === 'rescan') { if (!busy) askRescan(); return; }
+    if (a === 'rsgo') { rsHide(); if (!busy) { afterScan = view === 'scan' ? null : view; if (libSt) closeLib(); runScan(); } return; }
+    if (a === 'rslater') { const el = $('[data-r=rsban]'); if (el && el.dataset.why === 'stale') { try { sessionStorage.setItem(SS_RSLATER, new Date().toDateString()); } catch (err) { /* 無視 */ } } rsHide(); return; }
     if (a === 'addlink') { if (!busy || view !== 'tree') { const c = view === 'tree' ? treeBase() : currentFolderId(); openAdd(isHomeId(c) ? 'DL' : c); } return; }
     if (a === 'skick') { if (lookupSt.kick) { log('info', '販売者の調査：確認のあとの続きを手動で再開'); lookupSt.kick(); } return; }
     if (a === 'spause') { lookupSt.paused = !lookupSt.paused; refreshSellerChrome(); status(lookupSt.paused ? '販売者の調査を一時停止しています（「再開」で続けます）' : '販売者の調査を再開しました'); return; }
@@ -4543,7 +4556,7 @@
     else ['left', 'top', 'width', 'height'].forEach((k) => root.style.removeProperty(k));
   }
   function setWin(m) { winMode = m === 'full' ? 'full' : 'pop'; applyWin(); if (document.getElementById('pd-set')) renderSettings(); }
-  function showRoot() { if (!root.classList.contains('on')) winMode = isPhone() ? 'full' : openPref(); applyWin(); applyNav(); root.classList.add('on'); checkRotate(); checkUpdate(); libPeek(); setTimeout(() => { syncAsk(); if (Date.now() - syncAt > 60e3) syncNow('開いたとき'); }, 1500); }
+  function showRoot() { if (!root.classList.contains('on')) { winMode = isPhone() ? 'full' : openPref(); setTimeout(() => { if (meta && Date.now() - meta.at >= 864e5) rsAsk('stale'); }, 400); } applyWin(); applyNav(); root.classList.add('on'); checkRotate(); checkUpdate(); libPeek(); setTimeout(() => { syncAsk(); if (Date.now() - syncAt > 60e3) syncNow('開いたとき'); }, 1500); }
   // 見出しをつかんで移動
   root.addEventListener('mousedown', (e) => {
     if (winMode !== 'pop' || e.button !== 0 || !e.target.closest('.brand') || e.target.closest('button,input,select,label,a,.pd-quota,.seg')) return;
@@ -5898,7 +5911,20 @@
     renderAdd();
     d.querySelector('textarea').focus();
   }
-  function closeAdd() { const d = document.getElementById('pd-add'); if (d) d.remove(); addSt = null; }
+  function closeAdd() { const added = addSt && addSt.done && addSt.done.ok > 0; const d = document.getElementById('pd-add'); if (d) d.remove(); addSt = null; if (added) rsAsk('add'); }
+  // ---- 読み込み直すかの確認（自動では読み込まない：いつ読み込むかは人が決める） ----
+  //   ・リンクを追加したあと、メインの画面に戻ったとき
+  //   ・開いたときに、前回の読み込みから 1 日以上たっているとき（「あとで」を押したら、その日はもう出さない）
+  const SS_RSLATER = 'ppdup:rslater:v1';
+  function rsAsk(why) {
+    const el = $('[data-r=rsban]'); if (!el || busy || !hasScan()) return;
+    if (why === 'stale') { let l = ''; try { l = sessionStorage.getItem(SS_RSLATER) || ''; } catch (e) { /* 無視 */ } if (l === new Date().toDateString()) return; }
+    const days = meta ? Math.floor((Date.now() - meta.at) / 864e5) : 0;
+    el.dataset.why = why;
+    el.innerHTML = `<span class="ic">↻</span><span class="tx"><b>${why === 'add' ? '追加したものを一覧に反映するため、読み込み直しますか？' : `前回の読み込みから ${days} 日たっています。読み込み直しますか？`}</b><small>${why === 'add' ? 'すぐ保存した分は一覧に出ていますが、クラウドダウンロードの分や PikPak で変わった分は、読み込み直すと反映されます。' : 'PikPak で追加・削除・移動したものは、読み込み直すと整理やフォルダ一覧に反映されます。'}読み込み中は移動・削除などの操作ができません。</small></span><button class="pri" data-a="rsgo">読み込み直す</button><button data-a="rslater">あとで</button>`;
+    el.hidden = false;
+  }
+  function rsHide() { const el = $('[data-r=rsban]'); if (el) { el.hidden = true; el.innerHTML = ''; } }
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.getElementById('pd-add') && addSt && !addSt.busy) { e.preventDefault(); e.stopImmediatePropagation(); closeAdd(); } }, true);
   function onAddClick(e) {
     const b = e.target.closest('button'); if (!b || b.disabled) return;

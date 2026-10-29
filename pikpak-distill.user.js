@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.8.3
+// @version      4.8.4
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.8.3'; // @version と合わせて更新する
+  const VER = '4.8.4'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -3047,7 +3047,7 @@
       // 開いていたフォルダが消えた・移動した（まとめた・ゴミ箱へ移したなど）ときは、ホームを読み込む
       if (trail.length && trail[trail.length - 1] !== 'root') {
         const chk = await api('/files/' + trail[trail.length - 1], { raw: true });
-        if (!chk.ok || (chk.data && chk.data.trashed)) { trail = ['root']; status('開いていたフォルダが見つからないため、ホームを読み込みます'); log('warn', '開いていたフォルダが見つからないため、ホームを読み込みました', 'scan'); }
+        if (!chk.ok || (chk.data && chk.data.trashed)) { const trail0 = trail[trail.length - 1]; trail = ['root']; status('開いていたフォルダが見つからないため、ホームを読み込みます'); log('warn', `開いていたフォルダが見つからないため、ホームを読み込みました（${chk.ok ? 'ゴミ箱の中' : 'HTTP ' + chk.status}・URL の最後「${trail0}」・ページ ${location.pathname}）`, 'scan'); }
       }
       const eta = scanEta(trail);
       const r = await scanApi(trail, { onProgress: (d, total, n) => { const e = eta.tick(d, total); status(`読み込み中… フォルダ ${d} / ${e.expectedLabel} ／ ファイル ${n} 件`, e.frac, e.text); } });
@@ -4680,7 +4680,10 @@
     const sf = fileById(id) || (libItem(id) || {});
     mediaPut(id, { name: name || sf.name || (mediaGet(id) || {}).name || id, size: +sf.size || (mediaGet(id) || {}).size || 0, thumb: sf.thumb || (mediaGet(id) || {}).thumb || '', at: new Date().toISOString() }, true);
   }
+  let extLast = { id: '', t: 0 };
   async function openExternal(id, ext, name) {
+    if (extLast.id === id && Date.now() - extLast.t < 1500) return;
+    extLast = { id, t: Date.now() };
     const f = fileById(id) || (name ? { name } : null); if (!f) return;
     ext = ext || playPref().ext;
     if (!ensureSession('tree')) return;
@@ -6608,7 +6611,8 @@
         if (old.length) await api('/files:batchDelete', { method: 'POST', body: JSON.stringify({ ids: old }) }).catch(() => {});
       }
       saveSyncCfg({ last: Date.now(), err: '' }); syncAt = Date.now();
-      log('info', `PikPak で同期（${why}${changed.length ? `・取り込み ${changed.length} 項目` : ''}${same ? '' : '・保存'}）`);
+      // 変化がなかったとき（10 分ごとの確認など）はログに残さない（ログが読みにくくなるため）
+      if (changed.length || !same) log('info', `PikPak で同期（${why}${changed.length ? `・取り込み ${changed.length} 項目` : ''}${same ? '' : '・保存'}）`);
       return true;
     } catch (e) {
       if (e.session) { syncBusy = false; return false; }

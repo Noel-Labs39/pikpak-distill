@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.4.2
+// @version      4.4.3
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.4.2'; // @version と合わせて更新する
+  const VER = '4.4.3'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1690,6 +1690,21 @@
   #ppdup.navmin .rail .rl-acct,#ppdup.pop .rail .rl-acct{border:0!important;padding:6px!important}
   #ppdup.navmin .rail .rl-acct span,#ppdup.pop .rail .rl-acct span{display:none!important}
   #ppdup.pop [data-a=navtoggle]{display:none}
+  /* 隠す */
+  #ppdup.navhide:not(.pop):not(.narrow){padding-left:0}
+  #ppdup.navhide:not(.pop):not(.narrow) .rail{display:none}
+  /* ドラッグ中は幅を指で追う */
+  #ppdup.navdrag:not(.pop):not(.narrow){padding-left:var(--navw)!important}
+  #ppdup.navdrag:not(.pop):not(.narrow) .rail{display:flex!important;width:var(--navw)!important;overflow:hidden}
+  #ppdup.navdrag{user-select:none;cursor:ew-resize}
+  /* つまみ（デリログの引き出しと同じ考え方。縦の短い線） */
+  #ppdup .rl-grip{position:absolute;top:50%;left:236px;transform:translate(-50%,-50%);z-index:7;width:18px;height:64px;padding:0;border:1px solid var(--line);border-radius:10px;background:var(--panel);box-shadow:0 2px 8px #0003;cursor:ew-resize;display:flex;align-items:center;justify-content:center;touch-action:none}
+  #ppdup .rl-grip i{width:4px;height:34px;border-radius:2px;background:var(--mute);opacity:.7}
+  #ppdup .rl-grip:hover i{background:var(--pri);opacity:1}
+  #ppdup.navmin .rl-grip{left:78px}
+  #ppdup.navhide .rl-grip{left:0;transform:translate(0,-50%);border-left:0;border-radius:0 10px 10px 0;width:16px}
+  #ppdup.navdrag .rl-grip{left:var(--navw)}
+  #ppdup.pop .rl-grip,#ppdup.narrow .rl-grip{display:none}
   #ppdup.pop header .thm,#ppdup.pop header .hbtn[data-a=lang],#ppdup.pop .hbtn.hacct > span,#ppdup.pop header .wbtn-full > span{display:none!important}
   #ppdup.pop .hbtn.hacct{padding:0 5px!important}
   /* 狭い画面・スマホ：左メニューは ☰ で右から出す */
@@ -2211,12 +2226,24 @@
   // 左メニュー：広い表示／アイコンだけ（PC）、右から出す（スマホ・狭い画面）
   const LS_NAVMIN = 'ppdup:navmin:v1';
   const narrowUI = () => innerWidth < 760 || root.classList.contains('phone');
-  function applyNav() {
-    let mn = false; try { mn = localStorage.getItem(LS_NAVMIN) === '1'; } catch (e) { /* 無視 */ }
-    root.classList.toggle('navmin', mn); root.classList.toggle('narrow', narrowUI());
-    const b = root.querySelector('[data-a=navtoggle]');
-    if (b) b.title = narrowUI() ? 'メニューを開く・閉じる' : mn ? '左のメニューを広げる（いまはアイコンだけ）' : '左のメニューをアイコンだけにする（いまは広い表示）';
+  // 3 段階：wide＝広い表示／min＝アイコンだけ／hide＝隠す（右のふちのつまみで引き出す・しまう）
+  const LS_NAV = 'ppdup:nav:v1';
+  const NAV_W = { wide: 236, min: 78, hide: 0 };
+  function navState() {
+    let v = null; try { v = localStorage.getItem(LS_NAV); if (!v) v = localStorage.getItem(LS_NAVMIN) === '1' ? 'min' : 'wide'; } catch (e) { v = 'wide'; }
+    return NAV_W[v] != null ? v : 'wide';
   }
+  function setNav(v) { try { localStorage.setItem(LS_NAV, v); if (v !== 'hide') localStorage.setItem('ppdup:navlast:v1', v); } catch (e) { /* 無視 */ } applyNav(); }
+  const navLast = () => { try { const v = localStorage.getItem('ppdup:navlast:v1'); return v === 'min' ? 'min' : 'wide'; } catch (e) { return 'wide'; } };
+  function applyNav() {
+    const st = navState();
+    root.classList.toggle('navmin', st === 'min'); root.classList.toggle('navhide', st === 'hide'); root.classList.toggle('narrow', narrowUI());
+    const b = root.querySelector('[data-a=navtoggle]');
+    if (b) b.title = narrowUI() ? 'メニューを開く・閉じる' : st === 'hide' ? '左のメニューを出す' : st === 'min' ? '左のメニューを広げる（いまはアイコンだけ）' : '左のメニューをアイコンだけにする（いまは広い表示）';
+    const g = root.querySelector('.rl-grip');
+    if (g) g.title = st === 'hide' ? '左のメニューを引き出す（右へドラッグ・押す）' : '左のメニューをしまう（左へドラッグ・押す）。右へドラッグで広げる';
+  }
+
   // ---- マウスを乗せたときの説明（アイコンだけのボタン・アイコンだけの左メニュー） ----
   //   ブラウザ標準の title は出るまで時間がかかり気づきにくいため、すぐ出す吹き出しにする
   const tipEl = document.createElement('div'); tipEl.id = 'pd-tip'; tipEl.hidden = true; document.body.appendChild(tipEl);
@@ -2229,7 +2256,8 @@
     const nm = b.querySelector('span') ? b.querySelector('span').textContent.trim() : '';
     return nm && t && !t.startsWith(nm) ? `${nm}：${t}` : t || nm;
   };
-  const tipHide = () => { if (tipBtn && tipBtn.dataset.ttl != null) { tipBtn.setAttribute('title', tipBtn.dataset.ttl); delete tipBtn.dataset.ttl; } tipBtn = null; tipEl.hidden = true; };
+  // 表示中に説明が書き換わった（状態が変わった）ときは、新しい方を残す
+  const tipHide = () => { if (tipBtn && tipBtn.dataset.ttl != null) { if (!tipBtn.hasAttribute('title')) tipBtn.setAttribute('title', tipBtn.dataset.ttl); delete tipBtn.dataset.ttl; } tipBtn = null; tipEl.hidden = true; };
   document.addEventListener('mouseover', (e) => {
     const b = e.target.closest && e.target.closest('button');
     if (b === tipBtn) return; tipHide();
@@ -2247,8 +2275,31 @@
   addEventListener('scroll', tipHide, true);
   function toggleNav() {
     if (narrowUI()) { root.classList.toggle('navopen'); return; }
-    const mn = !root.classList.contains('navmin'); try { localStorage.setItem(LS_NAVMIN, mn ? '1' : '0'); } catch (e) { /* 無視 */ } applyNav();
+    const st = navState(); setNav(st === 'hide' ? navLast() : st === 'min' ? 'wide' : 'min');
   }
+  // ---- つまみ：左メニューの右のふち。ドラッグで引き出す・しまう（離した位置に近い段階にそろえる）。押すと しまう ⇔ 出す ----
+  const grip = document.createElement('button'); grip.className = 'rl-grip'; grip.setAttribute('aria-label', '左のメニューを引き出す・しまう'); grip.innerHTML = '<i></i>';
+  root.appendChild(grip);
+  grip.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return; e.preventDefault();
+    const x0 = e.clientX, w0 = NAV_W[navState()]; let moved = false;
+    try { grip.setPointerCapture(e.pointerId); } catch (er) { /* 無視 */ }
+    root.classList.add('navdrag');
+    const mv = (ev) => {
+      const dx = ev.clientX - x0; if (Math.abs(dx) > 4) moved = true; if (!moved) return;
+      const w = Math.max(0, Math.min(NAV_W.wide, w0 + dx));
+      root.style.setProperty('--navw', w + 'px'); root.classList.toggle('navmin', w < 160 && w > 0); root.classList.remove('navhide');
+    };
+    const up = () => {
+      grip.removeEventListener('pointermove', mv); grip.removeEventListener('pointerup', up); grip.removeEventListener('pointercancel', up);
+      root.classList.remove('navdrag');
+      const cur = parseFloat(root.style.getPropertyValue('--navw')); root.style.removeProperty('--navw');
+      if (!moved) { setNav(navState() === 'hide' ? navLast() : 'hide'); return; }
+      const near = Object.keys(NAV_W).sort((a, b2) => Math.abs(NAV_W[a] - cur) - Math.abs(NAV_W[b2] - cur))[0];
+      setNav(near);
+    };
+    grip.addEventListener('pointermove', mv); grip.addEventListener('pointerup', up); grip.addEventListener('pointercancel', up);
+  });
   addEventListener('resize', () => { applyNav(); if (!narrowUI()) root.classList.remove('navopen'); });
   root.addEventListener('click', (e) => { if (root.classList.contains('navopen') && (e.target === root || e.target.closest('.rail button'))) setTimeout(() => root.classList.remove('navopen'), 0); });
   function renderNav() {

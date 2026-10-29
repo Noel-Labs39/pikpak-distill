@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.8.5
+// @version      4.8.7
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.8.5'; // @version と合わせて更新する
+  const VER = '4.8.7'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1179,6 +1179,7 @@
   html.pd-dark .sv-stale{background:#3a2c12;color:#f0c46c}
   .qp-stage{position:relative;overflow:hidden;width:100%;touch-action:pan-x pan-y;cursor:pointer}
   .qp-stage.qp-zoomed{touch-action:none;cursor:grab}
+  .qp-zhint{position:absolute;left:12px;bottom:12px;z-index:3;padding:5px 10px;border-radius:8px;background:rgba(0,0,0,.6);color:#fff;font-size:12px;pointer-events:none;opacity:0;transition:opacity .4s}.qp-zhint.on{opacity:.9}
   .qp-stage video{transform-origin:0 0;will-change:transform}
   #pd-lib .lb-pvv .qp-stage{height:100%;display:flex;align-items:center}
   .qp-osd{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:8px 16px;border-radius:10px;background:#000b;color:#fff;font:700 16px system-ui,sans-serif;pointer-events:none;z-index:4;white-space:nowrap}
@@ -5607,7 +5608,25 @@
       P.tx = px - (px - P.tx) * nz / P.z; P.ty = py - (py - P.ty) * nz / P.z; P.z = nz;
       if (nz <= 1.001) { P.z = 1; P.tx = 0; P.ty = 0; }
       apply(); if (show) flash('🔍 ' + Math.round(P.z * 100) + '%');
+      if (P.z > 1.001) { zHintDone(); hideZHint(); }
     };
+    // ---- 拡大縮小の案内（最初の 3 回だけ・3 秒で消える・一度使えばもう出さない） ----
+    const ZH_KEY = 'ppdup:zoomhint:v1';
+    const zh = (() => { try { return JSON.parse(localStorage.getItem(ZH_KEY)) || { n: 0, used: false }; } catch (e) { return { n: 0, used: false }; } })();
+    const zSave = () => { try { localStorage.setItem(ZH_KEY, JSON.stringify(zh)); } catch (e) { /* 無視 */ } };
+    const zHintDone = () => { if (!zh.used) { zh.used = true; zSave(); } };
+    let zhEl = null, zhT = 0;
+    const hideZHint = () => { clearTimeout(zhT); if (zhEl) { const el = zhEl; zhEl = null; el.classList.remove('on'); setTimeout(() => el.remove(), 450); } };
+    if (!zh.used && zh.n < 3) {
+      zh.n++; zSave();
+      const wz = qpCfg().wheel === 'zoom';
+      zhEl = document.createElement('div'); zhEl.className = 'qp-zhint';
+      zhEl.textContent = `🔍 ピンチ・${wz ? 'ホイール' : 'Ctrl＋ホイール'}で拡大縮小（ダブルクリック・R で元に戻す）`;
+      stage.appendChild(zhEl); requestAnimationFrame(() => zhEl && zhEl.classList.add('on'));
+      zhT = setTimeout(hideZHint, 3000);
+      ['pointerdown', 'keydown'].forEach((t) => stage.addEventListener(t, hideZHint, { once: true }));
+      v.addEventListener('play', () => { if (v.currentTime > 0.5) hideZHint(); });
+    }
     P.zoomAt = zoomAt; P.zoomReset = () => { zoomAt(1, 0, 0, false); flash('🔍 100%'); };
     const local = (e) => { const r = stage.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
     P.lastXY = null;

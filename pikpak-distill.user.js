@@ -1709,7 +1709,7 @@
   #ppdup.navmin .rail .rl-acct span,#ppdup.pop .rail .rl-acct span{display:none!important}
   #ppdup.pop [data-a=navtoggle]{display:none}
   /* 隠す */
-  #ppdup.navhide:not(.pop):not(.narrow){padding-left:0}
+  #ppdup.navhide:not(.pop):not(.narrow){padding-left:18px}
   #ppdup.navhide:not(.pop):not(.narrow) .rail{display:none}
   /* ドラッグ中は幅を指で追う */
   #ppdup.navdrag:not(.pop):not(.narrow){padding-left:var(--navw)!important}
@@ -1723,6 +1723,8 @@
   #ppdup.navhide .rl-grip{left:0;transform:translate(0,-50%);border-left:0;border-radius:0 10px 10px 0;width:16px}
   #ppdup.navdrag .rl-grip{left:var(--navw)}
   #ppdup.pop .rl-grip,#ppdup.narrow .rl-grip{display:none}
+  /* PC では引き出しのつまみで出し入れするので ☰ は出さない（スマホ・狭い画面では ☰ でメニューを開く） */
+  #ppdup:not(.narrow) [data-a=navtoggle]{display:none}
   #ppdup.pop header .thm,#ppdup.pop header .hbtn[data-a=lang],#ppdup.pop .hbtn.hacct > span,#ppdup.pop header .wbtn-full > span{display:none!important}
   #ppdup.pop .hbtn.hacct{padding:0 5px!important}
   /* 狭い画面・スマホ：左メニューは ☰ で右から出す */

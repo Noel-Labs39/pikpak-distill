@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.6.0
+// @version      4.6.1
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.6.0'; // @version と合わせて更新する
+  const VER = '4.6.1'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1424,6 +1424,41 @@
   .pd-colmenu label{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer}
   .pd-colmenu label:hover{background:var(--panel2)}
   .pd-colmenu small{color:var(--mute);padding:4px 8px}
+  /* ---- 下の引き出し（スマホ・狭い画面） ---- */
+  #ppdup .pd-sheet{display:none}
+  #ppdup.narrow .pd-sheet{display:flex;flex-direction:column;position:absolute;left:0;right:0;bottom:0;z-index:8;background:var(--panel);border-radius:22px 22px 0 0;box-shadow:0 -8px 28px #0006;padding:0 12px calc(12px + env(safe-area-inset-bottom));transform:translateY(var(--shdy,0px));transition:max-height .22s ease;max-height:150px}
+  #ppdup.narrow .pd-sheet[data-st="1"]{max-height:min(460px,72vh)}
+  #ppdup.narrow .pd-sheet[data-st="2"]{max-height:88vh}
+  #ppdup .pd-sheet .sh-h{flex:none;display:flex;justify-content:center;align-items:center;height:22px;width:100%;border:0;background:none;padding:0;cursor:grab;touch-action:none}
+  #ppdup .pd-sheet .sh-h i{width:44px;height:5px;border-radius:3px;background:var(--mute);opacity:.6}
+  #ppdup .pd-sheet .sh-b{flex:none;display:flex;gap:8px;padding:2px 0 8px}
+  #ppdup .pd-sheet .sh-b button{flex:1 1 0;min-width:0;height:46px;border-radius:14px;border:1px solid var(--line);background:var(--panel2);color:var(--fg);font:inherit;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;overflow:hidden}
+  #ppdup .pd-sheet .sh-b button span{overflow:hidden;text-overflow:ellipsis}
+  #ppdup .pd-sheet .sh-b button.pri{background:var(--pri);border-color:var(--pri);color:#fff;flex-grow:2}
+  #ppdup .pd-sheet .sh-b button.sub{flex:0 0 auto;padding:0 14px}
+  #ppdup .pd-sheet button:disabled{opacity:.45}
+  #ppdup .pd-sheet .sh-in{flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;display:none}
+  #ppdup .pd-sheet:not([data-st="0"]) .sh-in{display:block}
+  #ppdup .pd-sheet .sh-m{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:6px 0 10px}
+  #ppdup .pd-sheet .sh-m button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 2px;border-radius:12px;border:0;background:var(--panel2);color:var(--fg);font:inherit;font-size:11px;font-weight:700;min-width:0}
+  #ppdup .pd-sheet .sh-m button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #ppdup .pd-sheet .sh-m button svg{width:22px;height:22px}
+  #ppdup .pd-sheet svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  #ppdup.narrow #pd-lib .lb-note{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  #ppdup .pd-sheet .sh-m button.on{background:var(--pri-soft);color:var(--pri)}
+  #ppdup .pd-sheet .sh-x{display:none;padding-bottom:8px}
+  #ppdup .pd-sheet[data-st="2"] .sh-x{display:block}
+  #ppdup .pd-sheet .sh-x > b{display:block;font-size:12px;color:var(--mute);margin:6px 2px}
+  #ppdup .pd-sheet .sh-x > div{display:flex;flex-wrap:wrap;gap:6px}
+  #ppdup .pd-sheet .sh-x button{height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--fg);font:inherit;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  #ppdup .pd-sheet .sh-x button.on{background:var(--pri);border-color:var(--pri);color:#fff}
+  #ppdup .pd-sheet .sh-x button.red{color:#e05a5a}
+  #ppdup .pd-sheet .sh-x button svg{width:18px;height:18px}
+  /* 引き出しに移したものは、元の場所では出さない */
+  #ppdup.narrow [data-a=navtoggle],#ppdup.narrow .sv-dock,#ppdup.narrow [data-r=tsel],#ppdup.narrow [data-r=tb] .seg,#ppdup.narrow #pd-lib .lk-ft,#ppdup.narrow #pd-lib .lk-hd > button:not(.x),#ppdup.narrow #pd-lib .lk-hd > .seg,#ppdup.narrow #pd-lib .lk-hd .seg{display:none!important}
+  #ppdup.narrow main,#ppdup.narrow #pd-lib .lk-list{padding-bottom:120px!important}
+  #ppdup.narrow .prog{margin-bottom:0}
+
   /* 文字が 1 文字ずつ縦に折り返さないように（ロゴ・切り替え・ボタンは 1 行のまま） */
   #ppdup .wm,#ppdup .wm *,#ppdup .seg button,#ppdup .hbtn,#ppdup [data-r=tb] button{white-space:nowrap}
   #ppdup .brand h1.wm{flex:none}
@@ -2232,6 +2267,76 @@
   }
   const UNIT_OF = { junk: '件', name: '件', sort: '作品', ren: '件', dup: '組', clean: '件', seller: '作品' };
   const WORK = ['junk', 'name', 'sort', 'ren', 'dup', 'clean', 'seller'];
+
+  // ---------- スマホ・狭い画面：下の引き出し（デリログと同じ考え方） ----------
+  //   0＝閉じる（今の画面でよく使う 2 つだけ）／1＝半分（メニュー）／2＝全部（今の画面の詳しい操作）
+  //   ボタンは画面にある本物のボタンを押す「代わり」。動きは本物と同じ（作り直さない）
+  const sheet = document.createElement('div'); sheet.className = 'pd-sheet'; sheet.dataset.st = '0';
+  sheet.innerHTML = '<button class="sh-h" title="引き出す・しまう（上下にドラッグ・押す）" aria-label="引き出す・しまう"><i></i></button><div class="sh-b"></div><div class="sh-in"><div class="sh-m"></div><div class="sh-x"></div></div>';
+  root.appendChild(sheet);
+  let shRefs = [], shT = null;
+  const shOn = () => root.classList.contains('narrow') && root.classList.contains('on');
+  const shSet = (n) => { sheet.dataset.st = String(Math.max(0, Math.min(2, n))); };
+  const shBtn = (el, cls) => {
+    if (!el) return '';
+    const i = shRefs.push(el) - 1;
+    const SHORT = { lbpv: '▶ プレビュー', lbext: '↗ 外部プレーヤー' };
+    const sk = Object.keys(SHORT).find((k) => el.dataset[k] !== undefined);
+    const tx = sk ? SHORT[sk] : (el.querySelector('span:not(.rb)') || el).textContent.replace(/\s+/g, ' ').trim();
+    const ic = el.querySelector('svg') ? el.querySelector('svg').outerHTML : '';
+    return `<button data-shref="${i}" class="${cls || ''}${el.classList.contains('pri') ? ' pri' : ''}${el.classList.contains('on') ? ' on' : ''}${el.classList.contains('red') || el.classList.contains('dng') ? ' red' : ''}"${el.disabled ? ' disabled' : ''} title="${esc(el.getAttribute('title') || el.dataset.ttl || tx)}">${ic}<span>${esc(tx)}</span></button>`;
+  };
+  function renderSheet() {
+    if (!shOn()) return;
+    shRefs = [];
+    const lib = document.getElementById('pd-lib');
+    const all = (sel, scope) => [...(scope || root).querySelectorAll(sel)].filter((b) => !b.closest('.pd-sheet'));
+    let prim = [], ctx = [];
+    if (lib && libSt) {
+      prim = [lib.querySelector('[data-lbpv]'), lib.querySelector('[data-lbext]')];
+      ctx = [...all('.lk-hd button:not(.x)', lib), ...all('.lk-ft button:not([data-lbpv]):not([data-lbext])', lib)];
+    } else if (view === 'tree') {
+      const play = root.querySelector('[data-r=tsel] [data-ta=play]');
+      prim = [play || null];
+      if (!play) prim = [];
+      ctx = [...all('[data-r=tb] button').filter((x) => !x.closest('.tr-path')), ...all('[data-r=tsel] button:not([data-ta=play])')];
+    } else {
+      const dk = all('.sv-dock .dk-b button').sort((x, y) => (y.classList.contains('pri') - x.classList.contains('pri')) || ((y.dataset.a === 'rescan') - (x.dataset.a === 'rescan')));
+      prim = dk.slice(0, 2); ctx = dk.slice(2);
+    }
+    prim = prim.filter(Boolean);
+    const b = sheet.querySelector('.sh-b');
+    b.innerHTML = (prim.length ? prim.map((x) => shBtn(x, 'p')).join('') : view === 'tree' && !(lib && libSt) ? '<button class="p" disabled title="一覧で動画を選ぶと再生できます"><span>▶ 再生（動画を選ぶ）</span></button>' : '') + (ctx.length ? `<button class="p sub" data-shmore title="今の画面の操作をすべて出す"><span>⋯ 操作</span></button>` : '');
+    // メニュー：左メニューと同じ項目
+    const rail = [...root.querySelectorAll('.rail > button:not(.rl-acct)')];
+    sheet.querySelector('.sh-m').innerHTML = rail.map((x) => shBtn(x, 'm')).join('');
+    sheet.querySelector('.sh-x').innerHTML = ctx.length ? `<b>この画面の操作</b><div>${ctx.map((x) => shBtn(x, 'x')).join('')}</div>` : '';
+    if (LANG === 'en') sheet.querySelectorAll('*').forEach(trNode);
+  }
+  const shQueue = () => { clearTimeout(shT); shT = setTimeout(() => { try { renderSheet(); } catch (e) { /* 初期化の途中 */ } }, 60); };
+  new MutationObserver((ms) => { if (!shOn()) return; if (ms.every((m) => sheet.contains(m.target))) return; shQueue(); }).observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled', 'class'] });
+  sheet.addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b || b.disabled) return;
+    if (b.classList.contains('sh-h')) { if (!sheet._dragged) shSet(sheet.dataset.st === '0' ? 1 : 0); sheet._dragged = false; return; }
+    if (b.dataset.shmore !== undefined) { shSet(+sheet.dataset.st === 2 ? 0 : 2); return; }
+    const el = shRefs[+b.dataset.shref]; if (!el || !el.isConnected) { renderSheet(); return; }
+    el.click();
+    if (b.classList.contains('m') || b.classList.contains('x')) shSet(0);
+  });
+  // つまみを上下にドラッグ：上で引き出す・下でしまう
+  sheet.querySelector('.sh-h').addEventListener('pointerdown', (e) => {
+    const y0 = e.clientY, st0 = +sheet.dataset.st; sheet._dragged = false;
+    const h = sheet.querySelector('.sh-h'); try { h.setPointerCapture(e.pointerId); } catch (er) { /* 無視 */ }
+    const mv = (ev) => { const dy = ev.clientY - y0; if (Math.abs(dy) > 8) sheet._dragged = true; sheet.style.setProperty('--shdy', Math.max(-60, Math.min(60, dy)) + 'px'); };
+    const up = (ev) => {
+      h.removeEventListener('pointermove', mv); h.removeEventListener('pointerup', up); h.removeEventListener('pointercancel', up);
+      sheet.style.removeProperty('--shdy');
+      const dy = ev.clientY - y0; if (sheet._dragged) shSet(st0 + (dy < -40 ? (dy < -220 ? 2 : 1) : dy > 40 ? (dy > 220 ? -2 : -1) : 0));
+    };
+    h.addEventListener('pointermove', mv); h.addEventListener('pointerup', up); h.addEventListener('pointercancel', up);
+  });
+  // 引き出しの外（一覧など）を押したら閉じる
+  root.addEventListener('pointerdown', (e) => { if (sheet.dataset.st !== '0' && !sheet.contains(e.target)) shSet(0); }, true);
   function renderRail() {
     root.querySelectorAll('.rail [data-rail]').forEach((b) => {
       const k = b.dataset.rail;

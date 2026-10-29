@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.4.1
+// @version      4.4.2
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.4.1'; // @version と合わせて更新する
+  const VER = '4.4.2'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1142,7 +1142,23 @@
   .qp-note button{font:inherit;font-weight:700;padding:3px 10px;border-radius:7px;border:0;background:#306fff;color:#fff;cursor:pointer}
   .qp-hold{position:absolute;left:50%;top:16px;transform:translateX(-50%);padding:6px 16px;border-radius:999px;background:#000b;color:#fff;font:700 15px system-ui,sans-serif;pointer-events:none;z-index:5}
   .qp-hold[hidden]{display:none}
-  .qp-ctl button[data-qp=ab].on{background:#f5a624;color:#111}
+  .qp-ctl button[data-qp=ab].on{background:#f5a624!important;color:#111!important}
+  .qp-ctl button[data-qp=scene].on{background:#306fff!important}
+  .qp-ctl button[data-qp=sklist]{background:#f5a62433!important;color:#f5c46a!important;font-size:12px}
+  .qp-ctl button[data-qp=sklist][hidden]{display:none}
+  .qp-ctl button svg.ic,.pl-h button svg.ic,.ql-h button svg.ic,.ql-acts button svg.ic,.qp-scn-h button svg.ic{width:20px;height:20px;display:block;flex:none}
+  .pl-h button:has(> svg.ic:only-child),.ql-h button:has(> svg.ic:only-child),.ql-acts button:has(> svg.ic:only-child){min-width:34px;display:inline-flex;align-items:center;justify-content:center}
+  .pd-sk > .sktr i.skt{width:2px;background:#ffffffb0;z-index:3}
+  .qp-scn{position:absolute;right:0;top:0;bottom:0;width:min(210px,40%);display:flex;flex-direction:column;background:#0d0f14e6;border-left:1px solid #ffffff1a;z-index:6;cursor:default;font:12px system-ui,sans-serif;color:#dfe2ea}
+  .qp-scn-h{display:flex;align-items:center;gap:8px;padding:8px 10px;flex:none}
+  .qp-scn-h small{color:#8b91a1;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .qp-scn-h button{border:0;background:transparent;color:#dfe2ea;cursor:pointer;font-size:13px}
+  .qp-scn-l{flex:1;min-height:0;overflow:auto;padding:0 8px 8px;display:flex;flex-direction:column;gap:6px;overscroll-behavior:contain}
+  .qp-scn-l button{display:flex;flex-direction:column;gap:3px;height:auto!important;min-height:0;width:100%;padding:4px;border-radius:8px;border:2px solid transparent;background:transparent;color:inherit;cursor:pointer;text-align:left;font:inherit;flex:none}
+  .qp-scn-l button:hover{background:#ffffff14}
+  .qp-scn-l button.cur{border-color:#306fff}
+  .qp-scn-l .im{width:100%;height:auto;flex:none;display:flex;align-items:center;justify-content:center;aspect-ratio:16/9;border-radius:6px;overflow:hidden;background:#1c212b;color:#6a7080}
+  .qp-scn-l .im canvas{width:100%;height:100%;object-fit:cover;display:block}
   .pd-sk .tip{position:absolute;bottom:24px;width:210px;padding:4px;box-sizing:border-box;background:#000;border:2px solid #fff;border-radius:8px;box-shadow:0 6px 18px #000a;pointer-events:none;z-index:5;text-align:center}
   .pd-sk .tip[hidden]{display:none}
   .pd-sk .tip canvas{display:block;width:100%;height:auto;border-radius:4px}
@@ -1216,6 +1232,9 @@
   #pd-lib .lb-th{position:relative;aspect-ratio:16/9;background:var(--panel2);display:flex;align-items:center;justify-content:center}
   #pd-lib .lb-th img{width:100%;height:100%;object-fit:cover;display:block}
   #pd-lib .lb-th .ph svg{width:34px;height:42px}
+  #pd-lib .lb-prog{position:absolute;left:0;bottom:0;height:4px;background:#306fff;z-index:1}
+  #pd-lib .lb-prog.done{background:#8b91a1}
+  #pd-lib .lb-li .th .lb-prog{height:3px}
   #pd-lib .lb-th .lb-play{position:absolute;right:6px;bottom:6px;font-size:10px;padding:2px 6px;border-radius:6px;background:#000a;color:#fff}
   #pd-lib .lb-th input{position:absolute;left:6px;top:6px;width:18px;height:18px;margin:0}
   #pd-lib .lb-ct{padding:7px 9px;display:flex;flex-direction:column;gap:2px;min-width:0}
@@ -1659,7 +1678,15 @@
   #ppdup.navmin:not(.pop):not(.narrow) .rail > button:not(.rl-sub):not(.rl-acct){width:56px;flex-direction:column;justify-content:center;padding:10px 0;font-size:0}
   #ppdup.navmin:not(.pop):not(.narrow) .rail > button span{display:none}
   #ppdup.navmin:not(.pop):not(.narrow) .rail .rb{position:absolute;top:3px;right:4px;font-size:10px;line-height:15px;min-width:15px;padding:0 4px}
-  #ppdup.navmin .rail .rl-sub,#ppdup.navmin .rail .rl-sep,#ppdup.pop .rail .rl-sub,#ppdup.pop .rail .rl-sep{display:none!important}
+  #ppdup .rail .rl-sub{gap:10px;align-items:center}
+  #ppdup .rail .rl-sub svg{width:18px!important;height:18px!important;flex:none}
+  /* アイコンだけの表示でも、ログ・書き出し・更新履歴をアイコンで出す（名前はマウスを乗せると出る） */
+  #ppdup.navmin:not(.pop):not(.narrow) .rail .rl-sub{width:56px!important;justify-content:center;padding:9px 0!important}
+  #ppdup.navmin:not(.pop):not(.narrow) .rail .rl-sub span{display:none}
+  #ppdup.pop .rail .rl-sub,#ppdup.pop .rail .rl-sep{display:none!important}
+  /* マウスを乗せたときの説明（アイコンだけのボタン用。すぐ出る） */
+  #pd-tip{position:fixed;z-index:2147483647;max-width:280px;padding:6px 10px;border-radius:8px;background:#11141a;color:#fff;font:600 12px/1.45 system-ui,-apple-system,'Hiragino Sans',sans-serif;box-shadow:0 6px 18px #0006;pointer-events:none;white-space:normal}
+  #pd-tip[hidden]{display:none}
   #ppdup.navmin .rail .rl-acct,#ppdup.pop .rail .rl-acct{border:0!important;padding:6px!important}
   #ppdup.navmin .rail .rl-acct span,#ppdup.pop .rail .rl-acct span{display:none!important}
   #ppdup.pop [data-a=navtoggle]{display:none}
@@ -1775,13 +1802,23 @@
   ];
 
   // 線のアイコン（currentColor で色を合わせる）
-  const SVG = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+  // ---- 共通のアイコン部品 ----
+  //   決まり：アイコンは文字（⚙ ✕ ⛶ など）ではなくこの IC の絵を使う（端末のフォントで小さく潰れるため）。
+  //           アイコンだけのボタンには必ず title（マウスを乗せたときの説明）を付ける。大きさは 20px が基本
+  const SVG = (d) => `<svg class="ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
   const IC = {
     gear: SVG('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'),
     sun: SVG('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'),
     moon: SVG('<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>'),
     globe: SVG('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9M12 3C9.5 5.6 8.2 8.6 8.2 12s1.3 6.4 3.8 9"/>'),
     x: SVG('<path d="M6 6l12 12M18 6L6 18"/>'),
+    play: SVG('<path d="M7 4.5v15l12-7.5z" fill="currentColor"/>'),
+    pause: SVG('<path d="M7 4.5h3.5v15H7zM13.5 4.5H17v15h-3.5z" fill="currentColor" stroke="none"/>'),
+    prev: SVG('<path d="M6 5v14"/><path d="M19 5.5v13L9 12z" fill="currentColor"/>'),
+    next: SVG('<path d="M18 5v14"/><path d="M5 5.5v13L15 12z" fill="currentColor"/>'),
+    vol: SVG('<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>'),
+    mute: SVG('<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M16 9.5l5 5M21 9.5l-5 5"/>'),
+    full: SVG('<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>'),
     search: SVG('<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>'),
     up: SVG('<path d="M12 19V5M5 12l7-7 7 7"/>'),
     folder: SVG('<path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/>'),
@@ -1800,6 +1837,7 @@
       <button data-a="tree" data-rail="tree" title="フォルダ一覧（Finder やエクスプローラーのように、フォルダを開いて中身を見られます）"><svg viewBox="0 0 24 24"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/><path d="M7 11h10M7 15h6"/></svg><span>フォルダ​一覧</span></button>
       <button data-a="lib" data-v="dl" data-rail="lib-dl" title="追加したもの（リンク・マグネットで追加した作品の保存状況とダウンロードの進み具合）"><svg viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 7.97"/><path d="M12 11v9M8.8 17l3.2 3 3.2-3"/></svg><span>追加したもの</span><i class="rb" data-r="rb-dl"></i></button>
       <button data-a="lib" data-v="recent" data-rail="lib-recent" title="最近追加したもの（追加日の新しい順）"><svg viewBox="0 0 24 24"><circle cx="11" cy="12" r="7.5"/><path d="M11 8v4.2l2.6 1.6"/><path d="M19.5 3.5v4M17.5 5.5h4"/></svg><span>最近の追加</span><i class="rb" data-r="rb-recent"></i></button>
+      <button data-a="lib" data-v="cont" data-rail="lib-cont" title="続きを見る（途中で止めた動画）"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M10 8.5v5l4-2.5z"/><path d="M3 20.5h11" stroke-width="2.4"/></svg><span>続きを見る</span></button>
       <button data-a="lib" data-v="hist" data-rail="lib-hist" title="再生した履歴"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/><path d="M10.5 9.2v5.6l4.4-2.8z"/></svg><span>再生履歴</span><i class="rb" data-r="rb-hist"></i></button>
       <button data-a="lib" data-v="star" data-rail="lib-star" title="スター付き"><svg viewBox="0 0 24 24"><path d="M12 3.8l2.5 5.1 5.6.8-4 3.9.9 5.6-5-2.6-5 2.6.9-5.6-4-3.9 5.6-.8z"/></svg><span>スター</span><i class="rb" data-r="rb-star"></i></button>
       <button data-a="lib" data-v="trash" data-rail="lib-trash" title="ゴミ箱（中身を見る・元に戻す・完全に削除）"><svg viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V4.8h5V7"/><path d="M6 7l1 12.2A1.5 1.5 0 0 0 8.5 20.6h7a1.5 1.5 0 0 0 1.5-1.4L18 7"/><path d="M10 11v6M14 11v6"/></svg><span>ゴミ箱</span><i class="rb" data-r="rb-trash"></i></button>
@@ -1807,13 +1845,13 @@
       <button data-a="rescan" data-rail="scan" title="最新の状態を読み込み直す"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg><span>再読み込み</span></button>
       <button data-a="settings" data-rail="set" title="設定（表示・再生・整理・情報）"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>設定</span></button>
       <div class="rl-sep"></div>
-      <button class="rl-sub" data-a="log">ログ・不具合の報告</button>
-      <button class="rl-sub" data-a="setinfo">書き出し／読み込み</button>
-      <button class="rl-sub" data-a="changelog">更新履歴（v${VER}）</button>
+      <button class="rl-sub" data-a="log" title="ログを見る・不具合を報告する"><svg viewBox="0 0 24 24"><path d="M7 3.5h7l4 4V20a.5.5 0 0 1-.5.5h-10A.5.5 0 0 1 7 20z"/><path d="M14 3.5V8h4M10 12h5M10 15.5h5"/></svg><span>ログ・不具合の報告</span></button>
+      <button class="rl-sub" data-a="setinfo" title="設定や記録を書き出す・読み込む"><svg viewBox="0 0 24 24"><path d="M8 4v12M4.5 12.5L8 16l3.5-3.5"/><path d="M16 20V8M12.5 11.5L16 8l3.5 3.5"/></svg><span>書き出し／読み込み</span></button>
+      <button class="rl-sub" data-a="changelog" title="更新履歴（いまは v${VER}）"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><span>更新履歴（v${VER}）</span></button>
       <button class="rl-acct" data-a="acct" data-r="acct" title="PikPak のログイン状態と同期"></button>
     </aside>
     <header>
-      <div class="brand"><button class="hbtn hic" data-a="navtoggle" title="メニュー" aria-label="メニュー"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>${LOGO}<h1 class="wm" aria-label="PikPak Distill – Dedupe"><small>PIKPAK DISTILL</small><span class="gw"><i aria-hidden="true">Dedupe</i><i aria-hidden="true">Dedupe</i><b>Dedupe</b></span></h1><span class="ver" title="いま動いているバージョン">v${VER}</span><span class="sp"></span>
+      <div class="brand"><button class="hbtn hic" data-a="navtoggle" title="左のメニューの表示を切り替える" aria-label="左のメニューの表示を切り替える"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>${LOGO}<h1 class="wm" aria-label="PikPak Distill – Dedupe"><small>PIKPAK DISTILL</small><span class="gw"><i aria-hidden="true">Dedupe</i><i aria-hidden="true">Dedupe</i><b>Dedupe</b></span></h1><span class="ver" title="いま動いているバージョン">v${VER}</span><span class="sp"></span>
         <label class="hq" title="名前で絞り込み">${IC.search}<input type="text" data-a="tq" placeholder="名前で絞り込み・検索"></label><span class="seg hqs" data-r="tqs" title="探す範囲"><button data-a="tqs" data-v="here">このフォルダ</button><button data-a="tqs" data-v="all">すべて</button></span>
         <div class="pd-quota" data-r="quota"></div>
         <span class="seg thm" data-r="theme" role="group" aria-label="テーマ"></span>
@@ -2173,7 +2211,40 @@
   // 左メニュー：広い表示／アイコンだけ（PC）、右から出す（スマホ・狭い画面）
   const LS_NAVMIN = 'ppdup:navmin:v1';
   const narrowUI = () => innerWidth < 760 || root.classList.contains('phone');
-  function applyNav() { let mn = false; try { mn = localStorage.getItem(LS_NAVMIN) === '1'; } catch (e) { /* 無視 */ } root.classList.toggle('navmin', mn); root.classList.toggle('narrow', narrowUI()); }
+  function applyNav() {
+    let mn = false; try { mn = localStorage.getItem(LS_NAVMIN) === '1'; } catch (e) { /* 無視 */ }
+    root.classList.toggle('navmin', mn); root.classList.toggle('narrow', narrowUI());
+    const b = root.querySelector('[data-a=navtoggle]');
+    if (b) b.title = narrowUI() ? 'メニューを開く・閉じる' : mn ? '左のメニューを広げる（いまはアイコンだけ）' : '左のメニューをアイコンだけにする（いまは広い表示）';
+  }
+  // ---- マウスを乗せたときの説明（アイコンだけのボタン・アイコンだけの左メニュー） ----
+  //   ブラウザ標準の title は出るまで時間がかかり気づきにくいため、すぐ出す吹き出しにする
+  const tipEl = document.createElement('div'); tipEl.id = 'pd-tip'; tipEl.hidden = true; document.body.appendChild(tipEl);
+  let tipBtn = null;
+  const tipText = (b) => {
+    const t = b.dataset.ttl || b.getAttribute('title') || b.getAttribute('aria-label') || '';
+    const lab = [...b.children].find((c) => c.tagName === 'SPAN' && !c.classList.contains('rb') && getComputedStyle(c).display !== 'none');
+    const vis = (lab ? lab.textContent : [...b.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join('')).trim();
+    if (vis && !/^[\s\W]{0,2}$/.test(vis)) return ''; // 文字が見えているボタンは標準の説明のまま
+    const nm = b.querySelector('span') ? b.querySelector('span').textContent.trim() : '';
+    return nm && t && !t.startsWith(nm) ? `${nm}：${t}` : t || nm;
+  };
+  const tipHide = () => { if (tipBtn && tipBtn.dataset.ttl != null) { tipBtn.setAttribute('title', tipBtn.dataset.ttl); delete tipBtn.dataset.ttl; } tipBtn = null; tipEl.hidden = true; };
+  document.addEventListener('mouseover', (e) => {
+    const b = e.target.closest && e.target.closest('button');
+    if (b === tipBtn) return; tipHide();
+    if (!b || !b.isConnected || b.closest('#pd-tip')) return;
+    const t = tipText(b); if (!t) return;
+    tipBtn = b; if (b.hasAttribute('title')) { b.dataset.ttl = b.getAttribute('title'); b.removeAttribute('title'); }
+    tipEl.textContent = t; tipEl.hidden = false;
+    const r = b.getBoundingClientRect(), w = tipEl.offsetWidth, h = tipEl.offsetHeight;
+    const side = b.closest('.rail');
+    let x = side ? r.right + 8 : r.left + r.width / 2 - w / 2, y = side ? r.top + r.height / 2 - h / 2 : r.bottom + 8;
+    if (!side && y + h > innerHeight - 4) y = r.top - h - 8;
+    tipEl.style.left = Math.max(4, Math.min(innerWidth - w - 4, x)) + 'px'; tipEl.style.top = Math.max(4, Math.min(innerHeight - h - 4, y)) + 'px';
+  }, true);
+  document.addEventListener('mousedown', tipHide, true);
+  addEventListener('scroll', tipHide, true);
   function toggleNav() {
     if (narrowUI()) { root.classList.toggle('navopen'); return; }
     const mn = !root.classList.contains('navmin'); try { localStorage.setItem(LS_NAVMIN, mn ? '1' : '0'); } catch (e) { /* 無視 */ } applyNav();
@@ -2366,7 +2437,7 @@
     const rec = files.filter((f) => f.ct).sort((a, b) => Date.parse(b.ct) - Date.parse(a.ct)).slice(0, 6);
     const th = (f) => `<button class="db-th" data-a="lib" data-v="recent" title="${esc(f.name)}"><span class="im">${f.thumb ? `<img loading="lazy" referrerpolicy="no-referrer" src="${esc(f.thumb)}" alt="">` : ICON_FILE({ name: f.name, ext: extOf(f.name) })}</span><b>${esc(f.name)}</b><small>${new Date(Date.parse(f.ct)).toLocaleDateString(loc(), { month: 'numeric', day: 'numeric' })}・${fmt(f.size)}</small></button>`;
     const nx = next && STEPS.find((s) => s.v === next);
-    const quick = [['tree', 'フォルダ一覧', '見る・再生'], ['lib:dl', '追加したもの', libBadge.dl ? libBadge.dl + ' 件 進行中' : '進み具合'], ['lib:recent', '最近の追加', '直近 7 日'], ['lib:hist', '再生履歴', '続きから'], ['lib:star', 'スター', 'スター付き'], ['lib:trash', 'ゴミ箱', quota ? fmtCap(quota.trash) : '中身を見る']];
+    const quick = [['tree', 'フォルダ一覧', '見る・再生'], ['lib:dl', '追加したもの', libBadge.dl ? libBadge.dl + ' 件 進行中' : '進み具合'], ['lib:recent', '最近の追加', '直近 7 日'], ['lib:cont', '続きを見る', '途中から'], ['lib:hist', '再生履歴', '見たもの'], ['lib:star', 'スター', 'スター付き'], ['lib:trash', 'ゴミ箱', quota ? fmtCap(quota.trash) : '中身を見る']];
     $('[data-r=main]').innerHTML = `<div class="db">
       <div class="db-hd"><h2>整理</h2><span class="db-chip on" title="読み込んだ場所">${esc(where)}</span><span class="sp"></span><span class="note">前回の読み込み：${esc(when)}（フォルダ ${meta.nfo.toLocaleString()} ／ ファイル ${meta.nfi.toLocaleString()}）</span></div>
       ${staleH >= 6 && staleH < 24 ? `<div class="sv-stale">前回の読み込みから ${staleH >= 48 ? Math.floor(staleH / 24) + ' 日' : staleH + ' 時間'}たっています。PikPak で追加・削除したものは「読み込み直す」で反映されます。</div>` : ''}
@@ -2376,7 +2447,7 @@
         <div class="db-card"><div class="db-ct"><i></i>最近追加したもの<span class="sp"></span><button class="lnk" data-a="lib" data-v="recent">すべて見る →</button></div><div class="db-ths">${rec.map(th).join('') || '<div class="note">この 30 日に追加したものはありません</div>'}</div></div>
       </div>
       <label class="sv-opt" title="オンにすると、作品と関係ないファイルを、仕分け・名前の変更・重複比較の対象から外します（「2. 不要ファイルを削除」で確認・削除できます）"><span class="sw"><input type="checkbox" data-a="junkopt"${junkEnabled() ? ' checked' : ''}><i></i></span><span><b>作品と関係ないファイルを除外する</b><small>広告・宣伝のファイルや 10MB 以下のファイルなどを、ほかの作業の対象から外します</small></span></label>
-      <div class="sv-dock"><button class="dk-h" data-a="dockx" aria-label="メニューを広げる"><i></i></button>
+      <div class="sv-dock"><button class="dk-h" data-a="dockx" title="メニューを広げる・たたむ" aria-label="メニューを広げる"><i></i></button>
         <div class="dk-b"><button data-a="addlink">リンクを追加</button><button data-a="rescan">読み込み直す</button>${nx ? `<button class="pri" data-step="${nx.v}">おすすめ：${STEPS.indexOf(nx) + 1}. ${esc(nx.t)} →</button>` : '<button class="pri" data-a="tree">フォルダ一覧へ →</button>'}</div>
         <div class="dk-q">${quick.map(([k, t, d]) => `<button ${k === 'tree' ? 'data-a="tree"' : `data-a="lib" data-v="${k.slice(4)}"`}><b>${t}</b><small>${esc(d)}</small></button>`).join('')}</div>
       </div>
@@ -3598,8 +3669,8 @@
     const ix = treeIdx;
     const info = r.kind === 'folder' ? `${r.n} 項目（中のファイル ${ix.agg.get(r.id).files} 件）・${fmt(r.size)}` : `${esc(kindOf(r))}・${fmt(r.size)}`;
     const jr = r.kind === 'file' && junkEnabled() ? (prepJunk(files, folders), junkInfo(r.f)) : null;
-    d.innerHTML = `<div class="ql"><div class="ql-h"><button data-qlclose title="閉じる（スペース / Esc）">✕</button><b>${esc(r.name)}</b></div><div class="ql-b">${big}</div>
-      <div class="ql-f"><div>${info}</div><div class="note">${esc((r.kind === 'folder' ? r.path : r.path + '/').replace(/^\/?/, '/').replace(/\/+$/, '') || '/')}</div>${jr ? `<div style="color:#ff6b6b">不要ファイルの判定：${esc(jr.reason)}</div>` : ''}${isVideoRow(r) ? `<div class="ql-acts"><button data-qlplay class="pri" title="このプレビューの中で再生">▶ ここで再生</button><button data-qlfull title="全画面で再生">⛶ 全画面</button><button data-qlframes title="コマ一覧（動画の中身を 16 コマで見る）">▦ コマ一覧</button>${rateSelect()}<button data-qlext title="外部プレーヤーで開く">↗ ${esc(EXT_PLAYERS[playPref().ext].short)}</button><button data-qlset title="再生のしかたの設定（ダブルクリック時の動作・外部プレーヤー）">⚙</button></div>` : ''}</div></div>`;
+    d.innerHTML = `<div class="ql"><div class="ql-h"><button data-qlclose title="閉じる（スペース / Esc）" aria-label="閉じる">${IC.x}</button><b>${esc(r.name)}</b></div><div class="ql-b">${big}</div>
+      <div class="ql-f"><div>${info}</div><div class="note">${esc((r.kind === 'folder' ? r.path : r.path + '/').replace(/^\/?/, '/').replace(/\/+$/, '') || '/')}</div>${jr ? `<div style="color:#ff6b6b">不要ファイルの判定：${esc(jr.reason)}</div>` : ''}${isVideoRow(r) ? `<div class="ql-acts"><button data-qlplay class="pri" title="このプレビューの中で再生">▶ ここで再生</button><button data-qlfull title="全画面で再生">⛶ 全画面</button><button data-qlframes title="コマ一覧（動画の中身を 16 コマで見る）">▦ コマ一覧</button>${rateSelect()}<button data-qlext title="外部プレーヤーで開く">↗ ${esc(EXT_PLAYERS[playPref().ext].short)}</button><button data-qlset title="再生のしかたの設定（ダブルクリック時の動作・外部プレーヤー）" aria-label="再生のしかたの設定">${IC.gear}</button></div>` : ''}</div></div>`;
     d.classList.remove('playing'); plStop('ql');
     const on = (sel, fn) => { const b = d.querySelector(sel); if (b) b.onclick = fn; };
     on('[data-qlplay]', () => qlPlay(r.id));
@@ -3996,7 +4067,7 @@
     v.addEventListener('loadedmetadata', () => { if (t) v.currentTime = t; v.defaultPlaybackRate = getRate(); v.playbackRate = getRate(); if (opt.onMeta) opt.onMeta(v); }, { once: true });
     const ui = document.createElement('div'); ui.className = 'qp-ui'; box.after(ui);
     if (opt.seekbar !== false) attachSeekbar(ui, v, x, S);
-    qpAttach(box, v, ui, opt.qp || {});
+    qpAttach(box, v, ui, { ...(opt.qp || {}), src: { x, S } });
     let hls = null;
     const viaHls = async () => {
       hls = new S.H({ maxBufferLength: 60, enableWorker: true });
@@ -4341,7 +4412,7 @@
     }
     const vids = treeRowsCache.filter(isVideoRow);
     const i = vids.findIndex((r) => r.id === id);
-    d.innerHTML = `<div class="pl"><div class="pl-h"><button data-pl="prev"${i > 0 ? '' : ' disabled'} title="前のビデオ（${KEY.prev}）">◀</button><button data-pl="next"${i >= 0 && i < vids.length - 1 ? '' : ' disabled'} title="次のビデオ（${KEY.next}）">▶</button><b>${esc(f.name)}</b><select data-pl="q" title="画質（カクつく場合は変換画質を選んでください）" style="display:none"></select>${rateSelect()}<button data-pl="frames" title="コマ一覧">▦ コマ一覧</button><button data-pl="full" title="全画面（F）">⛶ 全画面</button><button data-pl="ext" title="外部プレーヤーで開く">↗ ${esc(EXT_PLAYERS[playPref().ext].short)}</button><button data-pl="set" title="再生のしかたの設定">⚙</button><button data-pl="close" title="閉じる（Esc）">✕</button></div>
+    d.innerHTML = `<div class="pl"><div class="pl-h"><button data-pl="prev"${i > 0 ? '' : ' disabled'} title="前のビデオ（${KEY.prev}）">◀</button><button data-pl="next"${i >= 0 && i < vids.length - 1 ? '' : ' disabled'} title="次のビデオ（${KEY.next}）">▶</button><b>${esc(f.name)}</b><select data-pl="q" title="画質（カクつく場合は変換画質を選んでください）" style="display:none"></select>${rateSelect()}<button data-pl="frames" title="コマ一覧">▦ コマ一覧</button><button data-pl="full" title="全画面（F）">⛶ 全画面</button><button data-pl="ext" title="外部プレーヤーで開く">↗ ${esc(EXT_PLAYERS[playPref().ext].short)}</button><button data-pl="set" title="再生のしかたの設定" aria-label="再生のしかたの設定">${IC.gear}</button><button data-pl="close" title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
       <div class="pl-b"><div class="pl-msg">再生の準備中…</div></div><div class="pl-f note"><span>${esc(f.outer ? fullPath(f.parentId) : (f.path || '/').replace(/\/$/, ''))}/ ・ ${fmt(f.size)}</span><span data-pl="info"></span></div></div>`;
     const prev = d.querySelector('[data-pl=prev]'), next = d.querySelector('[data-pl=next]');
     prev.onclick = () => { if (i > 0) { treeSelect(vids[i - 1].id, null); renderTree(); playFile(vids[i - 1].id, { full: !!document.fullscreenElement }); } };
@@ -4828,7 +4899,7 @@
   };
   const qpSelect = (k, attr) => { const c = qpCfg(), [, vals, lab] = QP_OPTS[k]; return `<select ${attr} data-k="${k}">${vals.map((v) => `<option value="${v}"${c[k] === v ? ' selected' : ''}>${esc(lab(v))}</option>`).join('')}</select>`; };
   const qpVal = (k, s) => { const v = QP_OPTS[k][1].find((x) => String(x) === s); return v === undefined ? QP_DEF[k] : v; };
-  const QP_IC = { play: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M4 2.5v11l9-5.5z" fill="currentColor"/></svg>', pause: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M4 2.5h3v11H4zM9 2.5h3v11H9z" fill="currentColor"/></svg>' };
+  const QP_IC = { gear: IC.gear, play: IC.play, pause: IC.pause };
   let qpActive = null;
   function qpSetActive(P) {
     if (qpActive === P) return;
@@ -4934,6 +5005,7 @@
       const d = v.duration; if (!d || !isFinite(d)) return;
       mk.skips().forEach(([a, b]) => tr.insertAdjacentHTML('beforeend', `<i class="skz" style="left:${a / d * 100}%;width:${Math.max(0.4, (b - a) / d * 100)}%"></i>`));
       if (P.markA != null) tr.insertAdjacentHTML('beforeend', `<i class="ska" style="left:${P.markA / d * 100}%"></i>`);
+      const sl = ui.querySelector('[data-qp=sklist]'); if (sl) { const n = mk.skips().length; sl.hidden = !n; sl.textContent = `区間 ${n}`; }
       const ab = ui.querySelector('[data-qp=ab]'); if (ab) { ab.textContent = P.markA != null ? '✂ B（終わり）' : '✂ A–B'; ab.classList.toggle('on', P.markA != null); }
     };
     P.mark = (which) => {
@@ -4947,6 +5019,49 @@
       } else { flash('先に A で始めを決めてください'); }
       P.drawSkips();
     };
+    // ---- シーン（一定の間隔で画面を取って右に並べる。押すとその場面へ） ----
+    const scn = { el: null, gr: null, times: [], run: 0 };
+    const sceneTimes = () => { const d = v.duration; if (!d || !isFinite(d)) return []; const n = Math.max(8, Math.min(30, Math.round(d / 120))); return Array.from({ length: n }, (_, i) => Math.round(d * i / n)); };
+    P.drawTicks = () => {
+      const tr = ui.querySelector('.pd-sk > .sktr'); if (!tr) return;
+      tr.querySelectorAll('.skt').forEach((z) => z.remove());
+      const d = v.duration; if (!scn.el || !d || !isFinite(d)) return;
+      scn.times.forEach((t) => { if (t > 0) tr.insertAdjacentHTML('beforeend', `<i class="skt" style="left:${t / d * 100}%"></i>`); });
+    };
+    const sceneCur = () => {
+      if (!scn.el) return; const t = v.currentTime; let k = 0; scn.times.forEach((x, i) => { if (t >= x) k = i; });
+      scn.el.querySelectorAll('[data-sc]').forEach((b) => b.classList.toggle('cur', +b.dataset.sc === k));
+    };
+    P.scenes = (on) => {
+      if (on === undefined) on = !scn.el;
+      const btn = ui.querySelector('[data-qp=scene]');
+      if (!on) { scn.run++; if (scn.gr) { scn.gr.close(); scn.gr = null; } if (scn.el) { scn.el._grab = null; scn.el.remove(); scn.el = null; } if (btn) btn.classList.remove('on'); P.drawTicks(); return; }
+      if (scn.el || !opt.src) return;
+      scn.times = sceneTimes(); if (!scn.times.length) { flash('長さが分かってから開けます'); return; }
+      const el = document.createElement('div'); el.className = 'qp-scn';
+      el.innerHTML = `<div class="qp-scn-h"><b>シーン</b><small>${scn.times.length} か所</small><button data-scx title="シーンを閉じる（G）" aria-label="閉じる">${IC.x}</button></div><div class="qp-scn-l">${scn.times.map((t, i) => `<button data-sc="${i}"><span class="im"><i>…</i></span><span>${fmtT(t)}</span></button>`).join('')}</div>`;
+      el.addEventListener('mousedown', (e) => e.stopPropagation());
+      el.addEventListener('wheel', (e) => e.stopPropagation(), { passive: true });
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (e.target.closest('[data-scx]')) { P.scenes(false); return; }
+        const b = e.target.closest('[data-sc]'); if (!b) return; v.currentTime = scn.times[+b.dataset.sc]; sceneCur();
+      });
+      stage.appendChild(el); scn.el = el; if (btn) btn.classList.add('on');
+      P.drawTicks(); sceneCur();
+      // 画像は軽い画質から 1 枚ずつ作る（閉じたらやめる）
+      const my = ++scn.run;
+      try { scn.gr = makeGrabber(lightSrc(opt.src.S) || opt.src.x, opt.src.S); el._grab = scn.gr; } catch (e) { scn.gr = null; }
+      (async () => {
+        for (let i = 0; i < scn.times.length; i++) {
+          if (my !== scn.run || !scn.gr) return;
+          const im = el.querySelector(`[data-sc="${i}"] .im`);
+          try { const c = await scn.gr.grab(scn.times[i] + (i ? 0 : 1), 240); if (my !== scn.run) return; c.className = ''; im.innerHTML = ''; im.appendChild(c); }
+          catch (e) { if (my !== scn.run) return; im.innerHTML = '<i>×</i>'; if (i === 0) { el.querySelectorAll('.im i').forEach((x) => { x.textContent = '—'; }); el.querySelector('.qp-scn-h small').textContent = '画像を作れませんでした（時間だけ表示）'; return; } }
+        }
+      })();
+    };
+    v.addEventListener('timeupdate', sceneCur);
     if (mk) {
       v.addEventListener('loadedmetadata', () => P.drawSkips());
       v.addEventListener('durationchange', () => P.drawSkips());
@@ -4973,19 +5088,20 @@
     // ---- 操作バー ----
     const jl = qpCfg().jl;
     const ctl = document.createElement('div'); ctl.className = 'qp-ctl';
-    ctl.innerHTML = `${opt.prev ? '<button data-qp="prev" title="前の動画（P）">⏮</button>' : ''}<button data-qp="play" title="再生・一時停止（Space / K）">⏸</button>${opt.next ? '<button data-qp="next" title="次の動画（N）">⏭</button>' : ''}<button data-qp="back" title="戻る（J）">-${jl}</button><button data-qp="fwd" title="進む（L）">+${jl}</button><span class="qp-t" data-qp="time">00:00 / 00:00</span><span class="qp-sp"></span><button data-qp="mute" title="消音（M）">🔊</button><input type="range" data-qp="vol" min="0" max="100" value="${Math.round(v.volume * 100)}" aria-label="音量">${rateSelect()}${opt.media ? '<button data-qp="ab" title="飛ばす区間（A で始め・B で終わり。⚙ で消せます）">✂ A–B</button>' : ''}<button data-qp="zoom" title="ズーム（ホイール・ピンチ・Z / X、押すと 100% に戻す）">🔍 100%</button><button data-qp="gear" title="簡易プレーヤーの設定" aria-label="設定">⚙</button><button data-qp="full" title="全画面（F）">⛶</button><div class="qp-set" hidden></div>`;
+    ctl.innerHTML = `${opt.prev ? `<button data-qp="prev" title="前の動画（P）" aria-label="前の動画">${IC.prev}</button>` : ''}<button data-qp="play" title="再生・一時停止（Space / K）" aria-label="再生・一時停止">${IC.pause}</button>${opt.next ? `<button data-qp="next" title="次の動画（N）" aria-label="次の動画">${IC.next}</button>` : ''}<button data-qp="back" title="戻る（J）">-${jl}</button><button data-qp="fwd" title="進む（L）">+${jl}</button><span class="qp-t" data-qp="time">00:00 / 00:00</span><span class="qp-sp"></span><button data-qp="mute" title="消音・解除（M）" aria-label="消音">${IC.vol}</button><input type="range" data-qp="vol" min="0" max="100" value="${Math.round(v.volume * 100)}" aria-label="音量">${rateSelect()}${opt.src ? '<button data-qp="scene" title="シーン（G）">▦ シーン</button>' : ''}${opt.media ? '<button data-qp="ab" title="飛ばす区間（A で始め・B で終わり）">✂ A–B</button><button data-qp="sklist" title="この動画の飛ばす区間の一覧（消すのもここから）" hidden></button>' : ''}<button data-qp="zoom" title="ズーム（ホイール・ピンチ・Z / X、押すと 100% に戻す）">🔍 100%</button><button data-qp="gear" title="簡易プレーヤーの設定・飛ばす区間の一覧" aria-label="設定">${QP_IC.gear}</button><button data-qp="full" title="全画面（F）" aria-label="全画面">${IC.full}</button><div class="qp-set" hidden></div>`;
     ui.appendChild(ctl);
     const q = (k) => ctl.querySelector(`[data-qp=${k}]`), setPanel = ctl.querySelector('.qp-set');
     const syncUi = () => {
-      q('play').innerHTML = v.paused ? QP_IC.play : QP_IC.pause;
+      // timeupdate のたびに中身を作り直すと、押している最中にボタンの中身が入れ替わってクリックが無効になる
+      const pb = q('play'), ps = v.paused ? 'play' : 'pause'; if (pb.dataset.st !== ps) { pb.dataset.st = ps; pb.innerHTML = QP_IC[ps]; }
       q('time').textContent = `${fmtT(v.currentTime || 0)} / ${fmtT(v.duration || 0)}`;
-      q('mute').textContent = v.muted || !v.volume ? '🔇' : '🔊';
+      const mb = q('mute'), ms = v.muted || !v.volume ? 'mute' : 'vol'; if (mb.dataset.st !== ms) { mb.dataset.st = ms; mb.innerHTML = IC[ms]; }
       const r = q('vol'); if (document.activeElement !== r) r.value = v.muted ? 0 : Math.round(v.volume * 100);
     };
     ['play', 'pause', 'timeupdate', 'durationchange', 'volumechange', 'loadedmetadata'].forEach((ev) => v.addEventListener(ev, syncUi));
     const renderSet = () => {
       const sk = mk ? mk.skips() : [];
-      setPanel.innerHTML = `<b>簡易プレーヤーの設定</b>${Object.keys(QP_OPTS).map((k) => `<label><span>${esc(QP_OPTS[k][0])}</span>${qpSelect(k, 'data-qpset')}</label>`).join('')}${mk ? `<b style="margin-top:6px">この動画の飛ばす区間</b>${sk.length ? sk.map(([a, b], i) => `<label><span>${fmtT(a)} – ${fmtT(b)}</span><button data-qp="skdel" data-i="${i}" title="この区間を消す">✕ 消す</button></label>`).join('') : '<small>ありません（A・B キーか ✂ で作れます）</small>'}` : ''}<small>右上の ⚙ 設定 →「再生」にも同じ項目があります</small>`;
+      setPanel.innerHTML = `<b>簡易プレーヤーの設定</b>${Object.keys(QP_OPTS).map((k) => `<label><span>${esc(QP_OPTS[k][0])}</span>${qpSelect(k, 'data-qpset')}</label>`).join('')}${mk ? `<b style="margin-top:6px" data-sk>この動画の飛ばす区間</b>${sk.length ? sk.map(([a, b], i) => `<label><span>${fmtT(a)} – ${fmtT(b)}</span><button data-qp="skdel" data-i="${i}" title="この区間を消す">✕ 消す</button></label>`).join('') : '<small>ありません（A・B キーか ✂ で作れます）</small>'}` : ''}<small>右上の ⚙ 設定 →「再生」にも同じ項目があります</small>`;
     };
     ctl.addEventListener('click', (e) => {
       const b = e.target.closest('button[data-qp]'); if (!b) return;
@@ -4995,6 +5111,8 @@
       else if (k === 'mute') { v.muted = !v.muted; flash(v.muted ? '🔇 消音' : '🔊 ' + Math.round(v.volume * 100) + '%'); }
       else if (k === 'zoom') P.zoomReset(); else if (k === 'full') P.full();
       else if (k === 'ab') P.mark();
+      else if (k === 'scene') P.scenes();
+      else if (k === 'sklist') { renderSet(); setPanel.hidden = false; const h = setPanel.querySelector('[data-sk]'); if (h) h.scrollIntoView({ block: 'nearest' }); }
       else if (k === 'skdel' && mk) { mk.delSkip(+b.dataset.i); P.drawSkips(); renderSet(); }
       else if (k === 'gear') { if (setPanel.hidden) renderSet(); setPanel.hidden = !setPanel.hidden; }
     });
@@ -5041,6 +5159,7 @@
       P.kHold = setTimeout(() => { if (P.kDown) { P.kHeld = true; P.holdOn(); } }, 350);
     }
     else if (k === 'a' || k === 'A') { done(); P.mark('A'); }
+    else if ((k === 'g' || k === 'G') && P.scenes) { done(); P.scenes(); }
     else if (k === 'b' || k === 'B') { done(); P.mark('B'); }
     else if (k === 'j' || k === 'J') { done(); P.seek(-c.jl); }
     else if (k === 'l' || k === 'L') { done(); P.seek(c.jl); }
@@ -5237,18 +5356,18 @@
     if (row) { row.scrollIntoView({ block: 'center' }); flash(row); }
     const t = $('[data-r=tree]'); if (t) t.focus({ preventScroll: true });
   }
-  const LIB_IC = { dl: '<svg viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 7.97"/><path d="M12 11v9M8.8 17l3.2 3 3.2-3"/></svg>', recent: '<svg viewBox="0 0 24 24"><circle cx="11" cy="12" r="7.5"/><path d="M11 8v4.2l2.6 1.6"/><path d="M19.5 3.5v4M17.5 5.5h4"/></svg>', hist: '<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/><path d="M10.5 9.2v5.6l4.4-2.8z"/></svg>', star: '<svg viewBox="0 0 24 24"><path d="M12 3.8l2.5 5.1 5.6.8-4 3.9.9 5.6-5-2.6-5 2.6.9-5.6-4-3.9 5.6-.8z"/></svg>', trash: '<svg viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V4.8h5V7"/><path d="M6 7l1 12.2A1.5 1.5 0 0 0 8.5 20.6h7a1.5 1.5 0 0 0 1.5-1.4L18 7"/><path d="M10 11v6M14 11v6"/></svg>' };
+  const LIB_IC = { cont: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M10 8.5v5l4-2.5z"/><path d="M3 20.5h11" stroke-width="2.4"/></svg>', dl: '<svg viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 7.97"/><path d="M12 11v9M8.8 17l3.2 3 3.2-3"/></svg>', recent: '<svg viewBox="0 0 24 24"><circle cx="11" cy="12" r="7.5"/><path d="M11 8v4.2l2.6 1.6"/><path d="M19.5 3.5v4M17.5 5.5h4"/></svg>', hist: '<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/><path d="M10.5 9.2v5.6l4.4-2.8z"/></svg>', star: '<svg viewBox="0 0 24 24"><path d="M12 3.8l2.5 5.1 5.6.8-4 3.9.9 5.6-5-2.6-5 2.6.9-5.6-4-3.9 5.6-.8z"/></svg>', trash: '<svg viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V4.8h5V7"/><path d="M6 7l1 12.2A1.5 1.5 0 0 0 8.5 20.6h7a1.5 1.5 0 0 0 1.5-1.4L18 7"/><path d="M10 11v6M14 11v6"/></svg>' };
   // ---------- 左メニュー：ダウンロード中・最近追加したもの・再生した履歴・スター付き・ゴミ箱 ----------
   // ---- 追加したもの：Dedupe でリンクを追加したときの記録（このブラウザに保存）と、PikPak のダウンロードタスクを合わせて見せる ----
   const LS_ADDLOG = 'ppdup:addlog:v1';
   const addLogRead = () => { try { return JSON.parse(localStorage.getItem(LS_ADDLOG) || '[]') || []; } catch (e) { return []; } };
   const addLogWrite = (a) => { try { localStorage.setItem(LS_ADDLOG, JSON.stringify(a.slice(0, 300))); } catch (e) { /* 無視 */ } };
   const addLogPush = (r) => { const a = addLogRead(); a.unshift({ ...r, lid: 'L' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), at: Date.now() }); addLogWrite(a); };
-  const LIB_TABS = [['dl', '追加したもの'], ['recent', '最近追加したもの'], ['hist', '再生した履歴'], ['star', 'スター付き'], ['trash', 'ゴミ箱']];
+  const LIB_TABS = [['dl', '追加したもの'], ['recent', '最近追加したもの'], ['cont', '続きを見る'], ['hist', '再生した履歴'], ['star', 'スター付き'], ['trash', 'ゴミ箱']];
   let libSt = null, libBadge = { dl: 0, trash: 0 };
   const encF = (o) => encodeURIComponent(JSON.stringify(o));
   const phaseTxt = { PHASE_TYPE_RUNNING: 'ダウンロード中', PHASE_TYPE_PENDING: '順番待ち', PHASE_TYPE_ERROR: '失敗', PHASE_TYPE_COMPLETE: '完了' };
-  const LIB_GRID = new Set(['recent', 'hist', 'star']);
+  const LIB_GRID = new Set(['recent', 'cont', 'hist', 'star']);
   async function libFetch(tab) {
     if (tab === 'dl') {
       const d = await api(`/tasks?type=offline&limit=100&thumbnail_size=SIZE_SMALL&filters=${encF({ phase: { in: 'PHASE_TYPE_RUNNING,PHASE_TYPE_PENDING,PHASE_TYPE_ERROR,PHASE_TYPE_COMPLETE' } })}`);
@@ -5273,6 +5392,12 @@
       // Dedupe 以外（PikPak の画面など）で追加したダウンロード
       (d.tasks || []).filter((t) => !used.has(t.id)).forEach((t) => out.push({ id: t.id, task: t.id, name: t.name || t.file_name || '', size: +t.file_size || 0, at: t.created_time || '', mode: 'pikpak', fid: t.file_id || '', st: ST[t.phase] || 'run', pct: +t.progress || 0, msg: t.message || '' }));
       return out.sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
+    }
+    // 続きを見る：途中で止めたもの（このブラウザの再生の記録から。新しい順）
+    if (tab === 'cont') {
+      const db = mediaAll();
+      return Object.keys(db).filter((k) => db[k].pos > 0 && !db[k].done).sort((a, b) => Date.parse(db[b].at) - Date.parse(db[a].at)).slice(0, 300)
+        .map((k) => { const m = db[k], sf = fileById(k); return { id: k, name: m.name || (sf && sf.name) || k, size: m.size || (sf && sf.size) || 0, at: m.at, thumb: m.thumb || (sf && sf.thumb) || '' }; });
     }
     if (tab === 'hist') {
       let d = {}; try { d = await api(`/events?thumbnail_size=SIZE_MEDIUM&limit=100&filters=${encF({ type: { in: 'TYPE_PLAY' } })}`); } catch (e) { if (e.session) throw e; }
@@ -5407,7 +5532,7 @@
     libPvClose(); libSt.cur = id;
     const run = ++libPvRun;
     const p = document.createElement('div'); p.className = 'lb-pv';
-    p.innerHTML = `<div class="lb-pvbox" role="dialog" aria-label="プレビュー"><div class="lk-hd"><b title="${esc(it.name)}">${esc(it.name)}</b><span class="sp"></span><button class="x" data-lbpvx aria-label="閉じる">${IC.x}</button></div>
+    p.innerHTML = `<div class="lb-pvbox" role="dialog" aria-label="プレビュー"><div class="lk-hd"><b title="${esc(it.name)}">${esc(it.name)}</b><span class="sp"></span><button class="x" data-lbpvx title="プレビューを閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
       <div class="lb-pvv"><div class="pl-msg">再生の準備中…</div></div>
       <div class="lb-pvft"><span class="tx"><b>簡易プレビュー（低画質）</b>・本編をきちんと見るなら、外部プレーヤー（オリジナル画質）がおすすめです<span data-lbpvi></span></span><button data-lbopen="${esc(id)}">場所を開く</button><button class="pri" data-lbext="${esc(id)}">↗ 外部プレーヤーで見る（オリジナル画質）</button></div></div>`;
     d.appendChild(p);
@@ -5475,11 +5600,14 @@
     const tabs = LIB_TABS.map(([k, l]) => `<button class="lb-tab${k === tab ? ' on' : ''}" data-lbtab="${k}">${LIB_IC[k]}<span>${l}</span>${k === 'dl' && libBadge.dl ? `<i>${libBadge.dl}</i>` : k === 'trash' && libBadge.trash ? `<i>${libBadge.trash}</i>` : ''}</button>`).join('');
     const selectable = tab === 'dl' || tab === 'trash' || tab === 'star';
     const cb = (it) => `<input type="checkbox" data-lbi="${esc(it.id)}"${S.sel.has(it.id) ? ' checked' : ''}${S.busy ? ' disabled' : ''} aria-label="選ぶ">`;
+    // どこまで見たか（青い線。見終わったものは灰色の線）
+    const prog = (it) => { const m = !it.folder && mediaGet(it.id); if (!m) return ''; if (m.done) return '<i class="lb-prog done" style="width:100%" title="見終わった"></i>'; return m.pos > 0 && m.dur ? `<i class="lb-prog" style="width:${Math.min(100, Math.max(2, m.pos / m.dur * 100)).toFixed(1)}%" title="${fmtT(m.pos)} まで見た"></i>` : ''; };
     const card = (it) => {
       const r = { name: it.name, ext: extOf(it.name) };
       const th = it.thumb ? `<img loading="lazy" referrerpolicy="no-referrer" src="${esc(it.thumb)}" alt="">` : `<span class="ph">${it.folder ? ICON_DIR : ICON_FILE(r)}</span>`;
-      const info = [it.size && !it.folder ? fmt(it.size) : '', when(it.at)].filter(Boolean).join('・');
-      return `<div class="lb-card${S.cur === it.id ? ' cur' : ''}" data-lbc="${esc(it.id)}" tabindex="0" title="${esc(it.name)}${tab === 'recent' && it.path ? '\n' + esc(it.path) : ''}"><div class="lb-th">${th}${libIsVid(it) ? '<span class="lb-play">▶</span>' : ''}${selectable ? cb(it) : ''}</div><div class="lb-ct"><b>${esc(it.name)}</b><small>${esc(info)}</small></div></div>`;
+      const mm = !it.folder && mediaGet(it.id);
+      const info = [it.size && !it.folder ? fmt(it.size) : '', tab === 'cont' && mm && mm.pos ? `途中 ${fmtT(mm.pos)} / ${fmtT(mm.dur || 0)}` : when(it.at)].filter(Boolean).join('・');
+      return `<div class="lb-card${S.cur === it.id ? ' cur' : ''}" data-lbc="${esc(it.id)}" tabindex="0" title="${esc(it.name)}${tab === 'recent' && it.path ? '\n' + esc(it.path) : ''}"><div class="lb-th">${th}${libIsVid(it) ? '<span class="lb-play">▶</span>' : ''}${prog(it)}${selectable ? cb(it) : ''}</div><div class="lb-ct"><b>${esc(it.name)}</b><small>${esc(info)}</small></div></div>`;
     };
     const row = (it) => {
       let tag = '', info = [it.size ? fmt(it.size) : '', when(it.at)];
@@ -5501,13 +5629,13 @@
     if (S.loading) body = '<div class="empty">読み込み中…</div>';
     else if (S.err === 'scan') body = '<div class="empty">「最近追加したもの」は、読み込んだ内容から作ります。先に左の「再読み込み」で PikPak の中身を読み込んでください。</div>';
     else if (S.err) body = `<div class="empty">読み込めませんでした：${esc(S.err)}</div>`;
-    else if (!S.items.length) body = `<div class="empty">${{ dl: 'まだ何も追加していません（Dedupe の「リンクを追加」で追加したものと、PikPak のダウンロードがここに出ます）', recent: `この ${S.days} 日間に追加したものはありません`, hist: '再生した履歴はありません', star: 'スター付きの項目はありません', trash: 'ゴミ箱は空です' }[tab]}</div>`;
+    else if (!S.items.length) body = `<div class="empty">${{ dl: 'まだ何も追加していません（Dedupe の「リンクを追加」で追加したものと、PikPak のダウンロードがここに出ます）', recent: `この ${S.days} 日間に追加したものはありません`, cont: '途中で止めた動画はありません（Dedupe で再生して途中で閉じると、ここに出ます）', hist: '再生した履歴はありません', star: 'スター付きの項目はありません', trash: 'ゴミ箱は空です' }[tab]}</div>`;
     else if (grid && lv === 'tile') body = `<div class="lb-grid sz-${lsz}">${S.items.map(card).join('')}</div>`;
     else if (grid) {
       // リスト（フォルダごとにまとめる）・サムネイル（大きめの画像つきの行）
       const li = (it) => {
         const th = it.thumb ? `<img loading="lazy" referrerpolicy="no-referrer" src="${esc(it.thumb)}" alt="">` : `<span class="ph">${it.folder ? ICON_DIR : ICON_FILE({ name: it.name, ext: extOf(it.name) })}</span>`;
-        return `<div class="lb-li ${lv}${S.cur === it.id ? ' cur' : ''}" data-lbc="${esc(it.id)}" tabindex="0" title="${esc(it.name)}">${tab === 'star' ? cb(it) : ''}<span class="th">${th}${libIsVid(it) ? '<span class="lb-play">▶</span>' : ''}</span><span class="nm"><b>${esc(it.name)}</b>${lv === 'thumb' && it.path ? `<small>${esc(it.path)}</small>` : ''}</span><span class="sz">${it.size && !it.folder ? fmt(it.size) : ''}</span><span class="dt">${esc(when(it.at))}</span></div>`;
+        return `<div class="lb-li ${lv}${S.cur === it.id ? ' cur' : ''}" data-lbc="${esc(it.id)}" tabindex="0" title="${esc(it.name)}">${tab === 'star' ? cb(it) : ''}<span class="th">${th}${libIsVid(it) ? '<span class="lb-play">▶</span>' : ''}${prog(it)}</span><span class="nm"><b>${esc(it.name)}</b>${lv === 'thumb' && it.path ? `<small>${esc(it.path)}</small>` : ''}</span><span class="sz">${it.size && !it.folder ? fmt(it.size) : ''}</span><span class="dt">${esc(when(it.at))}</span></div>`;
       };
       if (lv === 'list' && tab === 'recent') {
         // 最近追加したものだけのツリー：追加したファイルのあるフォルダだけを、階層ごとに開いたり閉じたりできる
@@ -5533,9 +5661,9 @@
     else body = S.items.map(row).join('');
     const n = S.sel.size, dis = S.busy || S.loading ? ' disabled' : '';
     const pvTip = `スペースで低画質のプレビュー、ダブルクリック・Enter は設定の「再生のしかた」（${esc(prefLabel())}）で開きます。本編は「↗ 外部プレーヤー」（オリジナル画質）がおすすめ。`;
-    const note = { dl: 'リンク・マグネットで追加したもの（直近 60 日）。すぐ保存した分は保存先にあるかを、クラウドダウンロードの分は進み具合を確かめて表示します。「一覧から外す」は記録とタスクを消すだけで、保存したファイルは消しません。', recent: '追加日の新しい順（読み込んだ範囲：' + esc(dirLabel((scanRoot() || {}).id) || '—') + '）。' + pvTip, hist: 'Dedupe と PikPak で再生した動画（新しい順）。Dedupe で再生した分はこのブラウザに記録します。' + pvTip, star: 'PikPak でスターを付けた項目。' + pvTip, trash: `ゴミ箱の中身${quota ? `（${fmtCap(quota.trash)}）` : ''}。「完全に削除」「空にする」は元に戻せません。` }[tab];
+    const note = { dl: 'リンク・マグネットで追加したもの（直近 60 日）。すぐ保存した分は保存先にあるかを、クラウドダウンロードの分は進み具合を確かめて表示します。「一覧から外す」は記録とタスクを消すだけで、保存したファイルは消しません。', recent: '追加日の新しい順（読み込んだ範囲：' + esc(dirLabel((scanRoot() || {}).id) || '—') + '）。' + pvTip, cont: '途中で止めた動画（新しい順）。開くと前回の続きから再生します。', hist: 'Dedupe と PikPak で再生した動画（新しい順）。Dedupe で再生した分はこのブラウザに記録します。' + pvTip, star: 'PikPak でスターを付けた項目。' + pvTip, trash: `ゴミ箱の中身${quota ? `（${fmtCap(quota.trash)}）` : ''}。「完全に削除」「空にする」は元に戻せません。` }[tab];
     const all = selectable && S.items.length ? `<label class="note lb-all"><input type="checkbox" data-lball${n && n === S.items.length ? ' checked' : ''}${dis}> すべて選ぶ</label>` : '';
-    const html = `<div class="lk-box" role="dialog" aria-label="${esc(LIB_TABS.find((x) => x[0] === tab)[1])}"><div class="lk-hd"><b>${LIB_TABS.find((x) => x[0] === tab)[1]}</b><span class="note">${S.items.length && !S.loading ? S.items.length + ' 項目' : ''}</span><span class="sp"></span>${grid ? `<span class="seg lb-vw" title="表示のしかた">${[['list', tab === 'recent' ? '🌲 ツリー' : '☰ リスト'], ['thumb', '▤ サムネイル'], ['tile', '▦ タイル']].map(([k, l]) => `<button data-lbview="${k}" class="${lv === k ? 'on' : ''}">${l}</button>`).join('')}</span>${lv === 'list' && tab === 'recent' ? '<span class="seg"><button data-lbtall="open" title="すべて開く">⊞ 全展開</button><button data-lbtall="close" title="すべて閉じる">⊟ 全格納</button></span>' : ''}<button data-lbauto class="${libAuto() ? 'on' : ''}" title="プレビューで動画が終わったら、次の動画を続けて再生します">${libAuto() ? '✓ ' : ''}続けて再生</button>` : ''}${grid && lv === 'tile' ? `<span class="seg lb-sz" title="サムネイルの大きさ">${[['s', '小'], ['m', '中'], ['l', '大']].map(([k, l]) => `<button data-lbsz="${k}" class="${lsz === k ? 'on' : ''}">${l}</button>`).join('')}</span>` : ''}<button data-lbreload title="読み込み直す"${dis}>更新</button><button class="x" data-lbclose aria-label="閉じる">${IC.x}</button></div>
+    const html = `<div class="lk-box" role="dialog" aria-label="${esc(LIB_TABS.find((x) => x[0] === tab)[1])}"><div class="lk-hd"><b>${LIB_TABS.find((x) => x[0] === tab)[1]}</b><span class="note">${S.items.length && !S.loading ? S.items.length + ' 項目' : ''}</span><span class="sp"></span>${grid ? `<span class="seg lb-vw" title="表示のしかた">${[['list', tab === 'recent' ? '🌲 ツリー' : '☰ リスト'], ['thumb', '▤ サムネイル'], ['tile', '▦ タイル']].map(([k, l]) => `<button data-lbview="${k}" class="${lv === k ? 'on' : ''}">${l}</button>`).join('')}</span>${lv === 'list' && tab === 'recent' ? '<span class="seg"><button data-lbtall="open" title="すべて開く">⊞ 全展開</button><button data-lbtall="close" title="すべて閉じる">⊟ 全格納</button></span>' : ''}<button data-lbauto class="${libAuto() ? 'on' : ''}" title="プレビューで動画が終わったら、次の動画を続けて再生します">${libAuto() ? '✓ ' : ''}続けて再生</button>` : ''}${grid && lv === 'tile' ? `<span class="seg lb-sz" title="サムネイルの大きさ">${[['s', '小'], ['m', '中'], ['l', '大']].map(([k, l]) => `<button data-lbsz="${k}" class="${lsz === k ? 'on' : ''}">${l}</button>`).join('')}</span>` : ''}<button data-lbreload title="読み込み直す"${dis}>更新</button><button class="x" data-lbclose title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
       <div class="lb-tabs">${tabs}</div>
       <div class="lb-note">${note}</div>
       <div class="lk-list">${all}${body}</div>

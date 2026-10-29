@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.4.1
+// @version      4.4.2
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.4.1'; // @version と合わせて更新する
+  const VER = '4.4.2'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1143,6 +1143,18 @@
   .qp-hold{position:absolute;left:50%;top:16px;transform:translateX(-50%);padding:6px 16px;border-radius:999px;background:#000b;color:#fff;font:700 15px system-ui,sans-serif;pointer-events:none;z-index:5}
   .qp-hold[hidden]{display:none}
   .qp-ctl button[data-qp=ab].on{background:#f5a624;color:#111}
+  .qp-ctl button[data-qp=scene].on{background:#306fff;color:#fff}
+  .pd-sk > .sktr i.skt{width:2px;background:#ffffffb0;z-index:3}
+  .qp-scn{position:absolute;right:0;top:0;bottom:0;width:min(210px,40%);display:flex;flex-direction:column;background:#0d0f14e6;border-left:1px solid #ffffff1a;z-index:6;cursor:default;font:12px system-ui,sans-serif;color:#dfe2ea}
+  .qp-scn-h{display:flex;align-items:center;gap:8px;padding:8px 10px;flex:none}
+  .qp-scn-h small{color:#8b91a1;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .qp-scn-h button{border:0;background:transparent;color:#dfe2ea;cursor:pointer;font-size:13px}
+  .qp-scn-l{flex:1;min-height:0;overflow:auto;padding:0 8px 8px;display:flex;flex-direction:column;gap:6px;overscroll-behavior:contain}
+  .qp-scn-l button{display:flex;flex-direction:column;gap:3px;height:auto!important;min-height:0;width:100%;padding:4px;border-radius:8px;border:2px solid transparent;background:transparent;color:inherit;cursor:pointer;text-align:left;font:inherit;flex:none}
+  .qp-scn-l button:hover{background:#ffffff14}
+  .qp-scn-l button.cur{border-color:#306fff}
+  .qp-scn-l .im{width:100%;height:auto;flex:none;display:flex;align-items:center;justify-content:center;aspect-ratio:16/9;border-radius:6px;overflow:hidden;background:#1c212b;color:#6a7080}
+  .qp-scn-l .im canvas{width:100%;height:100%;object-fit:cover;display:block}
   .pd-sk .tip{position:absolute;bottom:24px;width:210px;padding:4px;box-sizing:border-box;background:#000;border:2px solid #fff;border-radius:8px;box-shadow:0 6px 18px #000a;pointer-events:none;z-index:5;text-align:center}
   .pd-sk .tip[hidden]{display:none}
   .pd-sk .tip canvas{display:block;width:100%;height:auto;border-radius:4px}
@@ -1216,6 +1228,9 @@
   #pd-lib .lb-th{position:relative;aspect-ratio:16/9;background:var(--panel2);display:flex;align-items:center;justify-content:center}
   #pd-lib .lb-th img{width:100%;height:100%;object-fit:cover;display:block}
   #pd-lib .lb-th .ph svg{width:34px;height:42px}
+  #pd-lib .lb-prog{position:absolute;left:0;bottom:0;height:4px;background:#306fff;z-index:1}
+  #pd-lib .lb-prog.done{background:#8b91a1}
+  #pd-lib .lb-li .th .lb-prog{height:3px}
   #pd-lib .lb-th .lb-play{position:absolute;right:6px;bottom:6px;font-size:10px;padding:2px 6px;border-radius:6px;background:#000a;color:#fff}
   #pd-lib .lb-th input{position:absolute;left:6px;top:6px;width:18px;height:18px;margin:0}
   #pd-lib .lb-ct{padding:7px 9px;display:flex;flex-direction:column;gap:2px;min-width:0}
@@ -1800,6 +1815,7 @@
       <button data-a="tree" data-rail="tree" title="フォルダ一覧（Finder やエクスプローラーのように、フォルダを開いて中身を見られます）"><svg viewBox="0 0 24 24"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/><path d="M7 11h10M7 15h6"/></svg><span>フォルダ​一覧</span></button>
       <button data-a="lib" data-v="dl" data-rail="lib-dl" title="追加したもの（リンク・マグネットで追加した作品の保存状況とダウンロードの進み具合）"><svg viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 7.97"/><path d="M12 11v9M8.8 17l3.2 3 3.2-3"/></svg><span>追加したもの</span><i class="rb" data-r="rb-dl"></i></button>
       <button data-a="lib" data-v="recent" data-rail="lib-recent" title="最近追加したもの（追加日の新しい順）"><svg viewBox="0 0 24 24"><circle cx="11" cy="12" r="7.5"/><path d="M11 8v4.2l2.6 1.6"/><path d="M19.5 3.5v4M17.5 5.5h4"/></svg><span>最近の追加</span><i class="rb" data-r="rb-recent"></i></button>
+      <button data-a="lib" data-v="cont" data-rail="lib-cont" title="続きを見る（途中で止めた動画）"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M10 8.5v5l4-2.5z"/><path d="M3 20.5h11" stroke-width="2.4"/></svg><span>続きを見る</span></button>
       <button data-a="lib" data-v="hist" data-rail="lib-hist" title="再生した履歴"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/><path d="M10.5 9.2v5.6l4.4-2.8z"/></svg><span>再生履歴</span><i class="rb" data-r="rb-hist"></i></button>
       <button data-a="lib" data-v="star" data-rail="lib-star" title="スター付き"><svg viewBox="0 0 24 24"><path d="M12 3.8l2.5 5.1 5.6.8-4 3.9.9 5.6-5-2.6-5 2.6.9-5.6-4-3.9 5.6-.8z"/></svg><span>スター</span><i class="rb" data-r="rb-star"></i></button>
       <button data-a="lib" data-v="trash" data-rail="lib-trash" title="ゴミ箱（中身を見る・元に戻す・完全に削除）"><svg viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V4.8h5V7"/><path d="M6 7l1 12.2A1.5 1.5 0 0 0 8.5 20.6h7a1.5 1.5 0 0 0 1.5-1.4L18 7"/><path d="M10 11v6M14 11v6"/></svg><span>ゴミ箱</span><i class="rb" data-r="rb-trash"></i></button>
@@ -2366,7 +2382,7 @@
     const rec = files.filter((f) => f.ct).sort((a, b) => Date.parse(b.ct) - Date.parse(a.ct)).slice(0, 6);
     const th = (f) => `<button class="db-th" data-a="lib" data-v="recent" title="${esc(f.name)}"><span class="im">${f.thumb ? `<img loading="lazy" referrerpolicy="no-referrer" src="${esc(f.thumb)}" alt="">` : ICON_FILE({ name: f.name, ext: extOf(f.name) })}</span><b>${esc(f.name)}</b><small>${new Date(Date.parse(f.ct)).toLocaleDateString(loc(), { month: 'numeric', day: 'numeric' })}・${fmt(f.size)}</small></button>`;
     const nx = next && STEPS.find((s) => s.v === next);
-    const quick = [['tree', 'フォルダ一覧', '見る・再生'], ['lib:dl', '追加したもの', libBadge.dl ? libBadge.dl + ' 件 進行中' : '進み具合'], ['lib:recent', '最近の追加', '直近 7 日'], ['lib:hist', '再生履歴', '続きから'], ['lib:star', 'スター', 'スター付き'], ['lib:trash', 'ゴミ箱', quota ? fmtCap(quota.trash) : '中身を見る']];
+    const quick = [['tree', 'フォルダ一覧', '見る・再生'], ['lib:dl', '追加したもの', libBadge.dl ? libBadge.dl + ' 件 進行中' : '進み具合'], ['lib:recent', '最近の追加', '直近 7 日'], ['lib:cont', '続きを見る', '途中から'], ['lib:hist', '再生履歴', '見たもの'], ['lib:star', 'スター', 'スター付き'], ['lib:trash', 'ゴミ箱', quota ? fmtCap(quota.trash) : '中身を見る']];
     $('[data-r=main]').innerHTML = `<div class="db">
       <div class="db-hd"><h2>整理</h2><span class="db-chip on" title="読み込んだ場所">${esc(where)}</span><span class="sp"></span><span class="note">前回の読み込み：${esc(when)}（フォルダ ${meta.nfo.toLocaleString()} ／ ファイル ${meta.nfi.toLocaleString()}）</span></div>
       ${staleH >= 6 && staleH < 24 ? `<div class="sv-stale">前回の読み込みから ${staleH >= 48 ? Math.floor(staleH / 24) + ' 日' : staleH + ' 時間'}たっています。PikPak で追加・削除したものは「読み込み直す」で反映されます。</div>` : ''}
@@ -3996,7 +4012,7 @@
     v.addEventListener('loadedmetadata', () => { if (t) v.currentTime = t; v.defaultPlaybackRate = getRate(); v.playbackRate = getRate(); if (opt.onMeta) opt.onMeta(v); }, { once: true });
     const ui = document.createElement('div'); ui.className = 'qp-ui'; box.after(ui);
     if (opt.seekbar !== false) attachSeekbar(ui, v, x, S);
-    qpAttach(box, v, ui, opt.qp || {});
+    qpAttach(box, v, ui, { ...(opt.qp || {}), src: { x, S } });
     let hls = null;
     const viaHls = async () => {
       hls = new S.H({ maxBufferLength: 60, enableWorker: true });
@@ -4947,6 +4963,49 @@
       } else { flash('先に A で始めを決めてください'); }
       P.drawSkips();
     };
+    // ---- シーン（一定の間隔で画面を取って右に並べる。押すとその場面へ） ----
+    const scn = { el: null, gr: null, times: [], run: 0 };
+    const sceneTimes = () => { const d = v.duration; if (!d || !isFinite(d)) return []; const n = Math.max(8, Math.min(30, Math.round(d / 120))); return Array.from({ length: n }, (_, i) => Math.round(d * i / n)); };
+    P.drawTicks = () => {
+      const tr = ui.querySelector('.pd-sk > .sktr'); if (!tr) return;
+      tr.querySelectorAll('.skt').forEach((z) => z.remove());
+      const d = v.duration; if (!scn.el || !d || !isFinite(d)) return;
+      scn.times.forEach((t) => { if (t > 0) tr.insertAdjacentHTML('beforeend', `<i class="skt" style="left:${t / d * 100}%"></i>`); });
+    };
+    const sceneCur = () => {
+      if (!scn.el) return; const t = v.currentTime; let k = 0; scn.times.forEach((x, i) => { if (t >= x) k = i; });
+      scn.el.querySelectorAll('[data-sc]').forEach((b) => b.classList.toggle('cur', +b.dataset.sc === k));
+    };
+    P.scenes = (on) => {
+      if (on === undefined) on = !scn.el;
+      const btn = ui.querySelector('[data-qp=scene]');
+      if (!on) { scn.run++; if (scn.gr) { scn.gr.close(); scn.gr = null; } if (scn.el) { scn.el._grab = null; scn.el.remove(); scn.el = null; } if (btn) btn.classList.remove('on'); P.drawTicks(); return; }
+      if (scn.el || !opt.src) return;
+      scn.times = sceneTimes(); if (!scn.times.length) { flash('長さが分かってから開けます'); return; }
+      const el = document.createElement('div'); el.className = 'qp-scn';
+      el.innerHTML = `<div class="qp-scn-h"><b>シーン</b><small>${scn.times.length} か所</small><button data-scx title="閉じる（G）">✕</button></div><div class="qp-scn-l">${scn.times.map((t, i) => `<button data-sc="${i}"><span class="im"><i>…</i></span><span>${fmtT(t)}</span></button>`).join('')}</div>`;
+      el.addEventListener('mousedown', (e) => e.stopPropagation());
+      el.addEventListener('wheel', (e) => e.stopPropagation(), { passive: true });
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (e.target.closest('[data-scx]')) { P.scenes(false); return; }
+        const b = e.target.closest('[data-sc]'); if (!b) return; v.currentTime = scn.times[+b.dataset.sc]; sceneCur();
+      });
+      stage.appendChild(el); scn.el = el; if (btn) btn.classList.add('on');
+      P.drawTicks(); sceneCur();
+      // 画像は軽い画質から 1 枚ずつ作る（閉じたらやめる）
+      const my = ++scn.run;
+      try { scn.gr = makeGrabber(lightSrc(opt.src.S) || opt.src.x, opt.src.S); el._grab = scn.gr; } catch (e) { scn.gr = null; }
+      (async () => {
+        for (let i = 0; i < scn.times.length; i++) {
+          if (my !== scn.run || !scn.gr) return;
+          const im = el.querySelector(`[data-sc="${i}"] .im`);
+          try { const c = await scn.gr.grab(scn.times[i] + (i ? 0 : 1), 240); if (my !== scn.run) return; c.className = ''; im.innerHTML = ''; im.appendChild(c); }
+          catch (e) { if (my !== scn.run) return; im.innerHTML = '<i>×</i>'; if (i === 0) { el.querySelectorAll('.im i').forEach((x) => { x.textContent = '—'; }); el.querySelector('.qp-scn-h small').textContent = '画像を作れませんでした（時間だけ表示）'; return; } }
+        }
+      })();
+    };
+    v.addEventListener('timeupdate', sceneCur);
     if (mk) {
       v.addEventListener('loadedmetadata', () => P.drawSkips());
       v.addEventListener('durationchange', () => P.drawSkips());
@@ -4973,7 +5032,7 @@
     // ---- 操作バー ----
     const jl = qpCfg().jl;
     const ctl = document.createElement('div'); ctl.className = 'qp-ctl';
-    ctl.innerHTML = `${opt.prev ? '<button data-qp="prev" title="前の動画（P）">⏮</button>' : ''}<button data-qp="play" title="再生・一時停止（Space / K）">⏸</button>${opt.next ? '<button data-qp="next" title="次の動画（N）">⏭</button>' : ''}<button data-qp="back" title="戻る（J）">-${jl}</button><button data-qp="fwd" title="進む（L）">+${jl}</button><span class="qp-t" data-qp="time">00:00 / 00:00</span><span class="qp-sp"></span><button data-qp="mute" title="消音（M）">🔊</button><input type="range" data-qp="vol" min="0" max="100" value="${Math.round(v.volume * 100)}" aria-label="音量">${rateSelect()}${opt.media ? '<button data-qp="ab" title="飛ばす区間（A で始め・B で終わり。⚙ で消せます）">✂ A–B</button>' : ''}<button data-qp="zoom" title="ズーム（ホイール・ピンチ・Z / X、押すと 100% に戻す）">🔍 100%</button><button data-qp="gear" title="簡易プレーヤーの設定" aria-label="設定">⚙</button><button data-qp="full" title="全画面（F）">⛶</button><div class="qp-set" hidden></div>`;
+    ctl.innerHTML = `${opt.prev ? '<button data-qp="prev" title="前の動画（P）">⏮</button>' : ''}<button data-qp="play" title="再生・一時停止（Space / K）">⏸</button>${opt.next ? '<button data-qp="next" title="次の動画（N）">⏭</button>' : ''}<button data-qp="back" title="戻る（J）">-${jl}</button><button data-qp="fwd" title="進む（L）">+${jl}</button><span class="qp-t" data-qp="time">00:00 / 00:00</span><span class="qp-sp"></span><button data-qp="mute" title="消音（M）">🔊</button><input type="range" data-qp="vol" min="0" max="100" value="${Math.round(v.volume * 100)}" aria-label="音量">${rateSelect()}${opt.src ? '<button data-qp="scene" title="シーン（G）">▦ シーン</button>' : ''}${opt.media ? '<button data-qp="ab" title="飛ばす区間（A で始め・B で終わり。⚙ で消せます）">✂ A–B</button>' : ''}<button data-qp="zoom" title="ズーム（ホイール・ピンチ・Z / X、押すと 100% に戻す）">🔍 100%</button><button data-qp="gear" title="簡易プレーヤーの設定" aria-label="設定">⚙</button><button data-qp="full" title="全画面（F）">⛶</button><div class="qp-set" hidden></div>`;
     ui.appendChild(ctl);
     const q = (k) => ctl.querySelector(`[data-qp=${k}]`), setPanel = ctl.querySelector('.qp-set');
     const syncUi = () => {
@@ -4995,6 +5054,7 @@
       else if (k === 'mute') { v.muted = !v.muted; flash(v.muted ? '🔇 消音' : '🔊 ' + Math.round(v.volume * 100) + '%'); }
       else if (k === 'zoom') P.zoomReset(); else if (k === 'full') P.full();
       else if (k === 'ab') P.mark();
+      else if (k === 'scene') P.scenes();
       else if (k === 'skdel' && mk) { mk.delSkip(+b.dataset.i); P.drawSkips(); renderSet(); }
       else if (k === 'gear') { if (setPanel.hidden) renderSet(); setPanel.hidden = !setPanel.hidden; }
     });
@@ -5041,6 +5101,7 @@
       P.kHold = setTimeout(() => { if (P.kDown) { P.kHeld = true; P.holdOn(); } }, 350);
     }
     else if (k === 'a' || k === 'A') { done(); P.mark('A'); }
+    else if ((k === 'g' || k === 'G') && P.scenes) { done(); P.scenes(); }
     else if (k === 'b' || k === 'B') { done(); P.mark('B'); }
     else if (k === 'j' || k === 'J') { done(); P.seek(-c.jl); }
     else if (k === 'l' || k === 'L') { done(); P.seek(c.jl); }
@@ -5237,18 +5298,18 @@
     if (row) { row.scrollIntoView({ block: 'center' }); flash(row); }
     const t = $('[data-r=tree]'); if (t) t.focus({ preventScroll: true });
   }
-  const LIB_IC = { dl: '<svg viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 7.97"/><path d="M12 11v9M8.8 17l3.2 3 3.2-3"/></svg>', recent: '<svg viewBox="0 0 24 24"><circle cx="11" cy="12" r="7.5"/><path d="M11 8v4.2l2.6 1.6"/><path d="M19.5 3.5v4M17.5 5.5h4"/></svg>', hist: '<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/><path d="M10.5 9.2v5.6l4.4-2.8z"/></svg>', star: '<svg viewBox="0 0 24 24"><path d="M12 3.8l2.5 5.1 5.6.8-4 3.9.9 5.6-5-2.6-5 2.6.9-5.6-4-3.9 5.6-.8z"/></svg>', trash: '<svg viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V4.8h5V7"/><path d="M6 7l1 12.2A1.5 1.5 0 0 0 8.5 20.6h7a1.5 1.5 0 0 0 1.5-1.4L18 7"/><path d="M10 11v6M14 11v6"/></svg>' };
+  const LIB_IC = { cont: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M10 8.5v5l4-2.5z"/><path d="M3 20.5h11" stroke-width="2.4"/></svg>', dl: '<svg viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 7.97"/><path d="M12 11v9M8.8 17l3.2 3 3.2-3"/></svg>', recent: '<svg viewBox="0 0 24 24"><circle cx="11" cy="12" r="7.5"/><path d="M11 8v4.2l2.6 1.6"/><path d="M19.5 3.5v4M17.5 5.5h4"/></svg>', hist: '<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/><path d="M10.5 9.2v5.6l4.4-2.8z"/></svg>', star: '<svg viewBox="0 0 24 24"><path d="M12 3.8l2.5 5.1 5.6.8-4 3.9.9 5.6-5-2.6-5 2.6.9-5.6-4-3.9 5.6-.8z"/></svg>', trash: '<svg viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V4.8h5V7"/><path d="M6 7l1 12.2A1.5 1.5 0 0 0 8.5 20.6h7a1.5 1.5 0 0 0 1.5-1.4L18 7"/><path d="M10 11v6M14 11v6"/></svg>' };
   // ---------- 左メニュー：ダウンロード中・最近追加したもの・再生した履歴・スター付き・ゴミ箱 ----------
   // ---- 追加したもの：Dedupe でリンクを追加したときの記録（このブラウザに保存）と、PikPak のダウンロードタスクを合わせて見せる ----
   const LS_ADDLOG = 'ppdup:addlog:v1';
   const addLogRead = () => { try { return JSON.parse(localStorage.getItem(LS_ADDLOG) || '[]') || []; } catch (e) { return []; } };
   const addLogWrite = (a) => { try { localStorage.setItem(LS_ADDLOG, JSON.stringify(a.slice(0, 300))); } catch (e) { /* 無視 */ } };
   const addLogPush = (r) => { const a = addLogRead(); a.unshift({ ...r, lid: 'L' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), at: Date.now() }); addLogWrite(a); };
-  const LIB_TABS = [['dl', '追加したもの'], ['recent', '最近追加したもの'], ['hist', '再生した履歴'], ['star', 'スター付き'], ['trash', 'ゴミ箱']];
+  const LIB_TABS = [['dl', '追加したもの'], ['recent', '最近追加したもの'], ['cont', '続きを見る'], ['hist', '再生した履歴'], ['star', 'スター付き'], ['trash', 'ゴミ箱']];
   let libSt = null, libBadge = { dl: 0, trash: 0 };
   const encF = (o) => encodeURIComponent(JSON.stringify(o));
   const phaseTxt = { PHASE_TYPE_RUNNING: 'ダウンロード中', PHASE_TYPE_PENDING: '順番待ち', PHASE_TYPE_ERROR: '失敗', PHASE_TYPE_COMPLETE: '完了' };
-  const LIB_GRID = new Set(['recent', 'hist', 'star']);
+  const LIB_GRID = new Set(['recent', 'cont', 'hist', 'star']);
   async function libFetch(tab) {
     if (tab === 'dl') {
       const d = await api(`/tasks?type=offline&limit=100&thumbnail_size=SIZE_SMALL&filters=${encF({ phase: { in: 'PHASE_TYPE_RUNNING,PHASE_TYPE_PENDING,PHASE_TYPE_ERROR,PHASE_TYPE_COMPLETE' } })}`);
@@ -5273,6 +5334,12 @@
       // Dedupe 以外（PikPak の画面など）で追加したダウンロード
       (d.tasks || []).filter((t) => !used.has(t.id)).forEach((t) => out.push({ id: t.id, task: t.id, name: t.name || t.file_name || '', size: +t.file_size || 0, at: t.created_time || '', mode: 'pikpak', fid: t.file_id || '', st: ST[t.phase] || 'run', pct: +t.progress || 0, msg: t.message || '' }));
       return out.sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
+    }
+    // 続きを見る：途中で止めたもの（このブラウザの再生の記録から。新しい順）
+    if (tab === 'cont') {
+      const db = mediaAll();
+      return Object.keys(db).filter((k) => db[k].pos > 0 && !db[k].done).sort((a, b) => Date.parse(db[b].at) - Date.parse(db[a].at)).slice(0, 300)
+        .map((k) => { const m = db[k], sf = fileById(k); return { id: k, name: m.name || (sf && sf.name) || k, size: m.size || (sf && sf.size) || 0, at: m.at, thumb: m.thumb || (sf && sf.thumb) || '' }; });
     }
     if (tab === 'hist') {
       let d = {}; try { d = await api(`/events?thumbnail_size=SIZE_MEDIUM&limit=100&filters=${encF({ type: { in: 'TYPE_PLAY' } })}`); } catch (e) { if (e.session) throw e; }
@@ -5475,11 +5542,14 @@
     const tabs = LIB_TABS.map(([k, l]) => `<button class="lb-tab${k === tab ? ' on' : ''}" data-lbtab="${k}">${LIB_IC[k]}<span>${l}</span>${k === 'dl' && libBadge.dl ? `<i>${libBadge.dl}</i>` : k === 'trash' && libBadge.trash ? `<i>${libBadge.trash}</i>` : ''}</button>`).join('');
     const selectable = tab === 'dl' || tab === 'trash' || tab === 'star';
     const cb = (it) => `<input type="checkbox" data-lbi="${esc(it.id)}"${S.sel.has(it.id) ? ' checked' : ''}${S.busy ? ' disabled' : ''} aria-label="選ぶ">`;
+    // どこまで見たか（青い線。見終わったものは灰色の線）
+    const prog = (it) => { const m = !it.folder && mediaGet(it.id); if (!m) return ''; if (m.done) return '<i class="lb-prog done" style="width:100%" title="見終わった"></i>'; return m.pos > 0 && m.dur ? `<i class="lb-prog" style="width:${Math.min(100, Math.max(2, m.pos / m.dur * 100)).toFixed(1)}%" title="${fmtT(m.pos)} まで見た"></i>` : ''; };
     const card = (it) => {
       const r = { name: it.name, ext: extOf(it.name) };
       const th = it.thumb ? `<img loading="lazy" referrerpolicy="no-referrer" src="${esc(it.thumb)}" alt="">` : `<span class="ph">${it.folder ? ICON_DIR : ICON_FILE(r)}</span>`;
-      const info = [it.size && !it.folder ? fmt(it.size) : '', when(it.at)].filter(Boolean).join('・');
-      return `<div class="lb-card${S.cur === it.id ? ' cur' : ''}" data-lbc="${esc(it.id)}" tabindex="0" title="${esc(it.name)}${tab === 'recent' && it.path ? '\n' + esc(it.path) : ''}"><div class="lb-th">${th}${libIsVid(it) ? '<span class="lb-play">▶</span>' : ''}${selectable ? cb(it) : ''}</div><div class="lb-ct"><b>${esc(it.name)}</b><small>${esc(info)}</small></div></div>`;
+      const mm = !it.folder && mediaGet(it.id);
+      const info = [it.size && !it.folder ? fmt(it.size) : '', tab === 'cont' && mm && mm.pos ? `途中 ${fmtT(mm.pos)} / ${fmtT(mm.dur || 0)}` : when(it.at)].filter(Boolean).join('・');
+      return `<div class="lb-card${S.cur === it.id ? ' cur' : ''}" data-lbc="${esc(it.id)}" tabindex="0" title="${esc(it.name)}${tab === 'recent' && it.path ? '\n' + esc(it.path) : ''}"><div class="lb-th">${th}${libIsVid(it) ? '<span class="lb-play">▶</span>' : ''}${prog(it)}${selectable ? cb(it) : ''}</div><div class="lb-ct"><b>${esc(it.name)}</b><small>${esc(info)}</small></div></div>`;
     };
     const row = (it) => {
       let tag = '', info = [it.size ? fmt(it.size) : '', when(it.at)];
@@ -5501,13 +5571,13 @@
     if (S.loading) body = '<div class="empty">読み込み中…</div>';
     else if (S.err === 'scan') body = '<div class="empty">「最近追加したもの」は、読み込んだ内容から作ります。先に左の「再読み込み」で PikPak の中身を読み込んでください。</div>';
     else if (S.err) body = `<div class="empty">読み込めませんでした：${esc(S.err)}</div>`;
-    else if (!S.items.length) body = `<div class="empty">${{ dl: 'まだ何も追加していません（Dedupe の「リンクを追加」で追加したものと、PikPak のダウンロードがここに出ます）', recent: `この ${S.days} 日間に追加したものはありません`, hist: '再生した履歴はありません', star: 'スター付きの項目はありません', trash: 'ゴミ箱は空です' }[tab]}</div>`;
+    else if (!S.items.length) body = `<div class="empty">${{ dl: 'まだ何も追加していません（Dedupe の「リンクを追加」で追加したものと、PikPak のダウンロードがここに出ます）', recent: `この ${S.days} 日間に追加したものはありません`, cont: '途中で止めた動画はありません（Dedupe で再生して途中で閉じると、ここに出ます）', hist: '再生した履歴はありません', star: 'スター付きの項目はありません', trash: 'ゴミ箱は空です' }[tab]}</div>`;
     else if (grid && lv === 'tile') body = `<div class="lb-grid sz-${lsz}">${S.items.map(card).join('')}</div>`;
     else if (grid) {
       // リスト（フォルダごとにまとめる）・サムネイル（大きめの画像つきの行）
       const li = (it) => {
         const th = it.thumb ? `<img loading="lazy" referrerpolicy="no-referrer" src="${esc(it.thumb)}" alt="">` : `<span class="ph">${it.folder ? ICON_DIR : ICON_FILE({ name: it.name, ext: extOf(it.name) })}</span>`;
-        return `<div class="lb-li ${lv}${S.cur === it.id ? ' cur' : ''}" data-lbc="${esc(it.id)}" tabindex="0" title="${esc(it.name)}">${tab === 'star' ? cb(it) : ''}<span class="th">${th}${libIsVid(it) ? '<span class="lb-play">▶</span>' : ''}</span><span class="nm"><b>${esc(it.name)}</b>${lv === 'thumb' && it.path ? `<small>${esc(it.path)}</small>` : ''}</span><span class="sz">${it.size && !it.folder ? fmt(it.size) : ''}</span><span class="dt">${esc(when(it.at))}</span></div>`;
+        return `<div class="lb-li ${lv}${S.cur === it.id ? ' cur' : ''}" data-lbc="${esc(it.id)}" tabindex="0" title="${esc(it.name)}">${tab === 'star' ? cb(it) : ''}<span class="th">${th}${libIsVid(it) ? '<span class="lb-play">▶</span>' : ''}${prog(it)}</span><span class="nm"><b>${esc(it.name)}</b>${lv === 'thumb' && it.path ? `<small>${esc(it.path)}</small>` : ''}</span><span class="sz">${it.size && !it.folder ? fmt(it.size) : ''}</span><span class="dt">${esc(when(it.at))}</span></div>`;
       };
       if (lv === 'list' && tab === 'recent') {
         // 最近追加したものだけのツリー：追加したファイルのあるフォルダだけを、階層ごとに開いたり閉じたりできる
@@ -5533,7 +5603,7 @@
     else body = S.items.map(row).join('');
     const n = S.sel.size, dis = S.busy || S.loading ? ' disabled' : '';
     const pvTip = `スペースで低画質のプレビュー、ダブルクリック・Enter は設定の「再生のしかた」（${esc(prefLabel())}）で開きます。本編は「↗ 外部プレーヤー」（オリジナル画質）がおすすめ。`;
-    const note = { dl: 'リンク・マグネットで追加したもの（直近 60 日）。すぐ保存した分は保存先にあるかを、クラウドダウンロードの分は進み具合を確かめて表示します。「一覧から外す」は記録とタスクを消すだけで、保存したファイルは消しません。', recent: '追加日の新しい順（読み込んだ範囲：' + esc(dirLabel((scanRoot() || {}).id) || '—') + '）。' + pvTip, hist: 'Dedupe と PikPak で再生した動画（新しい順）。Dedupe で再生した分はこのブラウザに記録します。' + pvTip, star: 'PikPak でスターを付けた項目。' + pvTip, trash: `ゴミ箱の中身${quota ? `（${fmtCap(quota.trash)}）` : ''}。「完全に削除」「空にする」は元に戻せません。` }[tab];
+    const note = { dl: 'リンク・マグネットで追加したもの（直近 60 日）。すぐ保存した分は保存先にあるかを、クラウドダウンロードの分は進み具合を確かめて表示します。「一覧から外す」は記録とタスクを消すだけで、保存したファイルは消しません。', recent: '追加日の新しい順（読み込んだ範囲：' + esc(dirLabel((scanRoot() || {}).id) || '—') + '）。' + pvTip, cont: '途中で止めた動画（新しい順）。開くと前回の続きから再生します。', hist: 'Dedupe と PikPak で再生した動画（新しい順）。Dedupe で再生した分はこのブラウザに記録します。' + pvTip, star: 'PikPak でスターを付けた項目。' + pvTip, trash: `ゴミ箱の中身${quota ? `（${fmtCap(quota.trash)}）` : ''}。「完全に削除」「空にする」は元に戻せません。` }[tab];
     const all = selectable && S.items.length ? `<label class="note lb-all"><input type="checkbox" data-lball${n && n === S.items.length ? ' checked' : ''}${dis}> すべて選ぶ</label>` : '';
     const html = `<div class="lk-box" role="dialog" aria-label="${esc(LIB_TABS.find((x) => x[0] === tab)[1])}"><div class="lk-hd"><b>${LIB_TABS.find((x) => x[0] === tab)[1]}</b><span class="note">${S.items.length && !S.loading ? S.items.length + ' 項目' : ''}</span><span class="sp"></span>${grid ? `<span class="seg lb-vw" title="表示のしかた">${[['list', tab === 'recent' ? '🌲 ツリー' : '☰ リスト'], ['thumb', '▤ サムネイル'], ['tile', '▦ タイル']].map(([k, l]) => `<button data-lbview="${k}" class="${lv === k ? 'on' : ''}">${l}</button>`).join('')}</span>${lv === 'list' && tab === 'recent' ? '<span class="seg"><button data-lbtall="open" title="すべて開く">⊞ 全展開</button><button data-lbtall="close" title="すべて閉じる">⊟ 全格納</button></span>' : ''}<button data-lbauto class="${libAuto() ? 'on' : ''}" title="プレビューで動画が終わったら、次の動画を続けて再生します">${libAuto() ? '✓ ' : ''}続けて再生</button>` : ''}${grid && lv === 'tile' ? `<span class="seg lb-sz" title="サムネイルの大きさ">${[['s', '小'], ['m', '中'], ['l', '大']].map(([k, l]) => `<button data-lbsz="${k}" class="${lsz === k ? 'on' : ''}">${l}</button>`).join('')}</span>` : ''}<button data-lbreload title="読み込み直す"${dis}>更新</button><button class="x" data-lbclose aria-label="閉じる">${IC.x}</button></div>
       <div class="lb-tabs">${tabs}</div>

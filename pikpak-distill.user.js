@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.6.2
+// @version      4.6.3
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.6.2'; // @version と合わせて更新する
+  const VER = '4.6.3'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1424,6 +1424,34 @@
   .pd-colmenu label{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer}
   .pd-colmenu label:hover{background:var(--panel2)}
   .pd-colmenu small{color:var(--mute);padding:4px 8px}
+  /* ---- 見比べ ---- */
+  #pd-cmp{position:fixed;inset:0;z-index:100003;background:#000d;display:flex;align-items:center;justify-content:center;font:13px system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI",sans-serif;color:#eee}
+  #pd-cmp .cm{width:min(1500px,98vw);max-height:96vh;display:flex;flex-direction:column;background:#111;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px #000}
+  #pd-cmp .cm-h{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#1d1f24;flex-wrap:wrap}
+  #pd-cmp .cm-h .note{color:#8b91a1}
+  #pd-cmp .sp{flex:1}
+  #pd-cmp button{font:inherit;background:#2b2e35;color:#eee;border:1px solid #3a3f4b;border-radius:8px;padding:5px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  #pd-cmp button.on{background:#306fff;border-color:#306fff}
+  #pd-cmp button[hidden]{display:none}
+  #pd-cmp .qp-tri{display:none}
+  #pd-cmp button svg.ic{width:18px;height:18px}
+  #pd-cmp button.x{padding:5px 8px}
+  #pd-cmp .cm-ps{display:flex;gap:6px;padding:6px;min-height:0;flex:1 1 auto}
+  #pd-cmp .cm-p{flex:1 1 0;min-width:0;display:flex;flex-direction:column;background:#000;border-radius:8px;overflow:hidden;box-shadow:0 0 0 2px transparent}
+  #pd-cmp .cm-p.keep{box-shadow:0 0 0 2px #3fbf7f}
+  #pd-cmp .cm-p.del{box-shadow:0 0 0 2px #e05a5a;opacity:.85}
+  #pd-cmp .cm-ph{display:flex;align-items:center;gap:8px;padding:6px 10px;background:#16181d}
+  #pd-cmp .cm-ph b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #pd-cmp .cm-tag{flex:none;font-size:11px;font-weight:700;padding:1px 7px;border-radius:6px;background:#2b2e35;color:#aab}
+  #pd-cmp .cm-b{position:relative;flex:1 1 auto;min-height:200px;display:flex;flex-direction:column;justify-content:center}
+  #pd-cmp .cm-b .qp-stage video{width:100%;max-height:62vh;display:block;background:#000}
+  #pd-cmp .cm-pf{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#16181d}
+  #pd-cmp .cm-inf{color:#aab;font-size:12px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #pd-cmp .cm-p.keep .cm-keep{background:#1f3b2c;border-color:#3fbf7f;color:#7fe0a6}
+  #pd-cmp .pl-msg{padding:10px 14px;text-align:center;color:#ccc}
+  #pd-cmp .pl-err{color:#ff9b9b}
+  @media (max-width:899px){#pd-cmp .cm{height:96vh}#pd-cmp .cm-ps{flex-direction:column;overflow:auto}#pd-cmp .cm-p{flex:none}#pd-cmp .cm-b{flex:none}#pd-cmp .cm-b .qp-stage video{max-height:32vh}#pd-cmp .cm-h .note{display:none}}
+
   /* ---- 下の引き出し（スマホ・狭い画面） ---- */
   #ppdup .pd-sheet{display:none}
   #ppdup.narrow .pd-sheet{display:flex;flex-direction:column;position:absolute;left:0;right:0;bottom:0;z-index:8;background:var(--panel);border-radius:22px 22px 0 0;box-shadow:0 -8px 28px #0006;padding:0 12px calc(12px + env(safe-area-inset-bottom));transform:translateY(var(--shdy,0px));transition:max-height .22s ease;max-height:150px}
@@ -2294,7 +2322,7 @@
   let shRefs = [], shT = null;
   const shOn = () => root.classList.contains('narrow') && root.classList.contains('on');
   // 上に重なる画面（リンク追加・解凍・プレーヤー・確認など）を開いている間は、引き出しを隠す
-  const shCover = () => !!document.querySelector('#pd-add,#pd-unzip,#pd-player,#pd-ql,#pd-dlg,#pd-set,#pd-frames');
+  const shCover = () => !!document.querySelector('#pd-add,#pd-unzip,#pd-player,#pd-ql,#pd-dlg,#pd-set,#pd-frames,#pd-cmp');
   setInterval(() => { if (shOn()) sheet.classList.toggle('covered', shCover()); }, 400);
   const shSet = (n) => { sheet.dataset.st = String(Math.max(0, Math.min(2, n))); };
   const shBtn = (el, cls) => {
@@ -2977,7 +3005,7 @@
           <div class="pd-sz"><b>${fmt(f.size)}</b><div class="note">${diff}</div></div>
           <div class="pd-act"><button data-s="open">場所を開く</button></div></div>`;
       }).join('');
-      return `<section class="pd-g"><div class="pd-gh"><span>${esc(g.items[0].name)}</span><span class="note">${g.items.length}件</span>${g.near ? '<span class="pd-tag">サイズが近い組あり</span>' : ''}<span class="sp"></span><button data-frg="${esc(g.key)}" title="この組の 2 本を、同じ位置のコマで並べて比べる">▦ コマで比べる</button><button data-g="${esc(g.key)}">この組のチェックを削除</button></div>${rows}</section>`;
+      return `<section class="pd-g"><div class="pd-gh"><span>${esc(g.items[0].name)}</span><span class="note">${g.items.length}件</span>${g.near ? '<span class="pd-tag">サイズが近い組あり</span>' : ''}<span class="sp"></span><button data-cmpg="${esc(g.key)}" title="この組の 2 本を左右に並べて、いっしょに再生して比べる">▶ 見比べ</button><button data-frg="${esc(g.key)}" title="この組の 2 本を、同じ位置のコマで並べて比べる">▦ コマで比べる</button><button data-g="${esc(g.key)}">この組のチェックを削除</button></div>${rows}</section>`;
     }).join('') + nextButton();
     renderActs();
     if (!busy) { const dl = delList(groups); status(`重複 ${groups.length} 組 ／ チェック（削除する） ${dl.length} 件・${fmt(dl.reduce((a, f) => a + f.size, 0))}　※各組の一番大きいファイルは最初からチェックなし（残す）になっています`); }
@@ -4144,6 +4172,7 @@
     el.classList.toggle('on', rows.length > 0);
     el.innerHTML = rows.length
       ? `<span class="cnt">選択中：${rows.length} 項目</span><button class="pri" data-ta="play"${dis(isVideoRow(one))} title="再生：${prefLabel()}（${KEY.open} / ダブルクリック）">▶ 再生</button>
+        ${rows.length === 2 && rows.every(isVideoRow) ? '<button data-ta="compare" title="選んだ 2 本を左右に並べて、いっしょに再生して比べる">▶ 2 本を見比べる</button>' : ''}
         <button data-ta="rename"${dis(one)} title="名前を変更（${KEY.rename}）">✎ 名前を変更</button>
         <button data-ta="move"${dis(rows.length && !fixed)} title="${fixed ? '読み込んだ場所とその上のフォルダは、ここでは移動できません' : '移動（ドラッグでも移動できます）'}">↪ 移動…</button>
         ${rows.some((r) => r.kind === 'file' && isArchive(r.name)) ? '<button data-ta="unzip" title="選んだ圧縮ファイルを PikPak の上で解凍">📦 解凍</button>' : ''}
@@ -4159,6 +4188,7 @@
     else if (a === 'playfull' && isVideoRow(one)) playFile(one.id, { full: true });
     else if (a === 'playext' && isVideoRow(one)) openExternal(one.id);
     else if (a === 'playset') openSettings('play');
+    else if (a === 'compare' && rows.length === 2 && rows.every(isVideoRow)) openCompare(rows.map((r) => r.id));
     else if (a === 'frames' && rows.length && rows.length <= 2 && rows.every(isVideoRow)) openFrames(rows.map((r) => r.id));
     else if (a === 'preview' && one) { treeCur = one.id; showQL(); }
     else if (a === 'rename' && one) { closeQL(); renaming = one.id; renderTree(); }
@@ -4185,6 +4215,7 @@
       isVideoRow(one) ? it('play', `▶ 再生（${prefLabel()}）`, KEY.open, true) : '',
       isVideoRow(one) ? it('playfull', '⛶ 全画面で再生', '', true) : '',
       isVideoRow(one) ? it('playext', `↗ 外部プレーヤー（${EXT_PLAYERS[playPref().ext].short}）`, '', true) : '',
+      rows.length === 2 && rows.every(isVideoRow) ? it('compare', '▶ 2 本を見比べる', '', true) : '',
       rows.length && rows.length <= 2 && rows.every(isVideoRow) ? it('frames', rows.length === 2 ? '▦ 2 本をコマで比べる' : '▦ コマ一覧', '', true) : '',
       isVideoRow(one) ? it('playset', '再生のしかたの設定…', '', true) + '<hr>' : '',
       one && one.kind === 'folder' ? it('open', '開く', '→', true) : '',
@@ -4628,6 +4659,83 @@
     if (o.slot) PL[o.slot] = P;
     return P;
   }
+  // ---------- 見比べ：重複の 2 本を左右に並べて、いっしょに再生する ----------
+  //   シーク・再生／停止・速度は 2 本で連動（オフにもできる）。音は片方だけ。ずれたら「位置をそろえる」
+  let cmpRun = 0;
+  function closeCompare() {
+    cmpRun++; plStop('cmpA'); plStop('cmpB');
+    const d = document.getElementById('pd-cmp'); if (!d) return;
+    unloadMedia(d); d.remove();
+  }
+  function openCompare(ids) {
+    ids = ids.filter(Boolean).slice(0, 2); if (ids.length < 2) return;
+    if (!ensureSession(view)) return;
+    closeQL(); closePlayer(); closeCompare(); closeCtx();
+    const run = ++cmpRun;
+    const F = ids.map((id) => fileById(id) || { id, name: (mediaGet(id) || {}).name || id, size: (mediaGet(id) || {}).size || 0 });
+    const d = document.createElement('div'); d.id = 'pd-cmp'; document.body.appendChild(d);
+    const st = { link: true, audio: 0, busy: false };
+    const pane = (f, i) => `<div class="cm-p" data-cmi="${i}"><div class="cm-ph"><span class="cm-tag">${i ? '右' : '左'}</span><b title="${esc(f.name)}">${esc(f.name)}</b></div><div class="cm-b"><div class="pl-msg">再生の準備中…</div></div><div class="cm-pf"><span class="cm-inf">${fmt(f.size)}<span data-cminf="${i}"></span></span><span class="sp"></span><button class="cm-keep" data-cmkeep="${i}" title="こちらを残して、もう片方を「削除する」にする（重複の判断に記録）">こちらを残す</button></div></div>`;
+    d.innerHTML = `<div class="cm"><div class="cm-h"><b>見比べ</b><span class="note">2 本をいっしょに再生</span><span class="sp"></span>
+      <button data-cm="both" title="2 本とも 再生／一時停止（Space）">${IC.play}<span>2 本とも</span></button>
+      <button data-cm="sync" title="右を左と同じ位置にそろえる">⇆ 位置をそろえる</button>
+      <button data-cm="link" class="on" title="シーク・再生／停止・速度を 2 本で連動する（押すと切り替え）">🔗 連動</button>
+      <button data-cm="audio" title="音を出す方を切り替える">${IC.vol}<span>音：左</span></button>
+      <button class="x" data-cm="close" title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
+      <div class="cm-ps">${F.map(pane).join('')}</div></div>`;
+    const P = [];
+    const vids = () => P.map((x) => x && x.v).filter(Boolean);
+    let guard = false;
+    const other = (v) => vids().find((x) => x !== v);
+    const link = (v) => {
+      if (v._cmLinked) return; v._cmLinked = true;
+      const pass = (fn) => { if (!st.link || guard) return; const o = other(v); if (!o) return; guard = true; try { fn(o); } finally { setTimeout(() => { guard = false; }, 0); } };
+      v.addEventListener('play', () => pass((o) => { if (o.paused) o.play().catch(() => {}); }));
+      v.addEventListener('pause', () => pass((o) => { if (!o.paused) o.pause(); }));
+      v.addEventListener('seeking', () => pass((o) => { if (Math.abs(o.currentTime - v.currentTime) > 0.3) o.currentTime = v.currentTime; }));
+      v.addEventListener('ratechange', () => pass((o) => { if (o.playbackRate !== v.playbackRate) o.playbackRate = v.playbackRate; }));
+    };
+    const applyAudio = () => { vids().forEach((v, i) => { v.muted = i !== st.audio; }); const b = d.querySelector('[data-cm=audio] span'); if (b) b.textContent = '音：' + (st.audio ? '右' : '左'); };
+    F.forEach((f, i) => {
+      const box = d.querySelector(`[data-cmi="${i}"] .cm-b`);
+      P[i] = playerCore(box, f.id, {
+        slot: i ? 'cmpB' : 'cmpA', name: f.name, pick: 'light',
+        alive: () => run === cmpRun && document.body.contains(d),
+        qp: { ext: () => openExternal(f.id, '', f.name) },
+        onMeta: (v) => { const e = d.querySelector(`[data-cminf="${i}"]`); if (e) e.textContent = v.videoWidth ? ` ・ ${v.videoWidth}×${v.videoHeight} ・ ${fmtT(v.duration || 0)}` : ''; link(v); applyAudio(); },
+        fail: (x, why) => { if (!box.querySelector('.pl-err')) box.insertAdjacentHTML('beforeend', `<div class="pl-msg pl-err">再生できませんでした${why ? `（${esc(why)}）` : ''}</div>`); },
+      });
+      P[i].ready.catch((err) => { if (err && err.session) { closeCompare(); handleErr(err, view); } else box.innerHTML = `<div class="pl-msg pl-err">再生用リンクを取得できませんでした：${esc((err && err.message) || err)}</div>`; });
+    });
+    // 2 本とも準備ができたら、同じ位置（続きの位置があれば左に合わせる）から始める
+    Promise.all(P.map((x) => x.ready.catch(() => null))).then(() => { if (run !== cmpRun) return; const [a, b] = vids(); if (a && b) { const go = () => { b.currentTime = a.currentTime; applyAudio(); }; if (a.readyState > 0 && b.readyState > 0) go(); else setTimeout(go, 800); } });
+    const keep = (i) => {
+      const k = F[i].id, del = F[1 - i].id;
+      decision[k] = 'keep'; decision[del] = 'del'; saveDecision();
+      mediaPut(k, { tri: 'keep' }); mediaPut(del, { tri: 'del' }, true);
+      d.querySelectorAll('.cm-p').forEach((x, j) => { x.classList.toggle('keep', j === i); x.classList.toggle('del', j !== i); });
+      status(`見比べ：「${F[i].name}」を残し、もう片方を削除する方にしました（重複の判断に記録。削除は整理の「重複」ステップか「消す候補」から）`);
+      log('info', '見比べで残す方を決めました', F[i].name);
+      if (view === 'dup' && typeof renderDup === 'function') renderDup();
+    };
+    d.addEventListener('click', (e) => {
+      if (e.target === d) { closeCompare(); return; }
+      const b = e.target.closest('button'); if (!b) return;
+      const k = b.dataset.cm;
+      if (b.dataset.cmkeep !== undefined) { keep(+b.dataset.cmkeep); return; }
+      if (k === 'close') closeCompare();
+      else if (k === 'both') { const vs = vids(); const play = vs.some((v) => v.paused); guard = true; vs.forEach((v) => { if (play) v.play().catch(() => {}); else v.pause(); }); setTimeout(() => { guard = false; }, 0); }
+      else if (k === 'sync') { const [a, bb] = vids(); if (a && bb) { guard = true; bb.currentTime = a.currentTime; setTimeout(() => { guard = false; }, 0); status('右を左と同じ位置にそろえました'); } }
+      else if (k === 'link') { st.link = !st.link; b.classList.toggle('on', st.link); status(st.link ? '2 本を連動します' : '2 本を別々に操作します'); }
+      else if (k === 'audio') { st.audio = 1 - st.audio; applyAudio(); }
+    });
+    const onKey = (e) => {
+      if (!document.body.contains(d)) { removeEventListener('keydown', onKey, true); return; }
+      if (e.key === 'Escape' && !document.fullscreenElement) { e.preventDefault(); e.stopImmediatePropagation(); closeCompare(); removeEventListener('keydown', onKey, true); }
+    };
+    addEventListener('keydown', onKey, true);
+    log('info', '見比べを開きました', F.map((f) => f.name).join(' ／ '));
+  }
   // 動画を止めて読み込みをやめる（シークバー用の影の動画も）
   // 再生の位置を記録する（5 秒ごと・止めたとき・閉じたとき）。最後の 5% まで見たら「見終わった」
   function savePos(P, v, now) {
@@ -4965,6 +5073,7 @@
       if (f && r) { root.classList.remove('on'); r.push('/all/' + f.parentId); }
       return;
     }
+    if (t.dataset.cmpg !== undefined) { const g = visibleGroups().find((x) => x.key === t.dataset.cmpg); if (g) { const del = g.items.find((f, i) => stateOf(f, i) === 'del'); openCompare([g.items[0].id, (del || g.items[1]).id]); } return; }
     if (t.dataset.frg !== undefined) { const g = visibleGroups().find((x) => x.key === t.dataset.frg); if (g) { const del = g.items.find((f, i) => stateOf(f, i) === 'del'); openFrames([g.items[0].id, (del || g.items[1]).id]); } return; }
     if (t.dataset.g !== undefined) { if (busy) return; const g = visibleGroups().find((x) => x.key === t.dataset.g); if (g) runDelete([g]); return; }
     if (a === 'close' || a === 'mini') { root.classList.remove('on'); ddKick(); return; }

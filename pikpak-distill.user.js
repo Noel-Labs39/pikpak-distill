@@ -1185,7 +1185,11 @@
   .qp-osd[hidden],.qp-mini[hidden]{display:none}
   .qp-mini{position:absolute;right:10px;top:10px;width:96px;aspect-ratio:16/9;border:1px solid #fff9;background:#0007;z-index:4;pointer-events:none}
   .qp-mini i{position:absolute;border:1.5px solid #fff;box-sizing:border-box}
-  .qp-badge{position:absolute;left:10px;top:10px;z-index:4;font:700 11px system-ui,sans-serif;padding:2px 8px;border-radius:99px;background:#306fff;color:#fff;opacity:0;transition:opacity .2s;pointer-events:none}
+  .qp-badge{position:absolute;left:10px;top:10px;z-index:4;font:700 11px system-ui,sans-serif;padding:2px 8px;border-radius:99px;background:#306fff;color:#fff;opacity:0;transition:opacity .2s;pointer-events:none;border:0;cursor:pointer}
+  .qp-on .qp-badge{pointer-events:auto}
+  .qp-keys{position:absolute;left:10px;top:36px;z-index:6;max-height:calc(100% - 50px);overflow:auto;padding:10px 14px;border-radius:10px;background:#000d;color:#fff;font:12px/1.7 system-ui,sans-serif;display:grid;grid-template-columns:auto auto;gap:0 14px}
+  .qp-keys[hidden]{display:none}.qp-keys kbd{font:700 11px system-ui;padding:0 5px;border-radius:4px;background:#ffffff26}
+  @keyframes qpblink{0%,100%{box-shadow:none}50%{box-shadow:0 0 0 3px #7fb0ff}}.qp-blink{animation:qpblink .5s 3;border-radius:6px}
   .qp-on .qp-badge{opacity:.9}
   .qp-on > .qp-stage{box-shadow:inset 0 0 0 2px #306fff}
   .qp-ui{position:relative;background:#000;color:#fff;font:13px/1.4 system-ui,-apple-system,"Hiragino Sans","Yu Gothic UI",sans-serif}
@@ -1235,9 +1239,10 @@
   .qp-tri button.s.on{background:#3a3320;border-color:#f5a624;color:#f5c46a}
   .qp-tri .sp{flex:1}
   .qp-skim{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);width:min(520px,80%);padding:8px 12px;border-radius:10px;background:#000c;color:#fff;font:600 12px system-ui,sans-serif;z-index:5;pointer-events:none}
+  .qp-skim div{pointer-events:auto}.qp-skim i{cursor:pointer}.qp-skim i:hover{outline:2px solid #fff8}
   .qp-skim[hidden]{display:none}
   .qp-skim div{display:flex;gap:3px;margin-top:6px}
-  .qp-skim i{flex:1;height:6px;border-radius:2px;background:#ffffff2a}
+  .qp-skim i{flex:1;height:10px;border-radius:2px;background:#ffffff2a}
   .qp-skim i.p{background:#306fff}
   .qp-skim i.c{background:#7fb0ff}
   .qp-ctl button[data-qp=sklist]{background:#f5a62433!important;color:#f5c46a!important;font-size:12px}
@@ -5582,7 +5587,7 @@
   // video を包んだ枠（stage）と、下の操作バー（ui）を作る
   function qpAttach(box, v, ui, opt) {
     const stage = box.querySelector('.qp-stage');
-    stage.insertAdjacentHTML('beforeend', '<div class="qp-osd" hidden></div><div class="qp-mini" hidden><i></i></div><span class="qp-badge">⌨ キー操作 ON</span><div class="qp-notes"></div><div class="qp-hold" hidden></div>');
+    stage.insertAdjacentHTML('beforeend', '<div class="qp-osd" hidden></div><div class="qp-mini" hidden><i></i></div><button class="qp-badge" title="押すとキー操作の一覧（? キーでも）">⌨ キー操作 ON ・ ?</button><div class="qp-keys" hidden></div><div class="qp-notes"></div><div class="qp-hold" hidden></div>');
     const osd = stage.querySelector('.qp-osd'), mini = stage.querySelector('.qp-mini'), mr = mini.querySelector('i');
     const P = { v, root: [box, ui], opt, z: 1, tx: 0, ty: 0 };
     v._qp = P;
@@ -5652,7 +5657,14 @@
     stage.addEventListener('dblclick', (e) => { e.preventDefault(); clearTimeout(clickT); if (P.z > 1.001) P.zoomReset(); else P.full(); });
     // ---- 画面中央の一瞬の表示 ----
     let osdT = null;
-    const flash = (t) => { osd.textContent = t; osd.hidden = false; clearTimeout(osdT); osdT = setTimeout(() => { osd.hidden = true; }, 700); };
+    const flash = (t, ms = 700) => { osd.textContent = t; osd.hidden = false; clearTimeout(osdT); osdT = setTimeout(() => { osd.hidden = true; }, ms); };
+    // キー操作の一覧（隠れがちな操作をここで見せる）
+    const keysEl = stage.querySelector('.qp-keys');
+    const KEYS = [['Space / K', '再生・一時停止'], ['← / →', '戻る・進む（→ 長押しで速く再生）'], ['Shift＋← / →', '大きく戻る・進む'], ['J / L', '10 秒戻る・進む'], [', / .', '1 コマ戻る・進む'], ['0〜9', '0%〜90% の位置へ'], ['↑ / ↓', '音量'], ['M', '消音・解除'], ['[ / ] / \\', '速度を下げる・上げる・1×'], ['Z / X / R', '拡大・縮小・元に戻す（ピンチ・ホイールでも）'], ['F', '全画面'], ['V', 'ざっと見（バーのマスで場所を選べる）'], ['G', 'シーン'], ['A / B', '飛ばす区間の始め・終わり'], ['Y / D / S', '残す・消す候補・スター'], ['P / N', '前の動画・次の動画'], ['Enter', 'ざっと見中：ここから再生／それ以外：外部プレーヤー'], ['?', 'この一覧を出す・閉じる']];
+    keysEl.innerHTML = KEYS.map(([k, t]) => `<kbd>${esc(k)}</kbd><span>${esc(t)}</span>`).join('');
+    P.keys = () => { keysEl.hidden = !keysEl.hidden; };
+    stage.querySelector('.qp-badge').addEventListener('click', (e) => { e.stopPropagation(); P.keys(); });
+    keysEl.addEventListener('click', (e) => { e.stopPropagation(); keysEl.hidden = true; });
     P.flash = flash;
     // ---- 押している間だけ速く ----
     const hold = stage.querySelector('.qp-hold');
@@ -5810,7 +5822,7 @@
       P.drawTri = () => {
         const t = mk.tri(), st = mk.starred();
         tb.hidden = !qpCfg().tri;
-        tb.innerHTML = `<b>見ながら仕分け</b><button data-qt="keep" class="k${t === 'keep' ? ' on' : ''}" title="残す（Y）。もう一度押すと外す"><kbd>Y</kbd>残す</button><button data-qt="del" class="d${t === 'del' ? ' on' : ''}" title="消す候補（D）。すぐには消さず、左メニューの「消す候補」にまとめます"><kbd>D</kbd>消す候補</button><button data-qt="star" class="s${st ? ' on' : ''}" title="スター（S）。PikPak のスターを付ける・外す"><kbd>S</kbd>${st ? '★' : '☆'} スター</button>${opt.next ? '<button data-qt="next" title="次の動画（N）"><kbd>N</kbd>次へ</button>' : ''}<span class="sp"></span><small>${qpCfg().triNext && opt.next ? '印を付けたら次の動画へ' : ''}</small>`;
+        tb.innerHTML = `<b>見ながら仕分け</b><button data-qt="keep" class="k${t === 'keep' ? ' on' : ''}" title="残す（Y）。もう一度押すと外す"><kbd>Y</kbd>残す</button><button data-qt="del" class="d${t === 'del' ? ' on' : ''}" title="消す候補（D）。すぐには消さず、左メニューの「消す候補」にまとめます"><kbd>D</kbd>消す候補</button><button data-qt="star" class="s${st ? ' on' : ''}" title="スター（S）。PikPak のスターを付ける・外す"><kbd>S</kbd>${st ? '★' : '☆'} スター</button>${opt.prev ? '<button data-qt="prev" title="前の動画（P）"><kbd>P</kbd>前へ</button>' : ''}${opt.next ? '<button data-qt="next" title="次の動画（N）"><kbd>N</kbd>次へ</button>' : ''}<span class="sp"></span><small>${qpCfg().triNext && opt.next ? '印を付けたら次の動画へ' : ''}</small>`;
       };
       P.tri = async (k) => {
         if (k === 'star') { try { const on = await mk.star(); flash(on ? '★ スターを付けました' : '☆ スターを外しました'); } catch (e) { if (e.session) { handleErr(e, view); return; } flash('スターを変えられませんでした'); } P.drawTri(); return; }
@@ -5818,13 +5830,15 @@
         flash(nv === 'keep' ? '✓ 残す' : nv === 'del' ? '🗑 消す候補に入れました' : '印を外しました');
         if (nv && qpCfg().triNext && opt.next) setTimeout(() => { if (v.isConnected) opt.next(); }, 450);
       };
-      tb.addEventListener('click', (e) => { const b = e.target.closest('[data-qt]'); if (!b) return; const k = b.dataset.qt; if (k === 'next') { if (opt.next) opt.next(); } else P.tri(k); });
+      tb.addEventListener('click', (e) => { const b = e.target.closest('[data-qt]'); if (!b) return; const k = b.dataset.qt; if (k === 'next') { if (opt.next) opt.next(); } else if (k === 'prev') { if (opt.prev) opt.prev(); } else P.tri(k); });
       P.drawTri();
     }
     // ---- ざっと見（1 本を何か所かに分けて、少しずつ順に流す。気になったら Enter でその位置から普通に再生） ----
     const sk = { on: false, i: 0, timer: null, muted: false };
     const skimEl = document.createElement('div'); skimEl.className = 'qp-skim'; skimEl.hidden = true; stage.appendChild(skimEl);
-    const skimDraw = () => { const N = qpCfg().skimN; skimEl.innerHTML = `<span>ざっと見 ${sk.i + 1} / ${N} か所目 ・ Enter でここから再生 ・ V でやめる</span><div>${Array.from({ length: N }, (_, j) => `<i class="${j < sk.i ? 'p' : j === sk.i ? 'c' : ''}"></i>`).join('')}</div>`; };
+    const skimDraw = () => { const N = qpCfg().skimN; skimEl.innerHTML = `<span>ざっと見 ${sk.i + 1} / ${N} か所目 ・ Enter でここから再生 ・ V でやめる</span><div>${Array.from({ length: N }, (_, j) => `<i data-sj="${j}" title="${j + 1} か所目${v.duration ? '（' + fmtT(v.duration * (j + 0.5) / N) + '）' : ''}から" class="${j < sk.i ? 'p' : j === sk.i ? 'c' : ''}"></i>`).join('')}</div>`; };
+    // バーのマスを押すと、その場所からざっと見を続ける
+    skimEl.addEventListener('click', (e) => { const t = e.target.closest('[data-sj]'); if (!t || !sk.on) return; e.stopPropagation(); sk.i = +t.dataset.sj; skimStep(); });
     const skimStep = () => {
       clearTimeout(sk.timer); if (!sk.on || !v.isConnected) return;
       const c = qpCfg(), N = c.skimN, d = v.duration;
@@ -5836,7 +5850,10 @@
     P.skim = (on) => {
       if (on === undefined) on = !sk.on;
       const b = ui.querySelector('[data-qp=skim]');
-      if (on && !sk.on) { sk.on = true; sk.i = 0; sk.muted = v.muted; v.muted = true; skimEl.hidden = false; if (b) b.classList.add('on'); skimStep(); }
+      if (on && !sk.on) {
+        sk.on = true; sk.i = 0; sk.muted = v.muted; v.muted = true; skimEl.hidden = false; if (b) b.classList.add('on'); skimStep();
+        if (!sk.muted) { flash('🔇 ざっと見の間は消音です（音量ボタンで出せます）', 1600); const mb = ui.querySelector('[data-qp=mute]'); if (mb) { mb.classList.remove('qp-blink'); void mb.offsetWidth; mb.classList.add('qp-blink'); setTimeout(() => mb.classList.remove('qp-blink'), 1600); } }
+      }
       else if (!on && sk.on) { sk.on = false; clearTimeout(sk.timer); v.muted = sk.muted; skimEl.hidden = true; if (b) b.classList.remove('on'); }
     };
     P.skimOn = () => sk.on;
@@ -5873,6 +5890,7 @@
     else if (k === 'a' || k === 'A') { done(); P.mark('A'); }
     else if ((k === 'g' || k === 'G') && P.scenes) { done(); P.scenes(); }
     else if ((k === 'v' || k === 'V') && P.skim) { done(); P.skim(); }
+    else if (k === '?' && P.keys) { done(); P.keys(); }
     else if (k === 'Enter' && P.skimOn && P.skimOn()) { done(); P.skim(false); v.play().catch(() => {}); P.flash('▶ ここから再生'); }
     else if ((k === 'y' || k === 'Y') && P.tri) { done(); P.tri('keep'); }
     else if ((k === 'd' || k === 'D') && P.tri) { done(); P.tri('del'); }

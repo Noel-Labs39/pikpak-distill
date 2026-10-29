@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.3.11
+// @version      4.3.12
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.3.11'; // @version と合わせて更新する
+  const VER = '4.3.12'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1549,7 +1549,8 @@
   #ppdup.libv > main,#ppdup.libv > .tb,#ppdup.libv > .tsel,#ppdup.libv header nav{display:none!important}
   #pd-lib.emb{position:relative;inset:auto;z-index:1;flex:1 1 auto;min-height:0;display:flex;align-items:stretch;justify-content:stretch;background:var(--bg)}
   #pd-lib.emb .lk-box{width:100%;max-height:none;flex:1;border-radius:0;box-shadow:none;background:var(--bg)}
-  #pd-lib.emb .lk-hd{background:var(--panel)}
+  #pd-lib.emb .lk-hd{background:var(--panel);flex-wrap:wrap;row-gap:8px}
+  #pd-lib .lk-hd > b{white-space:nowrap;flex:none}
   #pd-lib.emb .lb-tabs,#pd-lib.emb .lb-note{background:var(--panel)}
   #pd-lib.emb .lk-list{padding:16px 22px;flex:1 1 auto;min-height:0}
   #pd-lib .lk-box > .lk-hd,#pd-lib .lk-box > .lb-tabs,#pd-lib .lk-box > .lb-note,#pd-lib .lk-box > .lk-ft{flex:none}
@@ -4005,6 +4006,17 @@
     return { v, get hls() { return hls; } };
   }
   // 外部プレーヤーで開く（リンクは時間がたつと無効になるため、その都度取得する）
+  // 再生した履歴：PikPak 側の視聴記録（/events）は Dedupe からの再生では増えないため、このブラウザにも記録する
+  const LS_PLAYLOG = 'ppdup:playlog:v1';
+  function playLogPush(id, name) {
+    if (!id) return;
+    try {
+      const sf = fileById(id) || (libItem(id) || {});
+      const a = JSON.parse(localStorage.getItem(LS_PLAYLOG) || '[]').filter((x) => x && x.id !== id);
+      a.unshift({ id, name: name || sf.name || id, size: +sf.size || 0, thumb: sf.thumb || '', at: new Date().toISOString() });
+      localStorage.setItem(LS_PLAYLOG, JSON.stringify(a.slice(0, 300)));
+    } catch (e) { /* 無視 */ }
+  }
   async function openExternal(id, ext, name) {
     const f = fileById(id) || (name ? { name } : null); if (!f) return;
     ext = ext || playPref().ext;
@@ -4026,6 +4038,7 @@
         const a = document.createElement('a'); a.href = P.url(x.url); a.click();
         status(`${P.name} を起動しています。ブラウザの確認が出たら「開く」を押してください（${P.name} が入っていない場合は何も起きません）。`);
       }
+      playLogPush(id, f.name);
       log('info', `外部プレーヤーで再生：${P.short}`, f.name);
     } catch (err) { if (err.session) { handleErr(err, 'tree'); return; } status('外部プレーヤー用のリンクを取得できませんでした：' + err.message); }
   }
@@ -4188,6 +4201,7 @@
       const m = mountVideo(box, S.src[S.first], S, fail, { onMeta: meta, qp: { ext: () => openExternal(id) } });
       setTimeout(() => { qlHls = m.hls; }, 0);
       d.classList.add('playing');
+      playLogPush(id, f.name);
       log('info', 'プレビューで再生：' + f.name);
     } catch (err) { if (err.session) { closeQL(); handleErr(err, 'tree'); return; } box.insertAdjacentHTML('beforeend', `<div class="pl-msg pl-err">${esc(err.message)}</div>`); }
   }
@@ -4255,6 +4269,7 @@
       sel.onchange = () => load(+sel.value);
       sel.value = String(S.first); load(S.first, fromT);
       if (opt.full) goFull();
+      playLogPush(id, f.name);
       log('info', '再生：' + f.name + '（' + src[S.first].label + '）');
     } catch (err) { if (err.session) { closePlayer(); handleErr(err, 'tree'); return; } d.querySelector('.pl-msg').textContent = '再生用リンクを取得できませんでした：' + err.message; log('error', '再生用リンクの取得に失敗：' + err.message, f.name); updateLogBadge(); }
   }
@@ -5076,15 +5091,23 @@
       return out.sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
     }
     if (tab === 'hist') {
-      const d = await api(`/events?thumbnail_size=SIZE_MEDIUM&limit=100&filters=${encF({ type: { in: 'TYPE_PLAY' } })}`);
+      let d = {}; try { d = await api(`/events?thumbnail_size=SIZE_MEDIUM&limit=100&filters=${encF({ type: { in: 'TYPE_PLAY' } })}`); } catch (e) { if (e.session) throw e; }
       const seen = new Set(), out = [];
+      let loc = []; try { loc = JSON.parse(localStorage.getItem(LS_PLAYLOG) || '[]'); } catch (e) { /* 無視 */ }
       (d.events || []).forEach((e) => {
         const r = e.reference_resource || {}; const id = String(e.file_id || r.id || '');
         if (!id || seen.has(id) || r.trashed) return; seen.add(id);
         const sf = fileById(id);
         out.push({ id, name: r.name || e.file_name || id, size: +(r.size || e.file_size) || 0, at: e.event_time || e.created_time || e.updated_time || '', thumb: r.thumbnail_link || e.thumbnail_link || (sf && sf.thumb) || '' });
       });
-      return out;
+      // このブラウザで再生した記録と合わせる（同じファイルは新しい方の日時）
+      loc.forEach((x) => {
+        if (!x || !x.id) return;
+        const o = out.find((y) => y.id === x.id);
+        if (o) { if (Date.parse(x.at) > Date.parse(o.at || 0)) o.at = x.at; return; }
+        const sf = fileById(x.id); out.push({ id: x.id, name: x.name, size: x.size || (sf && sf.size) || 0, at: x.at, thumb: x.thumb || (sf && sf.thumb) || '' });
+      });
+      return out.sort((a, b) => (Date.parse(b.at) || 0) - (Date.parse(a.at) || 0));
     }
     if (tab === 'star' || tab === 'trash') {
       const fl = tab === 'star' ? { trashed: { eq: false }, system_tag: { in: 'STAR' } } : { trashed: { eq: true } };
@@ -5219,6 +5242,7 @@
       setTimeout(() => { if (run === libPvRun) libPvHls = m.hls; else killHls(m.hls); }, 0);
       // 続けて流す：終わったら次の動画へ（設定でオフにできる）
       m.v.addEventListener('ended', () => { if (run === libPvRun && nx && libAuto()) nx(); });
+      playLogPush(id, it.name);
       log('info', `左メニューからプレビュー：${x.label}`, it.name);
     } catch (err) {
       if (err.session) { closeLib(); handleErr(err, view); return; }
@@ -5323,8 +5347,8 @@
     }
     else body = S.items.map(row).join('');
     const n = S.sel.size, dis = S.busy || S.loading ? ' disabled' : '';
-    const pvTip = 'スペースで低画質のプレビュー、ダブルクリック・Enter は設定の「再生のしかた」（${esc(prefLabel())}）で開きます。本編は「↗ 外部プレーヤー」（オリジナル画質）がおすすめ。';
-    const note = { dl: 'リンク・マグネットで追加したもの（直近 60 日）。すぐ保存した分は保存先にあるかを、クラウドダウンロードの分は進み具合を確かめて表示します。「一覧から外す」は記録とタスクを消すだけで、保存したファイルは消しません。', recent: '追加日の新しい順（読み込んだ範囲：' + esc(dirLabel((scanRoot() || {}).id) || '—') + '）。' + pvTip, hist: 'PikPak で再生した動画（新しい順）。' + pvTip, star: 'PikPak でスターを付けた項目。' + pvTip, trash: `ゴミ箱の中身${quota ? `（${fmtCap(quota.trash)}）` : ''}。「完全に削除」「空にする」は元に戻せません。` }[tab];
+    const pvTip = `スペースで低画質のプレビュー、ダブルクリック・Enter は設定の「再生のしかた」（${esc(prefLabel())}）で開きます。本編は「↗ 外部プレーヤー」（オリジナル画質）がおすすめ。`;
+    const note = { dl: 'リンク・マグネットで追加したもの（直近 60 日）。すぐ保存した分は保存先にあるかを、クラウドダウンロードの分は進み具合を確かめて表示します。「一覧から外す」は記録とタスクを消すだけで、保存したファイルは消しません。', recent: '追加日の新しい順（読み込んだ範囲：' + esc(dirLabel((scanRoot() || {}).id) || '—') + '）。' + pvTip, hist: 'Dedupe と PikPak で再生した動画（新しい順）。Dedupe で再生した分はこのブラウザに記録します。' + pvTip, star: 'PikPak でスターを付けた項目。' + pvTip, trash: `ゴミ箱の中身${quota ? `（${fmtCap(quota.trash)}）` : ''}。「完全に削除」「空にする」は元に戻せません。` }[tab];
     const all = selectable && S.items.length ? `<label class="note lb-all"><input type="checkbox" data-lball${n && n === S.items.length ? ' checked' : ''}${dis}> すべて選ぶ</label>` : '';
     const html = `<div class="lk-box" role="dialog" aria-label="${esc(LIB_TABS.find((x) => x[0] === tab)[1])}"><div class="lk-hd"><b>${LIB_TABS.find((x) => x[0] === tab)[1]}</b><span class="note">${S.items.length && !S.loading ? S.items.length + ' 項目' : ''}</span><span class="sp"></span>${grid ? `<span class="seg lb-vw" title="表示のしかた">${[['list', tab === 'recent' ? '🌲 ツリー' : '☰ リスト'], ['thumb', '▤ サムネイル'], ['tile', '▦ タイル']].map(([k, l]) => `<button data-lbview="${k}" class="${lv === k ? 'on' : ''}">${l}</button>`).join('')}</span>${lv === 'list' && tab === 'recent' ? '<span class="seg"><button data-lbtall="open" title="すべて開く">⊞ 全展開</button><button data-lbtall="close" title="すべて閉じる">⊟ 全格納</button></span>' : ''}<button data-lbauto class="${libAuto() ? 'on' : ''}" title="プレビューで動画が終わったら、次の動画を続けて再生します">${libAuto() ? '✓ ' : ''}続けて再生</button>` : ''}${grid && lv === 'tile' ? `<span class="seg lb-sz" title="サムネイルの大きさ">${[['s', '小'], ['m', '中'], ['l', '大']].map(([k, l]) => `<button data-lbsz="${k}" class="${lsz === k ? 'on' : ''}">${l}</button>`).join('')}</span>` : ''}<button data-lbreload title="読み込み直す"${dis}>更新</button><button class="x" data-lbclose aria-label="閉じる">${IC.x}</button></div>
       <div class="lb-tabs">${tabs}</div>

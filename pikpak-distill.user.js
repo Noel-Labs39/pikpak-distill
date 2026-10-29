@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.8.1
+// @version      4.8.2
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.8.1'; // @version と合わせて更新する
+  const VER = '4.8.2'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -4182,7 +4182,7 @@
   function showQL() {
     const r = treeRowsCache.find((x) => x.id === treeCur); if (!r) return closeQL();
     let d = document.getElementById('pd-ql');
-    if (!d) { d = document.createElement('div'); d.id = 'pd-ql'; document.body.appendChild(d); d.addEventListener('click', (e) => { if (e.target === d || e.target.dataset.qlclose !== undefined) closeQL(); }); }
+    if (!d) { d = document.createElement('div'); d.id = 'pd-ql'; document.body.appendChild(d); d.addEventListener('click', (e) => { if (e.target === d || e.target.closest('[data-qlclose]')) closeQL(); }); }
     else { plStop('ql'); unloadMedia(d); } // 次・前のファイルへ移るときは、前の動画とシークバー用の影の動画を片付ける
     qlRun++;
     qlOpen = true;
@@ -4543,6 +4543,20 @@
     if (!extList().includes(p.ext)) p.ext = IS_MAC ? 'iina' : OS === 'win' ? 'potplayer' : 'm3u';
     return p;
   }
+  // 外部プレーヤーをすぐ開く操作：triple＝3 回クリック（既定）／double＝2 回クリック／off＝使わない
+  //   3 回にしているときは、2 回目のあと少し待ってから「再生のしかた」で再生する（3 回目が来たら外部プレーヤー）
+  const XCLICK = { triple: 'トリプルクリック（3 回）', double: 'ダブルクリック（2 回）', off: '使わない' };
+  const xclick = () => { const v = playPref().xclick; return XCLICK[v] ? v : 'triple'; };
+  let mcT = null;
+  function multiClick(n, onDouble, onExt) {
+    const x = xclick();
+    if (n >= 3) { clearTimeout(mcT); if (x === 'triple') onExt(); return; }
+    if (n !== 2) return;
+    if (x === 'double') { onExt(); return; }
+    if (x === 'off') { onDouble(); return; }
+    clearTimeout(mcT); mcT = setTimeout(onDouble, 300);
+  }
+  const xclickHint = () => ({ triple: '・3 回クリックで外部プレーヤー', double: '・ダブルクリックで外部プレーヤー', off: '' })[xclick()];
   const savePlayPref = (p) => { try { localStorage.setItem(LS_PLAY, JSON.stringify(p)); } catch (e) { /* 無視 */ } };
   const prefLabel = () => { const p = playPref(); return p.mode === 'external' ? '外部：' + EXT_PLAYERS[p.ext].short : MODES[p.mode]; };
 
@@ -4730,6 +4744,7 @@
         <div class="row"><span><b>フォルダ一覧の操作</b><small>${esc(helpTree)}</small></span></div>` : ''}
         ${sec('play') ? `<h3 data-sec="play">再生</h3>
         <div class="row col"><b>▶ 再生ボタン・ダブルクリックのとき</b>${Object.keys(MODES).map((k) => `<label><input type="radio" name="pdmode" data-s="mode" value="${k}"${p.mode === k ? ' checked' : ''}> ${MODES[k]}</label>`).join('')}</div>
+        <div class="row col"><b>外部プレーヤーをすぐ開く操作</b><small>一覧の動画をこの回数クリックすると、上の設定に関係なく外部プレーヤー（オリジナル画質）で開きます。ふだんは簡易プレーヤーで見て、本編だけ外部で、という使い方向け。外部プレーヤーをいつも使うなら、上で「外部プレーヤーで再生」を選んでください</small>${Object.keys(XCLICK).map((k) => `<label><input type="radio" name="pdxclick" data-s="xclick" value="${k}"${xclick() === k ? ' checked' : ''}> ${XCLICK[k]}</label>`).join('')}</div>
         <div class="row"><span><b>外部プレーヤー（${OS_NAME}）</b><small>${IS_MAC ? 'IINA・Infuse はアプリが入っていれば直接起動します。' : OS === 'win' ? 'PotPlayer はアプリが入っていれば直接起動します。GOM Player・VLC などは「既定のアプリで開く」を選び、.m3u ファイルを開くアプリにそのプレーヤーを設定してください。' : 'VLC・mpv・Celluloid などは「既定のアプリで開く」を選び、.m3u ファイルを開くアプリにそのプレーヤーを設定してください。'}</small></span><select data-s="ext">${extList().map((k) => `<option value="${k}"${p.ext === k ? ' selected' : ''}>${esc(EXT_PLAYERS[k].short)}</option>`).join('')}</select></div>
         <div class="row"><span><b>簡易プレーヤーの操作</b><small>Space / K 再生・一時停止、← → 移動（Shift で大きく）、J / L 戻る・進む、, . 1 コマ、↑ ↓ 音量、M 消音、0〜9 位置、[ ] 速度、F 全画面、ホイール・ピンチ・Z / X ズーム（R・ダブルクリックで戻す）、Enter 外部プレーヤー</small></span></div>
         ${Object.keys(QP_OPTS).map((k) => `<div class="row"><span><b>${esc(QP_OPTS[k][0])}</b></span>${qpSelect(k, 'data-s="qp"')}</div>`).join('')}` : ''}
@@ -4785,9 +4800,10 @@
     if (k === 'openmode') { setOpenPref(t.value); if (root.classList.contains('on')) setWin(t.value); return; }
     if (k === 'tview') { tree.view = t.value; saveTree(); if (view === 'tree') treeView(t.value); return; }
     if (k === 'hover') { tree.hover = t.checked; saveTree(); hideHover(); return; }
+    if (k === 'xclick') { savePlayPref({ ...playPref(), xclick: t.value }); status('外部プレーヤーをすぐ開く操作を「' + XCLICK[t.value] + '」にしました'); return; }
     if (k === 'mode' || k === 'ext') {
       const p = playPref();
-      savePlayPref({ mode: k === 'mode' ? t.value : p.mode, ext: k === 'ext' ? t.value : p.ext });
+      savePlayPref({ ...p, mode: k === 'mode' ? t.value : p.mode, ext: k === 'ext' ? t.value : p.ext });
       status('再生のしかたを「' + prefLabel() + '」にしました'); if (view === 'tree') renderTreeActs(); if (qlOpen) showQL();
       return;
     }
@@ -5140,7 +5156,10 @@
       const now = Date.now();
       if (e.button === 0 && !e.shiftKey && !e.metaKey && !e.ctrlKey && (e.detail >= 2 || (!e.detail && lastDown.id === id && now - lastDown.t < 450))) {
         lastDown = { id: '', t: 0 }; drag = null;
-        const r = treeRowsCache.find((x) => x.id === id); if (r) openRow(r, e.altKey);
+        const r = treeRowsCache.find((x) => x.id === id); if (!r) return;
+        const alt = e.altKey;
+        if (isVideoRow(r)) multiClick(e.detail || 2, () => openRow(r, alt), () => { closeQL(); openExternal(r.id); });
+        else if (e.detail < 3) openRow(r, alt);
         return;
       }
       lastDown = { id, t: now };
@@ -6165,9 +6184,12 @@
         else if (x.lbpvx !== undefined) libPvClose();
         else if (x.lbdo) libDo(x.lbdo);
       });
-      d.addEventListener('dblclick', (e) => {
+      d.addEventListener('click', (e) => {
+        if (e.detail < 2) return;
         const c = e.target.closest('[data-lbc]'); if (!c || !libSt || e.target.closest('input,button')) return;
-        const it = libItem(c.dataset.lbc); if (libIsVid(it)) libPlayDefault(it); else if (it) libReveal(it.id);
+        const it = libItem(c.dataset.lbc); if (!it) return;
+        if (libIsVid(it)) multiClick(e.detail, () => libPlayDefault(it), () => { libPvClose(); openExternal(it.id, '', it.name); });
+        else if (e.detail === 2) libReveal(it.id);
       });
       d.addEventListener('keydown', (e) => {
         const c = e.target.closest && e.target.closest('[data-lbc]'); if (!c || !libSt) return;
@@ -6277,7 +6299,7 @@
     const S = libSt, tab = S.tab, n = S.sel.size, dis = S.busy || S.loading ? ' disabled' : '';
     if (LIB_GRID.has(tab)) {
       const it = libItem(S.cur), v = libIsVid(it), id = it ? esc(it.id) : '';
-      const name = it ? `<b title="${esc(it.name)}">${esc(it.name)}</b>` : '選んでスペースでプレビュー、ダブルクリックで「' + esc(prefLabel()) + '」';
+      const name = it ? `<b title="${esc(it.name)}">${esc(it.name)}</b>` : '選んでスペースでプレビュー、' + (xclick() === 'double' ? 'ダブルクリックで外部プレーヤー' : 'ダブルクリックで「' + esc(prefLabel()) + '」' + esc(xclickHint()));
       return `<span class="tx lb-sel">${S.busy ? '処理しています…' : name}</span>${tab === 'recent' ? `<span class="seg">${[7, 30].map((x) => `<button data-lbdays="${x}" class="${S.days === x ? 'on' : ''}"${dis}>直近 ${x} 日</button>`).join('')}</span>` : ''}${tab === 'cand' ? `<button data-lbdo="uncand"${n ? '' : ' disabled'}${dis} title="選んだものを消す候補から外す（ファイルはそのまま）">候補から外す（${n}）</button><button class="dng" data-lbdo="candtrash"${n ? '' : ' disabled'}${dis} title="選んだものを PikPak のゴミ箱へ移す（ゴミ箱から戻せます）">ゴミ箱へ（${n}）</button>` : ''}${tab === 'star' ? `<button data-lbdo="unstar"${n ? '' : ' disabled'}${dis}>スターを外す（${n}）</button>` : ''}<button class="sub" data-lbopen="${id}"${it ? '' : ' disabled'} title="フォルダ一覧でこの項目の場所を開く">場所を開く</button><button data-lbpv="${id}"${v ? '' : ' disabled'} title="PikPak が用意している軽い画質で、この画面の中ですぐ見る">▶ プレビュー（低画質）</button><button class="pri" data-lbext="${id}"${v ? '' : ' disabled'} title="本編をきちんと見るときに。オリジナル画質で外部プレーヤーを開きます">↗ 外部プレーヤー（本編）</button>`;
     }
     return `<span class="tx">${S.busy ? '処理しています…' : ''}</span>` + {

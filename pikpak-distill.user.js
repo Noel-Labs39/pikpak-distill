@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.5.0
+// @version      4.6.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.5.0'; // @version と合わせて更新する
+  const VER = '4.6.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1412,7 +1412,35 @@
   /* フォルダ一覧（Finder / エクスプローラーのリスト表示風） */
   #ppdup main:has(.tr){padding:0}
   .tr{outline:none;font:13px/1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Yu Gothic","Meiryo","Noto Sans CJK JP","Noto Sans JP",sans-serif;min-height:100%;background:var(--panel);user-select:none}
-  .tr-h,.tr-row{display:grid;grid-template-columns:minmax(0,1fr) 110px 120px 90px 170px;align-items:center}
+  .tr-h,.tr-row{display:grid;grid-template-columns:var(--tcols,minmax(140px,1fr) 100px 110px) 28px;align-items:center}
+  .tr-row .nm{flex:1 1 auto;min-width:40px}
+  .tr-row .c-date{color:var(--mute);font-size:12px}
+  .tr-h span{position:relative}
+  .tr-h .cr{position:absolute;left:-4px;top:4px;bottom:4px;width:8px;cursor:col-resize;z-index:2}
+  .tr-h .cr:hover,.tr-h .cr.on{background:linear-gradient(90deg,transparent 3px,var(--pri) 3px,var(--pri) 5px,transparent 5px)}
+  .tr-h .c-pick{height:22px;width:24px;padding:0!important;border:0!important;background:transparent!important;color:var(--mute);cursor:pointer;font-size:14px}
+  .tr-h .c-pick:hover{color:var(--fg)}
+  .pd-colmenu{position:fixed;z-index:2147483646;background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px #0005;padding:8px;display:flex;flex-direction:column;gap:2px;font-size:13px;min-width:180px}
+  .pd-colmenu label{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer}
+  .pd-colmenu label:hover{background:var(--panel2)}
+  .pd-colmenu small{color:var(--mute);padding:4px 8px}
+  /* 文字が 1 文字ずつ縦に折り返さないように（ロゴ・切り替え・ボタンは 1 行のまま） */
+  #ppdup .wm,#ppdup .wm *,#ppdup .seg button,#ppdup .hbtn,#ppdup [data-r=tb] button{white-space:nowrap}
+  #ppdup .brand h1.wm{flex:none}
+  /* スマホ（〜599px）：上のバーは アイコン＋Dedupe と最小限のボタン。検索は 2 行目に横いっぱい */
+  @media (max-width:599px){
+    #ppdup header .brand{flex-wrap:wrap!important;row-gap:8px}
+    #ppdup header .brand > *{flex-shrink:0}
+    #ppdup .wm small{display:none}
+    #ppdup .wm .gw{font-size:20px}
+    #ppdup header .hq{order:10;flex:1 1 calc(100% - 180px)!important;min-width:0;width:auto!important;max-width:none!important}
+    #ppdup header .brand > .sp,#ppdup header .brand > span:empty{display:none}
+    #ppdup header .hqs{order:11;flex:none}
+    #ppdup header [data-a=edgescroll],#ppdup header [data-a=lang],#ppdup header .brand > [data-a=addlink],#ppdup header [data-a=settings]{display:none!important}
+    #ppdup [data-r=tb]{flex-wrap:wrap!important;gap:6px}
+    #ppdup [data-r=tb] .tr-path{flex:1 1 100%;min-width:0}
+    #ppdup .tr-hint,#ppdup [data-r=tacts] .note{display:none}
+  }
   .tr-row .c-pct{display:flex;align-items:center;gap:8px;color:var(--mute);font-size:12px}
   .tr-row .c-pct .pb{flex:1;height:6px;border-radius:99px;background:var(--line);overflow:hidden}
   .tr-row .c-pct .pb i{display:block;height:100%;background:var(--pri);border-radius:99px}
@@ -2251,7 +2279,7 @@
   const LS_NAV = 'ppdup:nav:v1';
   const NAV_W = { wide: 236, min: 78, hide: 0 };
   function navState() {
-    let v = null; try { v = localStorage.getItem(LS_NAV); if (!v) v = localStorage.getItem(LS_NAVMIN) === '1' ? 'min' : 'wide'; } catch (e) { v = 'wide'; }
+    let v = null; try { v = localStorage.getItem(LS_NAV); if (!v) v = localStorage.getItem(LS_NAVMIN) === '1' || innerWidth < 1024 ? 'min' : 'wide'; } catch (e) { v = 'wide'; }
     return NAV_W[v] != null ? v : 'wide';
   }
   function setNav(v) { try { localStorage.setItem(LS_NAV, v); if (v !== 'hide') localStorage.setItem('ppdup:navlast:v1', v); } catch (e) { /* 無視 */ } applyNav(); }
@@ -3594,6 +3622,31 @@
     if (needLoad(tree.base)) loadAndRender([tree.base]);
   }
   // 表示する行（開いているフォルダの中だけ）。絞り込み中は、一致したものとその上のフォルダを開いて表示
+  // ---- フォルダ一覧の列：出す列と幅（名前は残りの幅いっぱい）。スマホは名前・サイズだけ ----
+  const LS_COLS = 'ppdup:cols:v1';
+  const COLS = { size: ['サイズ', 100], date: ['追加日', 110], kind: ['種類', 110], n: ['項目', 80], pct: ['割合', 160] };
+  const COL_DEF = { on: { size: true, date: true, kind: false, n: false, pct: false }, w: {} };
+  function colCfg() { let c = {}; try { c = JSON.parse(localStorage.getItem(LS_COLS) || '{}') || {}; } catch (e) { c = {}; } return { on: { ...COL_DEF.on, ...(c.on || {}) }, w: { ...(c.w || {}) } }; }
+  const saveColCfg = (c) => { try { localStorage.setItem(LS_COLS, JSON.stringify(c)); } catch (e) { /* 無視 */ } };
+  const phoneCols = () => innerWidth < 600;
+  const colList = () => { const c = colCfg(); return Object.keys(COLS).filter((k) => (phoneCols() ? k === 'size' : c.on[k])); };
+  function colTemplate() { const c = colCfg(); return ['minmax(140px,1fr)', ...colList().map((k) => (c.w[k] || COLS[k][1]) + 'px')].join(' '); }
+  function openColMenu(btn) {
+    document.querySelectorAll('.pd-colmenu').forEach((x) => x.remove());
+    const m = document.createElement('div'); m.className = 'pd-colmenu';
+    const c = colCfg();
+    m.innerHTML = `<small>出す列（名前はいつも出ます）</small>${Object.keys(COLS).map((k) => `<label><input type="checkbox" data-colon="${k}"${c.on[k] ? ' checked' : ''}> ${k === 'pct' ? 'フォルダ内の割合' : COLS[k][0]}</label>`).join('')}<label><input type="checkbox" data-colreset> 幅を元に戻す</label>`;
+    root.appendChild(m);
+    const r = btn.getBoundingClientRect(); m.style.top = (r.bottom + 4) + 'px'; m.style.left = Math.max(4, r.right - m.offsetWidth) + 'px';
+    m.addEventListener('change', (e) => {
+      const t = e.target, cc = colCfg();
+      if (t.dataset.colon) cc.on[t.dataset.colon] = t.checked;
+      if (t.dataset.colreset !== undefined) { cc.w = {}; t.checked = false; }
+      saveColCfg(cc); renderTree();
+    });
+    const off = (e) => { if (!m.contains(e.target)) { m.remove(); removeEventListener('mousedown', off, true); } };
+    setTimeout(() => addEventListener('mousedown', off, true), 0);
+  }
   function treeRows() {
     const ix = treeIdx = buildTreeIndex();
     const base = treeBase();
@@ -3608,7 +3661,7 @@
     const coll = new Intl.Collator('ja', { numeric: true, sensitivity: 'base' });
     const cmp = (a, b) => {
       if (a.kind !== b.kind) return a.kind === 'folder' ? -1 : 1;
-      const v = tree.sort === 'size' ? (a.size - b.size) : tree.sort === 'kind' ? coll.compare(kindOf(a), kindOf(b)) : 0;
+      const v = tree.sort === 'size' ? (a.size - b.size) : tree.sort === 'kind' ? coll.compare(kindOf(a), kindOf(b)) : tree.sort === 'date' ? ((Date.parse((a.f || {}).ct) || 0) - (Date.parse((b.f || {}).ct) || 0)) : 0;
       return (v || coll.compare(a.name, b.name)) * tree.dir;
     };
     const R = scanRoot();
@@ -3661,13 +3714,20 @@
       return `<span class="c-pct"><span class="pb"><i style="width:${Math.min(100, v * 100).toFixed(2)}%"></i></span><em>${pctTxt(v)}</em></span>`;
     };
     const arrow = (k) => (tree.sort === k ? (tree.dir > 0 ? ' ▲' : ' ▼') : '');
-    const head = `<div class="tr-h"><span class="c-name" data-tsort="name">名前${arrow('name')}</span><span class="c-size" data-tsort="size">サイズ${arrow('size')}</span><span class="c-kind" data-tsort="kind">種類${arrow('kind')}</span><span class="c-n">項目</span><span class="c-pct" title="${top.unk ? '使用量全体に対する割合（まだ読み込んでいないフォルダがあるため）' : '表示中のフォルダの中での割合'}">${top.unk ? '使用量に占める割合' : `<b class="raw" style="font-weight:inherit">${esc(baseName)}</b> 内の割合`}</span></div>`;
+    const pctTitle = top.unk ? '使用量全体に対する割合（まだ読み込んでいないフォルダがあるため）' : '表示中のフォルダの中での割合';
+    const pctLabel = top.unk ? '使用量に占める割合' : `<b class="raw" style="font-weight:inherit">${esc(baseName)}</b> 内の割合`;
+    const hcell = (k) => {
+      const lab = k === 'pct' ? pctLabel : COLS[k][0];
+      const sort = { size: 'size', date: 'date', kind: 'kind' }[k];
+      return `<span class="c-${k}"${sort ? ` data-tsort="${sort}"` : ''}${k === 'pct' ? ` title="${pctTitle}"` : ''}>${lab}${sort ? arrow(sort) : ''}<i class="cr" data-colr="${k}" title="ドラッグで幅を変える（ダブルクリックで元の幅）"></i></span>`;
+    };
+    const head = `<div class="tr-h"><span class="c-name" data-tsort="name">名前${arrow('name')}</span>${colList().map(hcell).join('')}${phoneCols() ? '' : '<button class="c-pick" data-colpick title="出す列を選ぶ" aria-label="出す列を選ぶ">⋯</button>'}</div>`;
     const rowHtml = (r, i) => {
       const jr = r.kind === 'file' ? junk(r.f) : '';
       const name = renaming === r.id ? `<input class="tr-ren" data-tren="${esc(r.id)}" value="${esc(r.name)}">` : `<span class="nm">${esc(r.name)}</span>`;
       return `<div class="tr-row${i % 2 ? ' odd' : ''}${treeSel.has(r.id) ? ' sel' : ''}${treeCur === r.id ? ' cur' : ''}" data-tid="${esc(r.id)}" title="${esc(r.path || '')}">
         <span class="c-name" style="padding-left:${8 + r.depth * 18}px">${r.kind === 'folder' ? `<span class="tw${r.open ? ' open' : ''}" data-ttw="${esc(r.id)}">▶</span>` : '<span class="tw blank"></span>'}${tree.view === 'thumb' ? thumbHtml(r) : `<span class="ic">${r.kind === 'folder' ? ICON_DIR : ICON_FILE(r)}</span>`}${tree.view === 'thumb' ? `<span class="tx">${name}<span class="sub">${esc(subOf(r))}</span></span>` : name}${tagOf(r)}${jr ? `<span class="jk" title="${esc(jr)}">不要</span>` : ''}</span>
-        <span class="c-size">${sizeOf(r)}</span><span class="c-kind">${esc(kindOf(r))}</span><span class="c-n">${r.kind === 'folder' ? (r.unloaded ? '—' : r.n + ' 項目') : ''}</span>${pctCell(r)}</div>`;
+        ${colList().map((k) => k === 'size' ? `<span class="c-size">${sizeOf(r)}</span>` : k === 'date' ? `<span class="c-date">${r.f && r.f.ct ? esc(new Date(r.f.ct).toLocaleDateString(loc(), { year: '2-digit', month: 'numeric', day: 'numeric' })) : ''}</span>` : k === 'kind' ? `<span class="c-kind">${esc(kindOf(r))}</span>` : k === 'n' ? `<span class="c-n">${r.kind === 'folder' ? (r.unloaded ? '—' : r.n + ' 項目') : ''}</span>` : pctCell(r)).join('')}</div>`;
     };
     // パス：ホームから表示中のフォルダまで（読み込んだ場所より上も、押すとその場で読み込んで移動）
     const chain = [baseId, ...ancestorsOf(baseId)].reverse();
@@ -3695,7 +3755,7 @@
       }).join('');
       $('[data-r=main]').innerHTML = `<div class="tr has-path tl" tabindex="0" data-r="tree"><div class="tr-body">${rows.length ? body : emptyHtml}</div><button class="tl-top" data-ttop="" title="一番上の一覧へ戻る（${KEY.back} キー／マウスの戻るボタン）">⤒ 一覧へ戻る</button></div>`;
     } else {
-      $('[data-r=main]').innerHTML = `<div class="tr has-path${tree.view === 'thumb' ? ' big' : ''}" tabindex="0" data-r="tree">${head}<div class="tr-body">${rows.map(rowHtml).join('') || emptyHtml}</div></div>`;
+      $('[data-r=main]').innerHTML = `<div class="tr has-path${tree.view === 'thumb' ? ' big' : ''}" tabindex="0" data-r="tree" style="--tcols:${colTemplate()}">${head}<div class="tr-body">${rows.map(rowHtml).join('') || emptyHtml}</div></div>`;
     }
     const selN = treeSel.size, selSize = [...treeSel].reduce((a, id) => { const r = rows.find((x) => x.id === id); return a + (r ? r.size : 0); }, 0);
     const capOf = (b) => (quota && quota.limit > 0 ? pctTxt(b / quota.limit) : '');
@@ -4576,9 +4636,23 @@
   root.addEventListener('mousedown', hideHover, true);
   root.addEventListener('wheel', hideHover, { passive: true });
   document.addEventListener('keydown', () => { if (hovId) hideHover(); }, true);
+  root.addEventListener('dblclick', (e) => { const cr = e.target.closest('[data-colr]'); if (!cr) return; e.preventDefault(); e.stopPropagation(); const c = colCfg(); delete c.w[cr.dataset.colr]; saveColCfg(c); renderTree(); }, true);
   // マウス操作
   root.addEventListener('mousedown', (e) => {
     if (view !== 'tree' || busy) return;
+    // 列の幅を変える（見出しの境目をドラッグ）
+    const cr = e.target.closest('[data-colr]');
+    if (cr) {
+      e.preventDefault(); e.stopPropagation();
+      const k = cr.dataset.colr, cell = cr.parentElement, x0 = e.clientX, w0 = cell.getBoundingClientRect().width, trEl = cell.closest('.tr');
+      cr.classList.add('on');
+      // 境目は列の左側：左へ引くと広がる
+      const mv = (ev) => { const c = colCfg(); c.w[k] = Math.round(Math.max(48, Math.min(600, w0 - (ev.clientX - x0)))); saveColCfg(c); if (trEl) trEl.style.setProperty('--tcols', colTemplate()); };
+      const up = () => { removeEventListener('mousemove', mv); removeEventListener('mouseup', up); cr.classList.remove('on'); };
+      addEventListener('mousemove', mv); addEventListener('mouseup', up);
+      return;
+    }
+    if (e.target.closest('[data-colpick]')) { e.preventDefault(); e.stopPropagation(); openColMenu(e.target.closest('[data-colpick]')); return; }
     const s = e.target.closest('[data-tsort]');
     if (s) { const k = s.dataset.tsort; if (tree.sort === k) tree.dir = -tree.dir; else { tree.sort = k; tree.dir = 1; } saveTree(); renderTreeToolbar(); renderTree(); return; }
     const tt = e.target.closest('[data-ttop]');

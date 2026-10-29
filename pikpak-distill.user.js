@@ -1146,7 +1146,8 @@
   .qp-ctl button[data-qp=scene].on{background:#306fff!important}
   .qp-ctl button[data-qp=sklist]{background:#f5a62433!important;color:#f5c46a!important;font-size:12px}
   .qp-ctl button[data-qp=sklist][hidden]{display:none}
-  .qp-ctl button[data-qp=gear] svg{display:block}
+  .qp-ctl button svg.ic,.pl-h button svg.ic,.ql-h button svg.ic,.ql-acts button svg.ic,.qp-scn-h button svg.ic{width:20px;height:20px;display:block;flex:none}
+  .pl-h button:has(> svg.ic:only-child),.ql-h button:has(> svg.ic:only-child),.ql-acts button:has(> svg.ic:only-child){min-width:34px;display:inline-flex;align-items:center;justify-content:center}
   .pd-sk > .sktr i.skt{width:2px;background:#ffffffb0;z-index:3}
   .qp-scn{position:absolute;right:0;top:0;bottom:0;width:min(210px,40%);display:flex;flex-direction:column;background:#0d0f14e6;border-left:1px solid #ffffff1a;z-index:6;cursor:default;font:12px system-ui,sans-serif;color:#dfe2ea}
   .qp-scn-h{display:flex;align-items:center;gap:8px;padding:8px 10px;flex:none}
@@ -1793,13 +1794,23 @@
   ];
 
   // 線のアイコン（currentColor で色を合わせる）
-  const SVG = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+  // ---- 共通のアイコン部品 ----
+  //   決まり：アイコンは文字（⚙ ✕ ⛶ など）ではなくこの IC の絵を使う（端末のフォントで小さく潰れるため）。
+  //           アイコンだけのボタンには必ず title（マウスを乗せたときの説明）を付ける。大きさは 20px が基本
+  const SVG = (d) => `<svg class="ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
   const IC = {
     gear: SVG('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'),
     sun: SVG('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'),
     moon: SVG('<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>'),
     globe: SVG('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9M12 3C9.5 5.6 8.2 8.6 8.2 12s1.3 6.4 3.8 9"/>'),
     x: SVG('<path d="M6 6l12 12M18 6L6 18"/>'),
+    play: SVG('<path d="M7 4.5v15l12-7.5z" fill="currentColor"/>'),
+    pause: SVG('<path d="M7 4.5h3.5v15H7zM13.5 4.5H17v15h-3.5z" fill="currentColor" stroke="none"/>'),
+    prev: SVG('<path d="M6 5v14"/><path d="M19 5.5v13L9 12z" fill="currentColor"/>'),
+    next: SVG('<path d="M18 5v14"/><path d="M5 5.5v13L15 12z" fill="currentColor"/>'),
+    vol: SVG('<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>'),
+    mute: SVG('<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M16 9.5l5 5M21 9.5l-5 5"/>'),
+    full: SVG('<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>'),
     search: SVG('<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>'),
     up: SVG('<path d="M12 19V5M5 12l7-7 7 7"/>'),
     folder: SVG('<path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/>'),
@@ -2395,7 +2406,7 @@
         <div class="db-card"><div class="db-ct"><i></i>最近追加したもの<span class="sp"></span><button class="lnk" data-a="lib" data-v="recent">すべて見る →</button></div><div class="db-ths">${rec.map(th).join('') || '<div class="note">この 30 日に追加したものはありません</div>'}</div></div>
       </div>
       <label class="sv-opt" title="オンにすると、作品と関係ないファイルを、仕分け・名前の変更・重複比較の対象から外します（「2. 不要ファイルを削除」で確認・削除できます）"><span class="sw"><input type="checkbox" data-a="junkopt"${junkEnabled() ? ' checked' : ''}><i></i></span><span><b>作品と関係ないファイルを除外する</b><small>広告・宣伝のファイルや 10MB 以下のファイルなどを、ほかの作業の対象から外します</small></span></label>
-      <div class="sv-dock"><button class="dk-h" data-a="dockx" aria-label="メニューを広げる"><i></i></button>
+      <div class="sv-dock"><button class="dk-h" data-a="dockx" title="メニューを広げる・たたむ" aria-label="メニューを広げる"><i></i></button>
         <div class="dk-b"><button data-a="addlink">リンクを追加</button><button data-a="rescan">読み込み直す</button>${nx ? `<button class="pri" data-step="${nx.v}">おすすめ：${STEPS.indexOf(nx) + 1}. ${esc(nx.t)} →</button>` : '<button class="pri" data-a="tree">フォルダ一覧へ →</button>'}</div>
         <div class="dk-q">${quick.map(([k, t, d]) => `<button ${k === 'tree' ? 'data-a="tree"' : `data-a="lib" data-v="${k.slice(4)}"`}><b>${t}</b><small>${esc(d)}</small></button>`).join('')}</div>
       </div>
@@ -3617,8 +3628,8 @@
     const ix = treeIdx;
     const info = r.kind === 'folder' ? `${r.n} 項目（中のファイル ${ix.agg.get(r.id).files} 件）・${fmt(r.size)}` : `${esc(kindOf(r))}・${fmt(r.size)}`;
     const jr = r.kind === 'file' && junkEnabled() ? (prepJunk(files, folders), junkInfo(r.f)) : null;
-    d.innerHTML = `<div class="ql"><div class="ql-h"><button data-qlclose title="閉じる（スペース / Esc）">✕</button><b>${esc(r.name)}</b></div><div class="ql-b">${big}</div>
-      <div class="ql-f"><div>${info}</div><div class="note">${esc((r.kind === 'folder' ? r.path : r.path + '/').replace(/^\/?/, '/').replace(/\/+$/, '') || '/')}</div>${jr ? `<div style="color:#ff6b6b">不要ファイルの判定：${esc(jr.reason)}</div>` : ''}${isVideoRow(r) ? `<div class="ql-acts"><button data-qlplay class="pri" title="このプレビューの中で再生">▶ ここで再生</button><button data-qlfull title="全画面で再生">⛶ 全画面</button><button data-qlframes title="コマ一覧（動画の中身を 16 コマで見る）">▦ コマ一覧</button>${rateSelect()}<button data-qlext title="外部プレーヤーで開く">↗ ${esc(EXT_PLAYERS[playPref().ext].short)}</button><button data-qlset title="再生のしかたの設定（ダブルクリック時の動作・外部プレーヤー）">⚙</button></div>` : ''}</div></div>`;
+    d.innerHTML = `<div class="ql"><div class="ql-h"><button data-qlclose title="閉じる（スペース / Esc）" aria-label="閉じる">${IC.x}</button><b>${esc(r.name)}</b></div><div class="ql-b">${big}</div>
+      <div class="ql-f"><div>${info}</div><div class="note">${esc((r.kind === 'folder' ? r.path : r.path + '/').replace(/^\/?/, '/').replace(/\/+$/, '') || '/')}</div>${jr ? `<div style="color:#ff6b6b">不要ファイルの判定：${esc(jr.reason)}</div>` : ''}${isVideoRow(r) ? `<div class="ql-acts"><button data-qlplay class="pri" title="このプレビューの中で再生">▶ ここで再生</button><button data-qlfull title="全画面で再生">⛶ 全画面</button><button data-qlframes title="コマ一覧（動画の中身を 16 コマで見る）">▦ コマ一覧</button>${rateSelect()}<button data-qlext title="外部プレーヤーで開く">↗ ${esc(EXT_PLAYERS[playPref().ext].short)}</button><button data-qlset title="再生のしかたの設定（ダブルクリック時の動作・外部プレーヤー）" aria-label="再生のしかたの設定">${IC.gear}</button></div>` : ''}</div></div>`;
     d.classList.remove('playing'); plStop('ql');
     const on = (sel, fn) => { const b = d.querySelector(sel); if (b) b.onclick = fn; };
     on('[data-qlplay]', () => qlPlay(r.id));
@@ -4360,7 +4371,7 @@
     }
     const vids = treeRowsCache.filter(isVideoRow);
     const i = vids.findIndex((r) => r.id === id);
-    d.innerHTML = `<div class="pl"><div class="pl-h"><button data-pl="prev"${i > 0 ? '' : ' disabled'} title="前のビデオ（${KEY.prev}）">◀</button><button data-pl="next"${i >= 0 && i < vids.length - 1 ? '' : ' disabled'} title="次のビデオ（${KEY.next}）">▶</button><b>${esc(f.name)}</b><select data-pl="q" title="画質（カクつく場合は変換画質を選んでください）" style="display:none"></select>${rateSelect()}<button data-pl="frames" title="コマ一覧">▦ コマ一覧</button><button data-pl="full" title="全画面（F）">⛶ 全画面</button><button data-pl="ext" title="外部プレーヤーで開く">↗ ${esc(EXT_PLAYERS[playPref().ext].short)}</button><button data-pl="set" title="再生のしかたの設定">⚙</button><button data-pl="close" title="閉じる（Esc）">✕</button></div>
+    d.innerHTML = `<div class="pl"><div class="pl-h"><button data-pl="prev"${i > 0 ? '' : ' disabled'} title="前のビデオ（${KEY.prev}）">◀</button><button data-pl="next"${i >= 0 && i < vids.length - 1 ? '' : ' disabled'} title="次のビデオ（${KEY.next}）">▶</button><b>${esc(f.name)}</b><select data-pl="q" title="画質（カクつく場合は変換画質を選んでください）" style="display:none"></select>${rateSelect()}<button data-pl="frames" title="コマ一覧">▦ コマ一覧</button><button data-pl="full" title="全画面（F）">⛶ 全画面</button><button data-pl="ext" title="外部プレーヤーで開く">↗ ${esc(EXT_PLAYERS[playPref().ext].short)}</button><button data-pl="set" title="再生のしかたの設定" aria-label="再生のしかたの設定">${IC.gear}</button><button data-pl="close" title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
       <div class="pl-b"><div class="pl-msg">再生の準備中…</div></div><div class="pl-f note"><span>${esc(f.outer ? fullPath(f.parentId) : (f.path || '/').replace(/\/$/, ''))}/ ・ ${fmt(f.size)}</span><span data-pl="info"></span></div></div>`;
     const prev = d.querySelector('[data-pl=prev]'), next = d.querySelector('[data-pl=next]');
     prev.onclick = () => { if (i > 0) { treeSelect(vids[i - 1].id, null); renderTree(); playFile(vids[i - 1].id, { full: !!document.fullscreenElement }); } };
@@ -4847,7 +4858,7 @@
   };
   const qpSelect = (k, attr) => { const c = qpCfg(), [, vals, lab] = QP_OPTS[k]; return `<select ${attr} data-k="${k}">${vals.map((v) => `<option value="${v}"${c[k] === v ? ' selected' : ''}>${esc(lab(v))}</option>`).join('')}</select>`; };
   const qpVal = (k, s) => { const v = QP_OPTS[k][1].find((x) => String(x) === s); return v === undefined ? QP_DEF[k] : v; };
-  const QP_IC = { gear: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>', play: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M4 2.5v11l9-5.5z" fill="currentColor"/></svg>', pause: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M4 2.5h3v11H4zM9 2.5h3v11H9z" fill="currentColor"/></svg>' };
+  const QP_IC = { gear: IC.gear, play: IC.play, pause: IC.pause };
   let qpActive = null;
   function qpSetActive(P) {
     if (qpActive === P) return;
@@ -4987,7 +4998,7 @@
       if (scn.el || !opt.src) return;
       scn.times = sceneTimes(); if (!scn.times.length) { flash('長さが分かってから開けます'); return; }
       const el = document.createElement('div'); el.className = 'qp-scn';
-      el.innerHTML = `<div class="qp-scn-h"><b>シーン</b><small>${scn.times.length} か所</small><button data-scx title="閉じる（G）">✕</button></div><div class="qp-scn-l">${scn.times.map((t, i) => `<button data-sc="${i}"><span class="im"><i>…</i></span><span>${fmtT(t)}</span></button>`).join('')}</div>`;
+      el.innerHTML = `<div class="qp-scn-h"><b>シーン</b><small>${scn.times.length} か所</small><button data-scx title="シーンを閉じる（G）" aria-label="閉じる">${IC.x}</button></div><div class="qp-scn-l">${scn.times.map((t, i) => `<button data-sc="${i}"><span class="im"><i>…</i></span><span>${fmtT(t)}</span></button>`).join('')}</div>`;
       el.addEventListener('mousedown', (e) => e.stopPropagation());
       el.addEventListener('wheel', (e) => e.stopPropagation(), { passive: true });
       el.addEventListener('click', (e) => {
@@ -5036,14 +5047,14 @@
     // ---- 操作バー ----
     const jl = qpCfg().jl;
     const ctl = document.createElement('div'); ctl.className = 'qp-ctl';
-    ctl.innerHTML = `${opt.prev ? '<button data-qp="prev" title="前の動画（P）">⏮</button>' : ''}<button data-qp="play" title="再生・一時停止（Space / K）">⏸</button>${opt.next ? '<button data-qp="next" title="次の動画（N）">⏭</button>' : ''}<button data-qp="back" title="戻る（J）">-${jl}</button><button data-qp="fwd" title="進む（L）">+${jl}</button><span class="qp-t" data-qp="time">00:00 / 00:00</span><span class="qp-sp"></span><button data-qp="mute" title="消音（M）">🔊</button><input type="range" data-qp="vol" min="0" max="100" value="${Math.round(v.volume * 100)}" aria-label="音量">${rateSelect()}${opt.src ? '<button data-qp="scene" title="シーン（G）">▦ シーン</button>' : ''}${opt.media ? '<button data-qp="ab" title="飛ばす区間（A で始め・B で終わり）">✂ A–B</button><button data-qp="sklist" title="この動画の飛ばす区間の一覧（消すのもここから）" hidden></button>' : ''}<button data-qp="zoom" title="ズーム（ホイール・ピンチ・Z / X、押すと 100% に戻す）">🔍 100%</button><button data-qp="gear" title="簡易プレーヤーの設定・飛ばす区間の一覧" aria-label="設定">${QP_IC.gear}</button><button data-qp="full" title="全画面（F）">⛶</button><div class="qp-set" hidden></div>`;
+    ctl.innerHTML = `${opt.prev ? `<button data-qp="prev" title="前の動画（P）" aria-label="前の動画">${IC.prev}</button>` : ''}<button data-qp="play" title="再生・一時停止（Space / K）" aria-label="再生・一時停止">${IC.pause}</button>${opt.next ? `<button data-qp="next" title="次の動画（N）" aria-label="次の動画">${IC.next}</button>` : ''}<button data-qp="back" title="戻る（J）">-${jl}</button><button data-qp="fwd" title="進む（L）">+${jl}</button><span class="qp-t" data-qp="time">00:00 / 00:00</span><span class="qp-sp"></span><button data-qp="mute" title="消音・解除（M）" aria-label="消音">${IC.vol}</button><input type="range" data-qp="vol" min="0" max="100" value="${Math.round(v.volume * 100)}" aria-label="音量">${rateSelect()}${opt.src ? '<button data-qp="scene" title="シーン（G）">▦ シーン</button>' : ''}${opt.media ? '<button data-qp="ab" title="飛ばす区間（A で始め・B で終わり）">✂ A–B</button><button data-qp="sklist" title="この動画の飛ばす区間の一覧（消すのもここから）" hidden></button>' : ''}<button data-qp="zoom" title="ズーム（ホイール・ピンチ・Z / X、押すと 100% に戻す）">🔍 100%</button><button data-qp="gear" title="簡易プレーヤーの設定・飛ばす区間の一覧" aria-label="設定">${QP_IC.gear}</button><button data-qp="full" title="全画面（F）" aria-label="全画面">${IC.full}</button><div class="qp-set" hidden></div>`;
     ui.appendChild(ctl);
     const q = (k) => ctl.querySelector(`[data-qp=${k}]`), setPanel = ctl.querySelector('.qp-set');
     const syncUi = () => {
       // timeupdate のたびに中身を作り直すと、押している最中にボタンの中身が入れ替わってクリックが無効になる
       const pb = q('play'), ps = v.paused ? 'play' : 'pause'; if (pb.dataset.st !== ps) { pb.dataset.st = ps; pb.innerHTML = QP_IC[ps]; }
       q('time').textContent = `${fmtT(v.currentTime || 0)} / ${fmtT(v.duration || 0)}`;
-      q('mute').textContent = v.muted || !v.volume ? '🔇' : '🔊';
+      const mb = q('mute'), ms = v.muted || !v.volume ? 'mute' : 'vol'; if (mb.dataset.st !== ms) { mb.dataset.st = ms; mb.innerHTML = IC[ms]; }
       const r = q('vol'); if (document.activeElement !== r) r.value = v.muted ? 0 : Math.round(v.volume * 100);
     };
     ['play', 'pause', 'timeupdate', 'durationchange', 'volumechange', 'loadedmetadata'].forEach((ev) => v.addEventListener(ev, syncUi));
@@ -5480,7 +5491,7 @@
     libPvClose(); libSt.cur = id;
     const run = ++libPvRun;
     const p = document.createElement('div'); p.className = 'lb-pv';
-    p.innerHTML = `<div class="lb-pvbox" role="dialog" aria-label="プレビュー"><div class="lk-hd"><b title="${esc(it.name)}">${esc(it.name)}</b><span class="sp"></span><button class="x" data-lbpvx aria-label="閉じる">${IC.x}</button></div>
+    p.innerHTML = `<div class="lb-pvbox" role="dialog" aria-label="プレビュー"><div class="lk-hd"><b title="${esc(it.name)}">${esc(it.name)}</b><span class="sp"></span><button class="x" data-lbpvx title="プレビューを閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
       <div class="lb-pvv"><div class="pl-msg">再生の準備中…</div></div>
       <div class="lb-pvft"><span class="tx"><b>簡易プレビュー（低画質）</b>・本編をきちんと見るなら、外部プレーヤー（オリジナル画質）がおすすめです<span data-lbpvi></span></span><button data-lbopen="${esc(id)}">場所を開く</button><button class="pri" data-lbext="${esc(id)}">↗ 外部プレーヤーで見る（オリジナル画質）</button></div></div>`;
     d.appendChild(p);
@@ -5611,7 +5622,7 @@
     const pvTip = `スペースで低画質のプレビュー、ダブルクリック・Enter は設定の「再生のしかた」（${esc(prefLabel())}）で開きます。本編は「↗ 外部プレーヤー」（オリジナル画質）がおすすめ。`;
     const note = { dl: 'リンク・マグネットで追加したもの（直近 60 日）。すぐ保存した分は保存先にあるかを、クラウドダウンロードの分は進み具合を確かめて表示します。「一覧から外す」は記録とタスクを消すだけで、保存したファイルは消しません。', recent: '追加日の新しい順（読み込んだ範囲：' + esc(dirLabel((scanRoot() || {}).id) || '—') + '）。' + pvTip, cont: '途中で止めた動画（新しい順）。開くと前回の続きから再生します。', hist: 'Dedupe と PikPak で再生した動画（新しい順）。Dedupe で再生した分はこのブラウザに記録します。' + pvTip, star: 'PikPak でスターを付けた項目。' + pvTip, trash: `ゴミ箱の中身${quota ? `（${fmtCap(quota.trash)}）` : ''}。「完全に削除」「空にする」は元に戻せません。` }[tab];
     const all = selectable && S.items.length ? `<label class="note lb-all"><input type="checkbox" data-lball${n && n === S.items.length ? ' checked' : ''}${dis}> すべて選ぶ</label>` : '';
-    const html = `<div class="lk-box" role="dialog" aria-label="${esc(LIB_TABS.find((x) => x[0] === tab)[1])}"><div class="lk-hd"><b>${LIB_TABS.find((x) => x[0] === tab)[1]}</b><span class="note">${S.items.length && !S.loading ? S.items.length + ' 項目' : ''}</span><span class="sp"></span>${grid ? `<span class="seg lb-vw" title="表示のしかた">${[['list', tab === 'recent' ? '🌲 ツリー' : '☰ リスト'], ['thumb', '▤ サムネイル'], ['tile', '▦ タイル']].map(([k, l]) => `<button data-lbview="${k}" class="${lv === k ? 'on' : ''}">${l}</button>`).join('')}</span>${lv === 'list' && tab === 'recent' ? '<span class="seg"><button data-lbtall="open" title="すべて開く">⊞ 全展開</button><button data-lbtall="close" title="すべて閉じる">⊟ 全格納</button></span>' : ''}<button data-lbauto class="${libAuto() ? 'on' : ''}" title="プレビューで動画が終わったら、次の動画を続けて再生します">${libAuto() ? '✓ ' : ''}続けて再生</button>` : ''}${grid && lv === 'tile' ? `<span class="seg lb-sz" title="サムネイルの大きさ">${[['s', '小'], ['m', '中'], ['l', '大']].map(([k, l]) => `<button data-lbsz="${k}" class="${lsz === k ? 'on' : ''}">${l}</button>`).join('')}</span>` : ''}<button data-lbreload title="読み込み直す"${dis}>更新</button><button class="x" data-lbclose aria-label="閉じる">${IC.x}</button></div>
+    const html = `<div class="lk-box" role="dialog" aria-label="${esc(LIB_TABS.find((x) => x[0] === tab)[1])}"><div class="lk-hd"><b>${LIB_TABS.find((x) => x[0] === tab)[1]}</b><span class="note">${S.items.length && !S.loading ? S.items.length + ' 項目' : ''}</span><span class="sp"></span>${grid ? `<span class="seg lb-vw" title="表示のしかた">${[['list', tab === 'recent' ? '🌲 ツリー' : '☰ リスト'], ['thumb', '▤ サムネイル'], ['tile', '▦ タイル']].map(([k, l]) => `<button data-lbview="${k}" class="${lv === k ? 'on' : ''}">${l}</button>`).join('')}</span>${lv === 'list' && tab === 'recent' ? '<span class="seg"><button data-lbtall="open" title="すべて開く">⊞ 全展開</button><button data-lbtall="close" title="すべて閉じる">⊟ 全格納</button></span>' : ''}<button data-lbauto class="${libAuto() ? 'on' : ''}" title="プレビューで動画が終わったら、次の動画を続けて再生します">${libAuto() ? '✓ ' : ''}続けて再生</button>` : ''}${grid && lv === 'tile' ? `<span class="seg lb-sz" title="サムネイルの大きさ">${[['s', '小'], ['m', '中'], ['l', '大']].map(([k, l]) => `<button data-lbsz="${k}" class="${lsz === k ? 'on' : ''}">${l}</button>`).join('')}</span>` : ''}<button data-lbreload title="読み込み直す"${dis}>更新</button><button class="x" data-lbclose title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
       <div class="lb-tabs">${tabs}</div>
       <div class="lb-note">${note}</div>
       <div class="lk-list">${all}${body}</div>

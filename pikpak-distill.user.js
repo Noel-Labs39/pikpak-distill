@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.8.7
+// @version      4.8.8
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -79,6 +79,19 @@
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const UNIT = { B: 1, KB: 1024, MB: 1048576, GB: 1073741824, TB: 1099511627776 };
   const fmt = (b) => (b >= UNIT.GB ? (b / UNIT.GB).toFixed(2) + ' GB' : b >= UNIT.MB / 10 ? (b / UNIT.MB).toFixed(1) + ' MB' : (b ? Math.max(1, Math.round(b / UNIT.KB)) : 0) + ' KB');
+  // <common> ---------- 共通部品（設定の読み書き・日時と時間の表示） ----------
+  const lsGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const lsSet = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
+  const lsJson = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
+  const lsSetJson = (k, v) => lsSet(k, JSON.stringify(v));
+  // 日時：'md' 10/29 19:14（既定）・'ymd' 2026/10/29 19:14・'full' 秒まで・'d2' 26/10/29
+  const DATE_FMT = { md: { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }, ymd: { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }, full: undefined };
+  const fmtDate = (t, k = 'md') => { const v = typeof t === 'number' ? t : Date.parse(t); if (!v && v !== 0) return ''; const d = new Date(v); return k === 'd2' ? d.toLocaleDateString(loc(), { year: '2-digit', month: 'numeric', day: 'numeric' }) : d.toLocaleString(loc(), DATE_FMT[k]); };
+  // 時間：fmtClock(秒) → 1:07:47 / 04:05、fmtDur(ミリ秒) → 4 分 05 秒
+  const pad2 = (n) => String(n).padStart(2, '0');
+  const fmtClock = (s) => { s = Math.max(0, Math.round(s)); const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60; return (h ? h + ':' + pad2(m) : pad2(m)) + ':' + pad2(s % 60); };
+  const fmtDur = (ms) => { const s = Math.max(0, Math.round(ms / 1000)); return s < 60 ? `${s} 秒` : `${Math.floor(s / 60)} 分 ${pad2(s % 60)} 秒`; };
+  // </common>
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const NEAR = 0.015; // 最大サイズとの差が1.5%以内なら「サイズが近い」
   const LS_DECISION = 'ppdup:decision:v1';
@@ -89,7 +102,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.8.7'; // @version と合わせて更新する
+  const VER = '4.8.8'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -100,7 +113,7 @@
       localStorage.setItem(LS_LOG, JSON.stringify(a));
     } catch (e) { /* 保存できなくても処理は続ける */ }
   }
-  const readLog = () => { try { return JSON.parse(localStorage.getItem(LS_LOG) || '[]'); } catch (e) { return []; } };
+  const readLog = () => { return lsJson(LS_LOG, []); };
   window.addEventListener('error', (e) => { if (String(e.filename || '').includes('userscript') || /ppdup|PikPak Distill/.test(String(e.message))) log('error', e.message, 'window.onerror'); });
 
   const pageWin = window; // @grant none のため、PikPak画面と同じ環境で動く
@@ -807,7 +820,7 @@
       for (let i = 0; i < ids.length; i += 100) await apiRemove(ids.slice(i, i + 100), pid, hard);
       const set = new Set(ids); files = files.filter((f) => !set.has(f.id));
       ids.forEach((id) => delete decision[id]);
-      try { localStorage.setItem(LS_SCAN, JSON.stringify(files)); } catch (e) { /* 無視 */ } saveDecision();
+      lsSetJson(LS_SCAN, files); saveDecision();
       done += ids.length; if (onProgress) onProgress(done, list.length);
     }
     refreshQuota(true);
@@ -2134,7 +2147,7 @@
   // ---------- 表示言語（日本語／英語） ----------
   // 画面はすべて日本語で組み立て、英語のときは表示の直前に置き換える（ファイル名・フォルダ名は置き換えない）
   const LS_LANG = 'ppdup:lang:v1';
-  const langPref = () => { try { return localStorage.getItem(LS_LANG) || 'auto'; } catch (e) { return 'auto'; } };
+  const langPref = () => { return lsGet(LS_LANG) || 'auto'; };
   const resolveLang = () => { const p = langPref(); return p === 'ja' || p === 'en' ? p : (/^ja\b/i.test(navigator.language || '') ? 'ja' : 'en'); };
   let LANG = resolveLang();
   const loc = () => (LANG === 'en' ? 'en-US' : 'ja-JP');
@@ -2213,7 +2226,7 @@
   });
   langObs.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATTRS });
   function setLang(l) {
-    try { localStorage.setItem(LS_LANG, l); } catch (e) { /* 無視 */ }
+    lsSet(LS_LANG, l);
     LANG = resolveLang(); trCache.clear();
     // 元の日本語に戻してから、いまの画面を描き直す
     document.querySelectorAll(UI_SEL).forEach((el) => {
@@ -2242,8 +2255,8 @@
   }
   // サムネイルをぼかす（プライバシー）。この端末だけの設定（同期しない）
   const LS_BLUR = 'ppdup:blur:v1', LS_BLURHOV = 'ppdup:blurhov:v1';
-  const blurOn = () => { try { return localStorage.getItem(LS_BLUR) === '1'; } catch (e) { return false; } };
-  const blurHov = () => { try { return localStorage.getItem(LS_BLURHOV) !== '0'; } catch (e) { return true; } };
+  const blurOn = () => { return lsGet(LS_BLUR) === '1'; };
+  const blurHov = () => { return lsGet(LS_BLURHOV) !== '0'; };
   function applyBlur() { document.documentElement.classList.toggle('pd-blur', blurOn()); document.documentElement.classList.toggle('pd-blurhov', blurOn() && blurHov()); }
   applyBlur();
   function applyTheme() {
@@ -2251,7 +2264,7 @@
     document.documentElement.classList.toggle('pd-dark', p === 'dark' || (p === 'auto' && !!(darkMQ && darkMQ.matches)));
     renderThemeSeg();
   }
-  function setTheme(t) { try { localStorage.setItem(LS_THEME, t); } catch (e) { /* 無視 */ } applyTheme(); if (document.getElementById('pd-set')) renderSettings(); }
+  function setTheme(t) { lsSet(LS_THEME, t); applyTheme(); if (document.getElementById('pd-set')) renderSettings(); }
   if (darkMQ) { try { darkMQ.addEventListener('change', applyTheme); } catch (e) { if (darkMQ.addListener) darkMQ.addListener(applyTheme); } }
   const $ = (s) => root.querySelector(s);
   // 状態表示（ratio を渡すと進捗バーを出す）
@@ -2270,14 +2283,14 @@
   };
 
   let folders = [];
-  try { folders = JSON.parse(localStorage.getItem(LS_FOLD) || '[]'); } catch (e) { folders = []; }
+  folders = lsJson(LS_FOLD, []);
   let files = [];
-  try { files = JSON.parse(localStorage.getItem(LS_SCAN) || '[]'); } catch (e) { files = []; }
+  files = lsJson(LS_SCAN, []);
   let meta = null;
-  try { meta = JSON.parse(localStorage.getItem(LS_META) || 'null'); } catch (e) { meta = null; }
+  meta = lsJson(LS_META, null);
   let decision = {};
-  try { decision = JSON.parse(localStorage.getItem(LS_DECISION) || '{}'); } catch (e) { decision = {}; }
-  const saveDecision = () => { try { localStorage.setItem(LS_DECISION, JSON.stringify(decision)); } catch (e) { /* 無視 */ } };
+  decision = lsJson(LS_DECISION, {});
+  const saveDecision = () => { lsSetJson(LS_DECISION, decision); };
   const saveAll = () => { try { localStorage.setItem(LS_SCAN, JSON.stringify(files)); localStorage.setItem(LS_FOLD, JSON.stringify(folders)); } catch (e) { /* 容量超過は無視 */ } };
   const stateOf = (f, idx) => decision[f.id] || (idx === 0 ? 'keep' : 'del');
   const hasScan = () => !!meta && (folders.length > 0 || files.length > 0); // このバージョンで読み込んだ結果だけを使う
@@ -2288,8 +2301,8 @@
   let afterScan = null; // 読み込み後に開く作業
   let nplan = [];
   const nameOff = new Set(); // ファイル名の整理でチェックを外した項目
-  const nameEnabled = () => { try { return localStorage.getItem(LS_OPT_NAME) !== '0'; } catch (e) { return true; } };
-  const junkEnabled = () => { try { return localStorage.getItem(LS_OPT_JUNK) !== '0'; } catch (e) { return true; } };
+  const nameEnabled = () => { return lsGet(LS_OPT_NAME) !== '0'; };
+  const junkEnabled = () => { return lsGet(LS_OPT_JUNK) !== '0'; };
   let jplan = [];
   const junkSel = new Map(); // 不要ファイルのチェック（変更したものだけ記録。未記録は del＝あり／review＝なし）
   const junkChecked = (p) => (junkSel.has(p.id) ? junkSel.get(p.id) : p.level === 'del');
@@ -2301,7 +2314,7 @@
   // 放置してPikPakのログイン情報の期限が切れたら、画面を再読み込みして更新させ、Distillを開き直す
   function reloadForSession(resume) {
     let prev = null; try { prev = JSON.parse(sessionStorage.getItem(SS_RESUME) || 'null'); } catch (e) { prev = null; }
-    let g = null; try { g = JSON.parse(localStorage.getItem('ppdup:reloadguard:v1') || 'null'); } catch (e) { g = null; }
+    let g = null; g = lsJson('ppdup:reloadguard:v1', null);
     const recent = g && Date.now() - g.at < 10 * 60 * 1000 ? g.n : 0;
     const count = Math.max(prev && Date.now() - prev.at < 5 * 60 * 1000 ? (prev.count || 0) + 1 : 1, recent + 1);
     try { localStorage.setItem('ppdup:reloadguard:v1', JSON.stringify({ at: Date.now(), n: count })); } catch (e) { /* 無視 */ }
@@ -2363,15 +2376,14 @@
   }
   function showLog() {
     const logs = readLog().slice().reverse();
-    const fmtT = (t) => new Date(t).toLocaleString(loc());
-    const text = () => `PikPak Distill ${VER} / ${navigator.userAgent}\n` + readLog().map((x) => `${fmtT(x.t)} [${x.level}] ${x.msg}${x.ctx ? ' | ' + x.ctx : ''}${x.v ? ' (v' + x.v + ')' : ''}`).join('\n');
+    const text = () => `PikPak Distill ${VER} / ${navigator.userAgent}\n` + readLog().map((x) => `${fmtDate(x.t, 'full')} [${x.level}] ${x.msg}${x.ctx ? ' | ' + x.ctx : ''}${x.v ? ' (v' + x.v + ')' : ''}`).join('\n');
     const d = document.createElement('div'); d.id = 'pd-dlg';
     d.innerHTML = `<div class="box" style="width:min(820px,94vw)"><h3>ログ（新しい順・最新300件）</h3>
       <div class="note">エラーや主な処理の記録です。このブラウザの中にだけ保存されます（ログイン情報は記録しません）。不具合の報告にはコピーして貼り付けてください。</div>
-      <div class="logs">${logs.map((x) => `<div class="${x.level}">${esc(fmtT(x.t))} [${esc(x.level)}] ${esc(x.msg)}${x.ctx ? ' <span style="opacity:.7">| ' + esc(x.ctx) + '</span>' : ''}</div>`).join('') || '記録はありません'}</div>
+      <div class="logs">${logs.map((x) => `<div class="${x.level}">${esc(fmtDate(x.t, 'full'))} [${esc(x.level)}] ${esc(x.msg)}${x.ctx ? ' <span style="opacity:.7">| ' + esc(x.ctx) + '</span>' : ''}</div>`).join('') || '記録はありません'}</div>
       <div class="acts"><button data-clear>消去</button><button data-save>テキスト保存</button><button data-copy>コピー</button><button data-close class="danger" style="background:#306fff;border-color:#306fff">閉じる</button></div></div>`;
     document.body.appendChild(d);
-    try { localStorage.setItem(LS_LOGSEEN, String(Date.now())); } catch (e) { /* 無視 */ }
+    lsSet(LS_LOGSEEN, String(Date.now()));
     updateLogBadge();
     d.querySelector('[data-close]').onclick = () => d.remove();
     d.querySelector('[data-copy]').onclick = async () => { try { await navigator.clipboard.writeText(text()); d.querySelector('[data-copy]').textContent = 'コピーしました'; } catch (e) { d.querySelector('[data-copy]').textContent = 'コピー失敗'; } };
@@ -2385,7 +2397,7 @@
     const back = view;
     const where = (meta && meta.where) || crumbs().map((c) => c.name).filter(Boolean).join(' › ') || 'ホーム';
     let st = null; try { st = (JSON.parse(localStorage.getItem(LS_SCANSTAT) || '{}') || {})[String(currentTrail().slice(-1)[0] || 'root')]; } catch (e) { st = null; }
-    const when = meta ? new Date(meta.at).toLocaleString(loc(), { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+    const when = meta ? fmtDate(meta.at) : '';
     const d = document.createElement('div'); d.id = 'pd-dlg';
     d.innerHTML = `<div class="box" role="dialog" aria-label="再読み込み"><h3>PikPak の中身を読み込み直しますか？</h3>
       <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px">
@@ -2521,7 +2533,7 @@
   function renderAcct() {
     const ok = sessionValid(), sc = syncCfg();
     const sync = sc.on && sc.asked ? '同期オン' : '同期オフ';
-    const syncT = sc.on && sc.asked && sc.last ? '前回 ' + new Date(sc.last).toLocaleString(loc(), { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+    const syncT = sc.on && sc.asked && sc.last ? '前回 ' + fmtDate(sc.last) : '';
     const card = root.querySelector('[data-r=acct]'), btn = root.querySelector('[data-r=acctbtn]');
     const ic = '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/></svg>';
     if (card) { card.className = 'rl-acct ' + (ok ? 'ok' : 'ng'); card.innerHTML = `<i>${ic}</i><span><b>${ok ? 'PikPak にログイン中' : 'ログインが必要です'}</b><small>● ${esc(ok ? sync : 'PikPak の画面でログインしてください')}</small>${ok && syncT ? `<small class="t">${esc(syncT)}</small>` : ''}</span>`; }
@@ -2532,7 +2544,7 @@
     const ok = sessionValid(), sc = syncCfg();
     m = document.createElement('div'); m.id = 'pd-acct';
     m.innerHTML = `<b>${ok ? 'PikPak にログイン中' : 'ログインが必要です'}</b><small>${ok ? 'Dedupe は PikPak のログインをそのまま使います（パスワードは扱いません）' : 'PikPak の画面でログインしてから、もう一度開いてください'}</small>
-      <div class="ln"><span>PikPak で同期</span><b>${sc.on && sc.asked ? 'オン' : 'オフ'}</b></div>${sc.last ? `<div class="ln"><span>前回の同期</span><b>${new Date(sc.last).toLocaleString(loc(), { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</b></div>` : ''}
+      <div class="ln"><span>PikPak で同期</span><b>${sc.on && sc.asked ? 'オン' : 'オフ'}</b></div>${sc.last ? `<div class="ln"><span>前回の同期</span><b>${fmtDate(sc.last)}</b></div>` : ''}
       ${quota && quota.usage ? `<div class="ln"><span>使用量</span><b>${fmtCap(quota.usage)} / ${quota.limit > 0 ? fmtCap(quota.limit) : '—'}</b></div>` : ''}
       <div class="acts"><button data-ac="sync"${ok && sc.on && sc.asked ? '' : ' disabled'}>今すぐ同期</button><button data-ac="set">同期の設定</button></div>`;
     document.body.appendChild(m);
@@ -2633,7 +2645,7 @@
     const next = c ? (WORK.find((k) => c[k] > 0) || null) : 'scan';
     $('[data-r=nav]').innerHTML = STEPS.map((s, i) => {
       let sub, cls = '';
-      if (s.v === 'scan') { sub = meta ? `${new Date(meta.at).toLocaleString(loc(), { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })} 読み込み済み` : 'まずはここから'; if (meta) cls = 'done'; }
+      if (s.v === 'scan') { sub = meta ? `${fmtDate(meta.at)} 読み込み済み` : 'まずはここから'; if (meta) cls = 'done'; }
       else if (!c) sub = '読み込み後に使えます';
       else if (s.v === 'name' && !nameEnabled()) { sub = 'オフ（使わない設定）'; cls = 'done'; }
       else if (s.v === 'junk' && !junkEnabled()) { sub = 'オフ（使わない設定）'; cls = 'done'; }
@@ -2682,7 +2694,7 @@
   function renderToolbar() {
     if (view === 'tree') { renderTreeToolbar(); return; }
     const s = STEPS.find((x) => x.v === view);
-    const single = mode === 'single' ? `<span class="note">読み込み：${meta ? esc(new Date(meta.at).toLocaleString(loc(), { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })) : '未'}</span><button data-a="rescan" title="最新の状態を読み込んでから、この作業を続けます">再読み込み</button><button data-a="toflow" title="1〜7 のステップをすべて表示します（左メニューの「整理」と同じ）">1〜7 をすべて表示</button><span class="sep"></span>` : '';
+    const single = mode === 'single' ? `<span class="note">読み込み：${meta ? esc(fmtDate(meta.at)) : '未'}</span><button data-a="rescan" title="最新の状態を読み込んでから、この作業を続けます">再読み込み</button><button data-a="toflow" title="1〜7 のステップをすべて表示します（左メニューの「整理」と同じ）">1〜7 をすべて表示</button><span class="sep"></span>` : '';
     const head = `<div class="head"><b>${mode === 'single' ? '' : STEPS.indexOf(s) + 1 + '. '}${esc(s.t)}</b><span class="note">${esc(s.d)}</span></div><span class="sp"></span>${single}`;
     let html = '';
     const kopt = (k) => `<label class="optsw" title="オフにすると、このステップを使わず次へ進みます"><input type="checkbox" data-kopt="${k}"${stepOn(k) ? ' checked' : ''}> このステップを使う</label><button data-a="kreplan" title="PikPak の最新の内容ではなく、読み込んだ内容から計画を作り直します">計画を作り直す</button><span class="sep"></span>`;
@@ -2857,7 +2869,7 @@
     const P = onePlan();
     const total = P.auto.reduce((a, x) => a + x[2], 0);
     const rv = P.sd.review;
-    const rvRow = (g) => `<div class="op-rv"><div class="op-rvh"><b>${esc(g.key.replace('#', ' -'))}</b><span class="pd-tag">${esc(g.why)}</span><span class="sp"></span><button data-opcmp="${esc(g.key)}" title="2 本を並べて見比べる">▶ 見比べ</button></div>${g.items.map((f) => { const m = metaGet(f); return `<div class="op-rf"><span>${esc(f.name)}</span><small>${esc(f.path || '')}</small><em>${fmt(f.size)}${m.res ? ' ・ ' + m.res : ''}${m.dur ? ' ・ ' + fmtT(m.dur) : ''}</em></div>`; }).join('')}</div>`;
+    const rvRow = (g) => `<div class="op-rv"><div class="op-rvh"><b>${esc(g.key.replace('#', ' -'))}</b><span class="pd-tag">${esc(g.why)}</span><span class="sp"></span><button data-opcmp="${esc(g.key)}" title="2 本を並べて見比べる">▶ 見比べ</button></div>${g.items.map((f) => { const m = metaGet(f); return `<div class="op-rf"><span>${esc(f.name)}</span><small>${esc(f.path || '')}</small><em>${fmt(f.size)}${m.res ? ' ・ ' + m.res : ''}${m.dur ? ' ・ ' + fmtClock(m.dur) : ''}</em></div>`; }).join('')}</div>`;
     const tabs = [
       ['dup', '違う可能性がある重複', rv.length],
       ['junk', '不要ファイル（要確認）', P.junkReview],
@@ -2919,12 +2931,12 @@
   // ---------- 1. 読み込む ----------
   // 初めて読み込むときは、いきなり読み込まずに案内を出す（「次からは確認しない」で省略）
   const LS_SCANASK = 'ppdup:scanask:v1';
-  const scanAsk = () => { try { return localStorage.getItem(LS_SCANASK) !== '0'; } catch (e) { return true; } };
+  const scanAsk = () => { return lsGet(LS_SCANASK) !== '0'; };
   // 読み込み済みのときのダッシュボード（大きな数字・作業カード・最近追加したもの・右下のボタン群）
   const DASH_TINT = { junk: ['#fdebe1', '#c2561a'], name: ['#f1ebff', '#6a3fd1'], sort: ['#e6f6ee', '#17703f'], ren: ['#fff4dc', '#8a5600'], dup: ['#e8efff', '#306fff'], clean: ['#e3f4f7', '#0f6f80'], seller: ['#fde8f0', '#b4235f'] };
   function renderDash(where, c, next) {
     const done = allDone(c);
-    const when = new Date(meta.at).toLocaleString(loc(), { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const when = fmtDate(meta.at);
     const staleH = Math.floor((Date.now() - meta.at) / 3600000);
     const stat = (l, v, u, d, cls) => `<div class="db-st${cls ? ' ' + cls : ''}"><span>${l}</span><b>${v}<small>${u}</small></b><em>${d}</em></div>`;
     const qv = quota && quota.usage ? fmtCap(quota.usage).split(' ') : ['—', ''];
@@ -2973,7 +2985,7 @@
       const i = STEPS.findIndex((x) => x.v === k), x = val(k);
       return `<button data-step="${k}" class="sc ${x.cls}${k === next ? ' next' : ''}" title="${esc(STEPS[i].d)}"><span class="sc-h"><span class="sc-n">${i + 1}</span><span class="sc-t">${esc(STEPS[i].t)}</span></span><span class="sc-v"><b>${esc(String(x.v))}</b>${x.u ? `<small>${esc(x.u)}</small>` : ''}</span><span class="sc-s">${esc(x.sub || (x.cls === 'todo' ? (k === next ? 'おすすめ' : '作業あり') : x.cls === 'off' ? '使わない設定' : ''))}</span></button>`;
     };
-    const when = meta ? new Date(meta.at).toLocaleString(loc(), { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+    const when = meta ? fmtDate(meta.at, 'ymd') : '';
     const staleH = meta ? Math.floor((Date.now() - meta.at) / 3600000) : 0;
     const done = allDone(c);
     $('[data-r=main]').innerHTML = `<div class="sv">
@@ -3005,10 +3017,9 @@
   }
   // 読み込みの残り時間（目安）：同じ場所を前に読み込んだときのフォルダ数・時間と、今の速さから見積もる
   const LS_SCANSTAT = 'ppdup:scanstat:v1';
-  const fmtDur = (ms) => { const s = Math.max(0, Math.round(ms / 1000)); return s < 60 ? `${s} 秒` : `${Math.floor(s / 60)} 分 ${String(s % 60).padStart(2, '0')} 秒`; };
   function scanEta(trail) {
     const key = String(trail[trail.length - 1] || 'root');
-    let all = {}; try { all = JSON.parse(localStorage.getItem(LS_SCANSTAT) || '{}') || {}; } catch (e) { all = {}; }
+    let all = {}; all = lsJson(LS_SCANSTAT, {});
     const prev = all[key] && all[key].folders > 0 && all[key].ms > 0 ? all[key] : null;
     const t0 = Date.now();
     let shown = null, lastAt = t0, maxFrac = 0;
@@ -3037,7 +3048,7 @@
         if (window.__ppdupStop) return;
         all[key] = { folders: nfo, files: nfi, ms: Date.now() - t0, at: Date.now() };
         const keys = Object.keys(all); if (keys.length > 30) keys.sort((a, b) => (all[a].at || 0) - (all[b].at || 0)).slice(0, keys.length - 30).forEach((k) => delete all[k]);
-        try { localStorage.setItem(LS_SCANSTAT, JSON.stringify(all)); } catch (e) { /* 無視 */ }
+        lsSetJson(LS_SCANSTAT, all);
       },
     };
   }
@@ -3060,7 +3071,7 @@
       eta.done(r.folders.length, r.files.length);
       files = r.files; folders = r.folders; saveAll();
       meta = { at: Date.now(), where, nfo: folders.length, nfi: files.length };
-      try { localStorage.setItem(LS_META, JSON.stringify(meta)); } catch (e) { /* 無視 */ }
+      lsSetJson(LS_META, meta);
       busy = false;
       status(`読み込み完了：フォルダ ${folders.length} ／ ファイル ${files.length} 件`);
       if (afterScan) { const v = afterScan; afterScan = null; setView(v); status(`読み込み完了：フォルダ ${folders.length} ／ ファイル ${files.length} 件`); }
@@ -3097,7 +3108,7 @@
   const kitQ = { junk: '', name: '', sort: '', ren: '', clean: '' };
   const KIT_OPT_J = 1;
   const KIT_OPT = { sort: 'ppdup:opt:sort:v1', ren: 'ppdup:opt:ren:v1', clean: 'ppdup:opt:clean:v1' };
-  const stepOn = (v) => (v === 'name' ? nameEnabled() : v === 'junk' ? junkEnabled() : KIT_OPT[v] ? (() => { try { return localStorage.getItem(KIT_OPT[v]) !== '0'; } catch (e) { return true; } })() : true);
+  const stepOn = (v) => (v === 'name' ? nameEnabled() : v === 'junk' ? junkEnabled() : KIT_OPT[v] ? (() => { return lsGet(KIT_OPT[v]) !== '0'; })() : true);
   const KIT_EX = {
     junk: '作品と関係ないファイル（広告・宣伝の <code>.url</code> <code>.txt</code> <code>.html</code> <code>.exe</code> など、品番がなく宣伝の言葉やサイトのアドレスだけの名前、10MB 以下の画像・短い宣伝動画）を見分けてゴミ箱へ移します。オンの間は、ここで見つけたファイルをほかのステップの対象から外します。作品の可能性があるもの（50MB 以上・品番入り・字幕）は「要確認」に回し、最初はチェックなしです。空になったフォルダは「7. 片付け」でまとめて片付けられます。',
     name: `FC2 のファイル名を <code>FC2-PPV-品番</code> の形にそろえます（例：<code>4k688.com@FC2-PPV-4988183_1.mp4</code> → <code>FC2-PPV-4988183-1.mp4</code>）。サイト名・広告などの余計な文字は消し、<code>_1</code>・<code>part2</code>・<code>cd1</code> などの分割番号は <code>-1</code> の形で残します。同じ場所に同じ名前ができる場合は <code>(1)</code> を付けます。FC2 以外のファイル・中身・置き場所は変えません。`,
@@ -3245,7 +3256,7 @@
           <div class="pd-info"><div class="pd-name">${esc(f.name)}${i === 0 ? ' <span class="pd-tag" style="background:#d7f0dd;color:#14612f">最大＝高画質の候補</span>' : ''}</div>
             <div class="pd-path">${esc(f.path)}</div>
             <div class="pd-bar"><i style="width:${Math.max(2, (f.size / max) * 100).toFixed(1)}%"></i></div></div>
-          <div class="pd-sz"><b>${fmt(f.size)}</b><div class="note">${diff}</div>${(() => { const m = metaGet(f); return m.dur || m.res ? `<div class="note">${[m.res, m.dur ? fmtT(m.dur) : ''].filter(Boolean).join(' ・ ')}</div>` : ''; })()}</div>
+          <div class="pd-sz"><b>${fmt(f.size)}</b><div class="note">${diff}</div>${(() => { const m = metaGet(f); return m.dur || m.res ? `<div class="note">${[m.res, m.dur ? fmtClock(m.dur) : ''].filter(Boolean).join(' ・ ')}</div>` : ''; })()}</div>
           <div class="pd-act"><button data-s="open">場所を開く</button></div></div>`;
       }).join('');
       const hs = g.items.map((f) => metaGet(f).hash);
@@ -3315,15 +3326,15 @@
   const FD2 = 'https://fd2ppv.cc';
   const CMADB = 'https://fc2cmadb.com';
   let sellerDb = {};
-  try { sellerDb = JSON.parse(localStorage.getItem(LS_SELLER) || '{}') || {}; } catch (e) { sellerDb = {}; }
-  const saveSellerDb = () => { try { localStorage.setItem(LS_SELLER, JSON.stringify(sellerDb)); } catch (e) { /* 無視 */ } };
-  const sellerEnabled = () => { try { return localStorage.getItem(LS_OPT_SELLER) !== '0'; } catch (e) { return true; } };
+  sellerDb = lsJson(LS_SELLER, {});
+  const saveSellerDb = () => { lsSetJson(LS_SELLER, sellerDb); };
+  const sellerEnabled = () => { return lsGet(LS_OPT_SELLER) !== '0'; };
   function sellerCfg() {
-    let c = {}; try { c = JSON.parse(localStorage.getItem(LS_SELLER_CFG) || '{}') || {}; } catch (e) { c = {}; }
+    let c = {}; c = lsJson(LS_SELLER_CFG, {});
     const nm = (v, d) => (typeof v === 'string' && v.trim() && !/[\/\\]/.test(v) ? v.trim() : d);
     return { root: nm(c.root, '販売者別'), unknown: nm(c.unknown, '販売者不明'), review: nm(c.review, '要確認'), interval: [1, 1.5, 3].includes(+c.interval) ? +c.interval : 1.5 };
   }
-  const saveSellerCfg = (c) => { try { localStorage.setItem(LS_SELLER_CFG, JSON.stringify(c)); } catch (e) { /* 無視 */ } };
+  const saveSellerCfg = (c) => { lsSetJson(LS_SELLER_CFG, c); };
   // 名前に入っている品番。FC2 は品番（「FC2 〇〇 collection 1234567 2345678」のような複数作品の名前も拾う）、
   // FC2 以外は HEYZO・カリビアンコムなど日付型の品番（例：033118_001 / 102324-001）・h4610 系を拾う
   // 名前にサイト名が入っていれば、販売者（配信元）はその場で決まる（調べに行かない）。フォルダ名は既存の「Caribbeancom（carib）」に合わせて英語名
@@ -3829,7 +3840,7 @@
         await sleep(100);
       }
     } catch (err) { saveAll(); busy = false; setView('seller'); handleErr(err, 'seller', `停止：${err.message}（${ok} 作品完了）`); return; }
-    if (meta) { meta.nfo = folders.length; meta.nfi = files.length; try { localStorage.setItem(LS_META, JSON.stringify(meta)); } catch (e) { /* 無視 */ } }
+    if (meta) { meta.nfo = folders.length; meta.nfi = files.length; lsSetJson(LS_META, meta); }
     busy = false; if (failed.length) sellerFilter = 'fail'; setView('seller');
     status(`${ok} 作品を移動しました（入れ子を My Pack へ出したものは、続けてもう一度仕分けてください）${skip ? `（移動しなかった ${skip} 件${failed.length ? `・うち失敗 ${failed.length} 件：${failed.slice(0, 3).join('・')}${failed.length > 3 ? ' …' : ''}（ログに詳細）` : '：同じ名前があった・移動先が自分自身など'}）` : ''}。`);
     log('info', `販売者ごとに仕分け ${ok} 作品${skip ? `（移動しなかった ${skip}）` : ''}`); refreshView();
@@ -4023,8 +4034,8 @@
   const LS_COLS = 'ppdup:cols:v1';
   const COLS = { size: ['サイズ', 100], date: ['追加日', 110], kind: ['種類', 110], n: ['項目', 80], pct: ['割合', 160] };
   const COL_DEF = { on: { size: true, date: true, kind: false, n: false, pct: false }, w: {} };
-  function colCfg() { let c = {}; try { c = JSON.parse(localStorage.getItem(LS_COLS) || '{}') || {}; } catch (e) { c = {}; } return { on: { ...COL_DEF.on, ...(c.on || {}) }, w: { ...(c.w || {}) } }; }
-  const saveColCfg = (c) => { try { localStorage.setItem(LS_COLS, JSON.stringify(c)); } catch (e) { /* 無視 */ } };
+  function colCfg() { let c = {}; c = lsJson(LS_COLS, {}); return { on: { ...COL_DEF.on, ...(c.on || {}) }, w: { ...(c.w || {}) } }; }
+  const saveColCfg = (c) => { lsSetJson(LS_COLS, c); };
   const phoneCols = () => innerWidth < 600;
   const colList = () => { const c = colCfg(); return Object.keys(COLS).filter((k) => (phoneCols() ? k === 'size' : c.on[k])); };
   function colTemplate() { const c = colCfg(); return ['minmax(140px,1fr)', ...colList().map((k) => (c.w[k] || COLS[k][1]) + 'px')].join(' '); }
@@ -4124,7 +4135,7 @@
       const name = renaming === r.id ? `<input class="tr-ren" data-tren="${esc(r.id)}" value="${esc(r.name)}">` : `<span class="nm">${esc(r.name)}</span>`;
       return `<div class="tr-row${i % 2 ? ' odd' : ''}${treeSel.has(r.id) ? ' sel' : ''}${treeCur === r.id ? ' cur' : ''}" data-tid="${esc(r.id)}" title="${esc(r.path || '')}">
         <span class="c-name" style="padding-left:${8 + r.depth * 18}px">${r.kind === 'folder' ? `<span class="tw${r.open ? ' open' : ''}" data-ttw="${esc(r.id)}">▶</span>` : '<span class="tw blank"></span>'}${tree.view === 'thumb' ? thumbHtml(r) : `<span class="ic">${r.kind === 'folder' ? ICON_DIR : ICON_FILE(r)}</span>`}${tree.view === 'thumb' ? `<span class="tx">${name}<span class="sub">${esc(subOf(r))}</span></span>` : name}${tagOf(r)}${jr ? `<span class="jk" title="${esc(jr)}">不要</span>` : ''}</span>
-        ${colList().map((k) => k === 'size' ? `<span class="c-size">${sizeOf(r)}</span>` : k === 'date' ? `<span class="c-date">${r.f && r.f.ct ? esc(new Date(r.f.ct).toLocaleDateString(loc(), { year: '2-digit', month: 'numeric', day: 'numeric' })) : ''}</span>` : k === 'kind' ? `<span class="c-kind">${esc(kindOf(r))}</span>` : k === 'n' ? `<span class="c-n">${r.kind === 'folder' ? (r.unloaded ? '—' : r.n + ' 項目') : ''}</span>` : pctCell(r)).join('')}</div>`;
+        ${colList().map((k) => k === 'size' ? `<span class="c-size">${sizeOf(r)}</span>` : k === 'date' ? `<span class="c-date">${r.f && r.f.ct ? esc(fmtDate(r.f.ct, 'd2')) : ''}</span>` : k === 'kind' ? `<span class="c-kind">${esc(kindOf(r))}</span>` : k === 'n' ? `<span class="c-n">${r.kind === 'folder' ? (r.unloaded ? '—' : r.n + ' 項目') : ''}</span>` : pctCell(r)).join('')}</div>`;
     };
     // パス：ホームから表示中のフォルダまで（読み込んだ場所より上も、押すとその場で読み込んで移動）
     const chain = [baseId, ...ancestorsOf(baseId)].reverse();
@@ -4158,7 +4169,7 @@
     const capOf = (b) => (quota && quota.limit > 0 ? pctTxt(b / quota.limit) : '');
     const sizeTxt = top.unloaded ? '未スキャン' : top.unk ? `${fmt(top.size)}（未スキャンのフォルダを除く）` : `${fmt(top.size)}${capOf(top.size) ? `（契約容量比 ${capOf(top.size)}）` : ''}`;
     if (!busy) status(`${baseName}：${top.n} 項目・ファイル ${top.files} 件・${sizeTxt}${selN ? `　｜　${selN} 項目を選択（${fmt(selSize)}${capOf(selSize) ? `・全体比 ${capOf(selSize)}` : ''}）` : ''}`);
-    const pr = $('[data-r=pright]'); if (pr) pr.textContent = meta ? `読み込み：${new Date(meta.at).toLocaleString(loc(), { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}` : '';
+    const pr = $('[data-r=pright]'); if (pr) pr.textContent = meta ? `読み込み：${fmtDate(meta.at)}` : '';
     renderTreeActs(); renderQuota();
     const ren = $('.tr-ren'); if (ren) { ren.focus(); const dot = ren.value.lastIndexOf('.'); ren.setSelectionRange(0, dot > 0 && treeRowsCache.find((x) => x.id === renaming).kind === 'file' ? dot : ren.value.length); }
     else { const t = $('[data-r=tree]'); if (t && view === 'tree' && !qlOpen && document.activeElement !== $('[data-a=tq]')) t.focus({ preventScroll: true }); }
@@ -4331,7 +4342,7 @@
         else it.parentId = to;
       }
       if (!toScan && outer.loaded.has(to)) await loadOuter(to);
-      if (meta) { meta.nfo = folders.length; meta.nfi = files.length; try { localStorage.setItem(LS_META, JSON.stringify(meta)); } catch (e) { /* 無視 */ } }
+      if (meta) { meta.nfo = folders.length; meta.nfi = files.length; lsSetJson(LS_META, meta); }
       saveAll(); treeOpen.add(to); saveTree();
       busy = false; treeIdx = null; renderTree();
       status(`${items.length} 項目を「${dest}」へ移動しました${renamed ? `（同じ名前があったため ${renamed} 件に (n) を付けました）` : ''}。`); log('info', `フォルダ一覧で移動 ${items.length} 項目 → ${dest}`); refreshView();
@@ -4546,7 +4557,7 @@
   const extList = () => Object.keys(EXT_PLAYERS).filter((k) => EXT_PLAYERS[k].os.includes(OS));
   const MODES = { inline: 'プレビューの中で再生', full: '全画面で再生', external: '外部プレーヤーで再生' };
   function playPref() {
-    let p = {}; try { p = JSON.parse(localStorage.getItem(LS_PLAY) || '{}'); } catch (e) { p = {}; }
+    let p = {}; p = lsJson(LS_PLAY, {});
     if (!MODES[p.mode]) p.mode = 'inline'; // 以前の「プレーヤー画面」はプレビューでの再生にまとめた
     if (!extList().includes(p.ext)) p.ext = IS_MAC ? 'iina' : OS === 'win' ? 'potplayer' : 'm3u';
     return p;
@@ -4565,7 +4576,7 @@
     clearTimeout(mcT); mcT = setTimeout(onDouble, 300);
   }
   const xclickHint = () => ({ triple: '・3 回クリックで外部プレーヤー', double: '・ダブルクリックで外部プレーヤー', off: '' })[xclick()];
-  const savePlayPref = (p) => { try { localStorage.setItem(LS_PLAY, JSON.stringify(p)); } catch (e) { /* 無視 */ } };
+  const savePlayPref = (p) => { lsSetJson(LS_PLAY, p); };
   const prefLabel = () => { const p = playPref(); return p.mode === 'external' ? '外部：' + EXT_PLAYERS[p.ext].short : MODES[p.mode]; };
 
   // 再生用リンクを取得して、画質の候補を作る
@@ -4654,7 +4665,7 @@
   let mediaDb = null;
   function mediaAll() {
     if (mediaDb) return mediaDb;
-    try { mediaDb = JSON.parse(localStorage.getItem(LS_MEDIA) || '{}') || {}; } catch (e) { mediaDb = {}; }
+    mediaDb = lsJson(LS_MEDIA, {});
     // 4.3.12 の「再生した履歴」（ppdup:playlog:v1）を移す
     try {
       const old = JSON.parse(localStorage.getItem(LS_PLAYLOG) || 'null');
@@ -4671,7 +4682,7 @@
       const lim = Date.now() - 365 * 864e5;
       ids.forEach((k) => { if (!(Date.parse(db[k].at) >= lim)) delete db[k]; });
       const rest = Object.keys(db); if (rest.length > 3000) rest.sort((x, y) => Date.parse(db[x].at) - Date.parse(db[y].at)).slice(0, rest.length - 3000).forEach((k) => delete db[k]);
-      try { localStorage.setItem(LS_MEDIA, JSON.stringify(db)); } catch (e) { /* 無視 */ }
+      lsSetJson(LS_MEDIA, db);
     };
     if (now) go(); else mediaSaveT = setTimeout(go, 800);
   }
@@ -4812,11 +4823,11 @@
       return;
     }
     if (k === 'edge') { setEdge(t.checked); return; }
-    if (k === 'autostart') { try { localStorage.setItem(LS_AUTO, t.checked ? '1' : '0'); } catch (err) { /* 無視 */ } status(t.checked ? '次に PikPak を開いたときから、Dedupe を全画面で開きます' : '起動時には開かないようにしました'); return; }
+    if (k === 'autostart') { lsSet(LS_AUTO, t.checked ? '1' : '0'); status(t.checked ? '次に PikPak を開いたときから、Dedupe を全画面で開きます' : '起動時には開かないようにしました'); return; }
     if (k === 'qp') { saveQpCfg({ [t.dataset.k]: qpVal(t.dataset.k, t.value) }); return; }
     if (k === 'lang') { setLang(t.value); return; }
     if (k === 'expg') { exportSel[t.value] = t.checked; return; }
-    if (k === 'blur' || k === 'blurhov') { try { localStorage.setItem(k === 'blur' ? LS_BLUR : LS_BLURHOV, t.checked ? '1' : '0'); } catch (e) { /* 無視 */ } applyBlur(); renderSettings(); return; }
+    if (k === 'blur' || k === 'blurhov') { lsSet(k === 'blur' ? LS_BLUR : LS_BLURHOV, t.checked ? '1' : '0'); applyBlur(); renderSettings(); return; }
     if (k === 'openmode') { setOpenPref(t.value); if (root.classList.contains('on')) setWin(t.value); return; }
     if (k === 'tview') { tree.view = t.value; saveTree(); if (view === 'tree') treeView(t.value); return; }
     if (k === 'hover') { tree.hover = t.checked; saveTree(); hideHover(); return; }
@@ -4827,7 +4838,7 @@
       status('再生のしかたを「' + prefLabel() + '」にしました'); if (view === 'tree') renderTreeActs(); if (qlOpen) showQL();
       return;
     }
-    if (k === 'seller') { try { localStorage.setItem(LS_OPT_SELLER, t.checked ? '1' : '0'); } catch (err) { /* 無視 */ } if (root.classList.contains('on') && !busy) setView(view); return; }
+    if (k === 'seller') { lsSet(LS_OPT_SELLER, t.checked ? '1' : '0'); if (root.classList.contains('on') && !busy) setView(view); return; }
     if (k === 'scfg') {
       const c = sellerCfg(), key = t.dataset.k;
       const v = key === 'interval' ? +t.value : t.value.trim();
@@ -4836,7 +4847,7 @@
       return;
     }
     if (k === 'junk' || k === 'name') {
-      try { localStorage.setItem(k === 'junk' ? LS_OPT_JUNK : LS_OPT_NAME, t.checked ? '1' : '0'); } catch (err) { /* 無視 */ }
+      lsSet(k === 'junk' ? LS_OPT_JUNK : LS_OPT_NAME, t.checked ? '1' : '0');
       log('info', (k === 'junk' ? '不要ファイルの除外を' : 'ファイル名の整理を') + (t.checked ? 'オン' : 'オフ') + 'に変更');
       if (root.classList.contains('on') && !busy) setView(view);
     }
@@ -4889,7 +4900,7 @@
     const fail = (x, why) => { if (o.fail) o.fail(x, why); else if (!box.querySelector('.pl-err')) box.insertAdjacentHTML('beforeend', `<div class="pl-msg pl-err">再生できませんでした${why ? `（${esc(why)}）` : ''}</div>`); };
     P.load = (k, t) => {
       const x = P.S && P.S.src[k]; if (!x || P.dead) return null;
-      if (o.pick !== 'light') { try { localStorage.setItem(LS_PLQ, x.origin ? 'orig' : 'trans'); } catch (e) { /* 無視 */ } }
+      if (o.pick !== 'light') { lsSet(LS_PLQ, x.origin ? 'orig' : 'trans'); }
       const cur = t != null ? t : (P.v && P.v.currentTime) || 0;
       killHls(P.hls); P.hls = null;
       if (!P.S.playable(x)) { P.v = null; msg(o.unplayable || 'この画質（HLS）はこのブラウザの中では再生できません。別の画質か外部プレーヤーを選んでください。'); return null; }
@@ -4918,7 +4929,7 @@
       if (!t0 && qpCfg().resume && rec && !rec.done && rec.pos > 10 && (!rec.dur || rec.pos < rec.dur - 15)) { t0 = rec.pos; resumed = rec.pos; }
       const m = P.load(k, t0);
       playLogPush(id, o.name);
-      if (m && resumed) m.v.addEventListener('loadedmetadata', () => { const q = m.v._qp; if (q) q.note(`⏵ 前回の続き ${fmtT(resumed)} から再生しています`, [['最初から', () => { m.v.currentTime = 0; mediaPut(id, { pos: 0 }); }]], 6000); }, { once: true });
+      if (m && resumed) m.v.addEventListener('loadedmetadata', () => { const q = m.v._qp; if (q) q.note(`⏵ 前回の続き ${fmtClock(resumed)} から再生しています`, [['最初から', () => { m.v.currentTime = 0; mediaPut(id, { pos: 0 }); }]], 6000); }, { once: true });
       return P;
     })();
     if (o.slot) PL[o.slot] = P;
@@ -4967,7 +4978,7 @@
         slot: i ? 'cmpB' : 'cmpA', name: f.name, pick: 'light',
         alive: () => run === cmpRun && document.body.contains(d),
         qp: { ext: () => openExternal(f.id, '', f.name) },
-        onMeta: (v) => { const e = d.querySelector(`[data-cminf="${i}"]`); if (e) e.textContent = v.videoWidth ? ` ・ ${v.videoWidth}×${v.videoHeight} ・ ${fmtT(v.duration || 0)}` : ''; link(v); applyAudio(); },
+        onMeta: (v) => { const e = d.querySelector(`[data-cminf="${i}"]`); if (e) e.textContent = v.videoWidth ? ` ・ ${v.videoWidth}×${v.videoHeight} ・ ${fmtClock(v.duration || 0)}` : ''; link(v); applyAudio(); },
         fail: (x, why) => { if (!box.querySelector('.pl-err')) box.insertAdjacentHTML('beforeend', `<div class="pl-msg pl-err">再生できませんでした${why ? `（${esc(why)}）` : ''}</div>`); },
       });
       P[i].ready.catch((err) => { if (err && err.session) { closeCompare(); handleErr(err, view); } else box.innerHTML = `<div class="pl-msg pl-err">${err && err.gone ? '' : '再生用リンクを取得できませんでした：'}${esc((err && err.message) || err)}</div>`; });
@@ -5347,7 +5358,7 @@
     if (a === 'close' || a === 'mini') { root.classList.remove('on'); ddKick(); return; }
     if (a === 'tofull') { setWin('full'); return; }
     if (a === 'fullnext') { setOpenPref('full'); setWin('full'); status('次からは全画面で開きます（設定の「表示」→「開き方」で戻せます）'); return; }
-    if (a === 'banclose') { try { localStorage.setItem(LS_POPBAN, '0'); } catch (err) { /* 無視 */ } applyWin(); return; }
+    if (a === 'banclose') { lsSet(LS_POPBAN, '0'); applyWin(); return; }
     if (a === 'log') { showLog(); return; }
     if (a === 'settings') { openSettings(); return; }
     if (a === 'setinfo') { openSettings('info'); return; }
@@ -5412,22 +5423,22 @@
     const id = e.target.dataset && e.target.dataset.chk;
     if (id) { decision[id] = e.target.checked ? 'del' : 'keep'; saveDecision(); const row = e.target.closest('.pd-row'); if (row) { row.classList.toggle('del', e.target.checked); row.classList.toggle('keep', !e.target.checked); } const dl = delList(visibleGroups()); status(`チェック（削除する） ${dl.length} 件・${fmt(dl.reduce((a, f) => a + f.size, 0))}`); return; }
     if (e.target.dataset && e.target.dataset.a === 'thover') { tree.hover = e.target.checked; saveTree(); hideHover(); return; }
-    if (e.target.dataset && e.target.dataset.a === 'junkopt') { try { localStorage.setItem(LS_OPT_JUNK, e.target.checked ? '1' : '0'); } catch (err) { /* 無視 */ } log('info', '不要ファイルの除外を' + (e.target.checked ? 'オン' : 'オフ') + 'に変更'); setView(view); return; }
+    if (e.target.dataset && e.target.dataset.a === 'junkopt') { lsSet(LS_OPT_JUNK, e.target.checked ? '1' : '0'); log('info', '不要ファイルの除外を' + (e.target.checked ? 'オン' : 'オフ') + 'に変更'); setView(view); return; }
     const jid = e.target.dataset && e.target.dataset.jchk;
     if (jid) { junkSel.set(jid, e.target.checked); const row = e.target.closest('.pd-row'); if (row) row.classList.toggle('del', e.target.checked); renderActs(); return; }
-    if (e.target.dataset && e.target.dataset.a === 'nameopt') { try { localStorage.setItem(LS_OPT_NAME, e.target.checked ? '1' : '0'); } catch (err) { /* 無視 */ } log('info', 'ファイル名の整理を' + (e.target.checked ? 'オン' : 'オフ') + 'に変更'); render(); renderNav(); return; }
-    if (e.target.dataset && e.target.dataset.a === 'scanask') { try { localStorage.setItem(LS_SCANASK, e.target.checked ? '0' : '1'); } catch (err) { /* 無視 */ } return; }
+    if (e.target.dataset && e.target.dataset.a === 'nameopt') { lsSet(LS_OPT_NAME, e.target.checked ? '1' : '0'); log('info', 'ファイル名の整理を' + (e.target.checked ? 'オン' : 'オフ') + 'に変更'); render(); renderNav(); return; }
+    if (e.target.dataset && e.target.dataset.a === 'scanask') { lsSet(LS_SCANASK, e.target.checked ? '0' : '1'); return; }
     const sid2 = e.target.dataset && e.target.dataset.schk;
     if (sid2) { sellerSel.set(sid2, e.target.checked); const row = e.target.closest('.pd-row'); if (row) row.classList.toggle('sel', e.target.checked); refreshSellerChrome(); return; }
     const sg = e.target.dataset && e.target.dataset.sgrp;
     if (sg) { selPlan.filter((p) => p.kind !== 'pending' && (sg === 'k:fix' ? !!p.fix : sg === 'k:unknown' ? p.kind === 'unknown' : sg === 'k:review' ? p.kind === 'review' : p.kind === 'seller' && !p.fix && 's:' + p.seller.sid === sg)).forEach((p) => sellerSel.set(p.id, e.target.checked)); render(); renderActs(); return; }
-    if (e.target.dataset && e.target.dataset.a === 'selleropt') { try { localStorage.setItem(LS_OPT_SELLER, e.target.checked ? '1' : '0'); } catch (err) { /* 無視 */ } log('info', '販売者ごとの仕分けを' + (e.target.checked ? 'オン' : 'オフ') + 'に変更'); setView(view); return; }
+    if (e.target.dataset && e.target.dataset.a === 'selleropt') { lsSet(LS_OPT_SELLER, e.target.checked ? '1' : '0'); log('info', '販売者ごとの仕分けを' + (e.target.checked ? 'オン' : 'オフ') + 'に変更'); setView(view); return; }
     const kid = e.target.dataset && e.target.dataset.kchk;
     if (kid && KIT_VERB[view]) { kitSetOff(view, kid, !e.target.checked); const row = e.target.closest('.pd-row'); const it = kitItems(view).find((x) => x.id === kid); if (row) row.classList.toggle(it && it.danger ? 'del' : 'sel', e.target.checked); renderActs(); return; }
     const kg = e.target.dataset && e.target.dataset.kgrp;
     if (kg !== undefined && KIT_VERB[view]) { kitItems(view).filter((it) => it.grp === kg && (it.st === 'todo' || it.st === 'fail')).forEach((it) => { kitSetOff(view, it.id, !e.target.checked); }); render(); return; }
     const ko = e.target.dataset && e.target.dataset.kopt;
-    if (ko) { if (ko === 'junk') { try { localStorage.setItem(LS_OPT_JUNK, e.target.checked ? '1' : '0'); } catch (err) { /* 無視 */ } } else if (ko === 'name') { try { localStorage.setItem(LS_OPT_NAME, e.target.checked ? '1' : '0'); } catch (err) { /* 無視 */ } } else { try { localStorage.setItem(KIT_OPT[ko], e.target.checked ? '1' : '0'); } catch (err) { /* 無視 */ } } log('info', `${STEPS.find((x) => x.v === ko).t}を${e.target.checked ? 'オン' : 'オフ'}`); if (!busy) setView(ko); return; }
+    if (ko) { if (ko === 'junk') { lsSet(LS_OPT_JUNK, e.target.checked ? '1' : '0'); } else if (ko === 'name') { lsSet(LS_OPT_NAME, e.target.checked ? '1' : '0'); } else { lsSet(KIT_OPT[ko], e.target.checked ? '1' : '0'); } log('info', `${STEPS.find((x) => x.v === ko).t}を${e.target.checked ? 'オン' : 'オフ'}`); if (!busy) setView(ko); return; }
     const nid = e.target.dataset && e.target.dataset.nchk;
     if (nid) { if (e.target.checked) nameOff.delete(nid); else nameOff.add(nid); const row = e.target.closest('.pd-row'); if (row) row.classList.toggle('sel', e.target.checked); return; }
     const cid = e.target.dataset && e.target.dataset.cchk;
@@ -5443,17 +5454,17 @@
   // ポップアップは PikPak の画面の上に重ねる小さな画面。見出しをつかんで移動、右下で大きさを変える。位置と大きさは覚えておく
   const LS_OPEN = 'ppdup:open:v1', LS_POPGEOM = 'ppdup:popgeom:v1', LS_POPBAN = 'ppdup:popban:v1';
   // 開き方：選んでいなければ全画面（おすすめ）
-  const openPref = () => { try { return localStorage.getItem(LS_OPEN) === 'pop' ? 'pop' : 'full'; } catch (e) { return 'full'; } };
-  const setOpenPref = (v) => { try { localStorage.setItem(LS_OPEN, v === 'full' ? 'full' : 'pop'); } catch (e) { /* 無視 */ } if (document.getElementById('pd-set')) renderSettings(); };
+  const openPref = () => { return lsGet(LS_OPEN) === 'pop' ? 'pop' : 'full'; };
+  const setOpenPref = (v) => { lsSet(LS_OPEN, v === 'full' ? 'full' : 'pop'); if (document.getElementById('pd-set')) renderSettings(); };
   let winMode = openPref();
   function popGeom() {
-    let g = null; try { g = JSON.parse(localStorage.getItem(LS_POPGEOM) || 'null'); } catch (e) { g = null; }
+    let g = null; g = lsJson(LS_POPGEOM, null);
     const W = window.innerWidth, H = window.innerHeight;
     const w = Math.min(W, Math.max(560, g && g.w ? g.w : Math.min(1040, W - 80))), h = Math.min(H, Math.max(380, g && g.h ? g.h : Math.min(720, H - 80)));
     const x = Math.min(Math.max(0, g && g.x != null ? g.x : W - w - 40), W - w), y = Math.min(Math.max(0, g && g.y != null ? g.y : 40), H - h);
     return { x, y, w, h };
   }
-  const savePopGeom = (g) => { try { localStorage.setItem(LS_POPGEOM, JSON.stringify(g)); } catch (e) { /* 無視 */ } };
+  const savePopGeom = (g) => { lsSetJson(LS_POPGEOM, g); };
   function applyWin() {
     const pop = winMode === 'pop';
     root.classList.toggle('pop', pop);
@@ -5483,10 +5494,10 @@
   // ---------- 再生の強化（倍速・シークバーのサムネイル）とコマ一覧 ----------
   const LS_RATE = 'ppdup:rate:v1', LS_FRAMES = 'ppdup:frames:v1';
   const RATES = [0.5, 0.75, 1, 1.25, 1.5, 2, 3];
-  const getRate = () => { let r = 1; try { r = +localStorage.getItem(LS_RATE) || 1; } catch (e) { /* 無視 */ } return r >= 0.25 && r <= 3 ? r : 1; };
+  const getRate = () => { let r = +lsGet(LS_RATE) || 1; return r >= 0.25 && r <= 3 ? r : 1; };
   function setRate(r) {
     r = Math.round(Math.max(0.25, Math.min(3, r)) * 100) / 100;
-    try { localStorage.setItem(LS_RATE, String(r)); } catch (e) { /* 無視 */ }
+    lsSet(LS_RATE, String(r));
     document.querySelectorAll('#pd-ql video, #pd-player video').forEach((v) => { v.defaultPlaybackRate = r; v.playbackRate = r; });
     document.querySelectorAll('[data-rate]').forEach((s) => { if (![...s.options].some((o) => +o.value === r)) s.insertAdjacentHTML('beforeend', `<option value="${r}">${r}×</option>`); s.value = String(r); });
     return r;
@@ -5559,8 +5570,8 @@
   // ---------- 簡易プレーヤーの操作（常に出る操作バー・マウスを乗せたらキー操作・ズーム） ----------
   const LS_QP = 'ppdup:qp:v1';
   const QP_DEF = { step: 5, big: 30, jl: 10, vol: 10, wheel: 'zoom', hover: true, bar: 'always', resume: true, hold: 2, tri: true, triNext: true, skimN: 16, skimSec: 4 };
-  const qpCfg = () => { let c = {}; try { c = JSON.parse(localStorage.getItem(LS_QP) || '{}') || {}; } catch (e) { c = {}; } return { ...QP_DEF, ...c }; };
-  const saveQpCfg = (p) => { const c = { ...qpCfg(), ...p }; try { localStorage.setItem(LS_QP, JSON.stringify(c)); } catch (e) { /* 無視 */ } document.querySelectorAll('.qp-ui').forEach((u) => u.classList.toggle('qp-auto', c.bar === 'auto')); return c; };
+  const qpCfg = () => { let c = {}; c = lsJson(LS_QP, {}); return { ...QP_DEF, ...c }; };
+  const saveQpCfg = (p) => { const c = { ...qpCfg(), ...p }; lsSetJson(LS_QP, c); document.querySelectorAll('.qp-ui').forEach((u) => u.classList.toggle('qp-auto', c.bar === 'auto')); return c; };
   const QP_OPTS = {
     step: ['← / → の移動幅', [3, 5, 10, 15], (v) => v + ' 秒'],
     big: ['Shift + ← / →', [15, 30, 60], (v) => (v >= 60 ? v / 60 + ' 分' : v + ' 秒')],
@@ -5612,8 +5623,8 @@
     };
     // ---- 拡大縮小の案内（最初の 3 回だけ・3 秒で消える・一度使えばもう出さない） ----
     const ZH_KEY = 'ppdup:zoomhint:v1';
-    const zh = (() => { try { return JSON.parse(localStorage.getItem(ZH_KEY)) || { n: 0, used: false }; } catch (e) { return { n: 0, used: false }; } })();
-    const zSave = () => { try { localStorage.setItem(ZH_KEY, JSON.stringify(zh)); } catch (e) { /* 無視 */ } };
+    const zh = (() => { return lsJson(ZH_KEY, { n: 0, used: false }); })();
+    const zSave = () => { lsSetJson(ZH_KEY, zh); };
     const zHintDone = () => { if (!zh.used) { zh.used = true; zSave(); } };
     let zhEl = null, zhT = 0;
     const hideZHint = () => { clearTimeout(zhT); if (zhEl) { const el = zhEl; zhEl = null; el.classList.remove('on'); setTimeout(() => el.remove(), 450); } };
@@ -5715,11 +5726,11 @@
     P.mark = (which) => {
       if (!mk) return;
       const t = v.currentTime || 0;
-      if (which === 'A' || (which !== 'B' && P.markA == null)) { P.markA = t; flash('✂ 始め ' + fmtT(t)); if (P.aNote) P.aNote.remove(); P.aNote = P.note(`飛ばす区間の始め ${fmtT(t)}。終わりの位置で B を押してください`, [['やめる', () => { P.markA = null; P.drawSkips(); }]], 5000); }
+      if (which === 'A' || (which !== 'B' && P.markA == null)) { P.markA = t; flash('✂ 始め ' + fmtClock(t)); if (P.aNote) P.aNote.remove(); P.aNote = P.note(`飛ばす区間の始め ${fmtClock(t)}。終わりの位置で B を押してください`, [['やめる', () => { P.markA = null; P.drawSkips(); }]], 5000); }
       else if (P.markA != null) {
         const a = Math.min(P.markA, t), b = Math.max(P.markA, t); P.markA = null; if (P.aNote) { P.aNote.remove(); P.aNote = null; }
         if (b - a < 1) { flash('短すぎます'); P.drawSkips(); return; }
-        mk.addSkip(a, b); ignore = [a, b]; flash(`✂ ${fmtT(a)}–${fmtT(b)} を飛ばします`);
+        mk.addSkip(a, b); ignore = [a, b]; flash(`✂ ${fmtClock(a)}–${fmtClock(b)} を飛ばします`);
       } else { flash('先に A で始めを決めてください'); }
       P.drawSkips();
     };
@@ -5743,7 +5754,7 @@
       if (scn.el || !opt.src) return;
       scn.times = sceneTimes(); if (!scn.times.length) { flash('長さが分かってから開けます'); return; }
       const el = document.createElement('div'); el.className = 'qp-scn';
-      el.innerHTML = `<div class="qp-scn-h"><b>シーン</b><small>${scn.times.length} か所</small><button data-scx title="シーンを閉じる（G）" aria-label="閉じる">${IC.x}</button></div><div class="qp-scn-l">${scn.times.map((t, i) => `<button data-sc="${i}"><span class="im"><i>…</i></span><span>${fmtT(t)}</span></button>`).join('')}</div>`;
+      el.innerHTML = `<div class="qp-scn-h"><b>シーン</b><small>${scn.times.length} か所</small><button data-scx title="シーンを閉じる（G）" aria-label="閉じる">${IC.x}</button></div><div class="qp-scn-l">${scn.times.map((t, i) => `<button data-sc="${i}"><span class="im"><i>…</i></span><span>${fmtClock(t)}</span></button>`).join('')}</div>`;
       el.addEventListener('mousedown', (e) => e.stopPropagation());
       el.addEventListener('wheel', (e) => e.stopPropagation(), { passive: true });
       el.addEventListener('click', (e) => {
@@ -5776,7 +5787,7 @@
         const z = mk.skips().find(([a, b]) => t >= a && t < b - 0.3);
         if (!z || (ignore && ignore[0] === z[0] && ignore[1] === z[1]) || P.markA != null) return;
         selfSeek = true; v.currentTime = z[1]; ignore = null;
-        P.note(`⤼ ${fmtT(z[0])}–${fmtT(z[1])} を飛ばしました`, [['戻す', () => { selfSeek = true; ignore = z; v.currentTime = z[0]; }]], 3500);
+        P.note(`⤼ ${fmtClock(z[0])}–${fmtClock(z[1])} を飛ばしました`, [['戻す', () => { selfSeek = true; ignore = z; v.currentTime = z[0]; }]], 3500);
       });
     }
     // ---- 操作 ----
@@ -5798,14 +5809,14 @@
     const syncUi = () => {
       // timeupdate のたびに中身を作り直すと、押している最中にボタンの中身が入れ替わってクリックが無効になる
       const pb = q('play'), ps = v.paused ? 'play' : 'pause'; if (pb.dataset.st !== ps) { pb.dataset.st = ps; pb.innerHTML = QP_IC[ps]; }
-      q('time').textContent = `${fmtT(v.currentTime || 0)} / ${fmtT(v.duration || 0)}`;
+      q('time').textContent = `${fmtClock(v.currentTime || 0)} / ${fmtClock(v.duration || 0)}`;
       const mb = q('mute'), ms = v.muted || !v.volume ? 'mute' : 'vol'; if (mb.dataset.st !== ms) { mb.dataset.st = ms; mb.innerHTML = IC[ms]; }
       const r = q('vol'); if (document.activeElement !== r) r.value = v.muted ? 0 : Math.round(v.volume * 100);
     };
     ['play', 'pause', 'timeupdate', 'durationchange', 'volumechange', 'loadedmetadata'].forEach((ev) => v.addEventListener(ev, syncUi));
     const renderSet = () => {
       const sk = mk ? mk.skips() : [];
-      setPanel.innerHTML = `<b>簡易プレーヤーの設定</b>${Object.keys(QP_OPTS).map((k) => `<label><span>${esc(QP_OPTS[k][0])}</span>${qpSelect(k, 'data-qpset')}</label>`).join('')}${mk ? `<b style="margin-top:6px" data-sk>この動画の飛ばす区間</b>${sk.length ? sk.map(([a, b], i) => `<label><span>${fmtT(a)} – ${fmtT(b)}</span><button data-qp="skdel" data-i="${i}" title="この区間を消す">✕ 消す</button></label>`).join('') : '<small>ありません（A・B キーか ✂ で作れます）</small>'}` : ''}<small>右上の ⚙ 設定 →「再生」にも同じ項目があります</small>`;
+      setPanel.innerHTML = `<b>簡易プレーヤーの設定</b>${Object.keys(QP_OPTS).map((k) => `<label><span>${esc(QP_OPTS[k][0])}</span>${qpSelect(k, 'data-qpset')}</label>`).join('')}${mk ? `<b style="margin-top:6px" data-sk>この動画の飛ばす区間</b>${sk.length ? sk.map(([a, b], i) => `<label><span>${fmtClock(a)} – ${fmtClock(b)}</span><button data-qp="skdel" data-i="${i}" title="この区間を消す">✕ 消す</button></label>`).join('') : '<small>ありません（A・B キーか ✂ で作れます）</small>'}` : ''}<small>右上の ⚙ 設定 →「再生」にも同じ項目があります</small>`;
     };
     ctl.addEventListener('click', (e) => {
       const b = e.target.closest('button[data-qp]'); if (!b) return;
@@ -5855,7 +5866,7 @@
     // ---- ざっと見（1 本を何か所かに分けて、少しずつ順に流す。気になったら Enter でその位置から普通に再生） ----
     const sk = { on: false, i: 0, timer: null, muted: false };
     const skimEl = document.createElement('div'); skimEl.className = 'qp-skim'; skimEl.hidden = true; stage.appendChild(skimEl);
-    const skimDraw = () => { const N = qpCfg().skimN; skimEl.innerHTML = `<span>ざっと見 ${sk.i + 1} / ${N} か所目 ・ Enter でここから再生 ・ V でやめる</span><div>${Array.from({ length: N }, (_, j) => `<i data-sj="${j}" title="${j + 1} か所目${v.duration ? '（' + fmtT(v.duration * (j + 0.5) / N) + '）' : ''}から" class="${j < sk.i ? 'p' : j === sk.i ? 'c' : ''}"></i>`).join('')}</div>`; };
+    const skimDraw = () => { const N = qpCfg().skimN; skimEl.innerHTML = `<span>ざっと見 ${sk.i + 1} / ${N} か所目 ・ Enter でここから再生 ・ V でやめる</span><div>${Array.from({ length: N }, (_, j) => `<i data-sj="${j}" title="${j + 1} か所目${v.duration ? '（' + fmtClock(v.duration * (j + 0.5) / N) + '）' : ''}から" class="${j < sk.i ? 'p' : j === sk.i ? 'c' : ''}"></i>`).join('')}</div>`; };
     // バーのマスを押すと、その場所からざっと見を続ける
     skimEl.addEventListener('click', (e) => { const t = e.target.closest('[data-sj]'); if (!t || !sk.on) return; e.stopPropagation(); sk.i = +t.dataset.sj; skimStep(); });
     const skimStep = () => {
@@ -5936,7 +5947,6 @@
     e.preventDefault(); e.stopImmediatePropagation();
     if (P.kHeld) { P.kHeld = false; P.holdOff(); } else P.seek(qpCfg().step);
   }, true);
-  const fmtT = (s) => { s = Math.max(0, Math.round(s)); const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60, ss = s % 60; return (h ? h + ':' + String(m).padStart(2, '0') : String(m).padStart(2, '0')) + ':' + String(ss).padStart(2, '0'); };
   // 自分のシークバー（動画の下）：マウスを乗せるとその位置の画面を小さく出す。押すとその位置へ
   function attachSeekbar(box, v, x, S) {
     const bar = document.createElement('div'); bar.className = 'pd-sk';
@@ -5959,7 +5969,7 @@
     };
     bar.addEventListener('mousemove', (e) => {
       const t = tAt(e), r = bar.getBoundingClientRect();
-      tip.hidden = false; lb.textContent = fmtT(t);
+      tip.hidden = false; lb.textContent = fmtClock(t);
       tip.style.left = Math.max(0, Math.min(r.width - 210, e.clientX - r.left - 105)) + 'px';
       if (!lb.dataset.err) { const k = Math.round(t / 5); if (cache.has(k)) draw(cache.get(k)); want = t; pump(); }
     });
@@ -5999,7 +6009,7 @@
     d.addEventListener('click', (e) => {
       const b = e.target.closest('button'); if (!b) return;
       if (b.dataset.frclose !== undefined) { closeFrames(); return; }
-      if (b.dataset.frn) { try { localStorage.setItem(LS_FRAMES, b.dataset.frn); } catch (err) { /* 無視 */ } openFrames(ids); return; }
+      if (b.dataset.frn) { lsSet(LS_FRAMES, b.dataset.frn); openFrames(ids); return; }
       const col = b.closest('.fr-col'); if (!col) return;
       if (b.dataset.fri !== undefined) { col.querySelectorAll('.fr-c.on').forEach((x) => x.classList.remove('on')); b.classList.add('on'); col.querySelector('[data-frplay]').disabled = !b.dataset.t; return; }
       if (b.dataset.frplay !== undefined) { const on = col.querySelector('.fr-c.on'); const t = on ? +on.dataset.t : 0; framesPlay(col.dataset.frid, t); return; }
@@ -6018,7 +6028,7 @@
         gr = makeGrabber(x, S); col._grab = gr;
         await gr.ready;
         const dur = gr.duration;
-        col.querySelector('[data-frinfo]').textContent = `${gr.v.videoWidth ? '' : ''}${fmt(fileById(id).size)}・${fmtT(dur)}`;
+        col.querySelector('[data-frinfo]').textContent = `${gr.v.videoWidth ? '' : ''}${fmt(fileById(id).size)}・${fmtClock(dur)}`;
         const cells = [...col.querySelectorAll('.fr-c')];
         for (let i = 0; i < cells.length; i++) {
           if (run !== framesRun) return;
@@ -6026,8 +6036,8 @@
           msg.textContent = tr(`コマを作っています… ${i + 1} / ${cells.length}`);
           // 1 コマ取れなくても止めない：少しずらしてもう一度、それでもだめなら空けて次へ
           let c = null, tt = t;
-          for (const dt of [0, 1.5]) { tt = Math.min(dur - 0.5, t + dt); try { c = await Promise.race([gr.grab(tt, 320), sleep(15000).then(() => { throw new Error('時間切れ'); })]); break; } catch (e) { if (e.message === 'closed' || run !== framesRun) return; log('warn', `コマを取れませんでした（${fmtT(tt)}）：${e.message}`, fileById(id).name); } }
-          cells[i].dataset.t = String(tt); cells[i].querySelector('.t').textContent = fmtT(tt);
+          for (const dt of [0, 1.5]) { tt = Math.min(dur - 0.5, t + dt); try { c = await Promise.race([gr.grab(tt, 320), sleep(15000).then(() => { throw new Error('時間切れ'); })]); break; } catch (e) { if (e.message === 'closed' || run !== framesRun) return; log('warn', `コマを取れませんでした（${fmtClock(tt)}）：${e.message}`, fileById(id).name); } }
+          cells[i].dataset.t = String(tt); cells[i].querySelector('.t').textContent = fmtClock(tt);
           if (c) cells[i].prepend(c); else cells[i].classList.add('ng');
         }
         msg.textContent = ''; col.querySelector('[data-frsave]').disabled = false;
@@ -6114,8 +6124,8 @@
   // ---------- 左メニュー：ダウンロード中・最近追加したもの・再生した履歴・スター付き・ゴミ箱 ----------
   // ---- 追加したもの：Dedupe でリンクを追加したときの記録（このブラウザに保存）と、PikPak のダウンロードタスクを合わせて見せる ----
   const LS_ADDLOG = 'ppdup:addlog:v1';
-  const addLogRead = () => { try { return JSON.parse(localStorage.getItem(LS_ADDLOG) || '[]') || []; } catch (e) { return []; } };
-  const addLogWrite = (a) => { try { localStorage.setItem(LS_ADDLOG, JSON.stringify(a.slice(0, 300))); } catch (e) { /* 無視 */ } };
+  const addLogRead = () => { return lsJson(LS_ADDLOG, []); };
+  const addLogWrite = (a) => { lsSetJson(LS_ADDLOG, a.slice(0, 300)); };
   const addLogPush = (r) => { const a = addLogRead(); a.unshift({ ...r, lid: 'L' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), at: Date.now() }); addLogWrite(a); };
   const LIB_TABS = [['dl', '追加したもの'], ['recent', '最近追加したもの'], ['cont', '続きを見る'], ['cand', '消す候補'], ['hist', '再生した履歴'], ['star', 'スター付き'], ['trash', 'ゴミ箱']];
   let libSt = null, libBadge = { dl: 0, trash: 0 };
@@ -6202,7 +6212,7 @@
     return files.filter((f) => f.ct && Date.parse(f.ct) >= lim).sort((a, b) => Date.parse(b.ct) - Date.parse(a.ct)).slice(0, 500)
       .map((f) => ({ id: f.id, name: f.name, size: f.size, at: f.ct, path: f.path, thumb: f.thumb || '' }));
   }
-  const libAuto = () => { try { return localStorage.getItem('ppdup:libauto:v1') !== '0'; } catch (e) { return true; } };
+  const libAuto = () => { return lsGet('ppdup:libauto:v1') !== '0'; };
   const libView = () => { try { const v = localStorage.getItem('ppdup:libview:v1'); return ['list', 'thumb', 'tile'].includes(v) ? v : 'tile'; } catch (e) { return 'tile'; } };
   // ダブルクリック・Enter はフォルダ一覧と同じく「再生のしかた」の設定に従う（外部プレーヤーにしていれば外部で開く）。スペースは簡易プレビュー
   function libPlayDefault(it) { const p = playPref(); if (p.mode === 'external') { libPvClose(); openExternal(it.id, p.ext, it.name); } else { libPreview(it.id).then(() => { if (p.mode === 'full') { const v = document.querySelector('#pd-lib .lb-pv .lb-pvbox'); const fn = v && (v.requestFullscreen || v.webkitRequestFullscreen); if (fn) Promise.resolve(fn.call(v)).catch(() => {}); } }); } }
@@ -6232,9 +6242,9 @@
         else if (x.lbdays) { libSt.days = +x.lbdays; libLoad('recent'); }
         else if (x.lbreload !== undefined) libLoad(libSt.tab);
         else if (x.lbtall) { libSt.closed = new Set(); if (x.lbtall === 'close') libSt.items.forEach((it) => { let acc = ''; String(it.path || '/').split('/').filter(Boolean).forEach((seg) => { acc += '/' + seg; libSt.closed.add(acc); }); }); renderLib(); }
-        else if (x.lbview) { try { localStorage.setItem('ppdup:libview:v1', x.lbview); } catch (e) { /* 無視 */ } renderLib(); }
-        else if (x.lbauto !== undefined) { try { localStorage.setItem('ppdup:libauto:v1', libAuto() ? '0' : '1'); } catch (e) { /* 無視 */ } renderLib(); }
-        else if (x.lbsz) { try { localStorage.setItem('ppdup:libsize:v1', x.lbsz); } catch (e) { /* 無視 */ } renderLib(); }
+        else if (x.lbview) { lsSet('ppdup:libview:v1', x.lbview); renderLib(); }
+        else if (x.lbauto !== undefined) { lsSet('ppdup:libauto:v1', libAuto() ? '0' : '1'); renderLib(); }
+        else if (x.lbsz) { lsSet('ppdup:libsize:v1', x.lbsz); renderLib(); }
         else if (x.lbopen) libReveal(x.lbopen);
         else if (x.lbre) { const it = libItem(x.lbre); if (it && it.url) { try { sessionStorage.setItem(SS_ADDTEXT, it.url); } catch (e) { /* 無視 */ } closeLib(); openAdd('DL'); } }
         else if (x.lbadd !== undefined) { closeLib(); openAdd('DL'); }
@@ -6370,18 +6380,18 @@
   function renderLib() {
     const d = document.getElementById('pd-lib'); if (!d || !libSt) return;
     const S = libSt, tab = S.tab, grid = LIB_GRID.has(tab);
-    const when = (t) => { const v = Date.parse(t); return v ? new Date(v).toLocaleString(loc(), { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''; };
+    const when = (t) => fmtDate(t);
     const tabs = LIB_TABS.map(([k, l]) => `<button class="lb-tab${k === tab ? ' on' : ''}" data-lbtab="${k}">${LIB_IC[k]}<span>${l}</span>${k === 'dl' && libBadge.dl ? `<i>${libBadge.dl}</i>` : k === 'trash' && libBadge.trash ? `<i>${libBadge.trash}</i>` : ''}</button>`).join('');
     const selectable = tab === 'dl' || tab === 'trash' || tab === 'star' || tab === 'cand';
     const cb = (it) => `<input type="checkbox" data-lbi="${esc(it.id)}"${S.sel.has(it.id) ? ' checked' : ''}${S.busy ? ' disabled' : ''} aria-label="選ぶ">`;
     // どこまで見たか（青い線。見終わったものは灰色の線）
     const triTag = (it) => { const m = !it.folder && mediaGet(it.id); return m && m.tri ? `<span class="lb-tri ${m.tri}">${m.tri === 'keep' ? '残す' : '消す候補'}</span>` : ''; };
-    const prog = (it) => { const m = !it.folder && mediaGet(it.id); if (!m) return ''; if (m.done) return '<i class="lb-prog done" style="width:100%" title="見終わった"></i>'; return m.pos > 0 && m.dur ? `<i class="lb-prog" style="width:${Math.min(100, Math.max(2, m.pos / m.dur * 100)).toFixed(1)}%" title="${fmtT(m.pos)} まで見た"></i>` : ''; };
+    const prog = (it) => { const m = !it.folder && mediaGet(it.id); if (!m) return ''; if (m.done) return '<i class="lb-prog done" style="width:100%" title="見終わった"></i>'; return m.pos > 0 && m.dur ? `<i class="lb-prog" style="width:${Math.min(100, Math.max(2, m.pos / m.dur * 100)).toFixed(1)}%" title="${fmtClock(m.pos)} まで見た"></i>` : ''; };
     const card = (it) => {
       const r = { name: it.name, ext: extOf(it.name) };
       const th = it.thumb ? `<img loading="lazy" referrerpolicy="no-referrer" src="${esc(it.thumb)}" alt="">` : `<span class="ph">${it.folder ? ICON_DIR : ICON_FILE(r)}</span>`;
       const mm = !it.folder && mediaGet(it.id);
-      const info = [it.size && !it.folder ? fmt(it.size) : '', tab === 'cont' && mm && mm.pos ? `途中 ${fmtT(mm.pos)} / ${fmtT(mm.dur || 0)}` : when(it.at)].filter(Boolean).join('・');
+      const info = [it.size && !it.folder ? fmt(it.size) : '', tab === 'cont' && mm && mm.pos ? `途中 ${fmtClock(mm.pos)} / ${fmtClock(mm.dur || 0)}` : when(it.at)].filter(Boolean).join('・');
       return `<div class="lb-card${S.cur === it.id ? ' cur' : ''}" data-lbc="${esc(it.id)}" tabindex="0" title="${esc(it.name)}${tab === 'recent' && it.path ? '\n' + esc(it.path) : ''}"><div class="lb-th">${th}${libIsVid(it) ? '<span class="lb-play">▶</span>' : ''}${prog(it)}${triTag(it)}${selectable ? cb(it) : ''}</div><div class="lb-ct"><b>${esc(it.name)}</b><small>${esc(info)}</small></div></div>`;
     };
     const row = (it) => {
@@ -6400,7 +6410,7 @@
       return `<div class="lb-row">${cb(it)}<span class="lb-t"><b title="${esc(it.name)}">${it.folder ? '📁 ' : ''}${esc(it.name)}</b><small>${esc(info.filter(Boolean).join('・'))}</small>${bar}</span>${tag}${retry}${openId ? `<button data-lbopen="${esc(openId)}" title="フォルダ一覧でこの項目の場所を開く">場所を開く</button>` : ''}</div>`;
     };
     const lv = libView();
-    const lsz = (() => { try { return localStorage.getItem('ppdup:libsize:v1') || 'm'; } catch (e) { return 'm'; } })();
+    const lsz = (() => { return lsGet('ppdup:libsize:v1') || 'm'; })();
     let body;
     if (S.loading) body = '<div class="empty">読み込み中…</div>';
     else if (S.err === 'scan') body = '<div class="empty">「最近追加したもの」は、読み込んだ内容から作ります。先に左の「再読み込み」で PikPak の中身を読み込んでください。</div>';
@@ -6455,8 +6465,8 @@
   const REPO_REL = 'https://github.com/Noel-Labs39/pikpak-distill/releases';
   const verNum = (v) => String(v || '').split('.').map((x) => +x || 0);
   const verNewer = (a, b) => { const x = verNum(a), y = verNum(b); for (let i = 0; i < 3; i++) { if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) > (y[i] || 0); } return false; };
-  function updRead() { try { return JSON.parse(localStorage.getItem(LS_UPD) || '{}') || {}; } catch (e) { return {}; } }
-  function updWrite(o) { try { localStorage.setItem(LS_UPD, JSON.stringify(o)); } catch (e) { /* 無視 */ } }
+  function updRead() { return lsJson(LS_UPD, {}); }
+  function updWrite(o) { lsSetJson(LS_UPD, o); }
   async function checkUpdate(force) {
     const u = updRead();
     if (!force && u.at && Date.now() - u.at < 12 * 3600e3) { renderUpdate(); return u.latest; }
@@ -6497,7 +6507,6 @@
     media: { label: '再生の記録（再生した履歴・続きの位置・飛ばす区間）', keys: ['ppdup:media:v1'], merge: true },
   };
   let exportSel = { settings: true, seller: true, decision: true, unzip: true, media: true };
-  const lsGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
   const groupCount = (g, src) => {
     if (EXPORT_GROUPS[g].enc && !src) return pwCache.length;
     let n = 0;
@@ -6566,8 +6575,8 @@
   const saveSyncCfg = (p) => { try { localStorage.setItem(LS_SYNC, JSON.stringify({ ...syncCfg(), ...p })); } catch (e) { /* 無視 */ } };
   const syncKeys = () => Object.keys(SYNC_KEYS).filter((k) => k !== 'ppdup:unzippw:x' || syncCfg().pw);
   const strHash = (s) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return s.length + ':' + h; };
-  function syncMeta() { try { return JSON.parse(localStorage.getItem(LS_SYNCMETA) || '{}') || {}; } catch (e) { return {}; } }
-  const saveSyncMeta = (m) => { try { localStorage.setItem(LS_SYNCMETA, JSON.stringify(m)); } catch (e) { /* 無視 */ } };
+  function syncMeta() { return lsJson(LS_SYNCMETA, {}); }
+  const saveSyncMeta = (m) => { lsSetJson(LS_SYNCMETA, m); };
   // 手元で変わったキーに時刻を付ける（変わったものがあれば true）
   function syncTouch() {
     const m = syncMeta(); let ch = false;
@@ -6678,7 +6687,7 @@
   function renderSyncRow(msg) {
     const el = document.querySelector('#pd-set [data-r=syncrow]'); if (!el) return;
     const c = syncCfg();
-    el.textContent = msg || (!c.asked || !c.on ? 'オフ（このブラウザにだけ保存）' : c.err ? '前回は失敗：' + c.err : c.last ? '最後に同期：' + new Date(c.last).toLocaleString(loc(), { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'まだ同期していません');
+    el.textContent = msg || (!c.asked || !c.on ? 'オフ（このブラウザにだけ保存）' : c.err ? '前回は失敗：' + c.err : c.last ? '最後に同期：' + fmtDate(c.last) : 'まだ同期していません');
   }
   // 初めて開いたときに一度だけ聞く
   function syncAsk() {
@@ -6766,7 +6775,7 @@
   async function refreshPwSyncBox() {
     if (!syncCfg().pw) return;
     const k = await syncPassKey(); if (!k) return;
-    try { localStorage.setItem(LS_PWX, JSON.stringify(await aesEnc(k, pwCache))); } catch (e) { /* 無視 */ }
+    lsSetJson(LS_PWX, await aesEnc(k, pwCache));
   }
   // 同期で受け取った暗号化した一覧を取り込む（合言葉が違えば取り込まない）
   async function mergePwSyncBox(str) {
@@ -7285,7 +7294,7 @@
   const LS_FABPOS = 'ppdup:fabpos:v1', FAB_M = 12;
   const fabKey = () => location.host;
   const fabSaved = () => { try { return (JSON.parse(localStorage.getItem(LS_FABPOS) || '{}') || {})[fabKey()] || null; } catch (e) { return null; } };
-  const fabSave = (p) => { let all = {}; try { all = JSON.parse(localStorage.getItem(LS_FABPOS) || '{}') || {}; } catch (e) { all = {}; } if (p) all[fabKey()] = p; else delete all[fabKey()]; try { localStorage.setItem(LS_FABPOS, JSON.stringify(all)); } catch (e) { /* 無視 */ } };
+  const fabSave = (p) => { let all = {}; all = lsJson(LS_FABPOS, {}); if (p) all[fabKey()] = p; else delete all[fabKey()]; lsSetJson(LS_FABPOS, all); };
   // 既定の位置：PikPak の左メニューの空き（容量表示のすぐ上）。見つからなければ左下
   function fabDefault() {
     const W = innerWidth, H = innerHeight, bw = btn.offsetWidth || 120, bh = btn.offsetHeight || 42;
@@ -7368,8 +7377,8 @@
   { let n = 0; const tm = setInterval(() => { if (fabSaved() || ++n > 20) { clearInterval(tm); return; } if (!fabDrag) placeFab(); }, 1000); }
   // ---------- 端でスクロール：マウスを一覧の下（上）の端へ持っていくと、ゆっくりスクロール（上のバーのボタンで オン／オフ） ----------
   const LS_EDGE = 'ppdup:edgescroll:v1';
-  const edgeOn = () => { try { return localStorage.getItem(LS_EDGE) === '1'; } catch (e) { return false; } };
-  function setEdge(on) { try { localStorage.setItem(LS_EDGE, on ? '1' : '0'); } catch (e) { /* 無視 */ } const b = root.querySelector('[data-r=edgebtn]'); if (b) b.classList.toggle('on', on); if (document.getElementById('pd-set')) renderSettings(); }
+  const edgeOn = () => { return lsGet(LS_EDGE) === '1'; };
+  function setEdge(on) { lsSet(LS_EDGE, on ? '1' : '0'); const b = root.querySelector('[data-r=edgebtn]'); if (b) b.classList.toggle('on', on); if (document.getElementById('pd-set')) renderSettings(); }
   { const b = root.querySelector('[data-r=edgebtn]'); if (b) b.classList.toggle('on', edgeOn()); }
   let edgeSc = null, edgeV = 0, edgeRaf = 0;
   const EDGE_Z = 70; // 端から何 px で動き始めるか
@@ -7396,7 +7405,7 @@
   window.addEventListener('blur', edgeStop);
   // ---------- 起動時に全画面で開く・画面ごとの URL（#dd/…）：戻る・再読み込み・ブックマークで同じ画面へ ----------
   const LS_AUTO = 'ppdup:autostart:v1';
-  const autoStart = () => { try { return localStorage.getItem(LS_AUTO) === '1'; } catch (e) { return false; } };
+  const autoStart = () => { return lsGet(LS_AUTO) === '1'; };
   let ddApplying = false;
   function ddState() {
     if (!root.classList.contains('on')) return '';

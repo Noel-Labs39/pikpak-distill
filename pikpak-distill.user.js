@@ -1678,7 +1678,15 @@
   #ppdup.navmin:not(.pop):not(.narrow) .rail > button:not(.rl-sub):not(.rl-acct){width:56px;flex-direction:column;justify-content:center;padding:10px 0;font-size:0}
   #ppdup.navmin:not(.pop):not(.narrow) .rail > button span{display:none}
   #ppdup.navmin:not(.pop):not(.narrow) .rail .rb{position:absolute;top:3px;right:4px;font-size:10px;line-height:15px;min-width:15px;padding:0 4px}
-  #ppdup.navmin .rail .rl-sub,#ppdup.navmin .rail .rl-sep,#ppdup.pop .rail .rl-sub,#ppdup.pop .rail .rl-sep{display:none!important}
+  #ppdup .rail .rl-sub{gap:10px;align-items:center}
+  #ppdup .rail .rl-sub svg{width:18px!important;height:18px!important;flex:none}
+  /* アイコンだけの表示でも、ログ・書き出し・更新履歴をアイコンで出す（名前はマウスを乗せると出る） */
+  #ppdup.navmin:not(.pop):not(.narrow) .rail .rl-sub{width:56px!important;justify-content:center;padding:9px 0!important}
+  #ppdup.navmin:not(.pop):not(.narrow) .rail .rl-sub span{display:none}
+  #ppdup.pop .rail .rl-sub,#ppdup.pop .rail .rl-sep{display:none!important}
+  /* マウスを乗せたときの説明（アイコンだけのボタン用。すぐ出る） */
+  #pd-tip{position:fixed;z-index:2147483647;max-width:280px;padding:6px 10px;border-radius:8px;background:#11141a;color:#fff;font:600 12px/1.45 system-ui,-apple-system,'Hiragino Sans',sans-serif;box-shadow:0 6px 18px #0006;pointer-events:none;white-space:normal}
+  #pd-tip[hidden]{display:none}
   #ppdup.navmin .rail .rl-acct,#ppdup.pop .rail .rl-acct{border:0!important;padding:6px!important}
   #ppdup.navmin .rail .rl-acct span,#ppdup.pop .rail .rl-acct span{display:none!important}
   #ppdup.pop [data-a=navtoggle]{display:none}
@@ -1837,13 +1845,13 @@
       <button data-a="rescan" data-rail="scan" title="最新の状態を読み込み直す"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg><span>再読み込み</span></button>
       <button data-a="settings" data-rail="set" title="設定（表示・再生・整理・情報）"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>設定</span></button>
       <div class="rl-sep"></div>
-      <button class="rl-sub" data-a="log">ログ・不具合の報告</button>
-      <button class="rl-sub" data-a="setinfo">書き出し／読み込み</button>
-      <button class="rl-sub" data-a="changelog">更新履歴（v${VER}）</button>
+      <button class="rl-sub" data-a="log" title="ログを見る・不具合を報告する"><svg viewBox="0 0 24 24"><path d="M7 3.5h7l4 4V20a.5.5 0 0 1-.5.5h-10A.5.5 0 0 1 7 20z"/><path d="M14 3.5V8h4M10 12h5M10 15.5h5"/></svg><span>ログ・不具合の報告</span></button>
+      <button class="rl-sub" data-a="setinfo" title="設定や記録を書き出す・読み込む"><svg viewBox="0 0 24 24"><path d="M8 4v12M4.5 12.5L8 16l3.5-3.5"/><path d="M16 20V8M12.5 11.5L16 8l3.5 3.5"/></svg><span>書き出し／読み込み</span></button>
+      <button class="rl-sub" data-a="changelog" title="更新履歴（いまは v${VER}）"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><span>更新履歴（v${VER}）</span></button>
       <button class="rl-acct" data-a="acct" data-r="acct" title="PikPak のログイン状態と同期"></button>
     </aside>
     <header>
-      <div class="brand"><button class="hbtn hic" data-a="navtoggle" title="メニュー" aria-label="メニュー"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>${LOGO}<h1 class="wm" aria-label="PikPak Distill – Dedupe"><small>PIKPAK DISTILL</small><span class="gw"><i aria-hidden="true">Dedupe</i><i aria-hidden="true">Dedupe</i><b>Dedupe</b></span></h1><span class="ver" title="いま動いているバージョン">v${VER}</span><span class="sp"></span>
+      <div class="brand"><button class="hbtn hic" data-a="navtoggle" title="左のメニューの表示を切り替える" aria-label="左のメニューの表示を切り替える"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>${LOGO}<h1 class="wm" aria-label="PikPak Distill – Dedupe"><small>PIKPAK DISTILL</small><span class="gw"><i aria-hidden="true">Dedupe</i><i aria-hidden="true">Dedupe</i><b>Dedupe</b></span></h1><span class="ver" title="いま動いているバージョン">v${VER}</span><span class="sp"></span>
         <label class="hq" title="名前で絞り込み">${IC.search}<input type="text" data-a="tq" placeholder="名前で絞り込み・検索"></label><span class="seg hqs" data-r="tqs" title="探す範囲"><button data-a="tqs" data-v="here">このフォルダ</button><button data-a="tqs" data-v="all">すべて</button></span>
         <div class="pd-quota" data-r="quota"></div>
         <span class="seg thm" data-r="theme" role="group" aria-label="テーマ"></span>
@@ -2203,7 +2211,40 @@
   // 左メニュー：広い表示／アイコンだけ（PC）、右から出す（スマホ・狭い画面）
   const LS_NAVMIN = 'ppdup:navmin:v1';
   const narrowUI = () => innerWidth < 760 || root.classList.contains('phone');
-  function applyNav() { let mn = false; try { mn = localStorage.getItem(LS_NAVMIN) === '1'; } catch (e) { /* 無視 */ } root.classList.toggle('navmin', mn); root.classList.toggle('narrow', narrowUI()); }
+  function applyNav() {
+    let mn = false; try { mn = localStorage.getItem(LS_NAVMIN) === '1'; } catch (e) { /* 無視 */ }
+    root.classList.toggle('navmin', mn); root.classList.toggle('narrow', narrowUI());
+    const b = root.querySelector('[data-a=navtoggle]');
+    if (b) b.title = narrowUI() ? 'メニューを開く・閉じる' : mn ? '左のメニューを広げる（いまはアイコンだけ）' : '左のメニューをアイコンだけにする（いまは広い表示）';
+  }
+  // ---- マウスを乗せたときの説明（アイコンだけのボタン・アイコンだけの左メニュー） ----
+  //   ブラウザ標準の title は出るまで時間がかかり気づきにくいため、すぐ出す吹き出しにする
+  const tipEl = document.createElement('div'); tipEl.id = 'pd-tip'; tipEl.hidden = true; document.body.appendChild(tipEl);
+  let tipBtn = null;
+  const tipText = (b) => {
+    const t = b.dataset.ttl || b.getAttribute('title') || b.getAttribute('aria-label') || '';
+    const lab = [...b.children].find((c) => c.tagName === 'SPAN' && !c.classList.contains('rb') && getComputedStyle(c).display !== 'none');
+    const vis = (lab ? lab.textContent : [...b.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join('')).trim();
+    if (vis && !/^[\s\W]{0,2}$/.test(vis)) return ''; // 文字が見えているボタンは標準の説明のまま
+    const nm = b.querySelector('span') ? b.querySelector('span').textContent.trim() : '';
+    return nm && t && !t.startsWith(nm) ? `${nm}：${t}` : t || nm;
+  };
+  const tipHide = () => { if (tipBtn && tipBtn.dataset.ttl != null) { tipBtn.setAttribute('title', tipBtn.dataset.ttl); delete tipBtn.dataset.ttl; } tipBtn = null; tipEl.hidden = true; };
+  document.addEventListener('mouseover', (e) => {
+    const b = e.target.closest && e.target.closest('button');
+    if (b === tipBtn) return; tipHide();
+    if (!b || !b.isConnected || b.closest('#pd-tip')) return;
+    const t = tipText(b); if (!t) return;
+    tipBtn = b; if (b.hasAttribute('title')) { b.dataset.ttl = b.getAttribute('title'); b.removeAttribute('title'); }
+    tipEl.textContent = t; tipEl.hidden = false;
+    const r = b.getBoundingClientRect(), w = tipEl.offsetWidth, h = tipEl.offsetHeight;
+    const side = b.closest('.rail');
+    let x = side ? r.right + 8 : r.left + r.width / 2 - w / 2, y = side ? r.top + r.height / 2 - h / 2 : r.bottom + 8;
+    if (!side && y + h > innerHeight - 4) y = r.top - h - 8;
+    tipEl.style.left = Math.max(4, Math.min(innerWidth - w - 4, x)) + 'px'; tipEl.style.top = Math.max(4, Math.min(innerHeight - h - 4, y)) + 'px';
+  }, true);
+  document.addEventListener('mousedown', tipHide, true);
+  addEventListener('scroll', tipHide, true);
   function toggleNav() {
     if (narrowUI()) { root.classList.toggle('navopen'); return; }
     const mn = !root.classList.contains('navmin'); try { localStorage.setItem(LS_NAVMIN, mn ? '1' : '0'); } catch (e) { /* 無視 */ } applyNav();

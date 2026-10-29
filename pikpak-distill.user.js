@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.6.1
+// @version      4.6.2
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.6.1'; // @version と合わせて更新する
+  const VER = '4.6.2'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1427,6 +1427,9 @@
   /* ---- 下の引き出し（スマホ・狭い画面） ---- */
   #ppdup .pd-sheet{display:none}
   #ppdup.narrow .pd-sheet{display:flex;flex-direction:column;position:absolute;left:0;right:0;bottom:0;z-index:8;background:var(--panel);border-radius:22px 22px 0 0;box-shadow:0 -8px 28px #0006;padding:0 12px calc(12px + env(safe-area-inset-bottom));transform:translateY(var(--shdy,0px));transition:max-height .22s ease;max-height:150px}
+  #ppdup.narrow.ios-bar .pd-sheet{padding-bottom:calc(76px + env(safe-area-inset-bottom));max-height:226px}
+  #ppdup.narrow.ios-bar main,#ppdup.narrow.ios-bar #pd-lib .lk-list{padding-bottom:200px!important}
+  #ppdup.narrow .pd-sheet.covered{display:none}
   #ppdup.narrow .pd-sheet[data-st="1"]{max-height:min(460px,72vh)}
   #ppdup.narrow .pd-sheet[data-st="2"]{max-height:88vh}
   #ppdup .pd-sheet .sh-h{flex:none;display:flex;justify-content:center;align-items:center;height:22px;width:100%;border:0;background:none;padding:0;cursor:grab;touch-action:none}
@@ -1458,6 +1461,15 @@
   #ppdup.narrow [data-a=navtoggle],#ppdup.narrow .sv-dock,#ppdup.narrow [data-r=tsel],#ppdup.narrow [data-r=tb] .seg,#ppdup.narrow #pd-lib .lk-ft,#ppdup.narrow #pd-lib .lk-hd > button:not(.x),#ppdup.narrow #pd-lib .lk-hd > .seg,#ppdup.narrow #pd-lib .lk-hd .seg{display:none!important}
   #ppdup.narrow main,#ppdup.narrow #pd-lib .lk-list{padding-bottom:120px!important}
   #ppdup.narrow .prog{margin-bottom:0}
+  @media (max-width:599px){
+    #pd-add .lk-hd{flex-wrap:wrap;row-gap:8px}
+    #pd-add .lk-hd > b{white-space:nowrap;flex:1 1 calc(100% - 60px)}
+    #pd-add .lk-hd > .sp{display:none}
+    #pd-add .lk-hd > .x{order:1}
+    #pd-add .lk-hd > .note{order:2;white-space:nowrap;flex:none}
+    #pd-add .lk-hd > select{order:3;flex:1 1 0;min-width:0;max-width:none}
+    #ppdup .wm .gw i{display:none}
+  }
 
   /* 文字が 1 文字ずつ縦に折り返さないように（ロゴ・切り替え・ボタンは 1 行のまま） */
   #ppdup .wm,#ppdup .wm *,#ppdup .seg button,#ppdup .hbtn,#ppdup [data-r=tb] button{white-space:nowrap}
@@ -2274,8 +2286,16 @@
   const sheet = document.createElement('div'); sheet.className = 'pd-sheet'; sheet.dataset.st = '0';
   sheet.innerHTML = '<button class="sh-h" title="引き出す・しまう（上下にドラッグ・押す）" aria-label="引き出す・しまう"><i></i></button><div class="sh-b"></div><div class="sh-in"><div class="sh-m"></div><div class="sh-x"></div></div>';
   root.appendChild(sheet);
+  // iPhone・iPad の Safari は画面の下に浮いたツールバーがあり、その近くを押すと最初の 1 回はツールバーが反応して
+  // こちらのボタンに届かない。ブラウザで開いているとき（ホーム画面のアプリでないとき）は、その分だけ引き出しを上げる
+  const iosSafari = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone;
+  if (iosSafari && !standalone) root.classList.add('ios-bar');
   let shRefs = [], shT = null;
   const shOn = () => root.classList.contains('narrow') && root.classList.contains('on');
+  // 上に重なる画面（リンク追加・解凍・プレーヤー・確認など）を開いている間は、引き出しを隠す
+  const shCover = () => !!document.querySelector('#pd-add,#pd-unzip,#pd-player,#pd-ql,#pd-dlg,#pd-set,#pd-frames');
+  setInterval(() => { if (shOn()) sheet.classList.toggle('covered', shCover()); }, 400);
   const shSet = (n) => { sheet.dataset.st = String(Math.max(0, Math.min(2, n))); };
   const shBtn = (el, cls) => {
     if (!el) return '';
@@ -2293,8 +2313,9 @@
     const all = (sel, scope) => [...(scope || root).querySelectorAll(sel)].filter((b) => !b.closest('.pd-sheet'));
     let prim = [], ctx = [];
     if (lib && libSt) {
-      prim = [lib.querySelector('[data-lbpv]'), lib.querySelector('[data-lbext]')];
-      ctx = [...all('.lk-hd button:not(.x)', lib), ...all('.lk-ft button:not([data-lbpv]):not([data-lbext])', lib)];
+      const ft = all('.lk-ft button', lib);
+      prim = lib.querySelector('[data-lbpv]') ? [lib.querySelector('[data-lbpv]'), lib.querySelector('[data-lbext]')] : ft.slice().sort((x, y) => y.classList.contains('pri') - x.classList.contains('pri')).slice(0, 2);
+      ctx = [...all('.lk-hd button:not(.x)', lib), ...ft.filter((x) => !prim.includes(x))];
     } else if (view === 'tree') {
       const play = root.querySelector('[data-r=tsel] [data-ta=play]');
       prim = [play || null];
@@ -2305,15 +2326,21 @@
       prim = dk.slice(0, 2); ctx = dk.slice(2);
     }
     prim = prim.filter(Boolean);
+    const put = (el, html) => { if (el._html !== html) { el._html = html; el.innerHTML = html; } };
     const b = sheet.querySelector('.sh-b');
-    b.innerHTML = (prim.length ? prim.map((x) => shBtn(x, 'p')).join('') : view === 'tree' && !(lib && libSt) ? '<button class="p" disabled title="一覧で動画を選ぶと再生できます"><span>▶ 再生（動画を選ぶ）</span></button>' : '') + (ctx.length ? `<button class="p sub" data-shmore title="今の画面の操作をすべて出す"><span>⋯ 操作</span></button>` : '');
+    const bHtml = (prim.length ? prim.map((x) => shBtn(x, 'p')).join('') : view === 'tree' && !(lib && libSt) ? '<button class="p" disabled title="一覧で動画を選ぶと再生できます"><span>▶ 再生（動画を選ぶ）</span></button>' : '') + (ctx.length ? `<button class="p sub" data-shmore title="今の画面の操作をすべて出す"><span>⋯ 操作</span></button>` : '');
+    put(b, bHtml);
     // メニュー：左メニューと同じ項目
     const rail = [...root.querySelectorAll('.rail > button:not(.rl-acct)')];
-    sheet.querySelector('.sh-m').innerHTML = rail.map((x) => shBtn(x, 'm')).join('');
-    sheet.querySelector('.sh-x').innerHTML = ctx.length ? `<b>この画面の操作</b><div>${ctx.map((x) => shBtn(x, 'x')).join('')}</div>` : '';
+    put(sheet.querySelector('.sh-m'), rail.map((x) => shBtn(x, 'm')).join(''));
+    put(sheet.querySelector('.sh-x'), ctx.length ? `<b>この画面の操作</b><div>${ctx.map((x) => shBtn(x, 'x')).join('')}</div>` : '');
     if (LANG === 'en') sheet.querySelectorAll('*').forEach(trNode);
   }
-  const shQueue = () => { clearTimeout(shT); shT = setTimeout(() => { try { renderSheet(); } catch (e) { /* 初期化の途中 */ } }, 60); };
+  let shTouch = false;
+  sheet.addEventListener('pointerdown', () => { shTouch = true; }, true);
+  addEventListener('pointerup', () => { if (shTouch) { shTouch = false; } }, true);
+  addEventListener('pointercancel', () => { shTouch = false; }, true);
+  const shQueue = () => { if (shTouch) { clearTimeout(shT); shT = setTimeout(shQueue, 150); return; } clearTimeout(shT); shT = setTimeout(() => { try { renderSheet(); } catch (e) { /* 初期化の途中 */ } }, 60); };
   new MutationObserver((ms) => { if (!shOn()) return; if (ms.every((m) => sheet.contains(m.target))) return; shQueue(); }).observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled', 'class'] });
   sheet.addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b || b.disabled) return;

@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.6.4
+// @version      4.7.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.6.4'; // @version と合わせて更新する
+  const VER = '4.7.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -115,12 +115,72 @@
   const currentFolderId = () => { if (isPem()) return (crumbs().pop() || {}).id || 'root'; const last = location.pathname.split('/').filter(Boolean).pop(); return !last || last === 'all' || last === 'drive' ? 'root' : last; };
   const currentTrail = () => (isPem() && crumbs().length ? crumbs().map((c) => c.id) : [currentFolderId()]);
 
+  // <work-id> ---------- 品番の読み取り（品番に関わる判定はすべてここを通す） ----------
+  //   変えたら tests/work-id.test.js の見本で確かめる（PR ごとに自動で走る）
+  //   読み取る順番：
+  //     ① ファイル名に品番がある（FC2-PPV-1234567・FC2PPV1234567・FC2_PPV_1234567・FC2-1234567・サイト名@… など）
+  //     ② ファイル名が数字で始まり、その数字が入っているフォルダの品番と同じ（フォルダ FC2-PPV-1234567 の 1234567-1.mp4）
+  //     ③ ABC-123 の形（FC2 以外）
+  //   日付などの数字だけ（20260609.mp4）や、フォルダと違う数字は品番とみなさない
+  const FC2_RE = /FC2[\s_-]*(?:PPV[\s_-]*)?(\d{5,8})(?!\d)/i;
+  const CODE_RE = /(^|[^A-Za-z])([A-Za-z]{2,6})-(\d{3,5})(?!\d)/;
+  // 拡張子・重複回避の (1) を分ける
+  function splitName(name) {
+    const m = String(name || '').match(/^(.*?)(\.[A-Za-z0-9]{2,5})?$/);
+    let stem = m[1]; const ext = m[2] || '';
+    const dup = stem.match(/\s?\((\d+)\)$/); if (dup) stem = stem.slice(0, dup.index);
+    return { stem, ext, dup: dup ? dup[1] : '' };
+  }
+  // 品番の後ろの文字から連番を取る（すぐ後ろの _2・-2・part2・cd2・_A／タイトル末尾の「…編-3」／第3話）
+  function partOf(rest) {
+    const pm = rest.match(/^[\s_\-－]*(?:(?:part|cd)\s?)?(\d{1,2}|[A-Ea-e])(?=$|[\s_\-－.[(（【])/i)
+      || rest.match(/[\s_\-－](?:(?:part|cd)\s?)?(\d{1,2}|[A-Ea-e])$/i)
+      || rest.match(/第\s?(\d{1,2})\s?[話部巻章]/);
+    return pm ? pm[1].toUpperCase() : '';
+  }
+  const dirFc2 = (dirName) => (String(dirName || '').match(FC2_RE) || [])[1] || '';
+  // 返り値：{ kind: 'fc2'|'code', num, key（作品の鍵）, label（そろえた品番）, part（連番）, src: 'name'|'dir', ext, dup } または null
+  function parseWork(name, dirName) {
+    const { stem, ext, dup } = splitName(name);
+    const fc2 = (num, rest, src) => ({ kind: 'fc2', num, key: 'FC2-PPV-' + num, label: 'FC2-PPV-' + num, part: partOf(rest), src, ext, dup });
+    const m = stem.match(FC2_RE);
+    if (m) return fc2(m[1], stem.slice(m.index + m[0].length), 'name');
+    const d = dirFc2(dirName);
+    if (d) { const b = stem.match(/^(?:[^@]*@)?\s*(\d{5,8})(?!\d)/); if (b && b[1] === d) return fc2(d, stem.slice(b.index + b[0].length), 'dir'); }
+    const c = stem.match(CODE_RE);
+    if (c) { const label = c[2].toUpperCase() + '-' + c[3]; return { kind: 'code', num: c[3], key: label, label, part: '', src: 'name', ext, dup }; }
+    return null;
+  }
+  const hasWorkId = (name, dirName) => !!parseWork(name, dirName);
+  // 作品の品番（作品ID）。次の違いは同じ作品として扱う（フォルダ名を揃える・作品ごとに仕分けで使う）
+  //   ・拡張子、重複回避の (1)
+  //   ・分割・シーン違いの連番：-1 / -2、_1 / _2、part1、cd1、-A など
+  //   ・配布元サイト名などの接頭辞：hhd800.com@FC2-PPV-1234567_1.mp4 → FC2-PPV-1234567
+  //   ・FC2の表記ゆれ：FC2PPV-1234567 / FC2_PPV_1234567 / FC2-1234567 → FC2-PPV-1234567
+  function baseName(n, dirName) {
+    const w = parseWork(n, dirName); if (w && w.kind === 'fc2') return w.label;
+    let b = splitName(n).stem;
+    b = b.replace(/^[^@]*@/, '').replace(/^\[[^\]]*\]\s*/, '').trim();
+    return b.replace(/^(.*\d{4,})(?:[\s_-]+(?:\d{1,2}|[A-Ea-e])|[\s_-]*(?:part|cd)\s?\d{1,2})$/i, '$1');
+  }
+  // FC2 のファイル名を整えた形（例：4k688.com@FC2-PPV-4988183_1.mp4 → FC2-PPV-4988183-1.mp4）
+  //   ・品番は FC2-PPV-数字 にそろえる（サイト名・広告などの前後の文字は消す）
+  //   ・連番は「-1」「-A」の形で残す。重複回避の (1) と拡張子はそのまま
+  //   ・FC2 以外のファイル名は変更しない（null）
+  function fc2CleanName(name, dirName) {
+    const w = parseWork(name, dirName); if (!w || w.kind !== 'fc2') return null;
+    return w.label + (w.part ? '-' + w.part : '') + (w.dup ? '(' + w.dup + ')' : '') + w.ext;
+  }
+  // 連番まで同じものの鍵（-1 と -2 を別に扱う）。いまの「同じ品番でまとめる」は -1/-2 違いも 1 組にする仕様なので、そちらは key を使う
+  const dupKeyOf = (name, dirName) => { const w = parseWork(name, dirName); return w ? w.key + (w.part ? '#' + w.part : '') : ''; };
+  // </work-id>
   // ---------- グルーピング ----------
   // 同じファイル名モードでも、重複回避の (1) 等は同名として扱う
-  const keyOf = (name, mode) => (mode === 'id' ? ((name.match(/(\d{5,8})/) || [])[1] || name.toLowerCase()) : name.toLowerCase().replace(/\s?\(\d+\)(?=\.[a-z0-9]{2,5}$|$)/, ''));
+  const keyOf = (name, mode, dirName) => (mode === 'id' ? ((parseWork(name, dirName) || {}).key || ((name.match(/(\d{5,8})/) || [])[1]) || name.toLowerCase()) : name.toLowerCase().replace(/\s?\(\d+\)(?=\.[a-z0-9]{2,5}$|$)/, ''));
   function buildGroups(files, mode) {
     const m = new Map();
-    files.forEach((f) => { const k = keyOf(f.name, mode); if (!m.has(k)) m.set(k, []); m.get(k).push(f); });
+    const dn = new Map((typeof folders !== 'undefined' ? folders : []).map((d) => [d.id, d.name]));
+    files.forEach((f) => { const k = keyOf(f.name, mode, dn.get(f.parentId)); if (!m.has(k)) m.set(k, []); m.get(k).push(f); });
     return [...m.entries()]
       .filter(([, v]) => v.length > 1)
       .map(([k, v]) => {
@@ -135,18 +195,6 @@
 
 
   // ---------- フォルダ名を中のファイル名に揃える ----------
-  // 作品の品番（作品ID）。次の違いは同じ作品として扱う
-  //   ・拡張子、重複回避の (1)
-  //   ・分割・シーン違いの連番：-1 / -2、_1 / _2、part1、cd1、-A など
-  //   ・配布元サイト名などの接頭辞：hhd800.com@FC2-PPV-1234567_1.mp4 → FC2-PPV-1234567
-  //   ・FC2の表記ゆれ：FC2PPV-1234567 / FC2_PPV_1234567 → FC2-PPV-1234567
-  const baseName = (n) => {
-    let b = String(n).replace(/\.[A-Za-z0-9]{2,5}$/, '').replace(/\s?\(\d+\)$/, '');
-    const fc2 = b.match(/FC2[\s_-]*(?:PPV[\s_-]*)?(\d{5,8})(?!\d)/i);
-    if (fc2) return 'FC2-PPV-' + fc2[1];
-    b = b.replace(/^[^@]*@/, '').replace(/^\[[^\]]*\]\s*/, '').trim();
-    return b.replace(/^(.*\d{4,})(?:[\s_-]+(?:\d{1,2}|[A-Ea-e])|[\s_-]*(?:part|cd)\s?\d{1,2})$/i, '$1');
-  };
   // 計画: [{id, parentId, path, cur, target, status, note}]  status: same / rename / dup / skip
   function buildRenamePlan(files, folders) {
     const direct = new Map();
@@ -158,8 +206,8 @@
     const keep = sellerBoxIds(folders);
     const plan = folders.map((fo) => {
       // 品番の入ったファイルだけを見る（広告など品番のないファイルの名前をフォルダ名にしない）
-      const fs = (direct.get(fo.id) || []).map((f) => ({ ...f, name: fc2Norm(f.name, fo.name) })).filter((f) => hasWorkId(f.name));
-      let bases = [...new Set(fs.map((f) => baseName(f.name)))];
+      const fs = (direct.get(fo.id) || []).filter((f) => hasWorkId(f.name, fo.name));
+      let bases = [...new Set(fs.map((f) => baseName(f.name, fo.name)))];
       let fromSub = false;
       if (!bases.length) { // 直下に作品ファイルがなく、中のフォルダが（広告フォルダを除いて）1作品だけなら、その品番に揃える
         const sub = (kids.get(fo.id) || []).filter((k) => hasWorkId(k.name) || !(AD_WORD.test(k.name) || DOMAIN.test(k.name)));
@@ -198,7 +246,7 @@
   }
 
   // ---------- 作品ごとに仕分け（混在フォルダの中に品番フォルダを作り、そこへ移動） ----------
-  const workKey = (n) => { const b = baseName(n); return /\d{5,8}/.test(b) ? b : ''; };
+  const workKey = (n, dirName) => { const b = baseName(n, dirName); return /\d{5,8}/.test(b) ? b : ''; };
   const addSuffix = (name, taken) => {
     const m = name.match(/^(.*?)(\.[A-Za-z0-9]{2,5})?$/); let i = 1, n;
     do { n = `${m[1]}(${i})${m[2] || ''}`; i++; } while (taken.has(n.toLowerCase()));
@@ -237,37 +285,6 @@
   }
 
   // ---------- FC2 ファイル名を整える ----------
-  // 品番の表記ゆれを「FC2-PPV-数字」にそろえる（名前の判定・整える前に通す）
-  //   ・FC2-1234567 / FC2_1234567（PPV が抜けている）→ FC2-PPV-1234567
-  //   ・1234567-1.mp4 のように数字だけで、入っているフォルダが FC2-PPV-1234567 のとき → FC2-PPV-1234567-1.mp4
-  const FC2_DIR = (dirName) => { const m = String(dirName || '').match(/FC2[\s_-]*(?:PPV[\s_-]*)?(\d{5,8})(?!\d)/i); return m ? m[1] : ''; };
-  function fc2Norm(name, dirName) {
-    let n = String(name || '');
-    if (/FC2[\s_-]*PPV[\s_-]*\d{5,8}/i.test(n)) return n;
-    const m = n.match(/FC2[\s_-]*(\d{5,8})(?!\d)/i);
-    if (m) return n.slice(0, m.index) + 'FC2-PPV-' + m[1] + n.slice(m.index + m[0].length);
-    const dirId = FC2_DIR(dirName);
-    if (dirId) { const b = n.match(/^(?:[^@]*@)?\s*(\d{5,8})(?!\d)/); if (b && b[1] === dirId) return 'FC2-PPV-' + n.slice(n.indexOf(b[1])); }
-    return n;
-  }
-  // 例：4k688.com@FC2-PPV-4988183_1.mp4 → FC2-PPV-4988183-1.mp4
-  //   ・品番は FC2-PPV-数字 にそろえる（サイト名・広告などの前後の文字は消す）
-  //   ・シリーズ／分割の番号（_1・-1・part1・cd1・_A、タイトル末尾の「…編-3」も）は「-1」「-A」の形で残す
-  //   ・重複回避の (1) と拡張子はそのまま残す
-  //   ・FC2 以外のファイル名は変更しない
-  function fc2CleanName(name, dirName) {
-    name = fc2Norm(name, dirName);
-    const m = String(name).match(/^(.*?)(\.[A-Za-z0-9]{2,5})?$/);
-    let stem = m[1]; const ext = m[2] || '';
-    const dup = stem.match(/\s?\((\d+)\)$/); if (dup) stem = stem.slice(0, dup.index);
-    const f = stem.match(/FC2[\s_-]*PPV[\s_-]*(\d{5,8})(.*)$/i);
-    if (!f) return null;
-    // シリーズ番号：品番のすぐ後ろ（FC2-PPV-1234567_2）か、タイトルの末尾（…編-3）にあるもの
-    const pm = f[2].match(/^[\s_\-－]*(?:(?:part|cd)\s?)?(\d{1,2}|[A-Ea-e])(?=$|[\s_\-－.[(（【])/i)
-      || f[2].match(/[\s_\-－](?:(?:part|cd)\s?)?(\d{1,2}|[A-Ea-e])$/i)
-      || f[2].match(/第\s?(\d{1,2})\s?[話部巻章]/);
-    return 'FC2-PPV-' + f[1] + (pm ? '-' + pm[1].toUpperCase() : '') + (dup ? '(' + dup[1] + ')' : '') + ext;
-  }
   // 計画: [{op:'rename', kind:'file', id, parentId, path, cur, target, status, note}]
   function buildNamePlan(files, folders) {
     const fPath = new Map(folders.map((f) => [f.id, f.path]));
@@ -304,7 +321,6 @@
   // 中国語にしかない字（簡体字・繁体字）。日本語の漢字だけのタイトルを中国語と誤判定しないよう、日本語と共通の字は入れない
   const ZH_ONLY = /[们这个资视频获发址网载为无码对时说请关联报电级备实购买么吗该进过还从让给见门问间开头东车马书读写语话认识记广场论坛专业产单经现选择变态爱亲热线红际欢边领导员样传统观众极简习盘约骚妇鸡伦强调們這發實從讓讀寫專產單廣碼說聯對麼嗎]/;
   // 品番＝FC2-PPV-数字、または ABC-123 の形。日付などの数字だけ（例：发布器20260609）は品番とみなさない
-  const hasWorkId = (name) => /FC2[\s_-]*(?:PPV[\s_-]*)?\d{5,8}(?!\d)/i.test(name) || /(^|[^A-Za-z])[A-Za-z]{2,6}-\d{3,5}(?!\d)/.test(name);
   // 判定に使う周りの情報
   //   spreadNames … 品番のない同じ名前のファイルが、別々のフォルダに入っている（作品に付いてきた広告）
   //   workDirs    … 作品のフォルダ（フォルダ名か、中のファイル・フォルダに品番がある）
@@ -313,12 +329,12 @@
   function prepJunk(files, folders) {
     dirNames = new Map(folders.map((d) => [d.id, d.name]));
     const where = new Map();
-    files.forEach((f) => { if (hasWorkId(f.name)) return; const k = f.name.toLowerCase(); if (!where.has(k)) where.set(k, new Set()); where.get(k).add(f.parentId); });
+    files.forEach((f) => { if (hasWorkId(f.name, dirNames.get(f.parentId))) return; const k = f.name.toLowerCase(); if (!where.has(k)) where.set(k, new Set()); where.get(k).add(f.parentId); });
     spreadNames = new Set([...where].filter(([, s]) => s.size >= 2).map(([k]) => k));
     workDirs = new Set();
     const top = new Set(folders.filter((d) => d.isRoot || d.parentId === 'root' || d.parentId === '').map((d) => d.id)); // 起点・ホーム直下（My Pack 等）は除く
     folders.forEach((d) => { if (hasWorkId(d.name)) { workDirs.add(d.id); if (!top.has(d.parentId)) workDirs.add(d.parentId); } });
-    files.forEach((f) => { if (hasWorkId(f.name) && !top.has(f.parentId)) workDirs.add(f.parentId); });
+    files.forEach((f) => { if (hasWorkId(f.name, dirNames.get(f.parentId)) && !top.has(f.parentId)) workDirs.add(f.parentId); });
     const ad = folders.filter((d) => !d.isRoot && !hasWorkId(d.name) && (AD_WORD.test(d.name) || DOMAIN.test(d.name))).map((d) => d.id);
     adDirs = new Set(folders.filter((d) => (d.trail || []).some((id) => ad.includes(id))).map((d) => d.id));
   }
@@ -326,7 +342,7 @@
     const name = String(f.name || '');
     const m = name.match(/^(.*?)(?:\.([A-Za-z0-9]{2,7}))?$/);
     const stem = m[1], ext = (m[2] || '').toLowerCase();
-    const id = hasWorkId(fc2Norm(name, dirNames.get(f.parentId)));
+    const id = hasWorkId(name, dirNames.get(f.parentId));
     const zh = !KANA.test(stem) && ZH_ONLY.test(stem);
     if (AD_EXT.has(ext)) return { level: 'del', reason: '広告・宣伝（' + ext + ' ファイル）' };
     if (!id && adDirs.has(f.parentId)) return { level: 'del', reason: '広告・宣伝（広告フォルダの中）' };
@@ -6605,7 +6621,7 @@
   // 名前から「同じ作品」を見分けるための鍵（FC2 の品番・ABC-123・日付型の品番）
   function libKeys(name) {
     const n = String(name || ''), out = new Set();
-    const fc2 = n.match(/FC2[\s_-]*(?:PPV[\s_-]*)?(\d{5,8})(?!\d)/i); if (fc2) out.add('fc2:' + fc2[1]);
+    const fc2 = n.match(FC2_RE); if (fc2) out.add('fc2:' + fc2[1]);
     if (/FC2/i.test(n)) [...n.matchAll(/(?:^|[^\d])(\d{6,8})(?!\d)/g)].forEach((m) => out.add('fc2:' + m[1]));
     if (!out.size) {
       const j = n.match(/(?:^|[^A-Za-z0-9])([A-Za-z]{2,6})[-_ ]?(\d{3,5})(?![\d])/); if (j && !/^(FC|MP|AVI|MKV|HD|FHD|UHD|PART|CD|DISC|VOL|EP)$/i.test(j[1])) out.add('id:' + j[1].toUpperCase() + '-' + j[2]);

@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.8.1
+// @version      4.8.3
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.8.1'; // @version と合わせて更新する
+  const VER = '4.8.3'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -564,8 +564,10 @@
           if (opt._cap === 1 && !opt.captcha) { opt = { ...opt, _cap: 2, _nocap: false, captcha: (opt.method || 'GET') + ':/drive/v1' + path.split('?')[0].replace(/^https?:\/\/[^/]+\/drive\/v1/, '') }; continue; }
           log('warn', msg + '（自動で回復します）', where); throw sessionError('認証の確認が必要です（' + msg + '）');
         }
+        // 404：ファイル・フォルダがもうない（削除済み）。呼び出し側で「削除済み」と分かるように印を付ける
+        if (res.status === 404) { const ge = new Error(msg); ge.status = 404; ge.gone = true; ge.where = where; throw ge; }
         log('error', msg, where);
-        throw new Error(msg);
+        const e2 = new Error(msg); e2.status = res.status; throw e2;
       }
       return opt.raw ? { ok: true, status: res.status, data } : data;
     }
@@ -4547,8 +4549,17 @@
   const prefLabel = () => { const p = playPref(); return p.mode === 'external' ? '外部：' + EXT_PLAYERS[p.ext].short : MODES[p.mode]; };
 
   // 再生用リンクを取得して、画質の候補を作る
+  // 再生しようとしたファイルが PikPak にもうないとき：分かりやすい知らせに置き換え、再生の記録（履歴・続きを見る）から外す
+  function markGone(id) {
+    const db = mediaAll(); const name = (db[id] || {}).name || (fileById(id) || {}).name || id;
+    if (db[id]) { delete db[id]; mediaSave(true); }
+    if (libSt && libSt.items.some((x) => x.id === id)) { libSt.items = libSt.items.filter((x) => x.id !== id); renderLib(); }
+    log('info', 'PikPak にもうないファイルを再生の記録から外しました（削除・整理で消えたもの）', name);
+    const e = new Error('このファイルは PikPak にもうありません（削除されたか、整理でゴミ箱へ移したもの）。再生の記録から外しました'); e.gone = true; return e;
+  }
   async function loadSources(id) {
-    const info = await api('/files/' + id + '?thumbnail_size=SIZE_LARGE');
+    let info;
+    try { info = await api('/files/' + id + '?thumbnail_size=SIZE_LARGE'); } catch (e) { if (e.gone) throw markGone(id); throw e; }
     const src = [];
     (Array.isArray(info.medias) ? info.medias : []).forEach((m) => {
       const url = m && m.link && m.link.url; if (!url) return;
@@ -4678,7 +4689,7 @@
       }
       playLogPush(id, f.name);
       log('info', `外部プレーヤーで再生：${P.short}`, f.name);
-    } catch (err) { if (err.session) { handleErr(err, 'tree'); return; } status('外部プレーヤー用のリンクを取得できませんでした：' + err.message); }
+    } catch (err) { if (err.session) { handleErr(err, 'tree'); return; } status(err.gone ? err.message : '外部プレーヤー用のリンクを取得できませんでした：' + err.message); }
   }
   // 既定の再生のしかたで再生（ダブルクリック・Enter など）
   function playDefault(id) {
@@ -4934,7 +4945,7 @@
         onMeta: (v) => { const e = d.querySelector(`[data-cminf="${i}"]`); if (e) e.textContent = v.videoWidth ? ` ・ ${v.videoWidth}×${v.videoHeight} ・ ${fmtT(v.duration || 0)}` : ''; link(v); applyAudio(); },
         fail: (x, why) => { if (!box.querySelector('.pl-err')) box.insertAdjacentHTML('beforeend', `<div class="pl-msg pl-err">再生できませんでした${why ? `（${esc(why)}）` : ''}</div>`); },
       });
-      P[i].ready.catch((err) => { if (err && err.session) { closeCompare(); handleErr(err, view); } else box.innerHTML = `<div class="pl-msg pl-err">再生用リンクを取得できませんでした：${esc((err && err.message) || err)}</div>`; });
+      P[i].ready.catch((err) => { if (err && err.session) { closeCompare(); handleErr(err, view); } else box.innerHTML = `<div class="pl-msg pl-err">${err && err.gone ? '' : '再生用リンクを取得できませんでした：'}${esc((err && err.message) || err)}</div>`; });
     });
     // 2 本とも準備ができたら、同じ位置（続きの位置があれば左に合わせる）から始める
     Promise.all(P.map((x) => x.ready.catch(() => null))).then(() => { if (run !== cmpRun) return; const [a, b] = vids(); if (a && b) { const go = () => { b.currentTime = a.currentTime; applyAudio(); }; if (a.readyState > 0 && b.readyState > 0) go(); else setTimeout(go, 800); } });
@@ -5065,7 +5076,7 @@
       if (P.v) P.v.focus();
       if (opt.full) goFull();
       log('info', '再生：' + f.name + '（' + P.S.src[P.k >= 0 ? P.k : P.S.first].label + '）');
-    } catch (err) { if (err.session) { closePlayer(); handleErr(err, 'tree'); return; } d.querySelector('.pl-msg').textContent = '再生用リンクを取得できませんでした：' + err.message; log('error', '再生用リンクの取得に失敗：' + err.message, f.name); updateLogBadge(); }
+    } catch (err) { if (err.session) { closePlayer(); handleErr(err, 'tree'); return; } d.querySelector('.pl-msg').textContent = (err.gone ? '' : '再生用リンクを取得できませんでした：') + err.message; log('error', '再生用リンクの取得に失敗：' + err.message, f.name); updateLogBadge(); }
   }
   function closePlayer() { playRun++; unloadMedia(document.getElementById('pd-player')); stopHls(); const d = document.getElementById('pd-player'); if (d) { d.querySelectorAll('.pd-sk').forEach((b) => { if (b._grab) b._grab.close(); }); const v = d.querySelector('video'); try { if (v) { v.pause(); v.removeAttribute('src'); v.load(); } } catch (e) { /* 無視 */ } d.remove(); } const t = $('[data-r=tree]'); if (t) t.focus(); }
   document.addEventListener('keydown', (e) => {
@@ -6246,7 +6257,7 @@
       log('info', `左メニューからプレビュー：${P.x ? P.x.label : ''}`, it.name);
     } catch (err) {
       if (err.session) { closeLib(); handleErr(err, view); return; }
-      if (run === libPvRun) box.innerHTML = `<div class="pl-msg pl-err">再生用リンクを取得できませんでした：${esc(err.message || err)}</div>`;
+      if (run === libPvRun) box.innerHTML = `<div class="pl-msg pl-err">${err.gone ? '' : '再生用リンクを取得できませんでした：'}${esc(err.message || err)}</div>`;
     }
   }
   async function libDo(op) {

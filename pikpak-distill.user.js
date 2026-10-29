@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.8.9
+// @version      4.9.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -91,6 +91,11 @@
   const pad2 = (n) => String(n).padStart(2, '0');
   const fmtClock = (s) => { s = Math.max(0, Math.round(s)); const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60; return (h ? h + ':' + pad2(m) : pad2(m)) + ':' + pad2(s % 60); };
   const fmtDur = (ms) => { const s = Math.max(0, Math.round(ms / 1000)); return s < 60 ? `${s} 秒` : `${Math.floor(s / 60)} 分 ${pad2(s % 60)} 秒`; };
+  // SHA-1（中身の手がかり・マグネットの作成で使う）
+  const sha1 = async (b) => new Uint8Array(await crypto.subtle.digest('SHA-1', b));
+  const hexOf = (u8) => [...u8].map((x) => x.toString(16).padStart(2, '0')).join('');
+  // 画面に出す枠（id を付けて body に置く）
+  const mkEl = (id) => { const d = document.createElement('div'); d.id = id; document.body.appendChild(d); return d; };
   // </common>
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const NEAR = 0.015; // 最大サイズとの差が1.5%以内なら「サイズが近い」
@@ -102,7 +107,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.8.9'; // @version と合わせて更新する
+  const VER = '4.9.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -2076,6 +2081,24 @@
   //   決まり：アイコンは文字（⚙ ✕ ⛶ など）ではなくこの IC の絵を使う（端末のフォントで小さく潰れるため）。
   //           アイコンだけのボタンには必ず title（マウスを乗せたときの説明）を付ける。大きさは 20px が基本
   const SVG = (d) => `<svg class="ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+  // 左メニュー・左メニューの再生のタブで使うアイコン（同じ絵は 1 か所だけに書く）
+  const RAIL_IC = {
+    flow: '<svg viewBox="0 0 24 24"><path d="M4 6h10M4 12h16M4 18h7" /><circle cx="18" cy="6" r="2"/><circle cx="15" cy="18" r="2"/></svg>',
+    tree: '<svg viewBox="0 0 24 24"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/><path d="M7 11h10M7 15h6"/></svg>',
+    dl: '<svg viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 7.97"/><path d="M12 11v9M8.8 17l3.2 3 3.2-3"/></svg>',
+    recent: '<svg viewBox="0 0 24 24"><circle cx="11" cy="12" r="7.5"/><path d="M11 8v4.2l2.6 1.6"/><path d="M19.5 3.5v4M17.5 5.5h4"/></svg>',
+    cont: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M10 8.5v5l4-2.5z"/><path d="M3 20.5h11" stroke-width="2.4"/></svg>',
+    cand: '<svg viewBox="0 0 24 24"><path d="M5 7h14M9.5 7V5h5v2"/><path d="M7 7l.8 12.2A1.5 1.5 0 0 0 9.3 20.6h5.4a1.5 1.5 0 0 0 1.5-1.4L17 7"/><path d="M10 11.5l4 4M14 11.5l-4 4"/></svg>',
+    hist: '<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/><path d="M10.5 9.2v5.6l4.4-2.8z"/></svg>',
+    star: '<svg viewBox="0 0 24 24"><path d="M12 3.8l2.5 5.1 5.6.8-4 3.9.9 5.6-5-2.6-5 2.6.9-5.6-4-3.9 5.6-.8z"/></svg>',
+    trash: '<svg viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V4.8h5V7"/><path d="M6 7l1 12.2A1.5 1.5 0 0 0 8.5 20.6h7a1.5 1.5 0 0 0 1.5-1.4L18 7"/><path d="M10 11v6M14 11v6"/></svg>',
+    add: '<svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.2 1.2"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.2-1.2"/></svg>',
+    scan: '<svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg>',
+    set: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
+    log: '<svg viewBox="0 0 24 24"><path d="M7 3.5h7l4 4V20a.5.5 0 0 1-.5.5h-10A.5.5 0 0 1 7 20z"/><path d="M14 3.5V8h4M10 12h5M10 15.5h5"/></svg>',
+    setinfo: '<svg viewBox="0 0 24 24"><path d="M8 4v12M4.5 12.5L8 16l3.5-3.5"/><path d="M16 20V8M12.5 11.5L16 8l3.5 3.5"/></svg>',
+    changelog: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
+  };
   const IC = {
     gear: SVG('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'),
     sun: SVG('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'),
@@ -2103,22 +2126,22 @@
   const root = document.createElement('div'); root.id = 'ppdup';
   root.innerHTML = `
     <aside class="rail" data-r="rail">
-      <button data-a="toflow" data-rail="flow" title="整理（1〜7のステップ）"><svg viewBox="0 0 24 24"><path d="M4 6h10M4 12h16M4 18h7" /><circle cx="18" cy="6" r="2"/><circle cx="15" cy="18" r="2"/></svg><span>整理</span></button>
-      <button data-a="tree" data-rail="tree" title="フォルダ一覧（Finder やエクスプローラーのように、フォルダを開いて中身を見られます）"><svg viewBox="0 0 24 24"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/><path d="M7 11h10M7 15h6"/></svg><span>フォルダ​一覧</span></button>
-      <button data-a="lib" data-v="dl" data-rail="lib-dl" title="追加したもの（リンク・マグネットで追加した作品の保存状況とダウンロードの進み具合）"><svg viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 7.97"/><path d="M12 11v9M8.8 17l3.2 3 3.2-3"/></svg><span>追加したもの</span><i class="rb" data-r="rb-dl"></i></button>
-      <button data-a="lib" data-v="recent" data-rail="lib-recent" title="最近追加したもの（追加日の新しい順）"><svg viewBox="0 0 24 24"><circle cx="11" cy="12" r="7.5"/><path d="M11 8v4.2l2.6 1.6"/><path d="M19.5 3.5v4M17.5 5.5h4"/></svg><span>最近の追加</span><i class="rb" data-r="rb-recent"></i></button>
-      <button data-a="lib" data-v="cont" data-rail="lib-cont" title="続きを見る（途中で止めた動画）"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M10 8.5v5l4-2.5z"/><path d="M3 20.5h11" stroke-width="2.4"/></svg><span>続きを見る</span></button>
-      <button data-a="lib" data-v="cand" data-rail="lib-cand" title="消す候補（見ながら仕分けで D を付けたもの）"><svg viewBox="0 0 24 24"><path d="M5 7h14M9.5 7V5h5v2"/><path d="M7 7l.8 12.2A1.5 1.5 0 0 0 9.3 20.6h5.4a1.5 1.5 0 0 0 1.5-1.4L17 7"/><path d="M10 11.5l4 4M14 11.5l-4 4"/></svg><span>消す候補</span><i class="rb" data-r="rb-cand"></i></button>
-      <button data-a="lib" data-v="hist" data-rail="lib-hist" title="再生した履歴"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/><path d="M10.5 9.2v5.6l4.4-2.8z"/></svg><span>再生履歴</span><i class="rb" data-r="rb-hist"></i></button>
-      <button data-a="lib" data-v="star" data-rail="lib-star" title="スター付き"><svg viewBox="0 0 24 24"><path d="M12 3.8l2.5 5.1 5.6.8-4 3.9.9 5.6-5-2.6-5 2.6.9-5.6-4-3.9 5.6-.8z"/></svg><span>スター</span><i class="rb" data-r="rb-star"></i></button>
-      <button data-a="lib" data-v="trash" data-rail="lib-trash" title="ゴミ箱（中身を見る・元に戻す・完全に削除）"><svg viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V4.8h5V7"/><path d="M6 7l1 12.2A1.5 1.5 0 0 0 8.5 20.6h7a1.5 1.5 0 0 0 1.5-1.4L18 7"/><path d="M10 11v6M14 11v6"/></svg><span>ゴミ箱</span><i class="rb" data-r="rb-trash"></i></button>
-      <button data-a="addlink" data-rail="add" title="リンク・マグネットを追加"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.2 1.2"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.2-1.2"/></svg><span>リンク</span></button>
-      <button data-a="rescan" data-rail="scan" title="最新の状態を読み込み直す"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg><span>再読み込み</span></button>
-      <button data-a="settings" data-rail="set" title="設定（表示・再生・整理・情報）"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>設定</span></button>
+      <button data-a="toflow" data-rail="flow" title="整理（1〜7のステップ）">${RAIL_IC.flow}<span>整理</span></button>
+      <button data-a="tree" data-rail="tree" title="フォルダ一覧（Finder やエクスプローラーのように、フォルダを開いて中身を見られます）">${RAIL_IC.tree}<span>フォルダ​一覧</span></button>
+      <button data-a="lib" data-v="dl" data-rail="lib-dl" title="追加したもの（リンク・マグネットで追加した作品の保存状況とダウンロードの進み具合）">${RAIL_IC.dl}<span>追加したもの</span><i class="rb" data-r="rb-dl"></i></button>
+      <button data-a="lib" data-v="recent" data-rail="lib-recent" title="最近追加したもの（追加日の新しい順）">${RAIL_IC.recent}<span>最近の追加</span><i class="rb" data-r="rb-recent"></i></button>
+      <button data-a="lib" data-v="cont" data-rail="lib-cont" title="続きを見る（途中で止めた動画）">${RAIL_IC.cont}<span>続きを見る</span></button>
+      <button data-a="lib" data-v="cand" data-rail="lib-cand" title="消す候補（見ながら仕分けで D を付けたもの）">${RAIL_IC.cand}<span>消す候補</span><i class="rb" data-r="rb-cand"></i></button>
+      <button data-a="lib" data-v="hist" data-rail="lib-hist" title="再生した履歴">${RAIL_IC.hist}<span>再生履歴</span><i class="rb" data-r="rb-hist"></i></button>
+      <button data-a="lib" data-v="star" data-rail="lib-star" title="スター付き">${RAIL_IC.star}<span>スター</span><i class="rb" data-r="rb-star"></i></button>
+      <button data-a="lib" data-v="trash" data-rail="lib-trash" title="ゴミ箱（中身を見る・元に戻す・完全に削除）">${RAIL_IC.trash}<span>ゴミ箱</span><i class="rb" data-r="rb-trash"></i></button>
+      <button data-a="addlink" data-rail="add" title="リンク・マグネットを追加">${RAIL_IC.add}<span>リンク</span></button>
+      <button data-a="rescan" data-rail="scan" title="最新の状態を読み込み直す">${RAIL_IC.scan}<span>再読み込み</span></button>
+      <button data-a="settings" data-rail="set" title="設定（表示・再生・整理・情報）">${RAIL_IC.set}<span>設定</span></button>
       <div class="rl-sep"></div>
-      <button class="rl-sub" data-a="log" title="ログを見る・不具合を報告する"><svg viewBox="0 0 24 24"><path d="M7 3.5h7l4 4V20a.5.5 0 0 1-.5.5h-10A.5.5 0 0 1 7 20z"/><path d="M14 3.5V8h4M10 12h5M10 15.5h5"/></svg><span>ログ・不具合の報告</span></button>
-      <button class="rl-sub" data-a="setinfo" title="設定や記録を書き出す・読み込む"><svg viewBox="0 0 24 24"><path d="M8 4v12M4.5 12.5L8 16l3.5-3.5"/><path d="M16 20V8M12.5 11.5L16 8l3.5 3.5"/></svg><span>書き出し／読み込み</span></button>
-      <button class="rl-sub" data-a="changelog" title="更新履歴（いまは v${VER}）"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><span>更新履歴（v${VER}）</span></button>
+      <button class="rl-sub" data-a="log" title="ログを見る・不具合を報告する">${RAIL_IC.log}<span>ログ・不具合の報告</span></button>
+      <button class="rl-sub" data-a="setinfo" title="設定や記録を書き出す・読み込む">${RAIL_IC.setinfo}<span>書き出し／読み込み</span></button>
+      <button class="rl-sub" data-a="changelog" title="更新履歴（いまは v${VER}）">${RAIL_IC.changelog}<span>更新履歴（v${VER}）</span></button>
       <button class="rl-acct" data-a="acct" data-r="acct" title="PikPak のログイン状態と同期"></button>
     </aside>
     <header>
@@ -2380,12 +2403,11 @@
   function showLog() {
     const logs = readLog().slice().reverse();
     const text = () => `PikPak Distill ${VER} / ${navigator.userAgent}\n` + readLog().map((x) => `${fmtDate(x.t, 'full')} [${x.level}] ${x.msg}${x.ctx ? ' | ' + x.ctx : ''}${x.v ? ' (v' + x.v + ')' : ''}`).join('\n');
-    const d = document.createElement('div'); d.id = 'pd-dlg';
+    const d = mkEl('pd-dlg');
     d.innerHTML = `<div class="box" style="width:min(820px,94vw)"><h3>ログ（新しい順・最新300件）</h3>
       <div class="note">エラーや主な処理の記録です。このブラウザの中にだけ保存されます（ログイン情報は記録しません）。不具合の報告にはコピーして貼り付けてください。</div>
       <div class="logs">${logs.map((x) => `<div class="${x.level}">${esc(fmtDate(x.t, 'full'))} [${esc(x.level)}] ${esc(x.msg)}${x.ctx ? ' <span style="opacity:.7">| ' + esc(x.ctx) + '</span>' : ''}</div>`).join('') || '記録はありません'}</div>
       <div class="acts"><button data-clear>消去</button><button data-save>テキスト保存</button><button data-copy>コピー</button><button data-close class="danger" style="background:#306fff;border-color:#306fff">閉じる</button></div></div>`;
-    document.body.appendChild(d);
     lsSet(LS_LOGSEEN, String(Date.now()));
     updateLogBadge();
     d.querySelector('[data-close]').onclick = () => d.remove();
@@ -2401,7 +2423,7 @@
     const where = (meta && meta.where) || crumbs().map((c) => c.name).filter(Boolean).join(' › ') || 'ホーム';
     let st = null; try { st = (JSON.parse(localStorage.getItem(LS_SCANSTAT) || '{}') || {})[String(currentTrail().slice(-1)[0] || 'root')]; } catch (e) { st = null; }
     const when = meta ? fmtDate(meta.at) : '';
-    const d = document.createElement('div'); d.id = 'pd-dlg';
+    const d = mkEl('pd-dlg');
     d.innerHTML = `<div class="box" role="dialog" aria-label="再読み込み"><h3>PikPak の中身を読み込み直しますか？</h3>
       <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px">
         <div>📁 読み込む場所：<b>${esc(where)}</b></div>
@@ -2410,7 +2432,6 @@
       </div>
       <div class="note" style="margin-bottom:16px">PikPak で追加・削除・移動したものを反映します。<b>読み込み中は、移動・削除・名前の変更などの操作ができません</b>（途中で「中断」できます）。ファイルは何も変更しません。</div>
       <div class="acts"><button data-no>やめる</button><button data-go style="background:#306fff;border-color:#306fff;color:#fff;font-weight:700">読み込みを始める</button></div></div>`;
-    document.body.appendChild(d);
     const close = () => { d.remove(); document.removeEventListener('keydown', onKey, true); };
     const onKey = (e) => { if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); close(); } };
     document.addEventListener('keydown', onKey, true);
@@ -3273,7 +3294,7 @@
   // skipped: 全件にチェックが入っている組 [{name, items}]。「強制削除」にチェックしたときだけ、それらも削除する
   function askDelete(list, skipped) {
     return new Promise((resolve) => {
-      const d = document.createElement('div'); d.id = 'pd-dlg';
+      const d = mkEl('pd-dlg');
       const sItems = skipped.flatMap((g) => g.items || []);
       const sum = (a) => a.reduce((x, f) => x + f.size, 0);
       const title = (force) => (force ? list.length + sItems.length : list.length) + ' 件を削除します（' + fmt(sum(list) + (force ? sum(sItems) : 0)) + '）';
@@ -3283,7 +3304,6 @@
         <label class="hard" style="margin:10px 0 0"><input type="checkbox" data-force> 強制削除：全件にチェックが入っている組も、すべて削除する（広告ファイルなど）</label>` : ''}
         <label class="hard"><input type="checkbox" data-hard> ゴミ箱を経由せず完全に削除する（元に戻せません）</label>
         <div class="acts"><button data-no>キャンセル</button><button class="danger" data-yes${list.length ? '' : ' disabled'}>削除する</button></div></div>`;
-      document.body.appendChild(d);
       const fc = d.querySelector('[data-force]'), yes = d.querySelector('[data-yes]');
       if (fc) fc.onchange = () => { d.querySelector('[data-title]').textContent = title(fc.checked); yes.disabled = !list.length && !fc.checked; yes.textContent = fc.checked ? '強制削除する' : '削除する'; };
       const done = (v) => { d.remove(); resolve(v); };
@@ -3626,14 +3646,13 @@
     return new Promise((resolve) => {
       const cur = p.seller || {};
       const fc2 = p.keys.some((k) => k.kind === 'fc2');
-      const d = document.createElement('div'); d.id = 'pd-dlg';
+      const d = mkEl('pd-dlg');
       d.innerHTML = `<div class="box" style="width:min(520px,94vw)"><h3>販売者を入力</h3>
         <div class="note raw" style="margin-bottom:8px">${esc(p.name)}</div>
         <label style="display:block;margin:8px 0 4px">${fc2 ? '販売者名' : '販売者名（配信元。例：カリビアンコム）'}</label><input type="text" data-sn value="${esc(cur.name || '')}" style="width:100%;box-sizing:border-box;font:inherit;padding:6px 10px;border:1px solid #c5c9d2;border-radius:8px">
         <label style="display:block;margin:10px 0 4px">${fc2 ? '販売者ID（FC2 の販売者ページ adult.contents.fc2.com/users/〇〇/ の 〇〇）' : '販売者ID（英数字。例：carib）'}</label><input type="text" data-si value="${esc(cur.sid || '')}" style="width:100%;box-sizing:border-box;font:inherit;padding:6px 10px;border:1px solid #c5c9d2;border-radius:8px">
         <div class="note" style="margin-top:8px">既に同じ ID のフォルダがあれば、そこへ入れます。入力した内容は調べた結果より優先します。</div>
         <div class="acts" style="margin-top:14px">${p.seller ? '<button data-clear>入力を消す</button>' : ''}<span style="flex:1"></span><button data-no>キャンセル</button><button class="danger" data-yes style="background:#306fff;border-color:#306fff">保存</button></div></div>`;
-      document.body.appendChild(d);
       const done = (v) => { d.remove(); resolve(v); };
       d.querySelector('[data-no]').onclick = () => done(null);
       const c = d.querySelector('[data-clear]'); if (c) c.onclick = () => done({ clear: true });
@@ -4204,7 +4223,7 @@
   function showQL() {
     const r = treeRowsCache.find((x) => x.id === treeCur); if (!r) return closeQL();
     let d = document.getElementById('pd-ql');
-    if (!d) { d = document.createElement('div'); d.id = 'pd-ql'; document.body.appendChild(d); d.addEventListener('click', (e) => { if (e.target === d || e.target.closest('[data-qlclose]')) closeQL(); }); }
+    if (!d) { d = mkEl('pd-ql'); d.addEventListener('click', (e) => { if (e.target === d || e.target.closest('[data-qlclose]')) closeQL(); }); }
     else { plStop('ql'); unloadMedia(d); } // 次・前のファイルへ移るときは、前の動画とシークバー用の影の動画を片付ける
     qlRun++;
     qlOpen = true;
@@ -4374,7 +4393,7 @@
   // 移動先を選ぶ画面
   function askMoveTarget(ids) {
     return new Promise((resolve) => {
-      const d = document.createElement('div'); d.id = 'pd-dlg';
+      const d = mkEl('pd-dlg');
       const topId = upKnown() ? HOME : treeIdx.rootId;
       const list = [{ id: topId, name: dirLabel(topId) || treeIdx.rootName, depth: 0 }];
       const walk = (pid, depth) => (treeIdx.kd.get(pid) || []).slice().sort((a, b) => a.name.localeCompare(b.name, 'ja', { numeric: true })).forEach((f) => { list.push({ id: f.id, name: f.name, depth }); walk(f.id, depth + 1); });
@@ -4391,7 +4410,6 @@
         <input type="text" data-mvq placeholder="🔍 フォルダ名で絞り込み" style="width:100%;box-sizing:border-box;font:inherit;padding:6px 10px;border:1px solid #c5c9d2;border-radius:8px">
         <div class="mv"></div><div class="note">同じ名前のものが移動先にある場合は (1) を付けて移動します。グレーのフォルダ（移動するフォルダ自身とその中）へは移動できません。</div>
         <div class="acts" style="margin-top:12px"><button data-no>キャンセル</button><button class="danger" data-yes disabled style="background:#306fff;border-color:#306fff">ここへ移動</button></div></div>`;
-      document.body.appendChild(d);
       draw('');
       const done = (v) => { d.remove(); resolve(v); };
       d.querySelector('[data-mvq]').oninput = (e) => draw(e.target.value);
@@ -4742,7 +4760,7 @@
     setTab = tab || 'all';
     let d = document.getElementById('pd-set');
     if (!d) {
-      d = document.createElement('div'); d.id = 'pd-set'; document.body.appendChild(d);
+      d = mkEl('pd-set');
       d.addEventListener('mousedown', (e) => { if (e.target === d) closeSettings(); });
       d.addEventListener('click', onSettingsClick);
       d.addEventListener('change', onSettingsChange);
@@ -4952,7 +4970,7 @@
     closeQL(); closePlayer(); closeCompare(); closeCtx();
     const run = ++cmpRun;
     const F = ids.map((id) => fileById(id) || { id, name: (mediaGet(id) || {}).name || id, size: (mediaGet(id) || {}).size || 0 });
-    const d = document.createElement('div'); d.id = 'pd-cmp'; document.body.appendChild(d);
+    const d = mkEl('pd-cmp');
     const st = { link: true, audio: 0, busy: false };
     const pane = (f, i) => `<div class="cm-p" data-cmi="${i}"><div class="cm-ph"><span class="cm-tag">${i ? '右' : '左'}</span><b title="${esc(f.name)}">${esc(f.name)}</b></div><div class="cm-b"><div class="pl-msg">再生の準備中…</div></div><div class="cm-pf"><span class="cm-inf">${fmt(f.size)}<span data-cminf="${i}"></span></span><span class="sp"></span><button class="cm-keep" data-cmkeep="${i}" title="こちらを残して、もう片方を「削除する」にする（重複の判断に記録）">こちらを残す</button></div></div>`;
     d.innerHTML = `<div class="cm"><div class="cm-h"><b>見比べ</b><span class="note">2 本をいっしょに再生</span><span class="sp"></span>
@@ -5075,7 +5093,7 @@
     let d = document.getElementById('pd-player');
     if (d) unloadMedia(d);
     if (!d) {
-      d = document.createElement('div'); d.id = 'pd-player'; document.body.appendChild(d);
+      d = mkEl('pd-player');
       d.addEventListener('click', (e) => { if (e.target === d || e.target.closest('[data-pl=close]')) closePlayer(); });
     }
     const vids = treeRowsCache.filter(isVideoRow);
@@ -6001,7 +6019,7 @@
     const run = ++framesRun;
     let n = 16; try { n = +localStorage.getItem(LS_FRAMES) || 16; } catch (e) { /* 無視 */ }
     if (![9, 16, 25].includes(n)) n = 16;
-    const d = document.createElement('div'); d.id = 'pd-frames'; document.body.appendChild(d);
+    const d = mkEl('pd-frames');
     const kept = (id) => { if (view !== 'dup') return ''; const g = visibleGroups().find((x) => x.items.some((f) => f.id === id)); if (!g) return ''; const i = g.items.findIndex((f) => f.id === id); return stateOf(g.items[i], i) === 'del' ? 'del' : 'keep'; };
     d.innerHTML = `<div class="fr-box" role="dialog" aria-label="コマ一覧"><div class="fr-hd"><b>コマ一覧</b><span class="note">${ids.length > 1 ? '同じ位置のコマを左右に並べています' : ''}</span><span class="sp"></span><span class="seg">${[9, 16, 25].map((k) => `<button data-frn="${k}" class="${k === n ? 'on' : ''}">${k} コマ</button>`).join('')}</span><button class="x" data-frclose title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
       <div class="fr-cols" style="grid-template-columns:repeat(${ids.length},minmax(0,1fr))">${ids.map((id) => { const f = fileById(id), k = kept(id); return `<div class="fr-col" data-frid="${esc(id)}"><div class="fr-meta">${k ? `<span class="fr-tag ${k}">${k === 'keep' ? '残す' : '削除'}</span>` : ''}<b title="${esc(f.name)}">${esc(f.name)}</b><span class="note raw" data-frinfo>${fmt(f.size)}</span></div><div class="fr-grid" style="grid-template-columns:repeat(${Math.sqrt(n)},1fr)">${Array.from({ length: n }, (_, i) => `<button class="fr-c" data-fri="${i}"><span class="t"></span></button>`).join('')}</div><div class="fr-msg note" data-frmsg>動画を読み込んでいます…</div><div class="fr-acts"><button data-frplay disabled>▶ 選んだコマから再生</button><button data-frsave disabled>画像で保存</button></div></div>`; }).join('')}</div>
@@ -6122,7 +6140,7 @@
     if (row) { row.scrollIntoView({ block: 'center' }); flash(row); }
     const t = $('[data-r=tree]'); if (t) t.focus({ preventScroll: true });
   }
-  const LIB_IC = { cand: '<svg viewBox="0 0 24 24"><path d="M5 7h14M9.5 7V5h5v2"/><path d="M7 7l.8 12.2A1.5 1.5 0 0 0 9.3 20.6h5.4a1.5 1.5 0 0 0 1.5-1.4L17 7"/><path d="M10 11.5l4 4M14 11.5l-4 4"/></svg>', cont: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M10 8.5v5l4-2.5z"/><path d="M3 20.5h11" stroke-width="2.4"/></svg>', dl: '<svg viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 7.97"/><path d="M12 11v9M8.8 17l3.2 3 3.2-3"/></svg>', recent: '<svg viewBox="0 0 24 24"><circle cx="11" cy="12" r="7.5"/><path d="M11 8v4.2l2.6 1.6"/><path d="M19.5 3.5v4M17.5 5.5h4"/></svg>', hist: '<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/><path d="M10.5 9.2v5.6l4.4-2.8z"/></svg>', star: '<svg viewBox="0 0 24 24"><path d="M12 3.8l2.5 5.1 5.6.8-4 3.9.9 5.6-5-2.6-5 2.6.9-5.6-4-3.9 5.6-.8z"/></svg>', trash: '<svg viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V4.8h5V7"/><path d="M6 7l1 12.2A1.5 1.5 0 0 0 8.5 20.6h7a1.5 1.5 0 0 0 1.5-1.4L18 7"/><path d="M10 11v6M14 11v6"/></svg>' };
+  const LIB_IC = { cand: RAIL_IC.cand, cont: RAIL_IC.cont, dl: RAIL_IC.dl, recent: RAIL_IC.recent, hist: RAIL_IC.hist, star: RAIL_IC.star, trash: RAIL_IC.trash };
   // ---------- 左メニュー：ダウンロード中・最近追加したもの・再生した履歴・スター付き・ゴミ箱 ----------
   // ---- 追加したもの：Dedupe でリンクを追加したときの記録（このブラウザに保存）と、PikPak のダウンロードタスクを合わせて見せる ----
   const LS_ADDLOG = 'ppdup:addlog:v1';
@@ -6531,13 +6549,12 @@
       const gs = Object.keys(EXPORT_GROUPS).filter((g) => EXPORT_GROUPS[g].keys.some((k) => k in src));
       if (!gs.length) { status('読み込める項目がありませんでした'); return; }
       closeSettings();
-      const d = document.createElement('div'); d.id = 'pd-dlg';
+      const d = mkEl('pd-dlg');
       d.innerHTML = `<div class="box" style="width:min(520px,94vw)"><h3>読み込む内容</h3><div class="note">${esc(f.name)}（v${esc(j.ver || '?')}・${esc(String(j.at || '').slice(0, 10))}）</div>
         <div style="margin:12px 0;display:flex;flex-direction:column;gap:6px">${gs.map((g) => `<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" data-ig="${g}" checked> <span>${esc(EXPORT_GROUPS[g].label)}：${groupCount(g, src)} 件${EXPORT_GROUPS[g].merge ? `（今は ${groupCount(g)} 件）` : ''}</span></label>`).join('')}</div>
         <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px"><label><input type="radio" name="pdim" value="merge" checked> 今のものに足す（同じものは読み込んだ方を優先）</label><label><input type="radio" name="pdim" value="replace"> 置き換える</label></div>
         <div class="note">読み込んだあと、画面を読み込み直して反映します。</div>
         <div class="acts" style="margin-top:14px"><button data-no>キャンセル</button><button class="danger" data-yes style="background:#306fff;border-color:#306fff">読み込む</button></div></div>`;
-      document.body.appendChild(d);
       if (LANG === 'en') d.querySelectorAll('*').forEach(trNode);
       d.querySelector('[data-no]').onclick = () => d.remove();
       d.querySelector('[data-yes]').onclick = () => {
@@ -6606,11 +6623,10 @@
   }
   // Thunder 方式のハッシュ（PikPak のファイル作成に必要）
   async function gcidOf(buf) {
-    const sha = async (b) => new Uint8Array(await crypto.subtle.digest('SHA-1', b));
     let ps = 0x40000; while (buf.length / ps > 0x200 && ps < 0x200000) ps <<= 1;
-    const parts = []; for (let i = 0; i < buf.length || i === 0; i += ps) { parts.push(await sha(buf.subarray(i, i + ps))); if (!buf.length) break; }
+    const parts = []; for (let i = 0; i < buf.length || i === 0; i += ps) { parts.push(await sha1(buf.subarray(i, i + ps))); if (!buf.length) break; }
     const all = new Uint8Array(parts.length * 20); parts.forEach((p, i) => all.set(p, i * 20));
-    return [...await sha(all)].map((x) => x.toString(16).padStart(2, '0')).join('').toUpperCase();
+    return hexOf(await sha1(all)).toUpperCase();
   }
   async function syncFolder() {
     const home = await apiList('');
@@ -6689,12 +6705,11 @@
   // 初めて開いたときに一度だけ聞く
   function syncAsk() {
     if (syncCfg().asked || document.getElementById('pd-dlg') || !sessionValid()) return;
-    const d = document.createElement('div'); d.id = 'pd-dlg';
+    const d = mkEl('pd-dlg');
     d.innerHTML = `<div class="box" style="width:min(520px,94vw)"><h3>調査結果と設定を PikPak で同期しますか？</h3>
       <div style="line-height:1.8">販売者の調査結果・重複の判断・設定を、PikPak のホームに作る「${esc(SYNC_DIR)}」フォルダに保存します。<b>ほかのブラウザやアプリでも、同じ PikPak にログインするだけで同じ内容を使えます。</b></div>
       <div class="note" style="margin:10px 0 16px">ログイン情報は保存しません。あとから「設定」→「情報」で切り替えられます。</div>
       <div class="acts"><button data-no>同期しない</button><button class="danger" data-yes style="background:#306fff;border-color:#306fff">同期する</button></div></div>`;
-    document.body.appendChild(d);
     if (LANG === 'en') d.querySelectorAll('*').forEach(trNode);
     d.querySelector('[data-no]').onclick = () => { saveSyncCfg({ asked: true, on: false }); d.remove(); };
     d.querySelector('[data-yes]').onclick = () => { saveSyncCfg({ asked: true, on: true }); d.remove(); syncNow('はじめて'); };
@@ -6821,7 +6836,7 @@
     uzSt = { trash: true, busy: false, items: list.map((r) => ({ id: r.id, name: r.name, size: r.size, parentId: r.parentId, path: r.path || fullPath(r.parentId), st: 'new', on: false, pw: '', gcid: '' })) };
     let d = document.getElementById('pd-unzip');
     if (!d) {
-      d = document.createElement('div'); d.id = 'pd-unzip'; document.body.appendChild(d);
+      d = mkEl('pd-unzip');
       d.addEventListener('mousedown', (e) => { if (e.target === d && !uzSt.busy) closeUnzip(); });
       d.addEventListener('click', (e) => {
         const b = e.target.closest('button'); if (!b || b.disabled) return;
@@ -6961,10 +6976,10 @@
       const klen = num(0x3a); const key = new TextDecoder().decode(b.slice(i, i + klen)); i += klen;
       if (key === 'info') {
         const st = i; skip(); const en = i;
-        const h = new Uint8Array(await crypto.subtle.digest('SHA-1', b.slice(st, en)));
+        const h = await sha1(b.slice(st, en));
         // info の中の name（表示用）
         try { const t = new TextDecoder().decode(b.slice(st, en)); const m = t.match(/4:name(\d+):/); if (m) { const p = t.indexOf(m[0]) + m[0].length; name = t.slice(p, p + +m[1]); } } catch (e) { /* 無視 */ }
-        const hex = [...h].map((x) => x.toString(16).padStart(2, '0')).join('');
+        const hex = hexOf(h);
         return `magnet:?xt=urn:btih:${hex}${name ? '&dn=' + encodeURIComponent(name) : ''}`;
       }
       skip();
@@ -7095,7 +7110,7 @@
     addSt = { pid: pid || 'DL', text, items: [], busy: false, msg: '' };
     let d = document.getElementById('pd-add');
     if (!d) {
-      d = document.createElement('div'); d.id = 'pd-add'; document.body.appendChild(d);
+      d = mkEl('pd-add');
       d.addEventListener('mousedown', (e) => { if (e.target === d && !addSt.busy) closeAdd(); });
       d.addEventListener('click', onAddClick);
       d.addEventListener('change', onAddChange);

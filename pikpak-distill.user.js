@@ -1142,8 +1142,11 @@
   .qp-note button{font:inherit;font-weight:700;padding:3px 10px;border-radius:7px;border:0;background:#306fff;color:#fff;cursor:pointer}
   .qp-hold{position:absolute;left:50%;top:16px;transform:translateX(-50%);padding:6px 16px;border-radius:999px;background:#000b;color:#fff;font:700 15px system-ui,sans-serif;pointer-events:none;z-index:5}
   .qp-hold[hidden]{display:none}
-  .qp-ctl button[data-qp=ab].on{background:#f5a624;color:#111}
-  .qp-ctl button[data-qp=scene].on{background:#306fff;color:#fff}
+  .qp-ctl button[data-qp=ab].on{background:#f5a624!important;color:#111!important}
+  .qp-ctl button[data-qp=scene].on{background:#306fff!important}
+  .qp-ctl button[data-qp=sklist]{background:#f5a62433!important;color:#f5c46a!important;font-size:12px}
+  .qp-ctl button[data-qp=sklist][hidden]{display:none}
+  .qp-ctl button[data-qp=gear] svg{display:block}
   .pd-sk > .sktr i.skt{width:2px;background:#ffffffb0;z-index:3}
   .qp-scn{position:absolute;right:0;top:0;bottom:0;width:min(210px,40%);display:flex;flex-direction:column;background:#0d0f14e6;border-left:1px solid #ffffff1a;z-index:6;cursor:default;font:12px system-ui,sans-serif;color:#dfe2ea}
   .qp-scn-h{display:flex;align-items:center;gap:8px;padding:8px 10px;flex:none}
@@ -4844,7 +4847,7 @@
   };
   const qpSelect = (k, attr) => { const c = qpCfg(), [, vals, lab] = QP_OPTS[k]; return `<select ${attr} data-k="${k}">${vals.map((v) => `<option value="${v}"${c[k] === v ? ' selected' : ''}>${esc(lab(v))}</option>`).join('')}</select>`; };
   const qpVal = (k, s) => { const v = QP_OPTS[k][1].find((x) => String(x) === s); return v === undefined ? QP_DEF[k] : v; };
-  const QP_IC = { play: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M4 2.5v11l9-5.5z" fill="currentColor"/></svg>', pause: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M4 2.5h3v11H4zM9 2.5h3v11H9z" fill="currentColor"/></svg>' };
+  const QP_IC = { gear: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>', play: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M4 2.5v11l9-5.5z" fill="currentColor"/></svg>', pause: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M4 2.5h3v11H4zM9 2.5h3v11H9z" fill="currentColor"/></svg>' };
   let qpActive = null;
   function qpSetActive(P) {
     if (qpActive === P) return;
@@ -4950,6 +4953,7 @@
       const d = v.duration; if (!d || !isFinite(d)) return;
       mk.skips().forEach(([a, b]) => tr.insertAdjacentHTML('beforeend', `<i class="skz" style="left:${a / d * 100}%;width:${Math.max(0.4, (b - a) / d * 100)}%"></i>`));
       if (P.markA != null) tr.insertAdjacentHTML('beforeend', `<i class="ska" style="left:${P.markA / d * 100}%"></i>`);
+      const sl = ui.querySelector('[data-qp=sklist]'); if (sl) { const n = mk.skips().length; sl.hidden = !n; sl.textContent = `区間 ${n}`; }
       const ab = ui.querySelector('[data-qp=ab]'); if (ab) { ab.textContent = P.markA != null ? '✂ B（終わり）' : '✂ A–B'; ab.classList.toggle('on', P.markA != null); }
     };
     P.mark = (which) => {
@@ -5032,11 +5036,12 @@
     // ---- 操作バー ----
     const jl = qpCfg().jl;
     const ctl = document.createElement('div'); ctl.className = 'qp-ctl';
-    ctl.innerHTML = `${opt.prev ? '<button data-qp="prev" title="前の動画（P）">⏮</button>' : ''}<button data-qp="play" title="再生・一時停止（Space / K）">⏸</button>${opt.next ? '<button data-qp="next" title="次の動画（N）">⏭</button>' : ''}<button data-qp="back" title="戻る（J）">-${jl}</button><button data-qp="fwd" title="進む（L）">+${jl}</button><span class="qp-t" data-qp="time">00:00 / 00:00</span><span class="qp-sp"></span><button data-qp="mute" title="消音（M）">🔊</button><input type="range" data-qp="vol" min="0" max="100" value="${Math.round(v.volume * 100)}" aria-label="音量">${rateSelect()}${opt.src ? '<button data-qp="scene" title="シーン（G）">▦ シーン</button>' : ''}${opt.media ? '<button data-qp="ab" title="飛ばす区間（A で始め・B で終わり。⚙ で消せます）">✂ A–B</button>' : ''}<button data-qp="zoom" title="ズーム（ホイール・ピンチ・Z / X、押すと 100% に戻す）">🔍 100%</button><button data-qp="gear" title="簡易プレーヤーの設定" aria-label="設定">⚙</button><button data-qp="full" title="全画面（F）">⛶</button><div class="qp-set" hidden></div>`;
+    ctl.innerHTML = `${opt.prev ? '<button data-qp="prev" title="前の動画（P）">⏮</button>' : ''}<button data-qp="play" title="再生・一時停止（Space / K）">⏸</button>${opt.next ? '<button data-qp="next" title="次の動画（N）">⏭</button>' : ''}<button data-qp="back" title="戻る（J）">-${jl}</button><button data-qp="fwd" title="進む（L）">+${jl}</button><span class="qp-t" data-qp="time">00:00 / 00:00</span><span class="qp-sp"></span><button data-qp="mute" title="消音（M）">🔊</button><input type="range" data-qp="vol" min="0" max="100" value="${Math.round(v.volume * 100)}" aria-label="音量">${rateSelect()}${opt.src ? '<button data-qp="scene" title="シーン（G）">▦ シーン</button>' : ''}${opt.media ? '<button data-qp="ab" title="飛ばす区間（A で始め・B で終わり）">✂ A–B</button><button data-qp="sklist" title="この動画の飛ばす区間の一覧（消すのもここから）" hidden></button>' : ''}<button data-qp="zoom" title="ズーム（ホイール・ピンチ・Z / X、押すと 100% に戻す）">🔍 100%</button><button data-qp="gear" title="簡易プレーヤーの設定・飛ばす区間の一覧" aria-label="設定">${QP_IC.gear}</button><button data-qp="full" title="全画面（F）">⛶</button><div class="qp-set" hidden></div>`;
     ui.appendChild(ctl);
     const q = (k) => ctl.querySelector(`[data-qp=${k}]`), setPanel = ctl.querySelector('.qp-set');
     const syncUi = () => {
-      q('play').innerHTML = v.paused ? QP_IC.play : QP_IC.pause;
+      // timeupdate のたびに中身を作り直すと、押している最中にボタンの中身が入れ替わってクリックが無効になる
+      const pb = q('play'), ps = v.paused ? 'play' : 'pause'; if (pb.dataset.st !== ps) { pb.dataset.st = ps; pb.innerHTML = QP_IC[ps]; }
       q('time').textContent = `${fmtT(v.currentTime || 0)} / ${fmtT(v.duration || 0)}`;
       q('mute').textContent = v.muted || !v.volume ? '🔇' : '🔊';
       const r = q('vol'); if (document.activeElement !== r) r.value = v.muted ? 0 : Math.round(v.volume * 100);
@@ -5044,7 +5049,7 @@
     ['play', 'pause', 'timeupdate', 'durationchange', 'volumechange', 'loadedmetadata'].forEach((ev) => v.addEventListener(ev, syncUi));
     const renderSet = () => {
       const sk = mk ? mk.skips() : [];
-      setPanel.innerHTML = `<b>簡易プレーヤーの設定</b>${Object.keys(QP_OPTS).map((k) => `<label><span>${esc(QP_OPTS[k][0])}</span>${qpSelect(k, 'data-qpset')}</label>`).join('')}${mk ? `<b style="margin-top:6px">この動画の飛ばす区間</b>${sk.length ? sk.map(([a, b], i) => `<label><span>${fmtT(a)} – ${fmtT(b)}</span><button data-qp="skdel" data-i="${i}" title="この区間を消す">✕ 消す</button></label>`).join('') : '<small>ありません（A・B キーか ✂ で作れます）</small>'}` : ''}<small>右上の ⚙ 設定 →「再生」にも同じ項目があります</small>`;
+      setPanel.innerHTML = `<b>簡易プレーヤーの設定</b>${Object.keys(QP_OPTS).map((k) => `<label><span>${esc(QP_OPTS[k][0])}</span>${qpSelect(k, 'data-qpset')}</label>`).join('')}${mk ? `<b style="margin-top:6px" data-sk>この動画の飛ばす区間</b>${sk.length ? sk.map(([a, b], i) => `<label><span>${fmtT(a)} – ${fmtT(b)}</span><button data-qp="skdel" data-i="${i}" title="この区間を消す">✕ 消す</button></label>`).join('') : '<small>ありません（A・B キーか ✂ で作れます）</small>'}` : ''}<small>右上の ⚙ 設定 →「再生」にも同じ項目があります</small>`;
     };
     ctl.addEventListener('click', (e) => {
       const b = e.target.closest('button[data-qp]'); if (!b) return;
@@ -5055,6 +5060,7 @@
       else if (k === 'zoom') P.zoomReset(); else if (k === 'full') P.full();
       else if (k === 'ab') P.mark();
       else if (k === 'scene') P.scenes();
+      else if (k === 'sklist') { renderSet(); setPanel.hidden = false; const h = setPanel.querySelector('[data-sk]'); if (h) h.scrollIntoView({ block: 'nearest' }); }
       else if (k === 'skdel' && mk) { mk.delSkip(+b.dataset.i); P.drawSkips(); renderSet(); }
       else if (k === 'gear') { if (setPanel.hidden) renderSet(); setPanel.hidden = !setPanel.hidden; }
     });

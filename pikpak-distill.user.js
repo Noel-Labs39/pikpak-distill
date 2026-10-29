@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.8.0
+// @version      4.8.1
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.8.0'; // @version と合わせて更新する
+  const VER = '4.8.1'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -123,7 +123,19 @@
   //     ③ ABC-123 の形（FC2 以外）
   //   日付などの数字だけ（20260609.mp4）や、フォルダと違う数字は品番とみなさない
   const FC2_RE = /FC2[\s_-]*(?:PPV[\s_-]*)?(\d{5,8})(?!\d)/i;
-  const CODE_RE = /(^|[^A-Za-z])([A-Za-z]{2,6})-(\d{3,5})(?!\d)/;
+  // ABC-123：英字の前が数字（1pon-1080p の pon）や、数字の後ろが p（1080p・720p＝解像度）のものは品番とみなさない
+  const CODE_RE = /(^|[^A-Za-z0-9])([A-Za-z]{2,6})-(\d{3,5})(?![\dpP])/;
+  const CODE_NG = /^(FC|MP|AVI|MKV|HD|FHD|UHD|PART|CD|DISC|VOL|EP|PON|CARIB|MURA|PACO)$/i;
+  // 日付型の品番を使うメーカー（121815_3315-1pon・122415-053-carib など）
+  const BRANDS = [
+    ['caribpr', 'Caribbeancom Premium', /caribbeancompr|caribpr|カリビアンコム\s*プレミアム/i],
+    ['carib', 'Caribbeancom', /caribbean|carib|カリビアン/i],
+    ['1pon', '1pondo', /1pondo|1pon(?![a-z])|一本道/i],
+    ['10mu', '10musume', /10musume|10mu(?![a-z])|天然むすめ/i],
+    ['paco', 'Pacopacomama', /pacopacomama|(?:^|[^a-z])paco(?![a-z])|パコパコママ/i],
+    ['mura', 'Muramura', /muramura|(?:^|[^a-z])mura(?![a-z])|ムラムラ/i],
+  ];
+
   // 拡張子・重複回避の (1) を分ける
   function splitName(name) {
     const m = String(name || '').match(/^(.*?)(\.[A-Za-z0-9]{2,5})?$/);
@@ -147,8 +159,14 @@
     if (m) return fc2(m[1], stem.slice(m.index + m[0].length), 'name');
     const d = dirFc2(dirName);
     if (d) { const b = stem.match(/^(?:[^@]*@)?\s*(\d{5,8})(?!\d)/); if (b && b[1] === d) return fc2(d, stem.slice(b.index + b[0].length), 'dir'); }
+    // ④ HEYZO-1234
+    const hz = stem.match(/heyzo[\s_-]*(\d{4})(?!\d)/i);
+    if (hz) return { kind: 'brand', num: hz[1], key: 'HEYZO-' + hz[1], label: 'HEYZO-' + hz[1], part: '', src: 'name', ext, dup };
+    // ⑤ 日付型（121815_3315-1pon など）。メーカー名が分かればメーカーごとに分ける
+    const dt = stem.match(/(?:^|[^\d])(\d{6})([-_])(\d{2,4})(?![\d])/);
+    if (dt) { const br = BRANDS.find(([, , re]) => re.test(stem)); const code = dt[1] + '_' + dt[3]; const key = (br ? br[0] + '-' : '') + code; return { kind: br ? 'brand' : 'date', num: code, key, label: key, part: '', src: 'name', ext, dup }; }
     const c = stem.match(CODE_RE);
-    if (c) { const label = c[2].toUpperCase() + '-' + c[3]; return { kind: 'code', num: c[3], key: label, label, part: '', src: 'name', ext, dup }; }
+    if (c && !CODE_NG.test(c[2])) { const label = c[2].toUpperCase() + '-' + c[3]; return { kind: 'code', num: c[3], key: label, label, part: '', src: 'name', ext, dup }; }
     return null;
   }
   const hasWorkId = (name, dirName) => !!parseWork(name, dirName);
@@ -2771,13 +2789,14 @@
 
   // 重複（作品・連番まで同じ組）：中身の手がかりで自動か確認かを決める
   //   ① ハッシュ値が同じ ＝ 中身がまったく同じ → 1 つを残して自動で消す
-  //   ② 容量・解像度・長さがほぼ同じ → 大きい方を残して自動で消す
+  //   ② 解像度と長さが同じ（容量は違ってよい）、または容量・解像度・長さがほぼ同じ → 大きい方を残して自動で消す
+  //   ※ 動画どうしだけを比べる（zip などと動画は比べない）
   //   ③ それ以外（長さ・解像度・容量が違う）→ 確認に回す（見比べで目で見て決める）
   const SD_NEAR = 0.02;
   function smartDup() {
     const dn = new Map(folders.map((d) => [d.id, d.name]));
     const g = new Map();
-    workFiles().forEach((f) => { const k = dupKeyOf(f.name, dn.get(f.parentId)); if (!k) return; if (!g.has(k)) g.set(k, []); g.get(k).push(f); });
+    workFiles().forEach((f) => { if (!VIDEO_EXT.has(extOf(f.name))) return; const k = dupKeyOf(f.name, dn.get(f.parentId)); if (!k) return; if (!g.has(k)) g.set(k, []); g.get(k).push(f); });
     const auto = [], review = [];
     // 正しい置き場所（フォルダ名に品番が入っている）にあるものを優先して残す
     const placed = (f, k) => (dn.get(f.parentId) || '').toUpperCase().includes(k.split('#')[0].toUpperCase());
@@ -2791,7 +2810,9 @@
       if (reps.length < 2) return;
       reps.sort((a, b) => b.f.size - a.f.size);
       const top = reps[0];
-      const near = (x) => Math.abs(top.f.size - x.f.size) / (top.f.size || 1) <= SD_NEAR && (!top.res || !x.res || top.res === x.res) && (!top.dur || !x.dur || Math.abs(top.dur - x.dur) <= Math.max(5, top.dur * SD_NEAR));
+      // 解像度と長さが同じ（分かっている）なら、容量が違っても同じ作品の別のコピー（変換・再圧縮）とみなし、大きい方を残す
+      const sameMedia = (x) => top.res && x.res && top.res === x.res && top.dur && x.dur && Math.abs(top.dur - x.dur) <= Math.max(5, top.dur * SD_NEAR);
+      const near = (x) => sameMedia(x) || (Math.abs(top.f.size - x.f.size) / (top.f.size || 1) <= SD_NEAR && (!top.res || !x.res || top.res === x.res) && (!top.dur || !x.dur || Math.abs(top.dur - x.dur) <= Math.max(5, top.dur * SD_NEAR)));
       if (reps.slice(1).every(near)) { const keep = reps.slice().sort((a, b) => better(a.f, b.f, k))[0]; reps.filter((x) => x !== keep).forEach((x) => auto.push({ key: k, keep: keep.f, del: x.f, why: '容量・解像度・長さがほぼ同じ（大きい方を残す）' })); return; }
       const why = [];
       if (reps.some((x) => x.dur && top.dur && Math.abs(x.dur - top.dur) > Math.max(5, top.dur * SD_NEAR))) why.push('長さが違う');
@@ -3298,14 +3319,6 @@
   // 名前に入っている品番。FC2 は品番（「FC2 〇〇 collection 1234567 2345678」のような複数作品の名前も拾う）、
   // FC2 以外は HEYZO・カリビアンコムなど日付型の品番（例：033118_001 / 102324-001）・h4610 系を拾う
   // 名前にサイト名が入っていれば、販売者（配信元）はその場で決まる（調べに行かない）。フォルダ名は既存の「Caribbeancom（carib）」に合わせて英語名
-  const BRANDS = [
-    ['caribpr', 'Caribbeancom Premium', /caribbeancompr|caribpr|カリビアンコム\s*プレミアム/i],
-    ['carib', 'Caribbeancom', /caribbean|carib|カリビアン/i],
-    ['1pon', '1pondo', /1pondo|1pon(?![a-z])|一本道/i],
-    ['10mu', '10musume', /10musume|10mu(?![a-z])|天然むすめ/i],
-    ['paco', 'Pacopacomama', /pacopacomama|(?:^|[^a-z])paco(?![a-z])|パコパコママ/i],
-    ['mura', 'Muramura', /muramura|(?:^|[^a-z])mura(?![a-z])|ムラムラ/i],
-  ];
   // 名前に入っている品番。FC2 は品番（「FC2 〇〇 collection 1234567 2345678」のような複数作品の名前も拾う）、
   // FC2 以外は HEYZO・h4610 系・日付型の品番（例：121815_3315-1pon / 122415-053-carib）を拾う
   function workKeys(name) {

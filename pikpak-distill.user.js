@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.7.0
+// @version      4.7.1
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -89,7 +89,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.7.0'; // @version と合わせて更新する
+  const VER = '4.7.1'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -563,6 +563,35 @@
     } while (token);
     return out;
   }
+  // ---- ファイルの中身の手がかり：ハッシュ値（中身が同じなら同じ値）と長さ ----
+  //   PikPak のファイル情報の hash（gcid）を使う。一覧で取れなければ、重複の候補だけ 1 件ずつ詳しく取りに行く
+  const durOf = (f) => { const p = f.params || {}, v = (Array.isArray(f.medias) && f.medias[0] && f.medias[0].video) || {}; const d = +(p.duration || p.video_duration || v.duration || f.duration || 0); return d > 0 ? Math.round(d > 1e5 ? d / 1000 : d) : 0; };
+  const metaOf = (f) => { const o = {}; const h = String(f.hash || f.gcid || '').trim(); if (h) o.hash = h; const d = durOf(f); if (d) o.dur = d; const p = f.params || {}; const w = +(p.width || 0), hh = +(p.height || 0); if (w && hh) o.res = w + '×' + hh; return o; };
+  // 実機で一覧に何が入っているかを 1 回だけログに残す（ハッシュ値・長さが一覧で取れるかの確認用）
+  let scanDiagDone = false;
+  function scanDiag(f) {
+    if (scanDiagDone || !VIDEO_EXT.has(extOf(f.name))) return; scanDiagDone = true;
+    const m = metaOf(f);
+    log('info', `[診断] ファイル一覧の項目：${Object.keys(f).sort().join(', ')} ／ params：${Object.keys(f.params || {}).sort().join(', ') || 'なし'} ／ ハッシュ値：${m.hash ? 'あり' : 'なし'} ／ 長さ：${m.dur ? 'あり' : 'なし'} ／ 解像度：${m.res ? 'あり' : 'なし'}`);
+  }
+  const fileMeta = new Map(); // id → { hash, dur, res }（詳しく取りに行った分）
+  const metaGet = (f) => ({ hash: f.hash, dur: f.dur, res: f.res, ...(fileMeta.get(f.id) || {}) });
+  let metaBusy = false;
+  async function fetchMeta(list) {
+    const need = list.filter((f) => !metaGet(f).hash && !fileMeta.has(f.id)).slice(0, 300);
+    if (!need.length || metaBusy) return false;
+    metaBusy = true; let n = 0;
+    try {
+      for (let i = 0; i < need.length; i += 4) {
+        await Promise.all(need.slice(i, i + 4).map(async (f) => {
+          try { const info = await apiGet(f.id); const m = metaOf(info || {}); if (!m.res && info && Array.isArray(info.medias)) { const v = (info.medias.find((x) => x && x.is_origin) || info.medias[0] || {}).video || {}; if (v.width && v.height) m.res = v.width + '×' + v.height; } fileMeta.set(f.id, m); n++; }
+          catch (e) { if (e.session) throw e; fileMeta.set(f.id, {}); }
+        }));
+      }
+    } finally { metaBusy = false; }
+    if (n) log('info', `重複の候補 ${n} 件の中身の手がかり（ハッシュ値・長さ・解像度）を取得しました`);
+    return n > 0;
+  }
   async function scanApi(startTrail, opt = {}) {
     const outFiles = [], outFolders = [];
     const queue = [{ id: startTrail[startTrail.length - 1], path: '', trail: startTrail }];
@@ -580,7 +609,7 @@
               if (f.kind === 'drive#folder') {
                 const fo = { id: f.id, name: f.name, parentId: cur.id, path: cur.path + '/' + f.name, trail: [...cur.trail, f.id] };
                 outFolders.push(fo); queue.push({ id: f.id, path: fo.path, trail: fo.trail });
-              } else outFiles.push({ id: f.id, name: f.name, size: +f.size || 0, thumb: f.thumbnail_link || '', ct: f.created_time || '', parentId: cur.id, path: cur.path || '/' });
+              } else { scanDiag(f); outFiles.push({ id: f.id, name: f.name, size: +f.size || 0, thumb: f.thumbnail_link || '', ct: f.created_time || '', parentId: cur.id, path: cur.path || '/', ...metaOf(f) }); }
             });
           }).catch((e) => { err = e; }).finally(() => { active--; done++; if (opt.onProgress) opt.onProgress(done, done + queue.length + active, outFiles.length); pump(); });
         }
@@ -3018,7 +3047,7 @@
     return groups;
   }
   const delList = (groups) => groups.flatMap((g) => g.items.filter((f, i) => stateOf(f, i) === 'del'));
-  function renderDup() { renderDup0(); const m = $('[data-r=main]'); if (!m) return; if (dupAllGroups().length && !m.querySelector('.kit-tabs')) m.insertAdjacentHTML('afterbegin', dupTabsHtml()); if (!m.querySelector('.kit-ex')) m.insertAdjacentHTML('afterbegin', kitExHtml('dup')); m.querySelectorAll('.pd-row[data-id]').forEach((r) => { const e = dupFail.get(r.dataset.id); if (e && !r.querySelector('.kit-err')) { r.classList.add('fail', 'kit-row'); const i = r.querySelector('.pd-info'); if (i) i.insertAdjacentHTML('beforeend', `<div class="kit-err">失敗：${esc(e)}</div>`); } }); }
+  function renderDup() { renderDup0(); if (!metaBusy) fetchMeta(dupAllGroups().flatMap((g) => g.items)).then((ch) => { if (ch && view === 'dup') renderDup(); }).catch((e) => { if (e && e.session) handleErr(e, 'dup'); }); const m = $('[data-r=main]'); if (!m) return; if (dupAllGroups().length && !m.querySelector('.kit-tabs')) m.insertAdjacentHTML('afterbegin', dupTabsHtml()); if (!m.querySelector('.kit-ex')) m.insertAdjacentHTML('afterbegin', kitExHtml('dup')); m.querySelectorAll('.pd-row[data-id]').forEach((r) => { const e = dupFail.get(r.dataset.id); if (e && !r.querySelector('.kit-err')) { r.classList.add('fail', 'kit-row'); const i = r.querySelector('.pd-info'); if (i) i.insertAdjacentHTML('beforeend', `<div class="kit-err">失敗：${esc(e)}</div>`); } }); }
   function renderDup0() {
     const groups = visibleGroups();
     const main = $('[data-r=main]');
@@ -3034,10 +3063,12 @@
           <div class="pd-info"><div class="pd-name">${esc(f.name)}${i === 0 ? ' <span class="pd-tag" style="background:#d7f0dd;color:#14612f">最大＝高画質の候補</span>' : ''}</div>
             <div class="pd-path">${esc(f.path)}</div>
             <div class="pd-bar"><i style="width:${Math.max(2, (f.size / max) * 100).toFixed(1)}%"></i></div></div>
-          <div class="pd-sz"><b>${fmt(f.size)}</b><div class="note">${diff}</div></div>
+          <div class="pd-sz"><b>${fmt(f.size)}</b><div class="note">${diff}</div>${(() => { const m = metaGet(f); return m.dur || m.res ? `<div class="note">${[m.res, m.dur ? fmtT(m.dur) : ''].filter(Boolean).join(' ・ ')}</div>` : ''; })()}</div>
           <div class="pd-act"><button data-s="open">場所を開く</button></div></div>`;
       }).join('');
-      return `<section class="pd-g"><div class="pd-gh"><span>${esc(g.items[0].name)}</span><span class="note">${g.items.length}件</span>${g.near ? '<span class="pd-tag">サイズが近い組あり</span>' : ''}<span class="sp"></span><button data-cmpg="${esc(g.key)}" title="この組の 2 本を左右に並べて、いっしょに再生して比べる">▶ 見比べ</button><button data-frg="${esc(g.key)}" title="この組の 2 本を、同じ位置のコマで並べて比べる">▦ コマで比べる</button><button data-g="${esc(g.key)}">この組のチェックを削除</button></div>${rows}</section>`;
+      const hs = g.items.map((f) => metaGet(f).hash);
+      const same = hs.every(Boolean) && new Set(hs).size === 1, part = hs.every(Boolean) && new Set(hs).size < hs.length && !same;
+      return `<section class="pd-g"><div class="pd-gh"><span>${esc(g.items[0].name)}</span><span class="note">${g.items.length}件</span>${same ? '<span class="pd-tag" style="background:#d7f0dd;color:#14612f" title="ハッシュ値が同じ＝中身がまったく同じファイル">中身が同じ</span>' : part ? '<span class="pd-tag" style="background:#d7f0dd;color:#14612f" title="この組の中に、中身がまったく同じファイルがあります">中身が同じものあり</span>' : hs.every(Boolean) ? '<span class="pd-tag" title="ハッシュ値が違う＝中身は別のファイル（画質・編集が違うなど）">中身は別</span>' : ''}${g.near ? '<span class="pd-tag">サイズが近い組あり</span>' : ''}<span class="sp"></span><button data-cmpg="${esc(g.key)}" title="この組の 2 本を左右に並べて、いっしょに再生して比べる">▶ 見比べ</button><button data-frg="${esc(g.key)}" title="この組の 2 本を、同じ位置のコマで並べて比べる">▦ コマで比べる</button><button data-g="${esc(g.key)}">この組のチェックを削除</button></div>${rows}</section>`;
     }).join('') + nextButton();
     renderActs();
     if (!busy) { const dl = delList(groups); status(`重複 ${groups.length} 組 ／ チェック（削除する） ${dl.length} 件・${fmt(dl.reduce((a, f) => a + f.size, 0))}　※各組の一番大きいファイルは最初からチェックなし（残す）になっています`); }

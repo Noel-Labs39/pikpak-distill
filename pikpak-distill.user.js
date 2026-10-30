@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.9.2
+// @version      4.9.3
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -107,7 +107,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.9.2'; // @version と合わせて更新する
+  const VER = '4.9.3'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1714,6 +1714,7 @@
   #pd-ql .ql-b video{width:100%;max-height:65vh;display:block;background:#000}
   #pd-ql .pl-msg{position:absolute;left:0;right:0;bottom:12px;text-align:center;color:#ddd;font-size:12px}
   #pd-ql.playing .ql-wait{display:none}
+  .qp-bigplay{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:76px;height:76px;border-radius:50%;background:#000a;color:#fff;font-size:34px;display:flex;align-items:center;justify-content:center;padding-left:6px;pointer-events:none;z-index:3}
   #pd-ql .ql-acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
   #pd-ql .ql-acts button{border:1px solid #fff3;background:#fff1;color:#eee;border-radius:8px;padding:6px 12px;font:inherit;cursor:pointer}
   #pd-ql .ql-acts select{border:1px solid #fff3;background:#fff1;color:#eee;border-radius:8px;padding:6px 8px;font:inherit}
@@ -4222,7 +4223,7 @@
     if (want && ids.some(needLoad)) setTimeout(() => loadAndRender(ids), 0);
   }
   // クイックルック（スペース）
-  function showQL() {
+  function showQL(play) {
     const r = treeRowsCache.find((x) => x.id === treeCur); if (!r) return closeQL();
     let d = document.getElementById('pd-ql');
     if (!d) { d = mkEl('pd-ql'); d.addEventListener('click', (e) => { if (e.target === d || e.target.closest('[data-qlclose]')) closeQL(); }); }
@@ -4234,14 +4235,15 @@
     const info = r.kind === 'folder' ? `${r.n} 項目（中のファイル ${ix.agg.get(r.id).files} 件）・${fmt(r.size)}` : `${esc(kindOf(r))}・${fmt(r.size)}`;
     const jr = r.kind === 'file' && junkEnabled() ? (prepJunk(files, folders), junkInfo(r.f)) : null;
     d.innerHTML = `<div class="ql"><div class="ql-h"><button data-qlclose title="閉じる（スペース / Esc）" aria-label="閉じる">${IC.x}</button><b>${esc(r.name)}</b></div><div class="ql-b">${big}</div>
-      <div class="ql-f"><div>${info}</div><div class="note">${esc((r.kind === 'folder' ? r.path : r.path + '/').replace(/^\/?/, '/').replace(/\/+$/, '') || '/')}</div>${jr ? `<div style="color:#ff6b6b">不要ファイルの判定：${esc(jr.reason)}</div>` : ''}${isVideoRow(r) ? `<div class="ql-acts"><button data-qlplay class="pri" title="このプレビューの中で再生">▶ ここで再生</button><button data-qlfull title="全画面で再生">⛶ 全画面</button><button data-qlframes title="コマ一覧（動画の中身を 16 コマで見る）">▦ コマ一覧</button>${rateSelect()}<button data-qlext title="外部プレーヤーで開く">↗ ${esc(EXT_PLAYERS[playPref().ext].short)}</button><button data-qlset title="再生のしかたの設定（ダブルクリック時の動作・外部プレーヤー）" aria-label="再生のしかたの設定">${IC.gear}</button></div>` : ''}</div></div>`;
+      <div class="ql-f"><div>${info}</div><div class="note">${esc((r.kind === 'folder' ? r.path : r.path + '/').replace(/^\/?/, '/').replace(/\/+$/, '') || '/')}</div>${jr ? `<div style="color:#ff6b6b">不要ファイルの判定：${esc(jr.reason)}</div>` : ''}${isVideoRow(r) ? `<div class="ql-acts"><button data-qlfull title="全画面で再生">⛶ 全画面</button><button data-qlframes title="コマ一覧（動画の中身を 16 コマで見る）">▦ コマ一覧</button>${rateSelect()}<button data-qlext title="外部プレーヤーで開く">↗ ${esc(EXT_PLAYERS[playPref().ext].short)}</button><button data-qlset title="再生のしかたの設定（ダブルクリック時の動作・外部プレーヤー）" aria-label="再生のしかたの設定">${IC.gear}</button></div>` : ''}</div></div>`;
     d.classList.remove('playing'); plStop('ql');
     const on = (sel, fn) => { const b = d.querySelector(sel); if (b) b.onclick = fn; };
-    on('[data-qlplay]', () => qlPlay(r.id));
     on('[data-qlfull]', () => playFile(r.id, { full: true }));
     on('[data-qlext]', () => { const v = d.querySelector('video'); if (v) v.pause(); openExternal(r.id); });
     on('[data-qlset]', () => openSettings('play'));
     on('[data-qlframes]', () => { closeQL(); openFrames([r.id]); });
+    // 動画は、情報だけの画面を挟まず、そのまま簡易プレーヤーを開く（play が偽なら、押すまで再生しない）
+    if (isVideoRow(r)) qlPlay(r.id, { armed: !play });
   }
   function closeQL() { qlRun++; unloadMedia(document.getElementById('pd-ql')); qlOpen = false; plStop('ql'); const d = document.getElementById('pd-ql'); if (d) { d.querySelectorAll('.pd-sk').forEach((b) => { if (b._grab) b._grab.close(); }); const v = d.querySelector('video'); try { if (v) v.pause(); } catch (e) { /* 無視 */ } d.remove(); } }
   // 名前の変更（Enter）
@@ -4651,8 +4653,14 @@
     const oldBar = box.nextElementSibling && (box.nextElementSibling.classList.contains('pd-sk') || box.nextElementSibling.classList.contains('qp-ui')) ? box.nextElementSibling : null;
     if (oldBar) { oldBar.querySelectorAll('.pd-sk').forEach((b) => { if (b._grab) { b._grab.close(); b._grab = null; } }); if (oldBar._grab) oldBar._grab.close(); oldBar.remove(); }
     // ブラウザ標準のコントロールは使わず、下の操作バーに一本化する
-    box.innerHTML = '<div class="qp-stage"><video autoplay playsinline preload="auto"></video></div>';
+    box.innerHTML = `<div class="qp-stage"><video ${opt.armed ? '' : 'autoplay '}playsinline preload="${opt.armed ? 'metadata' : 'auto'}"></video></div>`;
     const v = box.querySelector('video');
+    // 開くだけで再生しないとき：サムネイルと大きな ▶ を出し、押す（スペース）と再生する
+    if (opt.armed) {
+      if (opt.poster) v.poster = opt.poster;
+      const st = box.querySelector('.qp-stage'); st.insertAdjacentHTML('beforeend', '<div class="qp-bigplay" aria-hidden="true">▶</div>');
+      const bp = st.querySelector('.qp-bigplay'); v.addEventListener('play', () => bp.remove(), { once: true });
+    }
     v.addEventListener('loadedmetadata', () => { if (t) v.currentTime = t; v.defaultPlaybackRate = getRate(); v.playbackRate = getRate(); if (opt.onMeta) opt.onMeta(v); }, { once: true });
     const ui = document.createElement('div'); ui.className = 'qp-ui'; box.after(ui);
     if (opt.seekbar !== false) attachSeekbar(ui, v, x, S);
@@ -4752,7 +4760,7 @@
   function playDefault(id) {
     const p = playPref();
     if (p.mode === 'external') openExternal(id, p.ext);
-    else if (p.mode === 'inline') { treeCur = id; showQL(); qlPlay(id); }
+    else if (p.mode === 'inline') { treeCur = id; showQL(true); }
     else playFile(id, { full: p.mode === 'full' });
   }
   // ---------- 設定（右からのパネル：表示・再生・整理・情報） ----------
@@ -4877,7 +4885,7 @@
   }
   // プレビュー（クイックルック）の中で再生する
   let qlRun = 0;
-  async function qlPlay(id) {
+  async function qlPlay(id, o2 = {}) {
     const myRun = qlRun;
     const d = document.getElementById('pd-ql'); if (!d) return;
     const box = d.querySelector('.ql-b'), f = fileById(id); if (!box || !f) return;
@@ -4887,7 +4895,7 @@
     const acts = d.querySelector('.ql-acts'), inf = d.querySelector('.ql-f > div');
     const base = inf ? inf.textContent : '';
     const P = playerCore(box, id, {
-      slot: 'ql', name: f.name, qHost: acts,
+      slot: 'ql', name: f.name, qHost: acts, armed: o2.armed, poster: (treeRowsCache.find((x) => x.id === id) || {}).thumb || '',
       alive: () => document.body.contains(box) && treeCur === id && myRun === qlRun,
       qp: { ext: () => openExternal(id) },
       onMeta: (v) => { if (inf) inf.textContent = base + (v.videoWidth ? ` ・ ${v.videoWidth}×${v.videoHeight}` : ''); },
@@ -4924,7 +4932,7 @@
       killHls(P.hls); P.hls = null;
       if (!P.S.playable(x)) { P.v = null; msg(o.unplayable || 'この画質（HLS）はこのブラウザの中では再生できません。別の画質か外部プレーヤーを選んでください。'); return null; }
       P.x = x; P.k = k;
-      const m = mountVideo(box, x, P.S, fail, { t: cur, qp: { ...(o.qp || {}), media: mediaHooks(id) }, onMeta: (v) => { if (o.onMeta) o.onMeta(v, x); } });
+      const m = mountVideo(box, x, P.S, fail, { armed: o.armed, poster: o.poster, t: cur, qp: { ...(o.qp || {}), media: mediaHooks(id) }, onMeta: (v) => { if (o.onMeta) o.onMeta(v, x); } });
       P.v = m.v;
       trackPos(P, m.v);
       setTimeout(() => { if (P.dead) killHls(m.hls); else P.hls = m.hls; }, 0);
@@ -4956,7 +4964,7 @@
       const rec = mediaGet(id); let t0 = o.t || 0, resumed = 0;
       if (!t0 && qpCfg().resume && rec && !rec.done && rec.pos > 10 && (!rec.dur || rec.pos < rec.dur - 15)) { t0 = rec.pos; resumed = rec.pos; }
       const m = P.load(k, t0);
-      playLogPush(id, o.name);
+      if (o.armed && m) m.v.addEventListener('play', () => playLogPush(id, o.name), { once: true }); else playLogPush(id, o.name);
       if (m && resumed) m.v.addEventListener('loadedmetadata', () => { const q = m.v._qp; if (q) q.note(`⏵ 前回の続き ${fmtClock(resumed)} から再生しています`, [['最初から', () => { m.v.currentTime = 0; mediaPut(id, { pos: 0 }); }]], 6000); }, { once: true });
       return P;
     })();
@@ -5233,7 +5241,7 @@
   }
   // キーボード操作
   document.addEventListener('keydown', (e) => {
-    if (!root.classList.contains('on') || view !== 'tree' || busy || document.getElementById('pd-dlg') || document.getElementById('pd-player') || document.getElementById('pd-set')) return;
+    if (!root.classList.contains('on') || view !== 'tree' || busy || document.getElementById('pd-dlg') || document.getElementById('pd-player') || document.getElementById('pd-set') || document.getElementById('pd-lib')) return; // 左メニューの画面が開いている間は、後ろのフォルダ一覧のキー操作は止める
     if (winMode === 'pop' && !root.contains(document.activeElement)) return; // ポップアップのときは、後ろの PikPak を操作中ならキーを横取りしない
     if (document.getElementById('pd-ctx')) { if (e.key === 'Escape') { e.preventDefault(); closeCtx(); } return; }
     const t = e.target;
@@ -5282,7 +5290,7 @@
     else if (k === ' ' && cur) {
       e.preventDefault();
       const qv = document.querySelector('#pd-ql video');
-      if (qv && e.target === qv) return; // 再生中の動画にフォーカスがあるときは一時停止に使う
+      if (qv) { if (e.target !== qv && qv._qp) qv._qp.toggle(); return; } // 簡易プレーヤーが開いているときは、再生・一時停止（閉じるのは Esc）
       if (qlOpen) closeQL(); else showQL();
     }
     else if (k === 'Escape') { if (qlOpen) { e.preventDefault(); closeQL(); } }
@@ -6283,7 +6291,7 @@
       d.addEventListener('keydown', (e) => {
         const c = e.target.closest && e.target.closest('[data-lbc]'); if (!c || !libSt) return;
         if (e.key === 'Enter') { e.preventDefault(); const it = libItem(c.dataset.lbc); if (libIsVid(it)) libPlayDefault(it); else if (it) libReveal(it.id); }
-        else if (e.key === ' ') { e.preventDefault(); c.click(); const it = libItem(c.dataset.lbc); if (libIsVid(it)) libPreview(it.id); }
+        else if (e.key === ' ') { e.preventDefault(); c.click(); const it = libItem(c.dataset.lbc); if (libIsVid(it)) libPreview(it.id, { armed: true }); }
       });
       d.addEventListener('change', (e) => {
         const t = e.target; if (!libSt) return;
@@ -6327,7 +6335,7 @@
     unloadMedia(p); plStop('lib'); p.remove();
     const c = libSt && libSt.cur && document.querySelector(`#pd-lib [data-lbc="${CSS.escape(libSt.cur)}"]`); if (c) c.focus();
   }
-  async function libPreview(id) {
+  async function libPreview(id, opt = {}) {
     const it = libItem(id); if (!it || !libIsVid(it)) return;
     const d = document.getElementById('pd-lib'); if (!d) return;
     libPvClose(); libSt.cur = id;
@@ -6341,7 +6349,7 @@
     const vids = libSt.items.filter(libIsVid), vi = vids.findIndex((v) => v.id === id);
     const nx = vi >= 0 && vi < vids.length - 1 ? () => libPreview(vids[vi + 1].id) : null, pv = vi > 0 ? () => libPreview(vids[vi - 1].id) : null;
     const P = playerCore(box, id, {
-      slot: 'lib', name: it.name, qHost: p.querySelector('.lb-pvq'),
+      slot: 'lib', name: it.name, qHost: p.querySelector('.lb-pvq'), armed: opt.armed, poster: it.thumb || '',
       alive: () => run === libPvRun && document.body.contains(p),
       noSource: 'このブラウザの中では再生できません。「↗ 外部プレーヤーで見る」を使ってください。',
       unplayable: 'このブラウザの中では再生できません。「↗ 外部プレーヤーで見る」を使ってください。',

@@ -1708,6 +1708,9 @@
   #pd-ql .ql-h button{border:0;background:#fff2;color:#eee;border-radius:50%;width:22px;height:22px;cursor:pointer}
   #pd-ql .ql-b{display:flex;align-items:center;justify-content:center;min-height:300px;max-height:65vh;background:#000}
   #pd-ql .ql-b img{max-width:100%;max-height:65vh;display:block}
+  #pd-ql.ql-vid:not(.playing) .ql-b{aspect-ratio:16/9;min-height:0}
+  #pd-ql.ql-vid:not(.playing) .ql-b img{width:100%;height:100%;object-fit:contain}
+  #pd-ql.ql-vid:not(.playing) .ql-f{visibility:hidden}
   #pd-ql .ql-ic svg{width:160px;height:140px}
   #pd-ql .ql-f{padding:10px 14px}
   #pd-ql .ql-b{position:relative}
@@ -4309,13 +4312,13 @@
     else { plStop('ql'); unloadMedia(d); } // 次・前のファイルへ移るときは、前の動画とシークバー用の影の動画を片付ける
     qlRun++;
     qlOpen = true;
-    const big = isVideoRow(r) ? '' : r.kind === 'file' && r.thumb ? `<img src="${esc(r.thumb)}" referrerpolicy="no-referrer" alt="">` : `<div class="ql-ic">${r.kind === 'folder' ? ICON_DIR : ICON_FILE(r)}</div>`;
+    const big = r.kind === 'file' && r.thumb ? `<img src="${esc(r.thumb)}" referrerpolicy="no-referrer" alt="">` : `<div class="ql-ic">${r.kind === 'folder' ? ICON_DIR : ICON_FILE(r)}</div>`;
     const ix = treeIdx;
     const info = r.kind === 'folder' ? `${r.n} 項目（中のファイル ${ix.agg.get(r.id).files} 件）・${fmt(r.size)}` : `${esc(kindOf(r))}・${fmt(r.size)}`;
     const jr = r.kind === 'file' && junkEnabled() ? (prepJunk(files, folders), junkInfo(r.f)) : null;
     d.innerHTML = `<div class="ql"><div class="ql-h"><button data-qlclose title="閉じる（スペース / Esc）" aria-label="閉じる">${IC.x}</button><b>${esc(r.name)}</b></div><div class="ql-b">${big}</div>
       <div class="ql-f"><div>${info}</div><div class="note">${esc((r.kind === 'folder' ? r.path : r.path + '/').replace(/^\/?/, '/').replace(/\/+$/, '') || '/')}</div>${jr ? `<div style="color:#ff6b6b">不要ファイルの判定：${esc(jr.reason)}</div>` : ''}${isVideoRow(r) ? `<div class="ql-acts"><button data-qlfull title="全画面で再生">⛶ 全画面</button><button data-qlframes title="コマ一覧（動画の中身を 16 コマで見る）">▦ コマ一覧</button>${rateSelect()}<button data-qlext title="外部プレーヤーで開く">↗ ${esc(EXT_PLAYERS[playPref().ext].short)}</button><button data-qlset title="再生のしかたの設定（ダブルクリック時の動作・外部プレーヤー）" aria-label="再生のしかたの設定">${IC.gear}</button></div>` : ''}</div></div>`;
-    d.classList.remove('playing'); plStop('ql');
+    d.classList.remove('playing'); d.classList.toggle('ql-vid', isVideoRow(r)); plStop('ql');
     const on = (sel, fn) => { const b = d.querySelector(sel); if (b) b.onclick = fn; };
     on('[data-qlfull]', () => playFile(r.id, { full: true }));
     on('[data-qlext]', () => { const v = d.querySelector('video'); if (v) v.pause(); openExternal(r.id); });

@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.10.1
+// @version      4.11.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -107,7 +107,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.10.1'; // @version と合わせて更新する
+  const VER = '4.11.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1235,6 +1235,14 @@
   .qp-set small{color:#6a7080}
   :fullscreen{background:#000}
   :fullscreen .qp-stage video{max-height:calc(100vh - 140px)!important}
+  .qp-grip{display:none}
+  [data-qpfs=top]{display:flex;flex-direction:column}
+  [data-qpfs=top] .qp-ui{order:-2}
+  [data-qpfs=float] .qp-ui{position:absolute;left:50%;bottom:16px;margin-left:calc(min(960px,96vw) / -2);width:min(960px,96vw);background:#000d;border-radius:12px;z-index:30;transition:opacity .25s}
+  [data-qpfs=float] .qp-ui.qp-fshide{opacity:0;pointer-events:none}
+  [data-qpfs=float] .qp-stage video{max-height:100vh!important}
+  [data-qpfs=float] .qp-grip{display:flex;justify-content:space-between;align-items:center;padding:4px 10px;background:#ffffff14;border-radius:12px 12px 0 0;cursor:move;font:11px system-ui,sans-serif;color:#aab;touch-action:none;user-select:none}
+  [data-qpfs=float] .qp-grip button{height:22px;padding:0 8px;border-radius:6px;border:1px solid #ffffff33;background:#232833;color:#dfe2ea;font:600 11px system-ui,sans-serif;cursor:pointer}
   #pd-player .pl:fullscreen{width:100vw;border-radius:0}
   .pd-sk{position:relative;height:16px;padding:5px 12px;background:#000;cursor:pointer}
   .pd-sk > .sktr{position:relative;height:6px;border-radius:3px;background:#3a3f4b;overflow:hidden}
@@ -5683,7 +5691,7 @@
   const lightSrc = (S) => { if (!(S.H && S.H.isSupported && S.H.isSupported())) { const o = S.src.find((x) => !x.hls && !x.dl) || S.src.find((x) => !x.hls); if (o) return o; } const c = S.src.filter((x) => !x.dl && S.playable(x)); return c.filter((x) => !x.origin && x.h).sort((a, b) => a.h - b.h)[0] || c[c.length - 1] || S.src[S.first]; };
   // ---------- 簡易プレーヤーの操作（常に出る操作バー・マウスを乗せたらキー操作・ズーム） ----------
   const LS_QP = 'ppdup:qp:v1';
-  const QP_DEF = { step: 5, big: 30, jl: 10, vol: 10, wheel: 'zoom', hover: true, bar: 'always', resume: true, hold: 2, tri: true, triNext: true, skimN: 16, skimSec: 4 };
+  const QP_DEF = { step: 5, big: 30, jl: 10, vol: 10, wheel: 'zoom', hover: true, bar: 'always', resume: true, hold: 2, tri: true, triNext: true, skimN: 16, skimSec: 4, fsMenu: 'bottom' };
   const qpCfg = () => { let c = {}; c = lsJson(LS_QP, {}); return { ...QP_DEF, ...c }; };
   const saveQpCfg = (p) => { const c = { ...qpCfg(), ...p }; lsSetJson(LS_QP, c); document.querySelectorAll('.qp-ui').forEach((u) => u.classList.toggle('qp-auto', c.bar === 'auto')); return c; };
   const QP_OPTS = {
@@ -5698,12 +5706,32 @@
     hold: ['長押しの速さ（画面・→ キー）', [1.5, 2, 3], (v) => v + '×'],
     tri: ['見ながら仕分けのバー', [true, false], (v) => (v ? '出す' : '出さない（キーだけ効く）')],
     triNext: ['仕分けたら次の動画へ', [true, false], (v) => (v ? 'すぐ次へ' : 'そのまま')],
+    fsMenu: ['全画面のときのメニューの位置', ['bottom', 'top', 'float'], (v) => ({ bottom: '下に固定', top: '上に固定', float: 'フローティング（動かせる）' })[v]],
     skimN: ['ざっと見：何か所に分けるか', [8, 12, 16, 24], (v) => v + ' か所'],
     skimSec: ['ざっと見：1 か所の長さ', [2, 3, 4, 6], (v) => v + ' 秒'],
   };
   const qpSelect = (k, attr) => { const c = qpCfg(), [, vals, lab] = QP_OPTS[k]; return `<select ${attr} data-k="${k}">${vals.map((v) => `<option value="${v}"${c[k] === v ? ' selected' : ''}>${esc(lab(v))}</option>`).join('')}</select>`; };
   const qpVal = (k, s) => { const v = QP_OPTS[k][1].find((x) => String(x) === s); return v === undefined ? QP_DEF[k] : v; };
   const QP_IC = { gear: IC.gear, play: IC.play, pause: IC.pause };
+  // ---- 全画面のときのメニュー（操作バー・仕分け・キー操作）の位置：下に固定・上に固定・フローティング ----
+  const LS_FSPOS = 'ppdup:fsmenu:v1';
+  let fsHideT = 0, fsDrag = false;
+  const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement || null;
+  function fsPoke() {
+    const fe = fsEl(); if (!fe || fe.dataset.qpfs !== 'float') return;
+    const u = fe.querySelector('.qp-ui'); if (!u) return;
+    u.classList.remove('qp-fshide'); clearTimeout(fsHideT);
+    fsHideT = setTimeout(() => { if (!fsDrag && !u.matches(':hover') && !fe.querySelector('.qp-set:not([hidden])')) u.classList.add('qp-fshide'); }, 3000);
+  }
+  function applyFsMenu() {
+    clearTimeout(fsHideT);
+    document.querySelectorAll('[data-qpfs]').forEach((el) => { delete el.dataset.qpfs; el.querySelectorAll('.qp-ui').forEach((u) => { u.style.transform = ''; u.classList.remove('qp-fshide'); }); });
+    const fe = fsEl(); if (!fe || !fe.querySelector || !fe.querySelector('.qp-ui')) return;
+    const mode = qpCfg().fsMenu; fe.dataset.qpfs = mode;
+    if (mode === 'float') { const q = lsJson(LS_FSPOS, {}); fe.querySelectorAll('.qp-ui').forEach((u) => { u.style.transform = `translate(${+q.x || 0}px,${+q.y || 0}px)`; }); fsPoke(); }
+  }
+  ['fullscreenchange', 'webkitfullscreenchange'].forEach((n) => document.addEventListener(n, applyFsMenu));
+  ['mousemove', 'keydown', 'touchstart'].forEach((n) => document.addEventListener(n, fsPoke, true));
   let qpActive = null;
   function qpSetActive(P) {
     if (qpActive === P) return;
@@ -5812,6 +5840,19 @@
     const hintEl = document.createElement('div'); hintEl.className = 'qp-hint';
     hintEl.innerHTML = '<button class="qp-badge" title="押すとキー操作の一覧（? キーでも）">⌨ キー操作 ON ・ ?</button>';
     ui.appendChild(hintEl);
+    // フローティングのときだけ出る「動かすつまみ」
+    const grip = document.createElement('div'); grip.className = 'qp-grip';
+    grip.innerHTML = '<span>⠿ ここをドラッグして動かせます</span><button type="button">位置を戻す</button>';
+    ui.insertBefore(grip, ui.firstChild);
+    grip.querySelector('button').addEventListener('click', (e) => { e.stopPropagation(); lsSetJson(LS_FSPOS, {}); document.querySelectorAll('.qp-ui').forEach((u) => { u.style.transform = 'translate(0px,0px)'; }); });
+    grip.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('button')) return;
+      e.preventDefault(); fsDrag = true;
+      const q = lsJson(LS_FSPOS, {}), x0 = +q.x || 0, y0 = +q.y || 0, sx = e.clientX, sy = e.clientY;
+      const mv = (ev) => { const x = x0 + ev.clientX - sx, y = y0 + ev.clientY - sy; ui.style.transform = `translate(${x}px,${y}px)`; ui._fsPos = { x, y }; };
+      const up = () => { document.removeEventListener('pointermove', mv, true); document.removeEventListener('pointerup', up, true); fsDrag = false; if (ui._fsPos) lsSetJson(LS_FSPOS, ui._fsPos); fsPoke(); };
+      document.addEventListener('pointermove', mv, true); document.addEventListener('pointerup', up, true);
+    });
     hintEl.querySelector('.qp-badge').addEventListener('click', (e) => { e.stopPropagation(); P.keys(); });
     keysEl.addEventListener('click', (e) => { e.stopPropagation(); keysEl.hidden = true; });
     P.flash = flash;
@@ -5954,7 +5995,7 @@
     ctl.addEventListener('input', (e) => { if (e.target.dataset.qp === 'vol') { v.volume = +e.target.value / 100; v.muted = !+e.target.value; } });
     ctl.addEventListener('change', (e) => {
       const t = e.target; if (t.dataset.qpset === undefined) return;
-      saveQpCfg({ [t.dataset.k]: qpVal(t.dataset.k, t.value) });
+      saveQpCfg({ [t.dataset.k]: qpVal(t.dataset.k, t.value) }); if (t.dataset.k === 'fsMenu') applyFsMenu();
       if (t.dataset.k === 'jl') document.querySelectorAll('.qp-ctl').forEach((x) => { const n = qpCfg().jl; const bb = x.querySelector('[data-qp=back]'), ff = x.querySelector('[data-qp=fwd]'); if (bb) bb.textContent = '-' + n; if (ff) ff.textContent = '+' + n; });
       if (t.dataset.k === 'tri' || t.dataset.k === 'triNext') document.querySelectorAll('video').forEach((x) => { if (x._qp && x._qp.drawTri) x._qp.drawTri(); });
       if (document.getElementById('pd-set')) renderSettings();

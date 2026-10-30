@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.12.0
+// @version      4.13.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -107,7 +107,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.12.0'; // @version と合わせて更新する
+  const VER = '4.13.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -2827,6 +2827,7 @@
   function render() {
     const out = renderBody();
     if (STEPV.includes(view)) { ensureStepChrome(); renderActs(); }
+    if (scopeTop) { const m = $('[data-r=main]'); if (m && ['dup', 'name', 'sort', 'ren'].includes(view) && !m.querySelector('.nt-scope')) m.insertAdjacentHTML('afterbegin', scopeBannerHtml()); }
     return out;
   }
   function renderBody() {
@@ -2973,6 +2974,26 @@
   const scanAsk = () => { return lsGet(LS_SCANASK) !== '0'; };
   // 読み込み済みのときのダッシュボード（大きな数字・作業カード・最近追加したもの・右下のボタン群）
   const DASH_TINT = { junk: ['#fdebe1', '#c2561a'], name: ['#f1ebff', '#6a3fd1'], sort: ['#e6f6ee', '#17703f'], ren: ['#fff4dc', '#8a5600'], dup: ['#e8efff', '#306fff'], clean: ['#e3f4f7', '#0f6f80'], seller: ['#fde8f0', '#b4235f'] };
+  // ---- ホームの直下に新しく増えたフォルダの見守りと、そのフォルダだけの確認 ----
+  const LS_TOPSEEN = 'ppdup:topseen:v1';
+  let scopeTop = null; // 確認中のフォルダ（folders の項目）
+  const topFolders = () => folders.filter((d) => d.parentId === 'root' && d.trail && d.trail.length === 2);
+  function newTop() {
+    const now = topFolders(); if (!now.length) return []; // ホームを読み込んでいないときは調べない
+    const seen = lsJson(LS_TOPSEEN, null);
+    if (!seen || !Array.isArray(seen.ids)) { lsSetJson(LS_TOPSEEN, { ids: now.map((d) => d.id) }); return []; } // 初めて読み込んだときは、いまあるものを「確認済み」にする
+    const set = new Set(seen.ids);
+    return now.filter((d) => !set.has(d.id));
+  }
+  const inScope = (path) => { if (!scopeTop) return true; const sp = scopeTop.path; return path === sp || String(path).startsWith(sp + '/'); };
+  function newTopHtml() {
+    const n = newTop(); if (!n.length) return '';
+    const cnt = (d) => files.filter((f) => f.path === d.path || String(f.path).startsWith(d.path + '/')).length;
+    return `<div class="sv-stale" data-newtop style="border-color:#f5a624"><b>ホームの直下に新しいフォルダが ${n.length} 件あります</b>${n.slice(0, 6).map((d) => `<div style="margin-top:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span>📁 ${esc(d.name)}（ファイル ${cnt(d).toLocaleString()} 件）</span><button data-a="ntscope" data-id="${esc(d.id)}" data-v="dup">重複を確認</button><button data-a="ntscope" data-id="${esc(d.id)}" data-v="sort">仕分け・移動を確認</button></div>`).join('')}${n.length > 6 ? `<div class="note" style="margin-top:6px">ほか ${n.length - 6} 件</div>` : ''}<div style="margin-top:8px"><button data-a="ntseen" title="この知らせを消します（フォルダは何も変わりません）">確認済みにする</button></div></div>`;
+  }
+  function scopeBannerHtml() {
+    return `<div class="sv-stale nt-scope" style="border-color:#306fff"><b>「${esc(scopeTop.name)}」の中を中心に確認しています</b><span class="note"> 重複は、ほかのフォルダにある同じファイルとも比べています</span> <button data-a="ntclear">すべてに戻す</button></div>`;
+  }
   function renderDash(where, c, next) {
     const done = allDone(c);
     const when = fmtDate(meta.at);
@@ -2995,6 +3016,7 @@
       <div class="db-hd"><h2>整理</h2><span class="db-chip on" title="読み込んだ場所">${esc(where)}</span><span class="sp"></span><span class="note">前回の読み込み：${esc(when)}（フォルダ ${meta.nfo.toLocaleString()} ／ ファイル ${meta.nfi.toLocaleString()}）</span></div>
       ${staleH >= 6 && staleH < 24 ? `<div class="sv-stale">前回の読み込みから ${staleH >= 48 ? Math.floor(staleH / 24) + ' 日' : staleH + ' 時間'}たっています。PikPak で追加・削除したものは「読み込み直す」で反映されます。</div>` : ''}
       <div class="db-stats">${stat('使用量', qv[0], ' ' + (qv[1] || ''), quota && quota.limit > 0 ? `${fmtCap(quota.limit)} 中 ${Math.round(quota.usage / quota.limit * 100)}%` : '契約容量', 'pri')}${stat('ファイル', meta.nfi.toLocaleString(), ' 件', `フォルダ ${meta.nfo.toLocaleString()}`)}${stat('重複', String(c.dup || 0), ' 組', '同じ作品が複数')}${stat('残っている作業', String(todo), ' 件', done ? 'すべて完了' : nx ? 'おすすめ：' + esc(nx.t) : '')}</div>
+      ${newTopHtml()}
       ${onePanelHtml()}
       <div class="db-main">
         <div class="db-tasks">${WORK.map(card).join('')}</div>
@@ -3162,6 +3184,10 @@
   const tg = (t, c) => ({ tag: t, tc: c || '' });
   const sortKey = (g) => g.cid + ':' + g.work;
   function kitItems(v) {
+    const all = kitItems0(v);
+    return scopeTop && ['name', 'sort', 'ren'].includes(v) ? all.filter((it) => inScope(String(it.grp || '').replace(/^（.*）$/, '/'))) : all;
+  }
+  function kitItems0(v) {
     const fail = kitFail[v];
     const fx = (it) => (fail.has(it.id) ? { ...it, st: 'fail', err: fail.get(it.id) } : it);
     if (v === 'junk') return jplan.map((p) => fx({ id: p.id, st: 'todo', grp: p.level === 'del' ? '作品と関係ないファイル（ほかのステップの対象から外しています）' : '要確認：作品の可能性があるもの（削除するならチェック）', before: p.name, after: '', note: `${p.path}　${fmt(p.size)}`, thumb: p.thumb || '', open: p.id, ...tg(p.reason, p.level === 'del' ? 'del' : 'warn'), danger: true }));
@@ -3261,6 +3287,7 @@
     let groups = buildGroups(workFiles(), m ? m.value : 'name');
     if (n && n.checked) groups = groups.filter((g) => g.near);
     groups = groups.concat(visLive());
+    if (scopeTop) groups = groups.filter((g) => g.items.some((x) => inScope(x.path)));
     const q = qq ? qq.value.trim().toLowerCase() : '';
     if (q) groups = groups.filter((g) => g.items.some((x) => x.name.toLowerCase().includes(q)));
     return groups;
@@ -3357,7 +3384,7 @@
     if (!visGroups.length) status('見た目が近い組は見つかりませんでした。');
   }
   const delList = (groups) => groups.flatMap((g) => g.items.filter((f, i) => stateOf(f, i) === 'del'));
-  function renderDup() { renderDup0(); if (!metaBusy) fetchMeta(dupAllGroups().flatMap((g) => g.items)).then((ch) => { if (ch && view === 'dup') renderDup(); }).catch((e) => { if (e && e.session) handleErr(e, 'dup'); }); const m = $('[data-r=main]'); if (!m) return; if (dupAllGroups().length && !m.querySelector('.kit-tabs')) m.insertAdjacentHTML('afterbegin', dupTabsHtml()); if (!m.querySelector('.kit-ex')) m.insertAdjacentHTML('afterbegin', kitExHtml('dup')); m.querySelectorAll('.pd-row[data-id]').forEach((r) => { const e = dupFail.get(r.dataset.id); if (e && !r.querySelector('.kit-err')) { r.classList.add('fail', 'kit-row'); const i = r.querySelector('.pd-info'); if (i) i.insertAdjacentHTML('beforeend', `<div class="kit-err">失敗：${esc(e)}</div>`); } }); }
+  function renderDup() { renderDup0(); if (!metaBusy) fetchMeta(dupAllGroups().flatMap((g) => g.items)).then((ch) => { if (ch && view === 'dup') renderDup(); }).catch((e) => { if (e && e.session) handleErr(e, 'dup'); }); const m = $('[data-r=main]'); if (!m) return; if (dupAllGroups().length && !m.querySelector('.kit-tabs')) m.insertAdjacentHTML('afterbegin', dupTabsHtml()); if (!m.querySelector('.kit-ex')) m.insertAdjacentHTML('afterbegin', kitExHtml('dup')); if (scopeTop && !m.querySelector('.nt-scope')) m.insertAdjacentHTML('afterbegin', scopeBannerHtml()); m.querySelectorAll('.pd-row[data-id]').forEach((r) => { const e = dupFail.get(r.dataset.id); if (e && !r.querySelector('.kit-err')) { r.classList.add('fail', 'kit-row'); const i = r.querySelector('.pd-info'); if (i) i.insertAdjacentHTML('beforeend', `<div class="kit-err">失敗：${esc(e)}</div>`); } }); }
   function renderDup0() {
     const groups = visibleGroups();
     const main = $('[data-r=main]');
@@ -5546,6 +5573,9 @@
     if (a === 'spause') { lookupSt.paused = !lookupSt.paused; refreshSellerChrome(); status(lookupSt.paused ? '販売者の調査を一時停止しています（「再開」で続けます）' : '販売者の調査を再開しました'); return; }
     if (a === 'stop') { window.__ppdupStop = true; status('中断しています…（いまの処理が終わったら止まります）'); return; }
     if (busy) return;
+    if (a === 'ntseen') { lsSetJson(LS_TOPSEEN, { ids: topFolders().map((d) => d.id) }); render(); return; }
+    if (a === 'ntclear') { scopeTop = null; render(); return; }
+    if (a === 'ntscope') { const d = folders.find((x) => x.id === t.dataset.id); if (!d) return; scopeTop = d; log('info', `ホームの新しいフォルダ「${d.name}」を確認：${t.dataset.v === 'dup' ? '重複' : '仕分け・移動'}`); setView(t.dataset.v); return; }
     if (a === 'scan') return runScan();
     if (a === 'onepass') return runOnePass();
     if (a === 'oplookup') { selPlan = buildSellerPlan(folders); return runSellerLookup(); }

@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.10.0
+// @version      4.10.1
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -107,7 +107,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.10.0'; // @version と合わせて更新する
+  const VER = '4.10.1'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1207,12 +1207,12 @@
   .qp-osd[hidden],.qp-mini[hidden]{display:none}
   .qp-mini{position:absolute;right:10px;top:10px;width:96px;aspect-ratio:16/9;border:1px solid #fff9;background:#0007;z-index:4;pointer-events:none}
   .qp-mini i{position:absolute;border:1.5px solid #fff;box-sizing:border-box}
-  .qp-badge{position:absolute;left:10px;top:10px;z-index:4;font:700 11px system-ui,sans-serif;padding:2px 8px;border-radius:99px;background:#306fff;color:#fff;opacity:0;transition:opacity .2s;pointer-events:none;border:0;cursor:pointer}
-  .qp-on .qp-badge{pointer-events:auto}
-  .qp-keys{position:absolute;left:10px;top:36px;z-index:6;max-height:calc(100% - 50px);overflow:auto;padding:10px 14px;border-radius:10px;background:#000d;color:#fff;font:12px/1.7 system-ui,sans-serif;display:grid;grid-template-columns:auto auto;gap:0 14px}
+  .qp-hint{display:flex;justify-content:flex-end;padding:4px 12px;background:#14171d}
+  .qp-badge{font:700 11px system-ui,sans-serif;padding:2px 8px;border-radius:99px;background:#306fff;color:#fff;opacity:.45;transition:opacity .2s;border:0;cursor:pointer}
+  .qp-keys{position:absolute;left:10px;top:10px;z-index:6;max-height:calc(100% - 50px);overflow:auto;padding:10px 14px;border-radius:10px;background:#000d;color:#fff;font:12px/1.7 system-ui,sans-serif;display:grid;grid-template-columns:auto auto;gap:0 14px}
   .qp-keys[hidden]{display:none}.qp-keys kbd{font:700 11px system-ui;padding:0 5px;border-radius:4px;background:#ffffff26}
   @keyframes qpblink{0%,100%{box-shadow:none}50%{box-shadow:0 0 0 3px #7fb0ff}}.qp-blink{animation:qpblink .5s 3;border-radius:6px}
-  .qp-on .qp-badge{opacity:.9}
+  .qp-on .qp-badge{opacity:.95}
   .qp-on > .qp-stage{box-shadow:inset 0 0 0 2px #306fff}
   .qp-ui{position:relative;background:#000;color:#fff;font:13px/1.4 system-ui,-apple-system,"Hiragino Sans","Yu Gothic UI",sans-serif}
   .qp-ui.qp-on{box-shadow:inset 2px 0 0 #306fff,inset -2px 0 0 #306fff,inset 0 -2px 0 #306fff}
@@ -5713,7 +5713,7 @@
   // video を包んだ枠（stage）と、下の操作バー（ui）を作る
   function qpAttach(box, v, ui, opt) {
     const stage = box.querySelector('.qp-stage');
-    stage.insertAdjacentHTML('beforeend', '<div class="qp-osd" hidden></div><div class="qp-mini" hidden><i></i></div><button class="qp-badge" title="押すとキー操作の一覧（? キーでも）">⌨ キー操作 ON ・ ?</button><div class="qp-keys" hidden></div><div class="qp-notes"></div><div class="qp-hold" hidden></div>');
+    stage.insertAdjacentHTML('beforeend', '<div class="qp-osd" hidden></div><div class="qp-mini" hidden><i></i></div><div class="qp-keys" hidden></div><div class="qp-notes"></div><div class="qp-hold" hidden></div>');
     const osd = stage.querySelector('.qp-osd'), mini = stage.querySelector('.qp-mini'), mr = mini.querySelector('i');
     const P = { v, root: [box, ui], opt, z: 1, tx: 0, ty: 0 };
     v._qp = P;
@@ -5808,7 +5808,11 @@
     const KEYS = [['Space / K', '再生・一時停止'], ['← / →', '戻る・進む（→ 長押しで速く再生）'], ['Shift＋← / →', '大きく戻る・進む'], ['J / L', '10 秒戻る・進む'], [', / .', '1 コマ戻る・進む'], ['0〜9', '0%〜90% の位置へ'], ['↑ / ↓', '音量'], ['M', '消音・解除'], ['[ / ] / \\', '速度を下げる・上げる・1×'], ['Z / X / R', '拡大・縮小・元に戻す（ピンチ・ホイールでも）'], ['F', '全画面'], ['V', 'ざっと見（バーのマスで場所を選べる）'], ['G', 'シーン'], ['A / B', '飛ばす区間の始め・終わり'], ['Y / D / S', '残す・消す候補・スター'], ['P / N', '前の動画・次の動画'], ['Enter', 'ざっと見中：ここから再生／それ以外：外部プレーヤー'], ['?', 'この一覧を出す・閉じる']];
     keysEl.innerHTML = KEYS.map(([k, t]) => `<kbd>${esc(k)}</kbd><span>${esc(t)}</span>`).join('');
     P.keys = () => { keysEl.hidden = !keysEl.hidden; };
-    stage.querySelector('.qp-badge').addEventListener('click', (e) => { e.stopPropagation(); P.keys(); });
+    // 「キー操作 ON ・ ?」の表示は、動画に重ねず、動画の下の行に置く（動画を見るのに邪魔にならず、押し間違いで再生・停止もしない）
+    const hintEl = document.createElement('div'); hintEl.className = 'qp-hint';
+    hintEl.innerHTML = '<button class="qp-badge" title="押すとキー操作の一覧（? キーでも）">⌨ キー操作 ON ・ ?</button>';
+    ui.appendChild(hintEl);
+    hintEl.querySelector('.qp-badge').addEventListener('click', (e) => { e.stopPropagation(); P.keys(); });
     keysEl.addEventListener('click', (e) => { e.stopPropagation(); keysEl.hidden = true; });
     P.flash = flash;
     // ---- 押している間だけ速く ----
@@ -5963,7 +5967,7 @@
     // ---- 見ながら仕分け（Y 残す／D 消す候補／S スター） ----
     if (mk && mk.setTri) {
       const tb = document.createElement('div'); tb.className = 'qp-tri';
-      ui.appendChild(tb);
+      ui.insertBefore(tb, ui.querySelector('.qp-hint'));
       P.drawTri = () => {
         const t = mk.tri(), st = mk.starred();
         tb.hidden = !qpCfg().tri;

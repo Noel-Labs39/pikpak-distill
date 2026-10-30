@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.11.1
+// @version      4.12.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -107,7 +107,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.11.1'; // @version と合わせて更新する
+  const VER = '4.12.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -4536,6 +4536,7 @@
     el.innerHTML = rows.length
       ? `<span class="cnt">選択中：${rows.length} 項目</span><button class="pri" data-ta="play"${dis(isVideoRow(one))} title="再生：${prefLabel()}（${KEY.open} / ダブルクリック）">▶ 再生</button>
         ${rows.length === 2 && rows.every(isVideoRow) ? '<button data-ta="compare" title="選んだ 2 本を左右に並べて、いっしょに再生して比べる">▶ 2 本を見比べる</button>' : ''}
+        <button data-ta="download"${dis(rows.some((r) => r.kind === 'file'))} title="選んだファイルを、このパソコンにダウンロード（一度に ${DL_MAX} 本まで。フォルダは選べません）">⬇ ダウンロード</button>
         <button data-ta="rename"${dis(one)} title="名前を変更（${KEY.rename}）">✎ 名前を変更</button>
         <button data-ta="move"${dis(rows.length && !fixed)} title="${fixed ? '読み込んだ場所とその上のフォルダは、ここでは移動できません' : '移動（ドラッグでも移動できます）'}">↪ 移動…</button>
         ${rows.some((r) => r.kind === 'file' && isArchive(r.name)) ? '<button data-ta="unzip" title="選んだ圧縮ファイルを PikPak の上で解凍">📦 解凍</button>' : ''}
@@ -4544,12 +4545,38 @@
         <span class="sp"></span><button data-ta="addlink"${dis(true)} title="リンク・マグネットを、選んでいる場所へ追加">🔗 リンクを追加</button><button data-ta="mkdir"${dis(true)} title="新規フォルダ（${KEY.mkdir}）">＋ 新規フォルダ</button>`
       : `<span class="hint">項目を選ぶと、再生・名前の変更・移動・ゴミ箱が使えます（右クリックでもメニューを開けます）</span><span class="sp"></span><button data-ta="addlink"${dis(true)} title="リンク・マグネットを、表示中の場所へ追加">🔗 リンクを追加</button><button data-ta="mkdir"${dis(true)} title="新規フォルダ（${KEY.mkdir}）">＋ 新規フォルダ</button>`;
   }
+  // 選んだファイルを、このパソコンへダウンロードする（PikPak のダウンロード用リンクで、ブラウザのダウンロードを始める）
+  const DL_MAX = 10;
+  async function downloadRows(rows) {
+    const fs = rows.filter((r) => r.kind === 'file');
+    if (!fs.length) { status('ダウンロードできるのはファイルです。フォルダは、中のファイルを選んでください。'); return; }
+    if (fs.length > DL_MAX) { status(`一度にダウンロードできるのは ${DL_MAX} 本までです（${fs.length} 本選ばれています）。`); return; }
+    if (!ensureSession('tree')) return;
+    const skipped = rows.length - fs.length, total = fs.reduce((a, r) => a + (r.size || 0), 0);
+    if (!window.confirm(`${fs.length} 本（${fmt(total)}）をダウンロードします。${skipped ? `\n※フォルダ ${skipped} 件は含みません。` : ''}\n\n始めますか？`)) return;
+    let ok = 0, ng = 0;
+    for (const r of fs) {
+      try {
+        const info = await apiGet(r.id);
+        const o = (Array.isArray(info.medias) ? info.medias.find((m) => m && m.is_origin && m.link && m.link.url) : null);
+        const url = info.web_content_link || (o && o.link.url);
+        if (!url) throw new Error('ダウンロード用リンクがありません');
+        const a = document.createElement('a'); a.href = url; a.download = r.name; a.rel = 'noopener'; a.style.display = 'none';
+        document.body.appendChild(a); a.click(); a.remove(); ok++;
+        status(`ダウンロードを始めました：${r.name}（${ok} / ${fs.length}）`);
+        await sleep(900);
+      } catch (e) { if (e && e.session) { handleErr(e, 'tree'); return; } ng++; log('warn', `ダウンロードできませんでした：${r.name}（${e.message}）`); }
+    }
+    status(`ダウンロードを始めたのは ${ok} 本${ng ? `、できなかったのは ${ng} 本` : ''}です。保存先はブラウザの設定に従います。`);
+    log('info', `ダウンロード：${ok} 本を開始${ng ? `／${ng} 本は失敗` : ''}`);
+  }
   function treeAction(a) {
     const rows = selRows(), one = rows.length === 1 ? rows[0] : null;
     closeCtx();
     if (a === 'play' && isVideoRow(one)) playDefault(one.id);
     else if (a === 'playfull' && isVideoRow(one)) playFile(one.id, { full: true });
     else if (a === 'playext' && isVideoRow(one)) openExternal(one.id);
+    else if (a === 'download') downloadRows(rows);
     else if (a === 'playset') openSettings('play');
     else if (a === 'compare' && rows.length === 2 && rows.every(isVideoRow)) openCompare(rows.map((r) => r.id));
     else if (a === 'frames' && rows.length && rows.length <= 2 && rows.every(isVideoRow)) openFrames(rows.map((r) => r.id));
@@ -4580,6 +4607,7 @@
       isVideoRow(one) ? it('playext', `↗ 外部プレーヤー（${EXT_PLAYERS[playPref().ext].short}）`, '', true) : '',
       rows.length === 2 && rows.every(isVideoRow) ? it('compare', '▶ 2 本を見比べる', '', true) : '',
       rows.length && rows.length <= 2 && rows.every(isVideoRow) ? it('frames', rows.length === 2 ? '▦ 2 本をコマで比べる' : '▦ コマ一覧', '', true) : '',
+      rows.some((r) => r.kind === 'file') ? it('download', '⬇ ダウンロード', '', true) : '',
       isVideoRow(one) ? it('playset', '再生のしかたの設定…', '', true) + '<hr>' : '',
       one && one.kind === 'folder' ? it('open', '開く', '→', true) : '',
       one && one.kind === 'folder' ? it('base', 'このフォルダを最上位にして表示', KEY.open, true) : '',

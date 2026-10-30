@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.9.3
+// @version      4.10.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -107,7 +107,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.9.3'; // @version と合わせて更新する
+  const VER = '4.10.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1708,6 +1708,9 @@
   #pd-ql .ql-h button{border:0;background:#fff2;color:#eee;border-radius:50%;width:22px;height:22px;cursor:pointer}
   #pd-ql .ql-b{display:flex;align-items:center;justify-content:center;min-height:300px;max-height:65vh;background:#000}
   #pd-ql .ql-b img{max-width:100%;max-height:65vh;display:block}
+  #pd-ql.ql-vid:not(.playing) .ql-b{aspect-ratio:16/9;min-height:0}
+  #pd-ql.ql-vid:not(.playing) .ql-b img{width:100%;height:100%;object-fit:contain}
+  #pd-ql.ql-vid:not(.playing) .ql-f{visibility:hidden}
   #pd-ql .ql-ic svg{width:160px;height:140px}
   #pd-ql .ql-f{padding:10px 14px}
   #pd-ql .ql-b{position:relative}
@@ -2735,6 +2738,7 @@
       <select data-a="mode" title="まとめ方"><option value="name">同じファイル名でまとめる</option><option value="id">同じ品番でまとめる（-1/-2違いも含む）</option></select>
       <label><input type="checkbox" data-a="nearonly"> サイズが近い組だけ</label>
       <input type="text" data-a="q" placeholder="絞り込み（品番・名前）" size="16">
+      <button data-a="visual" title="長さが近くて品番が違う動画を、画面の見た目（5か所）で比べて、同じ動画かもしれない組を探します。自動では削除しません">見た目で探す</button>
       <span class="sep"></span>`;
     $('[data-r=tb]').innerHTML = html ? html + (STEPV.includes(view) ? '' : '<span data-r="acts" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"></span>') : '';
     renderActs();
@@ -3248,6 +3252,7 @@
     const m = $('[data-a=mode]'), n = $('[data-a=nearonly]'), qq = $('[data-a=q]');
     let groups = buildGroups(workFiles(), m ? m.value : 'name');
     if (n && n.checked) groups = groups.filter((g) => g.near);
+    groups = groups.concat(visLive());
     const q = qq ? qq.value.trim().toLowerCase() : '';
     if (q) groups = groups.filter((g) => g.items.some((x) => x.name.toLowerCase().includes(q)));
     return groups;
@@ -3265,6 +3270,83 @@
     const q = qq ? qq.value.trim().toLowerCase() : '';
     if (q) groups = groups.filter((g) => g.items.some((x) => x.name.toLowerCase().includes(q)));
     return groups;
+  }
+  // ---- 見た目で探す重複 ----
+  //   長さが近くて品番が違う動画を、5か所の画面から作った小さな指紋（64ビット×5）で比べる。
+  //   見つかった組は「チェックなし」で出すだけで、自動では削除しない
+  let visGroups = [];
+  const visHash = new Map(); // id → [指紋 or ''] ×5
+  const VIS_AT = [0.1, 0.3, 0.5, 0.7, 0.9];
+  const visLive = () => { const ids = new Set(files.map((f) => f.id)); return visGroups.map((g) => ({ ...g, items: g.items.filter((f) => ids.has(f.id)) })).filter((g) => g.items.length > 1); };
+  function dHashOf(c) {
+    const t = document.createElement('canvas'); t.width = 9; t.height = 8;
+    const g = t.getContext('2d'); g.drawImage(c, 0, 0, 9, 8);
+    const d = g.getImageData(0, 0, 9, 8).data, y = [];
+    for (let i = 0; i < 72; i++) y.push(d[i * 4] * 0.3 + d[i * 4 + 1] * 0.59 + d[i * 4 + 2] * 0.11);
+    const mean = y.reduce((a, b) => a + b, 0) / 72, sd = Math.sqrt(y.reduce((a, b) => a + (b - mean) * (b - mean), 0) / 72);
+    if (sd < 6) return ''; // ほぼ一色の画面（暗転など）は比べない
+    let o = ''; for (let r = 0; r < 8; r++) for (let x = 0; x < 8; x++) o += y[r * 9 + x] > y[r * 9 + x + 1] ? '1' : '0';
+    return o;
+  }
+  function visDist(a, b) {
+    let sum = 0, n = 0;
+    for (let k = 0; k < 5; k++) { if (!a[k] || !b[k]) continue; let h = 0; for (let i = 0; i < 64; i++) if (a[k][i] !== b[k][i]) h++; sum += h; n++; }
+    return n >= 3 ? sum / n : 99;
+  }
+  const VIS_MAX = 10; // 64ビット中の差の平均がこれ以下なら「近い」
+  function visClusters() {
+    const dn = new Map(folders.map((d) => [d.id, d.name]));
+    const idKey = (f) => keyOf(f.name, 'id', dn.get(f.parentId));
+    const vids = workFiles().filter((f) => VIDEO_EXT.has(extOf(f.name)) && metaGet(f).dur > 0).sort((a, b) => metaGet(a).dur - metaGet(b).dur);
+    const out = []; let cur = [];
+    vids.forEach((f) => { const d = metaGet(f).dur; if (cur.length && d - metaGet(cur[cur.length - 1]).dur > Math.max(2, d * 0.015)) { out.push(cur); cur = []; } cur.push(f); });
+    out.push(cur);
+    return out.filter((c) => c.length > 1 && new Set(c.map(idKey)).size > 1).map((c) => c.slice(0, 60));
+  }
+  const visHooks = { hash: (f) => visHashOf(f) }; // テストで差し替えられるようにしている
+  async function visHashOf(f) {
+    const S = await loadSources(f.id), x = lightSrc(S); if (!x) throw new Error('再生用リンクを取得できませんでした');
+    const gr = makeGrabber(x, S);
+    try {
+      await gr.ready; const dur = gr.duration || metaGet(f).dur, out = [];
+      for (const p of VIS_AT) { if (window.__ppdupStop) break; try { out.push(dHashOf(await gr.grab(dur * p, 48))); } catch (e) { out.push(''); } }
+      while (out.length < 5) out.push('');
+      return out;
+    } finally { gr.close(); }
+  }
+  async function runVisual() {
+    if (busy) return;
+    const clusters = visClusters(), todo = [...new Map(clusters.flat().map((f) => [f.id, f])).values()].filter((f) => !visHash.has(f.id));
+    const all = clusters.reduce((a, c) => a + c.length, 0);
+    if (!all) { status('見た目で比べる候補（長さが近くて品番が違う動画）はありません。'); return; }
+    if (todo.length && !window.confirm(`長さが近くて品番が違う動画 ${all} 件を、画面の見た目で比べます。\n\n・${todo.length} 件の動画から画面を 5 か所ずつ読み込みます（目安：約 ${Math.max(1, Math.round(todo.length * 6 / 2 / 60))} 分）\n・見つかった組は「チェックなし」で表示します。自動では削除しません\n\n始めますか？`)) return;
+    if (!ensureSession('dup')) return;
+    busy = true; window.__ppdupStop = false; render(); renderNav();
+    let i = 0, fail = 0, done = 0;
+    try {
+      const worker = async () => {
+        while (i < todo.length && !window.__ppdupStop) {
+          const f = todo[i++];
+          try { visHash.set(f.id, await visHooks.hash(f)); } catch (e) { if (e && e.session) throw e; fail++; visHash.set(f.id, []); }
+          done++; status(`見た目で比べています… ${done} / ${todo.length}`);
+        }
+      };
+      await Promise.all([worker(), worker()]);
+      const groups = [];
+      clusters.forEach((c) => {
+        const par = c.map((_, k) => k), find = (k) => (par[k] === k ? k : (par[k] = find(par[k])));
+        for (let a = 0; a < c.length; a++) for (let b = a + 1; b < c.length; b++) { const ha = visHash.get(c[a].id), hb = visHash.get(c[b].id); if (ha && hb && ha.length && hb.length && visDist(ha, hb) <= VIS_MAX) par[find(a)] = find(b); }
+        const m = new Map(); c.forEach((f, k) => { const r = find(k); if (!m.has(r)) m.set(r, []); m.get(r).push(f); });
+        m.forEach((v) => { if (v.length > 1) { v.sort((a, b) => b.size - a.size); v.forEach((f) => { if (!decision[f.id]) decision[f.id] = 'keep'; }); groups.push({ key: 'vis:' + v[0].id, items: v, near: false, visual: true }); } });
+      });
+      saveDecision();
+      const known = new Set(buildGroups(workFiles(), 'name').flatMap((g) => g.items.map((f) => f.id)));
+      visGroups = groups.filter((g) => !g.items.every((f) => known.has(f.id)));
+      log('info', `見た目で探す：${all} 件を比べ、似ている組が ${visGroups.length} 組見つかりました${fail ? `（${fail} 件は画面を読み込めませんでした）` : ''}${window.__ppdupStop ? '（途中で中断）' : ''}`);
+    } catch (e) { handleErr(e, 'dup', '見た目での比較を停止しました：' + e.message); }
+    finally { busy = false; window.__ppdupStop = false; }
+    dupTab = 'all'; render(); renderNav();
+    if (!visGroups.length) status('見た目が近い組は見つかりませんでした。');
   }
   const delList = (groups) => groups.flatMap((g) => g.items.filter((f, i) => stateOf(f, i) === 'del'));
   function renderDup() { renderDup0(); if (!metaBusy) fetchMeta(dupAllGroups().flatMap((g) => g.items)).then((ch) => { if (ch && view === 'dup') renderDup(); }).catch((e) => { if (e && e.session) handleErr(e, 'dup'); }); const m = $('[data-r=main]'); if (!m) return; if (dupAllGroups().length && !m.querySelector('.kit-tabs')) m.insertAdjacentHTML('afterbegin', dupTabsHtml()); if (!m.querySelector('.kit-ex')) m.insertAdjacentHTML('afterbegin', kitExHtml('dup')); m.querySelectorAll('.pd-row[data-id]').forEach((r) => { const e = dupFail.get(r.dataset.id); if (e && !r.querySelector('.kit-err')) { r.classList.add('fail', 'kit-row'); const i = r.querySelector('.pd-info'); if (i) i.insertAdjacentHTML('beforeend', `<div class="kit-err">失敗：${esc(e)}</div>`); } }); }
@@ -3288,7 +3370,7 @@
       }).join('');
       const hs = g.items.map((f) => metaGet(f).hash);
       const same = hs.every(Boolean) && new Set(hs).size === 1, part = hs.every(Boolean) && new Set(hs).size < hs.length && !same;
-      return `<section class="pd-g"><div class="pd-gh"><span>${esc(g.items[0].name)}</span><span class="note">${g.items.length}件</span>${same ? '<span class="pd-tag" style="background:#d7f0dd;color:#14612f" title="ハッシュ値が同じ＝中身がまったく同じファイル">中身が同じ</span>' : part ? '<span class="pd-tag" style="background:#d7f0dd;color:#14612f" title="この組の中に、中身がまったく同じファイルがあります">中身が同じものあり</span>' : hs.every(Boolean) ? '<span class="pd-tag" title="ハッシュ値が違う＝中身は別のファイル（画質・編集が違うなど）">中身は別</span>' : ''}${g.near ? '<span class="pd-tag">サイズが近い組あり</span>' : ''}<span class="sp"></span><button data-cmpg="${esc(g.key)}" title="この組の 2 本を左右に並べて、いっしょに再生して比べる">▶ 見比べ</button><button data-frg="${esc(g.key)}" title="この組の 2 本を、同じ位置のコマで並べて比べる">▦ コマで比べる</button><button data-g="${esc(g.key)}">この組のチェックを削除</button></div>${rows}</section>`;
+      return `<section class="pd-g"><div class="pd-gh"><span>${esc(g.items[0].name)}</span><span class="note">${g.items.length}件</span>${g.visual ? '<span class="pd-tag" style="background:#fff1d6;color:#8a5a00" title="ハッシュ値は違いますが、画面の見た目が近い動画です。必ず中身を見て確かめてください">見た目が近い</span>' : ''}${same ? '<span class="pd-tag" style="background:#d7f0dd;color:#14612f" title="ハッシュ値が同じ＝中身がまったく同じファイル">中身が同じ</span>' : part ? '<span class="pd-tag" style="background:#d7f0dd;color:#14612f" title="この組の中に、中身がまったく同じファイルがあります">中身が同じものあり</span>' : hs.every(Boolean) ? '<span class="pd-tag" title="ハッシュ値が違う＝中身は別のファイル（画質・編集が違うなど）">中身は別</span>' : ''}${g.near ? '<span class="pd-tag">サイズが近い組あり</span>' : ''}<span class="sp"></span><button data-cmpg="${esc(g.key)}" title="この組の 2 本を左右に並べて、いっしょに再生して比べる">▶ 見比べ</button><button data-frg="${esc(g.key)}" title="この組の 2 本を、同じ位置のコマで並べて比べる">▦ コマで比べる</button><button data-g="${esc(g.key)}">この組のチェックを削除</button></div>${rows}</section>`;
     }).join('') + nextButton();
     renderActs();
     if (!busy) { const dl = delList(groups); status(`重複 ${groups.length} 組 ／ チェック（削除する） ${dl.length} 件・${fmt(dl.reduce((a, f) => a + f.size, 0))}　※各組の一番大きいファイルは最初からチェックなし（残す）になっています`); }
@@ -3889,7 +3971,7 @@
   const saveTree = () => { try { localStorage.setItem(LS_TREE, JSON.stringify({ qs: tree.qs, open: [...treeOpen].slice(-2000), sort: tree.sort, dir: tree.dir, base: tree.base || '', view: tree.view, hover: tree.hover !== false })); } catch (e) { /* 無視 */ } };
   const treeSel = new Set();
   let treeCur = '', treeAnchor = '', treeRowsCache = [], treeIdx = null, qlOpen = false, renaming = '';
-  const VIDEO_EXT = new Set(['mp4', 'mkv', 'avi', 'mov', 'wmv', 'flv', 'ts', 'm4v', 'webm', 'rmvb', 'mpg', 'mpeg']);
+  const VIDEO_EXT = new Set(['mp4', 'mkv', 'avi', 'mov', 'wmv', 'flv', 'ts', 'm4v', 'webm', 'rmvb', 'mpg', 'mpeg', '3gp', '3g2', 'm2ts', 'mts', 'vob', 'asf', 'f4v', 'ogv', 'divx']);
   const IMAGE_EXT = new Set(['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'heic']);
   const extOf = (n) => ((String(n).match(/\.([A-Za-z0-9]{2,7})$/) || [])[1] || '').toLowerCase();
   const kindOf = (r) => (r.kind === 'folder' ? 'フォルダ' : VIDEO_EXT.has(r.ext) ? 'ビデオ' : IMAGE_EXT.has(r.ext) ? 'イメージ' : SUB_EXT.has(r.ext) ? '字幕' : r.ext ? r.ext.toUpperCase() + ' 書類' : '書類');
@@ -4236,7 +4318,7 @@
     const jr = r.kind === 'file' && junkEnabled() ? (prepJunk(files, folders), junkInfo(r.f)) : null;
     d.innerHTML = `<div class="ql"><div class="ql-h"><button data-qlclose title="閉じる（スペース / Esc）" aria-label="閉じる">${IC.x}</button><b>${esc(r.name)}</b></div><div class="ql-b">${big}</div>
       <div class="ql-f"><div>${info}</div><div class="note">${esc((r.kind === 'folder' ? r.path : r.path + '/').replace(/^\/?/, '/').replace(/\/+$/, '') || '/')}</div>${jr ? `<div style="color:#ff6b6b">不要ファイルの判定：${esc(jr.reason)}</div>` : ''}${isVideoRow(r) ? `<div class="ql-acts"><button data-qlfull title="全画面で再生">⛶ 全画面</button><button data-qlframes title="コマ一覧（動画の中身を 16 コマで見る）">▦ コマ一覧</button>${rateSelect()}<button data-qlext title="外部プレーヤーで開く">↗ ${esc(EXT_PLAYERS[playPref().ext].short)}</button><button data-qlset title="再生のしかたの設定（ダブルクリック時の動作・外部プレーヤー）" aria-label="再生のしかたの設定">${IC.gear}</button></div>` : ''}</div></div>`;
-    d.classList.remove('playing'); plStop('ql');
+    d.classList.remove('playing'); d.classList.toggle('ql-vid', isVideoRow(r)); plStop('ql');
     const on = (sel, fn) => { const b = d.querySelector(sel); if (b) b.onclick = fn; };
     on('[data-qlfull]', () => playFile(r.id, { full: true }));
     on('[data-qlext]', () => { const v = d.querySelector('video'); if (v) v.pause(); openExternal(r.id); });
@@ -4306,7 +4388,7 @@
     } catch (err) { saveAll(); busy = false; renderTree(); handleErr(err, 'tree', `削除を停止しました（${done} 項目完了）：` + err.message); }
   }
   // ---------- フォルダ一覧：移動・新規フォルダ・右クリックメニュー・再生 ----------
-  const isVideoRow = (r) => !!r && r.kind === 'file' && VIDEO_EXT.has(r.ext);
+  const isVideoRow = (r) => !!r && r.kind === 'file' && VIDEO_EXT.has(extOf(r.name)); // 動画かどうかは拡張子だけで決める
   const selRows = () => treeRowsCache.filter((r) => treeSel.has(r.id));
   // to の中へ ids を移動できるか（自分自身や自分の中、読み込んだ場所とその上のフォルダは移動できない）
   function canMoveTo(ids, to) {
@@ -5430,6 +5512,7 @@
     if (a === 'onepass') return runOnePass();
     if (a === 'oplookup') { selPlan = buildSellerPlan(folders); return runSellerLookup(); }
     if (a === 'resclose') { delete lastResult[view]; const r = t.closest('.st-res'); if (r) r.remove(); return; }
+    if (a === 'visual') return runVisual();
     if (a === 'delall') return Promise.resolve(runDelete(visibleGroups())).then(() => captureResult('dup'));
     if (a === 'junkdel') return Promise.resolve(runJunk()).then(() => captureResult('junk'));
     if (a === 'jall' || a === 'jnone') { const lv = t.dataset.lv; jplan.filter((p) => p.level === lv).forEach((p) => junkSel.set(p.id, a === 'jall')); render(); renderActs(); return; }
@@ -7482,5 +7565,5 @@
   resumeAfterReload();
   ddStart();
 
-  window.PPDup = { buildCleanPlan, buildSortPlan, buildRenamePlan, get folders() { return folders; }, scanApi, buildGroups, render, get files() { return files; }, set files(v) { files = v; } };
+  window.PPDup = { visHooks, buildCleanPlan, buildSortPlan, buildRenamePlan, get folders() { return folders; }, scanApi, buildGroups, render, get files() { return files; }, set files(v) { files = v; } };
 })();

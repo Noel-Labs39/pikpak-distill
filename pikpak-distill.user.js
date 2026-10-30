@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.9.1
+// @version      4.9.2
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -107,7 +107,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.9.1'; // @version と合わせて更新する
+  const VER = '4.9.2'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -5699,6 +5699,7 @@
     let drag = null, clickT = null;
     stage.addEventListener('mousedown', (e) => {
       if (e.button !== 0 || e.target.closest('.qp-mini')) return;
+      const sp = ui.querySelector('.qp-set'); if (sp && !sp.hidden) { sp.hidden = true; e.preventDefault(); return; } // 設定の枠が開いているときは、閉じるだけ
       drag = { x: e.clientX, y: e.clientY, tx: P.tx, ty: P.ty, moved: false };
       // 押したままにすると、離すまで速く再生（拡大中は移動に使うので除く）
       const holdT = P.z > 1.001 || v.paused ? null : setTimeout(() => { if (drag && !drag.moved) { drag.held = true; P.holdOn(); } }, 450);
@@ -5854,6 +5855,7 @@
       else if (k === 'skdel' && mk) { mk.delSkip(+b.dataset.i); P.drawSkips(); renderSet(); }
       else if (k === 'gear') { if (setPanel.hidden) renderSet(); setPanel.hidden = !setPanel.hidden; }
     });
+    ctl.addEventListener('click', (e) => { if (!setPanel.hidden && !e.target.closest('.qp-set, [data-qp=gear], [data-qp=sklist], [data-qp=skdel]')) setPanel.hidden = true; }, true);
     ctl.addEventListener('input', (e) => { if (e.target.dataset.qp === 'vol') { v.volume = +e.target.value / 100; v.muted = !+e.target.value; } });
     ctl.addEventListener('change', (e) => {
       const t = e.target; if (t.dataset.qpset === undefined) return;
@@ -5919,7 +5921,7 @@
   document.addEventListener('mousedown', (e) => {
     if (!qpActive) return;
     if (!qpActive.v.isConnected) { qpActive = null; return; }
-    if (!qpActive.root.some((el) => el.contains(e.target))) qpSetActive(null);
+    if (!qpActive.root.some((el) => el.contains(e.target))) { const sp = qpActive.root[1] && qpActive.root[1].querySelector('.qp-set'); if (sp) sp.hidden = true; qpSetActive(null); }
   }, true);
   window.addEventListener('keydown', (e) => {
     const P = qpActive; if (!P) return;
@@ -5928,6 +5930,7 @@
     if (e.metaKey || e.ctrlKey || e.altKey || document.getElementById('pd-dlg')) return;
     const c = qpCfg(), k = e.key, v = P.v;
     const done = () => { e.preventDefault(); e.stopImmediatePropagation(); };
+    if (k === 'Escape') { const sp = P.root[1] && P.root[1].querySelector('.qp-set'); if (sp && !sp.hidden) { done(); sp.hidden = true; return; } }
     if (k === ' ' || k === 'k' || k === 'K') { done(); P.toggle(); }
     else if (k === 'ArrowLeft') { done(); P.seek(-(e.shiftKey ? c.big : c.step)); }
     else if (k === 'ArrowRight') {

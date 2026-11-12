@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.14.0
+// @version      4.15.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -107,7 +107,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.14.0'; // @version と合わせて更新する
+  const VER = '4.15.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1010,9 +1010,9 @@
   @media (max-width:1280px){.pd-quota .ql{display:none}.pd-quota{width:210px}#ppdup .hq input{width:110px}}
   @media (max-width:1200px){#ppdup .brand .chip{display:none}#ppdup [data-r=langname]{display:none}#ppdup .brand{gap:8px}}
   #ppdup .sp{flex:1}
-  #ppdup button,#ppdup select,#ppdup input[type=text]{font:inherit;padding:6px 12px;border:1px solid var(--ctl-line);border-radius:8px;background:var(--ctl);color:inherit;cursor:pointer}
-  #ppdup button:disabled{opacity:.45;cursor:not-allowed}
-  #ppdup button.pri{background:var(--pri);color:#fff;border-color:var(--pri);font-weight:700}
+  #ppdup button:where(:not(.pv *)),#ppdup select:where(:not(.pv *)),#ppdup input[type=text]{font:inherit;padding:6px 12px;border:1px solid var(--ctl-line);border-radius:8px;background:var(--ctl);color:inherit;cursor:pointer}
+  #ppdup button:disabled:where(:not(.pv *)){opacity:.45;cursor:not-allowed}
+  #ppdup button.pri:where(:not(.pv *)){background:var(--pri);color:#fff;border-color:var(--pri);font-weight:700}
   #ppdup button.danger{background:var(--danger);color:#fff;border-color:var(--danger);font-weight:700}
   #ppdup button.big{padding:12px 26px;font-size:15px;border-radius:10px}
   #ppdup .note{color:var(--mute);font-size:12px}
@@ -1405,14 +1405,14 @@
   #pd-lib .lb-ct b{font-size:12px;font-weight:600;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-all}
   #pd-lib .lb-ct small{color:var(--mute);font-size:11px}
   #pd-lib .lk-ft .lb-sel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  #pd-lib button.sub{border-color:transparent;background:none;color:var(--mute);font-weight:500}
+  #pd-lib button.sub:where(:not(.pv *)){border-color:transparent;background:none;color:var(--mute);font-weight:500}
   #pd-lib .lb-pv{position:fixed;inset:0;z-index:1;background:#000a;display:flex;align-items:center;justify-content:center}
   /* メインの画面に広げているときは、左メニューに隠れないよう一覧の範囲だけに重ねる */
   #pd-lib.emb .lb-pv{position:absolute;z-index:6}
   #pd-lib.emb .lb-pvbox{max-width:calc(100% - 24px);max-height:calc(100% - 24px)}
   #pd-lib.emb .lb-pvv{flex:0 1 auto;min-height:120px;max-height:none}
   #pd-lib.emb .lb-pvbox > *:not(.lb-pvv){flex:none}
-  #pd-lib .lb-pvbox{width:min(960px,96vw);max-height:94vh;display:flex;flex-direction:column;background:var(--panel);border-radius:14px;overflow:hidden;box-shadow:0 18px 50px #0008}
+  #pd-lib .lb-pvbox{width:min(960px,96vw);max-height:94vh;display:flex;flex-direction:column;background:#14171d;color:#e8eaf0;border-radius:14px;overflow:hidden;box-shadow:0 18px 50px #0008}
   #pd-lib .lb-pvbox .lk-hd b{font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   #pd-lib .lb-pvv{position:relative;background:#000;aspect-ratio:16/9;max-height:70vh;display:flex;align-items:center;justify-content:center;color:#ccc}
   #pd-lib .lb-pvv video{width:100%;height:100%;background:#000}
@@ -1457,9 +1457,9 @@
   #pd-add .sp,#pd-unzip .sp,#pd-lib .sp{flex:1}
   #pd-add .note,#pd-unzip .note,#pd-lib .note{color:var(--mute);font-size:12px}
   #pd-add select{max-width:380px;height:32px;border:1px solid var(--ctl-line);border-radius:8px;background:var(--ctl);color:inherit;font:inherit;padding:0 8px}
-  #pd-add button,#pd-unzip button,#pd-lib button{white-space:nowrap;height:34px;padding:0 14px;border:1px solid var(--ctl-line);border-radius:8px;background:var(--ctl);color:inherit;font:inherit;font-weight:600;cursor:pointer}
-  #pd-add button.pri,#pd-unzip button.pri,#pd-lib button.pri{background:var(--pri);border-color:var(--pri);color:#fff;font-weight:700}
-  #pd-add button:disabled,#pd-unzip button:disabled,#pd-lib button:disabled{opacity:.45;cursor:default}
+  #pd-add button,#pd-unzip button,#pd-lib button:where(:not(.pv *)){white-space:nowrap;height:34px;padding:0 14px;border:1px solid var(--ctl-line);border-radius:8px;background:var(--ctl);color:inherit;font:inherit;font-weight:600;cursor:pointer}
+  #pd-add button.pri,#pd-unzip button.pri,#pd-lib button.pri:where(:not(.pv *)){background:var(--pri);border-color:var(--pri);color:#fff;font-weight:700}
+  #pd-add button:disabled,#pd-unzip button:disabled,#pd-lib button:disabled:where(:not(.pv *)){opacity:.45;cursor:default}
   #pd-add button.x,#pd-unzip button.x,#pd-lib button.x{width:32px;padding:0;border:0;background:none;display:inline-flex;align-items:center;justify-content:center;color:var(--mute)}
   #pd-add button.x svg,#pd-unzip button.x svg,#pd-lib button.x svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
   #pd-add .lk-in{padding:12px 18px;display:flex;flex-direction:column;gap:8px;border-bottom:1px solid var(--line)}
@@ -1748,7 +1748,23 @@
   #pd-ql .ql-b img{max-width:100%;max-height:65vh;display:block}
   #pd-ql.ql-vid:not(.playing) .ql-b{aspect-ratio:16/9;min-height:0}
   #pd-ql.ql-vid:not(.playing) .ql-b img{width:100%;height:100%;object-fit:contain}
-  #pd-ql.ql-vid:not(.playing) .ql-f{visibility:hidden}
+  #pd-ql.ql-vid:not(.playing) .pv-ft{visibility:hidden}
+  /* 簡易プレーヤーの外枠（3 か所共通・暗い色にそろえる） */
+  .pv .pv-hd{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#14171d;color:#e8eaf0;border-bottom:1px solid #262b35}
+  .pv .pv-hd b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:600 14px system-ui,-apple-system,"Hiragino Sans","Yu Gothic UI",sans-serif;text-align:left}
+  .pv .pv-x{width:36px;height:36px;padding:0;border-radius:8px;border:1px solid #343a46;background:#1d212a;color:#e8eaf0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:none}
+  .pv .pv-x svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+  .pv .pv-x:hover{background:#2a303c}
+  .pv .pv-ft{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#1a1e26;color:#e8eaf0;border-top:1px solid #262b35;flex-wrap:wrap;font:13px/1.5 system-ui,-apple-system,"Hiragino Sans","Yu Gothic UI",sans-serif}
+  .pv .pv-inf{flex:1 1 220px;min-width:0}
+  .pv .pv-inf .note{color:#9aa1ad;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pv .pv-acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .pv .pv-q{display:contents}
+  .pv .pv-acts button,.pv .pv-acts select{height:36px;padding:0 12px;border-radius:8px;border:1px solid #343a46;background:#232833;color:#e8eaf0;font:600 13px system-ui,-apple-system,"Hiragino Sans","Yu Gothic UI",sans-serif;cursor:pointer;max-width:240px}
+  .pv .pv-acts button.pri{background:#306fff;border-color:#306fff;color:#fff}
+  .pv .pv-acts button:hover{filter:brightness(1.15)}
+  .pv .pv-acts select option{color:#1c1f26}
+
   #pd-ql .ql-ic svg{width:160px;height:140px}
   #pd-ql .ql-f{padding:10px 14px}
   #pd-ql .ql-b{position:relative}
@@ -1838,7 +1854,7 @@
   #pd-player .pl-h button,#pd-player .pl-h select,#pd-player .pl-h a{font:inherit;background:#2b2e35;color:#eee;border:1px solid #3a3f4b;border-radius:6px;padding:4px 10px;text-decoration:none;cursor:pointer}
   #pd-player .pl-h button:disabled{opacity:.35;cursor:default}
   #pd-player .pl-b{position:relative;background:#000;min-height:300px;display:flex;flex-direction:column;align-items:stretch;justify-content:center}
-  #pd-player video{width:100%;max-height:calc(100vh - 150px);display:block;background:#000}
+  #pd-player video{width:100%;max-height:calc(100vh - 300px);display:block;background:#000}
   #pd-player .pl-msg{padding:40px;color:#bbb;text-align:center}
   #pd-player .pl-f{padding:6px 12px;color:#999;display:flex;gap:4px}
   #pd-player .pl-err{position:absolute;left:0;right:0;bottom:56px;padding:10px 16px;background:#000c;color:#ffb4b4}
@@ -4381,17 +4397,27 @@
     const ix = treeIdx;
     const info = r.kind === 'folder' ? `${r.n} 項目（中のファイル ${ix.agg.get(r.id).files} 件）・${fmt(r.size)}` : `${esc(kindOf(r))}・${fmt(r.size)}`;
     const jr = r.kind === 'file' && junkEnabled() ? (prepJunk(files, folders), junkInfo(r.f)) : null;
-    d.innerHTML = `<div class="ql"><div class="ql-h"><button data-qlclose title="閉じる（スペース / Esc）" aria-label="閉じる">${IC.x}</button><b>${esc(r.name)}</b></div><div class="ql-b">${big}</div>
-      <div class="ql-f"><div>${info}</div><div class="note">${esc((r.kind === 'folder' ? r.path : r.path + '/').replace(/^\/?/, '/').replace(/\/+$/, '') || '/')}</div>${jr ? `<div style="color:#ff6b6b">不要ファイルの判定：${esc(jr.reason)}</div>` : ''}${isVideoRow(r) ? `<div class="ql-acts"><button data-qlfull title="全画面で再生">⛶ 全画面</button><button data-qlframes title="コマ一覧（動画の中身を 16 コマで見る）">▦ コマ一覧</button><button data-qlext title="外部プレーヤーで開く">↗ ${esc(EXT_PLAYERS[playPref().ext].short)}</button><button data-qlset title="再生のしかたの設定（ダブルクリック時の動作・外部プレーヤー）" aria-label="再生のしかたの設定">${IC.gear}</button></div>` : ''}</div></div>`;
+    const qpath = (r.kind === 'folder' ? r.path : r.path + '/').replace(/^\/?/, '/').replace(/\/+$/, '') || '/';
+    d.innerHTML = `<div class="ql pv">${pvHeadHtml(r.name, 'data-qlclose')}<div class="ql-b">${big}</div>${pvFootHtml({ info: info, path: qpath, extra: jr ? `<div style="color:#ff6b6b">不要ファイルの判定：${esc(jr.reason)}</div>` : '', acts: isVideoRow(r) })}</div>`;
     d.classList.remove('playing'); d.classList.toggle('ql-vid', isVideoRow(r)); plStop('ql');
     const on = (sel, fn) => { const b = d.querySelector(sel); if (b) b.onclick = fn; };
-    on('[data-qlfull]', () => playFile(r.id, { full: true }));
-    on('[data-qlext]', () => { const v = d.querySelector('video'); if (v) v.pause(); openExternal(r.id); });
-    on('[data-qlset]', () => openSettings('play'));
-    on('[data-qlframes]', () => { closeQL(); openFrames([r.id]); });
+    pvWire(d, { frames: () => { closeQL(); openFrames([r.id]); }, loc: () => { closeQL(); revealInTree(r.id); }, ext: () => openExternal(r.id) });
     // 動画は、情報だけの画面を挟まず、そのまま簡易プレーヤーを開く（play が偽なら、押すまで再生しない）
     if (isVideoRow(r)) qlPlay(r.id, { armed: !play });
   }
+  // ---- 簡易プレーヤーの外枠（フォルダ一覧・プレーヤー画面・左メニューの 3 か所で共通）----
+  //   上：ファイル名と ✕／中：動画と操作バー・見ながら仕分け／下：情報・画質・コマ一覧・場所を開く・外部プレーヤー
+  //   速度・歯車・全画面・前へ／次へは操作バーだけに置く（二重に置かない）
+  const pvHeadHtml = (name, closeAttr) => `<div class="pv-hd"><b title="${esc(name)}">${esc(name)}</b><button type="button" class="pv-x" ${closeAttr} title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>`;
+  const pvFootHtml = (o) => `<div class="pv-ft"><div class="pv-inf"><div><span data-pvinfo>${o.info}</span><span data-pvdim></span></div><div class="note" title="${esc(o.path)}">${esc(o.path)}</div>${o.extra || ''}</div>${o.acts === false ? '' : `<div class="pv-acts"><span class="pv-q"></span><button type="button" data-pvframes title="動画の中身をコマで見る">▦ コマ一覧</button><button type="button" data-pvloc title="この動画のあるフォルダを、フォルダ一覧で開く">場所を開く</button><button type="button" class="pri" data-pvext title="外部プレーヤーで開く（オリジナル画質）">↗ 外部プレーヤー</button></div>`}</div>`;
+  function pvWire(root, h) {
+    const on = (sel, fn) => { const b = root.querySelector(sel); if (!b) return; b.onclick = (e) => { e.stopPropagation(); fn(); }; };
+    on('[data-pvframes]', h.frames);
+    on('[data-pvloc]', h.loc);
+    on('[data-pvext]', () => { const v = root.querySelector('video'); try { if (v) v.pause(); } catch (e) { /* 無視 */ } h.ext(); });
+  }
+  const pvDim = (root, v, more) => { const e = root.querySelector('[data-pvdim]'); if (e) e.textContent = v && v.videoWidth ? ` ・ ${v.videoWidth}×${v.videoHeight}${more || ''}` : ''; };
+  const pvPath = (f) => ((f.outer ? fullPath(f.parentId) : (f.path || '/')).replace(/\/$/, '') || '') + '/';
   function closeQL() { qlRun++; unloadMedia(document.getElementById('pd-ql')); qlOpen = false; plStop('ql'); const d = document.getElementById('pd-ql'); if (d) { d.querySelectorAll('.pd-sk').forEach((b) => { if (b._grab) b._grab.close(); }); const v = d.querySelector('video'); try { if (v) v.pause(); } catch (e) { /* 無視 */ } d.remove(); } }
   // 名前の変更（Enter）
   function applyRenameCache(kind, id, name) {
@@ -5067,13 +5093,12 @@
     if (!ensureSession('tree')) return;
     box.insertAdjacentHTML('beforeend', '<div class="pl-msg ql-wait">再生の準備中…</div>');
     // 画質の切り替えと解像度の表示（以前の「プレーヤー画面」の機能をプレビューにまとめた）
-    const acts = d.querySelector('.ql-acts'), inf = d.querySelector('.ql-f > div');
-    const base = inf ? inf.textContent : '';
+    const acts = d.querySelector('.pv-q');
     const P = playerCore(box, id, {
       slot: 'ql', name: f.name, qHost: acts, armed: o2.armed, poster: (treeRowsCache.find((x) => x.id === id) || {}).thumb || '',
       alive: () => document.body.contains(box) && treeCur === id && myRun === qlRun,
       qp: { ext: () => openExternal(id), close: () => closeQL(), ...qpSeq(treeRowsCache.filter(isVideoRow), id, (nid) => { treeSelect(nid, null); renderTree(); showQL(true); }) },
-      onMeta: (v) => { if (inf) inf.textContent = base + (v.videoWidth ? ` ・ ${v.videoWidth}×${v.videoHeight}` : ''); },
+      onMeta: (v) => pvDim(d, v),
       noSource: '再生用リンクを取得できませんでした',
       unplayable: 'この画質（HLS）はこのブラウザの中では再生できません。別の画質か外部プレーヤーを選んでください。',
       fail: (x, why) => { box.insertAdjacentHTML('beforeend', `<div class="pl-msg pl-err">「${esc(x.label)}」は再生できませんでした${why ? `（${esc(why)}）` : ''}。下の「画質」で別の画質を試せます。</div>`); log('warn', `再生できない画質：${x.label}`, f.name); },
@@ -5288,27 +5313,21 @@
     }
     const vids = treeRowsCache.filter(isVideoRow);
     const i = vids.findIndex((r) => r.id === id);
-    d.innerHTML = `<div class="pl"><div class="pl-h"><button data-pl="prev"${i > 0 ? '' : ' disabled'} title="前のビデオ（${KEY.prev}）">◀</button><button data-pl="next"${i >= 0 && i < vids.length - 1 ? '' : ' disabled'} title="次のビデオ（${KEY.next}）">▶</button><b>${esc(f.name)}</b><select data-pl="q" title="画質（カクつく場合は変換画質を選んでください）" style="display:none"></select><button data-pl="frames" title="コマ一覧">▦ コマ一覧</button><button data-pl="full" title="全画面（F）">⛶ 全画面</button><button data-pl="ext" title="外部プレーヤーで開く">↗ ${esc(EXT_PLAYERS[playPref().ext].short)}</button><button data-pl="set" title="再生のしかたの設定" aria-label="再生のしかたの設定">${IC.gear}</button><button data-pl="close" title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
-      <div class="pl-b"><div class="pl-msg">再生の準備中…</div></div><div class="pl-f note"><span>${esc(f.outer ? fullPath(f.parentId) : (f.path || '/').replace(/\/$/, ''))}/ ・ ${fmt(f.size)}</span><span data-pl="info"></span></div></div>`;
-    const prev = d.querySelector('[data-pl=prev]'), next = d.querySelector('[data-pl=next]');
+    d.innerHTML = `<div class="pl pv">${pvHeadHtml(f.name, 'data-pl="close"')}<div class="pl-b"><div class="pl-msg">再生の準備中…</div></div>${pvFootHtml({ info: `${esc(kindOf({ kind: 'file', name: f.name, ext: extOf(f.name) }))}・${fmt(f.size)}`, path: pvPath(f) })}</div>`;
     const goSeq = (nid) => { treeSelect(nid, null); renderTree(); playFile(nid, { full: !!document.fullscreenElement }); };
     const seq = qpSeq(vids, id, goSeq);
-    prev.onclick = () => { if (seq.prev) seq.prev(); };
-    next.onclick = () => { if (seq.next) seq.next(); };
     const goFull = () => goFullEl(d.querySelector('.pl')).catch(() => status('全画面にできませんでした。プレーヤーの ⛶ を押してください。'));
-    d.querySelector('[data-pl=full]').onclick = goFull;
-    d.querySelector('[data-pl=ext]').onclick = () => { const v = d.querySelector('video'); if (v) v.pause(); openExternal(id); };
-    d.querySelector('[data-pl=set]').onclick = () => openSettings('play');
+    d._pl = { full: goFull, seq };
     // コマ一覧を開くときは再生画面を閉じる（動画を同時にいくつも読み込むと、Safari・アプリ版で画面ごと落ちることがあるため）
-    d.querySelector('[data-pl=frames]').onclick = () => { closePlayer(); openFrames([id]); };
-    const sel = d.querySelector('[data-pl=q]'), inf = d.querySelector('[data-pl=info]');
+    pvWire(d, { frames: () => { closePlayer(); openFrames([id]); }, loc: () => { closePlayer(); revealInTree(id); }, ext: () => openExternal(id) });
+    const sel = d.querySelector('.pv-q');
     const P = playerCore(d.querySelector('.pl-b'), id, {
       slot: 'main', name: f.name, t: fromT, qHost: sel,
       alive: () => document.body.contains(d) && run === playRun, // その間に別の動画へ移った
       msg: (t) => { d.querySelector('.pl-b').innerHTML = `<div class="pl-msg">${esc(t)}</div>`; },
       unplayable: 'この画質（HLS）はこのブラウザの中では再生できません。別の画質か「↗ 外部プレーヤー」を選んでください。',
       qp: { ext: () => openExternal(id), full: goFull, close: () => closePlayer(), ...seq },
-      onMeta: (v, x) => { inf.textContent = v.videoWidth ? ` ・ ${v.videoWidth}×${v.videoHeight}${x.hls ? '（変換）' : ''}` : ''; },
+      onMeta: (v, x) => pvDim(d, v, x.hls ? '（変換）' : ''),
       fail: (x, why) => {
         const box = d.querySelector('.pl-b');
         if (!box.querySelector('.pl-err')) box.insertAdjacentHTML('beforeend', `<div class="pl-msg pl-err">「${esc(x.label)}」は再生できませんでした${why ? `（${esc(why)}）` : ''}。上の画質を切り替えるか「↗ 外部プレーヤー」を試してください。</div>`);
@@ -5326,9 +5345,9 @@
   document.addEventListener('keydown', (e) => {
     const d = document.getElementById('pd-player'); if (!d) return;
     if (e.key === 'Escape') { if (document.fullscreenElement) return; e.preventDefault(); e.stopImmediatePropagation(); closePlayer(); }
-    else if ((e.key === 'f' || e.key === 'F') && !e.metaKey && !e.ctrlKey) { e.preventDefault(); d.querySelector('[data-pl=full]').click(); }
-    else if ((e.key === 'ArrowDown' && modKey(e)) || e.key === 'PageDown') { e.preventDefault(); d.querySelector('[data-pl=next]').click(); }
-    else if ((e.key === 'ArrowUp' && modKey(e)) || e.key === 'PageUp') { e.preventDefault(); d.querySelector('[data-pl=prev]').click(); }
+    else if ((e.key === 'f' || e.key === 'F') && !e.metaKey && !e.ctrlKey) { e.preventDefault(); if (d._pl) d._pl.full(); }
+    else if ((e.key === 'ArrowDown' && modKey(e)) || e.key === 'PageDown') { e.preventDefault(); if (d._pl && d._pl.seq.next) d._pl.seq.next(); }
+    else if ((e.key === 'ArrowUp' && modKey(e)) || e.key === 'PageUp') { e.preventDefault(); if (d._pl && d._pl.seq.prev) d._pl.seq.prev(); }
   }, true);
 
   // ホバーでサムネイルを大きく表示（Enhancement Master と同じく、リスト・サムネイル・タイルのどれでも）
@@ -6567,21 +6586,23 @@
     libPvClose(); libSt.cur = id;
     const run = ++libPvRun;
     const p = document.createElement('div'); p.className = 'lb-pv';
-    p.innerHTML = `<div class="lb-pvbox" role="dialog" aria-label="プレビュー"><div class="lk-hd"><b title="${esc(it.name)}">${esc(it.name)}</b><span class="sp"></span><button class="x" data-lbpvx title="プレビューを閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
+    const fi = fileById(id);
+    p.innerHTML = `<div class="lb-pvbox pv" role="dialog" aria-label="プレビュー">${pvHeadHtml(it.name, 'data-lbpvx')}
       <div class="lb-pvv"><div class="pl-msg">再生の準備中…</div></div>
-      <div class="lb-pvft"><span class="tx"><b>簡易プレビュー</b>・本編をきちんと見るなら、外部プレーヤー（オリジナル画質）がおすすめです<span data-lbpvi></span></span><span class="lb-pvq"></span><button data-lbopen="${esc(id)}">場所を開く</button><button class="pri" data-lbext="${esc(id)}">↗ 外部プレーヤーで見る（オリジナル画質）</button></div></div>`;
+      ${pvFootHtml({ info: `ビデオ${it.size ? '・' + fmt(it.size) : ''}`, path: fi ? pvPath(fi) : (it.path ? String(it.path).replace(/\/?$/, '/') : '') })}</div>`;
     d.appendChild(p);
+    pvWire(p, { frames: () => { libPvClose(); openFrames([id]); }, loc: () => libReveal(id), ext: () => { libPvClose(); openExternal(id, '', it.name); } });
     const box = p.querySelector('.lb-pvv');
     const vids = libSt.items.filter(libIsVid), vi = vids.findIndex((v) => v.id === id);
     const seqL = qpSeq(vids, id, (nid) => libPreview(nid));
     const P = playerCore(box, id, {
-      slot: 'lib', name: it.name, qHost: p.querySelector('.lb-pvq'), armed: opt.armed, poster: it.thumb || '',
+      slot: 'lib', name: it.name, qHost: p.querySelector('.pv-q'), armed: opt.armed, poster: it.thumb || '',
       alive: () => run === libPvRun && document.body.contains(p),
       noSource: 'このブラウザの中では再生できません。「↗ 外部プレーヤーで見る」を使ってください。',
       unplayable: 'このブラウザの中では再生できません。「↗ 外部プレーヤーで見る」を使ってください。',
       fail: (q, why) => { if (!box.querySelector('.pl-err')) box.insertAdjacentHTML('beforeend', `<div class="pl-msg pl-err">再生できませんでした${why ? `（${esc(why)}）` : ''}。「↗ 外部プレーヤーで見る」を試してください。</div>`); },
       qp: { ext: () => { libPvClose(); openExternal(id, '', it.name); }, close: () => libPvClose(), ...seqL },
-      onMeta: (v, x) => { const i = p.querySelector('[data-lbpvi]'); if (i) i.textContent = `（${x.label}${v.videoHeight ? `・${v.videoWidth}×${v.videoHeight}` : ''}）`; },
+      onMeta: (v) => pvDim(p, v),
       // 続けて流す：終わったら次の動画へ（設定でオフにできる）
       onEnded: () => { if (run === libPvRun && seqL.next && libAuto()) seqL.next(); },
     });

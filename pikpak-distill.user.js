@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.17.0
+// @version      4.17.1
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -166,7 +166,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.17.0'; // @version と合わせて更新する
+  const VER = '4.17.1'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -5631,6 +5631,24 @@
     if (r.kind === 'folder' && tree.view === 'tile') { treeOpen.add(r.id); saveTree(); renderTree(); jumpToSection(r.id); return; }
     if (r.kind === 'folder') { treeToggle(r.id, undefined, deep); renderTree(); } else if (isVideoRow(r)) playDefault(r.id); else { treeCur = r.id; showQL(); }
   }
+  // スペース：簡易プレーヤーを開く・閉じる（開いているときは再生・一時停止。閉じるのは Esc）
+  function treeSpace(e) {
+    const qv = document.querySelector('#pd-ql video');
+    if (qv) { if (e.target !== qv && qv._qp) qv._qp.toggle(); return; }
+    if (qlOpen) closeQL(); else showQL();
+  }
+  const treeKeysOn = () => root.classList.contains('on') && view === 'tree' && !busy && !document.getElementById('pd-dlg') && !document.getElementById('pd-player') && !document.getElementById('pd-set') && !document.getElementById('pd-lib') && !document.getElementById('pd-ctx');
+  // フォルダ一覧に focus がない（ページ本体にある）ときのスペースは、PikPak の画面側が先に受け取って止めてしまうことがある
+  //   （Enter やダブルクリックは効くのにスペースだけ効かない）。ページ全体の入口で先に受け取り、フォルダ一覧へ focus を戻して処理する
+  window.addEventListener('keydown', (e) => {
+    if (e.key !== ' ' || e.metaKey || e.ctrlKey || e.altKey || qpActive || winMode === 'pop' || !treeKeysOn()) return;
+    const t = e.target; if (t && t !== document.body && t !== document.documentElement && root.contains(t)) return; // フォルダ一覧の中なら、いつもの処理に任せる
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return;
+    if (!treeRowsCache.some((r) => r.id === treeCur)) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    const tr = $('[data-r=tree]'); if (tr) tr.focus({ preventScroll: true });
+    treeSpace(e);
+  }, true);
   // キーボード操作
   document.addEventListener('keydown', (e) => {
     if (!root.classList.contains('on') || view !== 'tree' || busy || document.getElementById('pd-dlg') || document.getElementById('pd-player') || document.getElementById('pd-set') || document.getElementById('pd-lib')) return; // 左メニューの画面が開いている間は、後ろのフォルダ一覧のキー操作は止める
@@ -5679,12 +5697,7 @@
       if (cur.kind === 'folder' && cur.open) { treeToggle(cur.id, false, e.altKey); renderTree(); }
       else { const p = rows.findIndex((r) => r.id === cur.parentId); if (p >= 0) move(p); }
     }
-    else if (k === ' ' && cur) {
-      e.preventDefault();
-      const qv = document.querySelector('#pd-ql video');
-      if (qv) { if (e.target !== qv && qv._qp) qv._qp.toggle(); return; } // 簡易プレーヤーが開いているときは、再生・一時停止（閉じるのは Esc）
-      if (qlOpen) closeQL(); else showQL();
-    }
+    else if (k === ' ' && cur) { e.preventDefault(); treeSpace(e); }
     else if (k === 'Escape') { if (qlOpen) { e.preventDefault(); closeQL(); } }
     else if ((k === 'a' || k === 'A') && modKey(e)) { e.preventDefault(); rows.forEach((r) => treeSel.add(r.id)); renderTree(); }
     else if ((k === 'c' || k === 'C') && modKey(e) && cur && !String(window.getSelection ? window.getSelection() : '').trim()) { e.preventDefault(); copyPath(cur); }

@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.15.0
+// @version      4.16.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -20,7 +20,7 @@
 (function () {
   'use strict';
   // 販売者を調べるときに開くページ（fd2ppv.cc・fc2cmadb.com）：「販売者を調べる」で開いた小さなウィンドウの中だけで動き、
-  // 販売者を読み取って PikPak の画面へ知らせる（ほかには何もしない）
+  // 販売者と作品の情報（タイトル・女優・タグ・配信日・収録時間・モザイク）を読み取って PikPak の画面へ知らせる（ほかには何もしない）
   if (location.hostname === 'fd2ppv.cc' || location.hostname === 'fc2cmadb.com') {
     const hm = location.hash.match(/#ppdup-lookup(?:=([\w-]+))?/);
     // Safari は別サイトへ移るとウィンドウ名を消し、初回はサイト側の切り替えで # も消えることがあるため、
@@ -43,20 +43,42 @@
         send({ status: 'search', hits }); return;
       }
       const label = (re) => [...document.querySelectorAll('.work-meta-label')].find((l) => re.test(l.textContent.trim()));
+      const lv = (re) => { const l = label(re); return l && l.nextElementSibling ? l.nextElementSibling.textContent.replace(/\s+/g, ' ').trim().slice(0, 60) : ''; };
+      const idOf = (h) => decodeURIComponent((String(h).match(/\/actresses\/([^/?#]+)/) || [])[1] || '');
+      const info = {
+        site: 'fd2ppv',
+        title: ((document.querySelector('.work-brief') || {}).textContent || '').replace(/\s+/g, ' ').trim().slice(0, 300),
+        actresses: [...new Map([...document.querySelectorAll('.artist-info-card a[href*="/actresses/"], a.artistUrl[href*="/actresses/"]')].map((x) => [idOf(x.getAttribute('href')), { name: x.textContent.replace(/\s+/g, ' ').trim().slice(0, 60), id: idOf(x.getAttribute('href')) }])).values()].filter((x) => x.name && x.id).slice(0, 20),
+        tags: [...new Set([...document.querySelectorAll('a[href^="/tags/"]')].filter((x) => !/^\/tags\/actresses\//.test(x.getAttribute('href')) && /^#/.test(x.textContent.trim())).map((x) => x.textContent.trim().replace(/^#/, '').slice(0, 40)))].slice(0, 30),
+        date: lv(/^(配信日|販売日|發行日|发行日|Release)/i), dur: lv(/^(収録時間|時長|时长|Duration)/i), mosaic: lv(/^(モザイク|Mosaic)/i),
+      };
       const lab = label(/^(販売者|賣家|卖家|Sellers?|판매자)$/i);
       let a = lab && lab.nextElementSibling ? lab.nextElementSibling.querySelector('a[href*="/channels/"]') : null;
       if (!a && /^\d+$/.test(num)) { const all = [...document.querySelectorAll('.work-meta a[href*="/channels/"]')]; if (new Set(all.map((x) => x.getAttribute('href'))).size === 1) a = all[0]; }
-      if (a) { const sid = sidOf(a, /\/channels\/([^/?#]+)/); send(sid ? { status: 'ok', name: a.textContent.trim(), sid } : { status: 'noseller' }); return; }
+      if (a) { const sid = sidOf(a, /\/channels\/([^/?#]+)/); send(sid ? { status: 'ok', name: a.textContent.trim(), sid, info } : { status: 'noseller', info }); return; }
       // FC2 以外（HEYZO・カリビアンコムなど）は「配信元」を販売者として扱う。ID は作品ページの名前の頭（例：carib-033118_001 → carib）
       const src = label(/^(配信元|發行商|发行商|Studios?|Publisher|Label|メーカー)$/i);
       const slug = (location.pathname.match(/\/articles\/([^/?#]+)/) || [])[1] || '';
       const pre = (slug.match(/^([a-z][a-z0-9]*?)-/i) || [])[1] || '';
       const sv = src && src.nextElementSibling ? src.nextElementSibling.textContent.replace(/\s+/g, ' ').trim() : '';
-      send(sv && pre && !/^\d+$/.test(slug) ? { status: 'ok', name: sv, sid: pre.toLowerCase(), studio: true } : { status: 'noseller' });
+      send(sv && pre && !/^\d+$/.test(slug) ? { status: 'ok', name: sv, sid: pre.toLowerCase(), studio: true, info } : { status: 'noseller', info });
       return;
     }
     // fc2cmadb.com は画面を後から組み立てるので、販売者の欄が出るまで少し待つ
-    let n = 0;
+    let n = 0, wa = 0;
+    const rowOf = (re) => [...document.querySelectorAll('tr')].find((tr) => { const th = tr.querySelector('th'); return th && re.test(th.textContent); });
+    const tdOf = (re) => { const r = rowOf(re); return r ? r.querySelector('td') : null; };
+    const txOf = (re) => { const t = tdOf(re); return t ? t.textContent.replace(/\s+/g, ' ').trim().slice(0, 60) : ''; };
+    const cmInfo = () => {
+      const at = tdOf(/女優|Actress/i), tg = tdOf(/タグ|Tags?/i);
+      return {
+        site: 'fc2cmadb',
+        title: ((document.querySelector('h1') || {}).textContent || '').replace(/\s+/g, ' ').trim().slice(0, 300),
+        actresses: at ? [...at.querySelectorAll('a[href*="/actresses/"]')].map((x) => ({ name: x.textContent.replace(/\s+/g, ' ').trim().slice(0, 60), id: decodeURIComponent((x.getAttribute('href').match(/\/actresses\/([^/?#]+)/) || [])[1] || '') })).filter((x) => x.name).slice(0, 20) : [],
+        tags: tg ? [...tg.querySelectorAll('a')].map((x) => x.textContent.trim().slice(0, 40)).filter(Boolean).slice(0, 30) : [],
+        date: txOf(/販売日|配信日/), dur: txOf(/収録時間/), mosaic: txOf(/モザイク/),
+      };
+    };
     const tick = () => {
       // 販売者が出ていれば、確認画面の判定より先に読み取る（ページ内の注意書きを年齢確認と見誤らないように）
       const row = [...document.querySelectorAll('tr')].find((tr) => { const th = tr.querySelector('th'); return th && /販売者|Seller/i.test(th.textContent); })
@@ -65,7 +87,11 @@
       if (!a) { const all = [...document.querySelectorAll('a[href*="/writers/"]')]; if (all.length && new Set(all.map((x) => x.getAttribute('href'))).size === 1) a = all[0]; }
       if (!a && challenge()) { send({ status: 'challenge' }); return; }
       if (!a && /^404|ページが見つかりません|Not Found/i.test(document.title)) { send({ status: 'notfound' }); return; }
-      if (a) { const sid = sidOf(a, /\/writers\/([^/?#]+)/); send(sid ? { status: 'ok', name: a.textContent.trim(), sid } : { status: 'noseller' }); return; }
+      if (a) {
+        // 女優の欄は少し遅れて表示されるので、空のうちは少しだけ待つ（最大 2 秒）
+        const at = tdOf(/女優|Actress/i); if (at && !at.textContent.trim() && ++wa <= 8) { setTimeout(tick, 250); return; }
+        const sid = sidOf(a, /\/writers\/([^/?#]+)/); send(sid ? { status: 'ok', name: a.textContent.trim(), sid, info: cmInfo() } : { status: 'noseller', info: cmInfo() }); return;
+      }
       if (row && ++n > 10) { send({ status: 'noseller' }); return; }
       if (++n > 48) { send({ status: document.querySelector(`a[href*="/articles/${num}"]`) ? 'noseller' : 'notfound' }); return; }
       setTimeout(tick, 250);
@@ -107,7 +133,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.15.0'; // @version と合わせて更新する
+  const VER = '4.16.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1764,6 +1790,23 @@
   .pv .pv-acts button.pri{background:#306fff;border-color:#306fff;color:#fff}
   .pv .pv-acts button:hover{filter:brightness(1.15)}
   .pv .pv-acts select option{color:#1c1f26}
+  .pv{position:relative}
+  .pv .pv-info{position:absolute;top:58px;right:12px;width:min(400px,calc(100% - 24px));max-height:calc(100% - 72px);overflow:auto;z-index:25;background:#1d212a;color:#e8eaf0;border:1px solid #343a46;border-radius:12px;box-shadow:0 12px 36px #0009;font:13px/1.6 system-ui,-apple-system,"Hiragino Sans","Yu Gothic UI",sans-serif}
+  .pv .pv-ih{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #2c323d}
+  .pv .pv-ih b{flex:1}
+  .pv .pv-info dl{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin:0;padding:12px}
+  .pv .pv-info dt{color:#9aa1ad;white-space:nowrap}
+  .pv .pv-info dd{margin:0;min-width:0;overflow-wrap:anywhere}
+  .pv .pv-info .mu{color:#9aa1ad}
+  .pv .pv-ied{display:flex;gap:6px;margin-top:6px}
+  .pv .pv-ied input{flex:1;min-width:0;height:32px;padding:0 8px;border-radius:6px;border:1px solid #343a46;background:#14171d;color:#e8eaf0;font:inherit}
+  .pv .pv-info button{height:32px;padding:0 12px;border-radius:8px;border:1px solid #343a46;background:#232833;color:#e8eaf0;font:600 12px system-ui,sans-serif;cursor:pointer}
+  .pv .pv-info button.pri{background:#306fff;border-color:#306fff;color:#fff}
+  .pv .pv-info .pv-x{width:32px;padding:0;display:inline-flex;align-items:center;justify-content:center}
+  .pv .pv-ia{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:0 12px 12px}
+  .pv .pv-il{display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap;padding:10px 12px;border-top:1px solid #2c323d}
+  .pv .pv-il a{color:#8fb4ff;text-decoration:none}
+  .pv .pv-il a:hover{text-decoration:underline}
 
   #pd-ql .ql-ic svg{width:160px;height:140px}
   #pd-ql .ql-f{padding:10px 14px}
@@ -3517,6 +3560,24 @@
   let sellerDb = {};
   sellerDb = lsJson(LS_SELLER, {});
   const saveSellerDb = () => { lsSetJson(LS_SELLER, sellerDb); };
+  // ---- 作品の情報（販売者を調べるときに一緒に読み取る：タイトル・女優・タグ・配信日・収録時間・モザイク）----
+  //   品番の鍵 → { title, actresses: [{ name, id, site }], tags, date, dur, mosaic, sellers: { サイト: { name, sid } }, manual: { actresses }, at }
+  const LS_WINFO = 'ppdup:winfo:v1';
+  let wInfo = lsJson(LS_WINFO, {});
+  function saveWorkInfo(k, r) {
+    const i = r.info || {}, o = wInfo[k.key] || {}, site = i.site || r.src || '';
+    const acts = (o.actresses || []).slice();
+    (i.actresses || []).forEach((x) => { if (!acts.some((y) => y.name === x.name)) acts.push({ name: String(x.name).slice(0, 60), id: String(x.id || '').slice(0, 40), site }); else acts.forEach((y) => { if (y.name === x.name && !y.id) { y.id = x.id; y.site = site; } }); });
+    wInfo[k.key] = {
+      ...o,
+      title: i.title || o.title || '', actresses: acts.slice(0, 30),
+      tags: [...new Set([...(o.tags || []), ...(i.tags || [])])].slice(0, 40),
+      date: i.date || o.date || '', dur: i.dur || o.dur || '', mosaic: i.mosaic || o.mosaic || '',
+      sellers: { ...(o.sellers || {}), ...(r.status === 'ok' && r.name ? { [site]: { name: String(r.name).slice(0, 120), sid: String(r.sid || '').slice(0, 64) } } : {}) },
+      at: Date.now(),
+    };
+    lsSetJson(LS_WINFO, wInfo);
+  }
   const sellerEnabled = () => { return lsGet(LS_OPT_SELLER) !== '0'; };
   function sellerCfg() {
     let c = {}; c = lsJson(LS_SELLER_CFG, {});
@@ -3852,7 +3913,15 @@
         if (e.origin !== origin || !e.data || e.data.type !== 'ppdup-seller') return;
         // 合言葉で照合する（画面を後から組み立てるサイトで # が消えたときは品番で照合）
         if (e.data.token ? e.data.token !== token : !((num && e.data.num === num) || (kwq && e.data.kw === kwq))) return;
-        if (e.data.status === 'challenge') { if (!challenged) { challenged = true; limit = 5 * 60 * 1000; arm(); lookupSt.kick = () => { off(); resolve({ status: 'severed' }); }; onChallenge(origin); } return; } // 確認を済ませるとページが切り替わり、もう一度知らせが来る
+        if (e.data.status === 'challenge') {
+          if (!challenged) {
+            challenged = true;
+            // 最初の 2 回は、確認画面で止まっても人に頼まず、数秒待って開き直す（開き直すと通ることが多い）。それでもだめなら人に確認を頼む
+            if (lookupSt.quick) { limit = 8000; arm(); return; }
+            limit = 5 * 60 * 1000; arm(); lookupSt.kick = () => { off(); resolve({ status: 'severed' }); }; onChallenge(origin);
+          }
+          return;
+        } // 確認を済ませるとページが切り替わり、もう一度知らせが来る
         off(); resolve(e.data);
       };
       // 確認画面（Cloudflare など）を通ると、サイト側の設定でこちらとのつながりが切れ、ウィンドウが「閉じた」ように見えることがある。
@@ -3886,6 +3955,37 @@
     const a = await visitAndWait(win, FD2, `${FD2}/articles/${encodeURIComponent(slug)}`, onChallenge, slug);
     return { ...a, src: 'fd2ppv' };
   }
+  // 最初の 1 回は捨てて開き直す：そのブラウザでまだ fd2ppv.cc を読めていないときは、先にトップを一度開いて数秒で閉じる
+  //   （Cloudflare などの確認で最初のウィンドウが止まりやすいため。確認を通った記録が残るので、次からは通りやすい）
+  const lookupWarm = new Set();
+  async function lookupWarmUp(ref) {
+    if (lookupWarm.has(FD2)) return;
+    lookupWarm.add(FD2);
+    try { ref.win.location.href = FD2 + '/'; } catch (e) { return; }
+    await sleep(5000);
+    try { ref.win.close(); } catch (e) { /* 無視 */ }
+    await sleep(500);
+    ref.win = window.open('about:blank', 'ppdup-lookup' + (++lookupSeq), 'width=560,height=720'); ref.parked = false;
+  }
+  // 1 つの品番を、開き直しも含めて調べる（販売者の一括調査・作品情報の「調べる」で共通）
+  async function lookupWithRetry(ref, k, onCh) {
+    lookupSt.quick = true;
+    let r = await lookupKey(ref.win, k, onCh);
+    // 確認画面（Cloudflare・年齢確認など）を挟んだあとや、結果が返らず止まったときは、ウィンドウを開き直して同じ作品をもう一度調べる
+    //   最初の 2 回は自動で開き直し、3 回目からは小さなウィンドウを前に出して確認を頼む。確認を通ったあとにつながりが切れたとき（severed）は何度か開き直す
+    for (let retry = 0, sev = 0; (r.status === 'severed' ? sev++ < 4 : retry++ < 3) && (r.status === 'timeout' || r.status === 'challenge' || r.status === 'severed' || (r.status === 'closed' && retry === 1 && lookupSt.challenge)) && !window.__ppdupStop;) {
+      log('info', `作品の調査：開き直してもう一度調べます（${r.status === 'severed' ? '確認画面のあとでつながりが切れたため' : r.status === 'challenge' ? '確認画面で止まったため' : r.status}）`, k.label);
+      try { ref.win.close(); } catch (e) { /* 無視 */ }
+      await sleep(r.status === 'severed' ? 400 : 800);
+      ref.win = window.open('about:blank', 'ppdup-lookup' + (++lookupSeq), 'width=560,height=720');
+      if (!ref.win) break;
+      ref.parked = false; lookupSt.challenge = ''; lookupSt.quick = retry < 2;
+      r = await lookupKey(ref.win, k, onCh);
+    }
+    lookupSt.quick = false;
+    if (r && r.info) saveWorkInfo(k, r);
+    return r;
+  }
   // 調べている間の進み具合（「販売者を調べる」の枠に出す）
   let lookupSt = { on: false, total: 0, done: 0, ok: 0, miss: 0, cur: '', site: '', paused: false, t0: 0, challenge: '' };
   // 小さなウィンドウ：確認画面が出たら前に出し、済んだら小さくして画面の端に寄せる（ほかのサイトに埋め込めないため、完全には隠せない）
@@ -3912,18 +4012,10 @@
       status(`販売者を調べています… ${done + 1}/${keys.length}：${k.label}`, done / keys.length, lookupEta());
       refreshSellerChrome();
       const onCh = (origin) => { lookupSt.challenge = origin.replace('https://', ''); showWin(win); parked = false; refreshSellerChrome(); status(`${origin.replace('https://', '')} の確認画面が出ています。開いた小さなウィンドウで確認を済ませてください（済むと自動で続きます）：${k.label}`, done / keys.length);};
-      let r = await lookupKey(win, k, onCh);
-      // 確認画面（Cloudflare・年齢確認など）を挟んだあとや、結果が返らず止まったときは、ウィンドウを開き直して同じ作品をもう一度調べる
-      //   確認画面を通ったあとはつながりが切れていることが多いので（severed）、何度でも開き直す（確認は済んでいるので次はそのまま読める）
-      for (let retry = 0, sev = 0; (r.status === 'severed' ? sev++ < 4 : retry++ < 2) && (r.status === 'timeout' || r.status === 'challenge' || r.status === 'severed' || (r.status === 'closed' && retry === 1 && lookupSt.challenge)) && !window.__ppdupStop;) {
-        log('info', `販売者の調査：開き直してもう一度調べます（${r.status === 'severed' ? '確認画面のあとでつながりが切れたため' : r.status}）`, k.label);
-        try { win.close(); } catch (e) { /* 無視 */ }
-        await sleep(r.status === 'severed' ? 400 : 800);
-        win = window.open('about:blank', 'ppdup-lookup' + (++lookupSeq), 'width=560,height=720');
-        if (!win) break;
-        parked = false; lookupSt.challenge = '';
-        r = await lookupKey(win, k, onCh);
-      }
+      const ref = { win, parked };
+      if (!done) await lookupWarmUp(ref);
+      const r = ref.win ? await lookupWithRetry(ref, k, (o) => { win = ref.win; onCh(o); }) : { status: 'closed' };
+      win = ref.win; parked = ref.parked;
       if (!win) { stop = '小さなウィンドウを開き直せませんでした（ポップアップを許可してください）'; break; }
       lookupSt.challenge = '';
       if (!parked && r.status !== 'closed' && r.status !== 'challenge') { parkWin(win); parked = true; }
@@ -4401,7 +4493,7 @@
     d.innerHTML = `<div class="ql pv">${pvHeadHtml(r.name, 'data-qlclose')}<div class="ql-b">${big}</div>${pvFootHtml({ info: info, path: qpath, extra: jr ? `<div style="color:#ff6b6b">不要ファイルの判定：${esc(jr.reason)}</div>` : '', acts: isVideoRow(r) })}</div>`;
     d.classList.remove('playing'); d.classList.toggle('ql-vid', isVideoRow(r)); plStop('ql');
     const on = (sel, fn) => { const b = d.querySelector(sel); if (b) b.onclick = fn; };
-    pvWire(d, { frames: () => { closeQL(); openFrames([r.id]); }, loc: () => { closeQL(); revealInTree(r.id); }, ext: () => openExternal(r.id) });
+    pvWire(d, { id: r.id, name: r.name, frames: () => { closeQL(); openFrames([r.id]); }, loc: () => { closeQL(); revealInTree(r.id); }, ext: () => openExternal(r.id) });
     // 動画は、情報だけの画面を挟まず、そのまま簡易プレーヤーを開く（play が偽なら、押すまで再生しない）
     if (isVideoRow(r)) qlPlay(r.id, { armed: !play });
   }
@@ -4409,15 +4501,81 @@
   //   上：ファイル名と ✕／中：動画と操作バー・見ながら仕分け／下：情報・画質・コマ一覧・場所を開く・外部プレーヤー
   //   速度・歯車・全画面・前へ／次へは操作バーだけに置く（二重に置かない）
   const pvHeadHtml = (name, closeAttr) => `<div class="pv-hd"><b title="${esc(name)}">${esc(name)}</b><button type="button" class="pv-x" ${closeAttr} title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>`;
-  const pvFootHtml = (o) => `<div class="pv-ft"><div class="pv-inf"><div><span data-pvinfo>${o.info}</span><span data-pvdim></span></div><div class="note" title="${esc(o.path)}">${esc(o.path)}</div>${o.extra || ''}</div>${o.acts === false ? '' : `<div class="pv-acts"><span class="pv-q"></span><button type="button" data-pvframes title="動画の中身をコマで見る">▦ コマ一覧</button><button type="button" data-pvloc title="この動画のあるフォルダを、フォルダ一覧で開く">場所を開く</button><button type="button" class="pri" data-pvext title="外部プレーヤーで開く（オリジナル画質）">↗ 外部プレーヤー</button></div>`}</div>`;
+  const pvFootHtml = (o) => `<div class="pv-ft"><div class="pv-inf"><div><span data-pvinfo>${o.info}</span><span data-pvdim></span></div><div class="note" title="${esc(o.path)}">${esc(o.path)}</div>${o.extra || ''}</div>${o.acts === false ? '' : `<div class="pv-acts"><span class="pv-q"></span><button type="button" data-pvinfob title="作品名・販売者・女優などを見る（I）">ⓘ 作品情報</button><button type="button" data-pvframes title="動画の中身をコマで見る">▦ コマ一覧</button><button type="button" data-pvloc title="この動画のあるフォルダを、フォルダ一覧で開く">場所を開く</button><button type="button" class="pri" data-pvext title="外部プレーヤーで開く（オリジナル画質）">↗ 外部プレーヤー</button></div>`}</div>`;
   function pvWire(root, h) {
     const on = (sel, fn) => { const b = root.querySelector(sel); if (!b) return; b.onclick = (e) => { e.stopPropagation(); fn(); }; };
     on('[data-pvframes]', h.frames);
+    on('[data-pvinfob]', () => pvInfoToggle(root, h.id, h.name));
     on('[data-pvloc]', h.loc);
     on('[data-pvext]', () => { const v = root.querySelector('video'); try { if (v) v.pause(); } catch (e) { /* 無視 */ } h.ext(); });
   }
   const pvDim = (root, v, more) => { const e = root.querySelector('[data-pvdim]'); if (e) e.textContent = v && v.videoWidth ? ` ・ ${v.videoWidth}×${v.videoHeight}${more || ''}` : ''; };
   const pvPath = (f) => ((f.outer ? fullPath(f.parentId) : (f.path || '/')).replace(/\/$/, '') || '') + '/';
+  // ---- 作品情報の枠（簡易プレーヤーの「ⓘ 作品情報」・I キー）----
+  function infoKeyOf(id, name) {
+    const f = id && fileById(id), dn = f ? ((folders.find((d) => d.id === f.parentId) || {}).name || '') : '';
+    const w = parseWork(name, dn);
+    const wk = workKeys(w && w.kind === 'fc2' ? w.label : name)[0];
+    if (wk) return { k: wk, w };
+    if (w && (w.kind === 'code' || w.kind === 'fc2')) return { k: { key: 'x:' + w.label, kind: 'other', kw: w.label, label: w.label, noLookup: true }, w };
+    return { k: null, w };
+  }
+  function pvInfoToggle(root, id, name) {
+    const box = root.closest('.pv') || root.querySelector('.pv') || root; const old = box.querySelector('.pv-info');
+    if (old) { old.remove(); return; }
+    box.insertAdjacentHTML('beforeend', '<div class="pv-info" role="dialog" aria-label="作品情報"></div>');
+    pvInfoRender(box.querySelector('.pv-info'), id, name);
+  }
+  function pvInfoRender(el, id, name) {
+    const { k, w } = infoKeyOf(id, name);
+    const inf = k ? wInfo[k.key] || null : null, sel = k ? sellerDb[k.key] : null;
+    const acts = inf && inf.manual && inf.manual.actresses ? inf.manual.actresses.map((n) => ({ name: n })) : (inf && inf.actresses) || [];
+    const row = (t, v) => `<dt>${t}</dt><dd>${v}</dd>`;
+    const none = '<span class="mu">—</span>';
+    const sellers = inf && inf.sellers ? Object.entries(inf.sellers) : [];
+    const sellerHtml = sel && sel.status === 'ok' ? `${esc(sel.name)} <span class="mu">（${esc(sel.sid)}${sel.src === 'manual' ? '・手入力' : ''}）</span>${sellers.filter(([, x]) => x.name !== sel.name).map(([st, x]) => `<div class="mu">${esc(st)} では「${esc(x.name)}」</div>`).join('')}` : sel ? `<span class="mu">${sel.status === 'notfound' ? '見つかりませんでした' : '分かりませんでした'}</span>` : '<span class="mu">まだ調べていません</span>';
+    const ttl = (inf && inf.title) || (w ? titleOf(w).replace(/_/g, ' ') : '');
+    el.innerHTML = `<div class="pv-ih"><b>ⓘ 作品情報</b><button type="button" class="pv-x" data-pvi-x title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
+      <dl>${row('品番', w ? esc(w.label + (w.part ? '-' + w.part : '')) : none)}${row('タイトル', ttl ? esc(ttl) : none)}${row('販売者', k ? sellerHtml : none)}
+      ${row('女優', `${acts.length ? acts.map((x) => esc(x.name)).join('、') : (inf ? '<span class="mu">載っていませんでした</span>' : '<span class="mu">まだ調べていません</span>')}<div class="pv-ied"><input type="text" data-pvi-act placeholder="手入力（「、」区切り）" value="${esc(inf && inf.manual && inf.manual.actresses ? inf.manual.actresses.join('、') : '')}" aria-label="女優を手入力"><button type="button" data-pvi-save>保存</button></div>`)}
+      ${inf && inf.tags && inf.tags.length ? row('タグ', inf.tags.map(esc).join('・')) : ''}${inf && inf.date ? row('配信日', esc(inf.date)) : ''}${inf && inf.dur ? row('収録時間', esc(inf.dur)) : ''}${inf && inf.mosaic ? row('モザイク', esc(inf.mosaic)) : ''}</dl>
+      ${k && !k.noLookup ? `<div class="pv-ia"><button type="button" class="pri" data-pvi-look>${inf || sel ? '↻ 調べ直す' : '🔍 調べる'}</button><span class="mu">${inf ? '調べた日：' + esc(fmtDate(inf.at, 'ymd')) : 'fd2ppv.cc・fc2cmadb.com を小さなウィンドウで開いて読み取ります'}</span></div>` : ''}
+      ${k ? `<div class="pv-il"><span class="mu">外部サイトで確かめる</span>${extSites(k).map(([n, , u]) => `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(n)}</a>`).join('')}</div>` : '<div class="pv-il mu">ファイル名から品番が読めないため、調べられません</div>'}`;
+    el.querySelector('[data-pvi-x]').onclick = (e) => { e.stopPropagation(); el.remove(); };
+    const sv = el.querySelector('[data-pvi-save]');
+    if (sv) sv.onclick = (e) => {
+      e.stopPropagation(); if (!k) return;
+      const names = el.querySelector('[data-pvi-act]').value.split(/[、,，\n]/).map((x) => x.trim()).filter(Boolean).slice(0, 30);
+      const o = wInfo[k.key] || { at: Date.now() };
+      if (names.length) o.manual = { actresses: names }; else delete o.manual;
+      wInfo[k.key] = o; lsSetJson(LS_WINFO, wInfo); log('info', `女優を手入力：${k.label} → ${names.join('、') || '（消去）'}`); pvInfoRender(el, id, name);
+    };
+    const lb = el.querySelector('[data-pvi-look]');
+    if (lb) lb.onclick = (e) => { e.stopPropagation(); lookupOne(k, () => { if (el.isConnected) pvInfoRender(el, id, name); }); };
+    el.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); el.remove(); } });
+    el.addEventListener('click', (e) => e.stopPropagation());
+  }
+  // 1 作品だけ調べる（作品情報の「調べる」）。ポップアップを止められないよう、押した直後にウィンドウを開く
+  function lookupOne(k, onDone) {
+    if (lookupSt.on) { status('いま販売者を一括で調べています。終わってからもう一度押してください。'); return; }
+    const w0 = window.open('about:blank', 'ppdup-lookup', 'width=560,height=720');
+    if (!w0) { status('小さなウィンドウを開けませんでした。ブラウザのアドレスバーで、このサイトのポップアップを許可してから、もう一度押してください。'); return; }
+    (async () => {
+      const ref = { win: w0, parked: false };
+      lookupSt = { ...lookupSt, on: true, total: 1, done: 0, cur: k.label, challenge: '', paused: false };
+      status(`作品の情報を調べています：${k.label}`);
+      let r = { status: 'closed' };
+      try {
+        await lookupWarmUp(ref);
+        if (ref.win) r = await lookupWithRetry(ref, k, (o) => { lookupSt.challenge = o.replace('https://', ''); showWin(ref.win); status(`${o.replace('https://', '')} の確認画面が出ています。小さなウィンドウで確認を済ませてください（済むと自動で続きます）`); });
+        if (r.status === 'ok' && !(sellerDb[k.key] && sellerDb[k.key].src === 'manual')) { sellerDb[k.key] = { name: String(r.name || '').slice(0, 120), sid: String(r.sid || '').slice(0, 64), src: r.src, status: 'ok', studio: !!r.studio, at: Date.now() }; saveSellerDb(); }
+        else if ((r.status === 'notfound' || r.status === 'noseller') && !sellerDb[k.key]) { sellerDb[k.key] = { status: r.status, src: r.src, at: Date.now() }; saveSellerDb(); }
+      } finally { try { if (ref.win) ref.win.close(); } catch (e) { /* 無視 */ } lookupSt.on = false; lookupSt.challenge = ''; }
+      status(r.status === 'ok' || r.info ? `作品の情報を調べました：${k.label}` : r.status === 'notfound' ? `見つかりませんでした：${k.label}` : r.status === 'closed' ? '小さなウィンドウが閉じられたため止めました' : `読み取れませんでした（${r.status}）：${k.label}`);
+      log('info', `作品の情報を調べる：${k.label} → ${r.status}`);
+      onDone();
+    })();
+  }
   function closeQL() { qlRun++; unloadMedia(document.getElementById('pd-ql')); qlOpen = false; plStop('ql'); const d = document.getElementById('pd-ql'); if (d) { d.querySelectorAll('.pd-sk').forEach((b) => { if (b._grab) b._grab.close(); }); const v = d.querySelector('video'); try { if (v) v.pause(); } catch (e) { /* 無視 */ } d.remove(); } }
   // 名前の変更（Enter）
   function applyRenameCache(kind, id, name) {
@@ -5319,7 +5477,7 @@
     const goFull = () => goFullEl(d.querySelector('.pl')).catch(() => status('全画面にできませんでした。プレーヤーの ⛶ を押してください。'));
     d._pl = { full: goFull, seq };
     // コマ一覧を開くときは再生画面を閉じる（動画を同時にいくつも読み込むと、Safari・アプリ版で画面ごと落ちることがあるため）
-    pvWire(d, { frames: () => { closePlayer(); openFrames([id]); }, loc: () => { closePlayer(); revealInTree(id); }, ext: () => openExternal(id) });
+    pvWire(d, { id, name: f.name, frames: () => { closePlayer(); openFrames([id]); }, loc: () => { closePlayer(); revealInTree(id); }, ext: () => openExternal(id) });
     const sel = d.querySelector('.pv-q');
     const P = playerCore(d.querySelector('.pl-b'), id, {
       slot: 'main', name: f.name, t: fromT, qHost: sel,
@@ -5944,7 +6102,7 @@
     const flash = (t, ms = 700) => { osd.textContent = t; osd.hidden = false; clearTimeout(osdT); osdT = setTimeout(() => { osd.hidden = true; }, ms); };
     // キー操作の一覧（隠れがちな操作をここで見せる）
     const keysEl = stage.querySelector('.qp-keys');
-    const KEYS = [['Space / K', '再生・一時停止'], ['← / →', '戻る・進む（→ 長押しで速く再生）'], ['Shift＋← / →', '大きく戻る・進む'], ['J / L', '10 秒戻る・進む'], [', / .', '1 コマ戻る・進む'], ['0〜9', '0%〜90% の位置へ'], ['↑ / ↓', '音量'], ['M', '消音・解除'], ['[ / ] / \\', '速度を下げる・上げる・1×'], ['Z / X / R', '拡大・縮小・元に戻す（ピンチ・ホイールでも）'], ['F', '全画面'], ['V', 'ざっと見（バーのマスで場所を選べる）'], ['G', 'シーン'], ['A / B', '飛ばす区間の始め・終わり'], ['Y / D / S', '残す・消す候補・スター'], ['P / N', '前の動画・次の動画'], ['Enter', 'ざっと見中：ここから再生／それ以外：外部プレーヤー'], ['?', 'この一覧を出す・閉じる']];
+    const KEYS = [['Space / K', '再生・一時停止'], ['I', '作品情報（作品名・販売者・女優）'], ['← / →', '戻る・進む（→ 長押しで速く再生）'], ['Shift＋← / →', '大きく戻る・進む'], ['J / L', '10 秒戻る・進む'], [', / .', '1 コマ戻る・進む'], ['0〜9', '0%〜90% の位置へ'], ['↑ / ↓', '音量'], ['M', '消音・解除'], ['[ / ] / \\', '速度を下げる・上げる・1×'], ['Z / X / R', '拡大・縮小・元に戻す（ピンチ・ホイールでも）'], ['F', '全画面'], ['V', 'ざっと見（バーのマスで場所を選べる）'], ['G', 'シーン'], ['A / B', '飛ばす区間の始め・終わり'], ['Y / D / S', '残す・消す候補・スター'], ['P / N', '前の動画・次の動画'], ['Enter', 'ざっと見中：ここから再生／それ以外：外部プレーヤー'], ['?', 'この一覧を出す・閉じる']];
     keysEl.innerHTML = KEYS.map(([k, t]) => `<kbd>${esc(k)}</kbd><span>${esc(t)}</span>`).join('');
     P.keys = () => { keysEl.hidden = !keysEl.hidden; };
     // 「キー操作 ON ・ ?」の表示は、動画に重ねず、動画の下の行に置く（動画を見るのに邪魔にならず、押し間違いで再生・停止もしない）
@@ -6168,7 +6326,8 @@
   document.addEventListener('mousedown', (e) => {
     if (!qpActive) return;
     if (!qpActive.v.isConnected) { qpActive = null; return; }
-    if (!qpActive.root.some((el) => el.contains(e.target))) { const sp = qpActive.root[1] && qpActive.root[1].querySelector('.qp-set'); if (sp) sp.hidden = true; qpSetActive(null); }
+    const pvb = qpActive.root[0] && qpActive.root[0].closest('.pv'); // 作品情報の枠など、同じ外枠の中を押したときは対象のまま
+    if (!qpActive.root.some((el) => el.contains(e.target)) && !(pvb && pvb.contains(e.target))) { const sp = qpActive.root[1] && qpActive.root[1].querySelector('.qp-set'); if (sp) sp.hidden = true; qpSetActive(null); }
   }, true);
   window.addEventListener('keydown', (e) => {
     const P = qpActive; if (!P) return;
@@ -6181,9 +6340,11 @@
       // Esc は、どの簡易プレーヤーでも同じ順：設定の枠・キー一覧 → （全画面ならブラウザが全画面を終える）→ プレーヤーを閉じる
       const sp = P.root[1] && P.root[1].querySelector('.qp-set'); if (sp && !sp.hidden) { done(); sp.hidden = true; return; }
       const ke = P.root[0] && P.root[0].querySelector('.qp-keys'); if (ke && !ke.hidden) { done(); ke.hidden = true; return; }
+      const pvb = P.root[0] && P.root[0].closest('.pv'), pi = pvb && pvb.querySelector('.pv-info'); if (pi) { done(); pi.remove(); return; }
       if (document.fullscreenElement || document.webkitFullscreenElement) return;
       if (P.opt.close) { done(); qpSetActive(null); P.opt.close(); return; }
     }
+    if (k === 'i' || k === 'I') { const pvb = P.root[0] && P.root[0].closest('.pv'), ib = pvb && pvb.querySelector('[data-pvinfob]'); if (ib) { done(); ib.click(); return; } }
     if (k === ' ' || k === 'k' || k === 'K') { done(); P.toggle(); }
     else if (k === 'ArrowLeft') { done(); P.seek(-(e.shiftKey ? c.big : c.step)); }
     else if (k === 'ArrowRight') {
@@ -6591,7 +6752,7 @@
       <div class="lb-pvv"><div class="pl-msg">再生の準備中…</div></div>
       ${pvFootHtml({ info: `ビデオ${it.size ? '・' + fmt(it.size) : ''}`, path: fi ? pvPath(fi) : (it.path ? String(it.path).replace(/\/?$/, '/') : '') })}</div>`;
     d.appendChild(p);
-    pvWire(p, { frames: () => { libPvClose(); openFrames([id]); }, loc: () => libReveal(id), ext: () => { libPvClose(); openExternal(id, '', it.name); } });
+    pvWire(p, { id, name: it.name, frames: () => { libPvClose(); openFrames([id]); }, loc: () => libReveal(id), ext: () => { libPvClose(); openExternal(id, '', it.name); } });
     const box = p.querySelector('.lb-pvv');
     const vids = libSt.items.filter(libIsVid), vi = vids.findIndex((v) => v.id === id);
     const seqL = qpSeq(vids, id, (nid) => libPreview(nid));
@@ -6775,7 +6936,7 @@
   // ---------- 書き出し／読み込み（設定・販売者の調査結果・重複の判断・解凍パスワード） ----------
   const EXPORT_GROUPS = {
     settings: { label: '設定', keys: ['ppdup:theme:v1', 'ppdup:lang:v1', 'ppdup:open:v1', 'ppdup:popban:v1', 'ppdup:popgeom:v1', 'ppdup:opt:junk:v1', 'ppdup:opt:cleanname:v1', 'ppdup:opt:seller:v1', 'ppdup:player:v1', 'ppdup:player:q:v1', 'ppdup:rate:v1', 'ppdup:frames:v1', 'ppdup:tree:v1', 'ppdup:seller:cfg:v1', 'ppdup:scanstat:v1'] },
-    seller: { label: '販売者の調査結果と手入力', keys: ['ppdup:seller:v1'], merge: true },
+    seller: { label: '販売者の調査結果と手入力・作品の情報', keys: ['ppdup:seller:v1', 'ppdup:winfo:v1'], merge: true },
     decision: { label: '重複の判断（残す・削除の記録）', keys: ['ppdup:decision:v1'], merge: true },
     unzip: { label: '解凍パスワード（合言葉で暗号化）', keys: ['ppdup:unzippw:x'], merge: true, enc: true },
     media: { label: '再生の記録（再生した履歴・続きの位置・飛ばす区間）', keys: ['ppdup:media:v1'], merge: true },
@@ -6839,7 +7000,7 @@
   const LS_SYNC = 'ppdup:sync:v1'; // { on, asked, pw, last, err }
   const LS_SYNCMETA = 'ppdup:syncmeta:v1'; // キー → { h: 中身の目印, at: 変わった時刻, clr: 消去した時刻 }
   const SYNC_KEYS = {
-    'ppdup:seller:v1': 'seller', 'ppdup:decision:v1': 'union', 'ppdup:unzippw:x': 'pwx',
+    'ppdup:seller:v1': 'seller', 'ppdup:winfo:v1': 'seller', 'ppdup:decision:v1': 'union', 'ppdup:unzippw:x': 'pwx',
     // 端末ごとに違ってよいもの（ウィンドウの位置・開き方など）は同期しない
     'ppdup:theme:v1': 'last', 'ppdup:lang:v1': 'last', 'ppdup:opt:junk:v1': 'last', 'ppdup:opt:cleanname:v1': 'last', 'ppdup:opt:seller:v1': 'last',
     'ppdup:player:v1': 'last', 'ppdup:player:q:v1': 'last', 'ppdup:rate:v1': 'last', 'ppdup:frames:v1': 'last', 'ppdup:seller:cfg:v1': 'last',

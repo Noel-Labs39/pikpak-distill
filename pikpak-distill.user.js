@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.17.1
+// @version      4.18.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -166,7 +166,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.17.1'; // @version と合わせて更新する
+  const VER = '4.18.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1190,6 +1190,11 @@
   .sc.next .sc-s{color:var(--pri);font-weight:700}
   @media (max-width:760px){.sv-hero{grid-template-columns:1fr}.sv-badge{display:none}}
   .pd-next{display:flex;justify-content:flex-end;margin:16px 0 4px}
+  #pd-dlg .sd-t button{margin:2px}
+  .sl-ib{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+  .sl-guide > .sl-ib:first-child{margin-top:0;padding-top:0;border-top:0}
+  .sl-ib .tx{flex:1 1 260px;display:flex;flex-direction:column;gap:2px}
+  .sl-ib .tx small{color:var(--mu)}
   .sl-guide{margin:0 0 12px;padding:14px 16px;background:var(--panel);border:1.5px solid var(--pri);border-radius:12px;box-shadow:0 4px 16px #306fff1f;display:flex;flex-direction:column;gap:12px}
   .sl-guide .fl{display:flex;align-items:center;gap:0}
   .sl-guide .st{display:flex;align-items:center;gap:8px;flex:0 1 auto;min-width:0}
@@ -3812,14 +3817,21 @@
     let msg = '';
     if (st === 1 && lookupSt.on) {
       const L = lookupSt, pct = Math.floor(L.done / Math.max(1, L.total) * 100);
-      msg = `<div class="tx"><b>${L.challenge ? `${esc(L.challenge)} の確認画面が出ています。前に出した小さなウィンドウで確認を済ませてください` : L.paused ? '一時停止しています' : '販売者を調べています'}</b><small>${L.cur ? `調べている作品：${esc(L.cur)}（${esc(L.site)}）` : ''}${L.challenge ? '' : '　小さなウィンドウは画面の端に寄せてあります（閉じると止まります）'}</small>
+      msg = `<div class="tx"><b>${L.challenge ? `${esc(L.challenge)} の確認画面が出ています。前に出した小さなウィンドウで確認を済ませてください` : L.paused ? '一時停止しています' : L.info ? '作品の情報を調べています' : '販売者を調べています'}</b><small>${L.cur ? `調べている作品：${esc(L.cur)}（${esc(L.site)}）` : ''}${L.challenge ? '' : '　小さなウィンドウは画面の端に寄せてあります（閉じると止まります）'}</small>
         <div class="sl-prog"><div class="bar"><i class="ok" style="width:${L.ok / Math.max(1, L.total) * 100}%"></i><i class="ng" style="width:${L.miss / Math.max(1, L.total) * 100}%"></i></div>
         <div class="nums"><b>${L.done} / ${L.total}（${pct}%）</b><span>🟩 分かった ${L.ok}</span><span>⬜ 分からない ${L.miss}</span><span>${esc(lookupEta())}（1 件 ${sellerCfg().interval} 秒＋読み込み）</span></div></div></div>
         ${L.challenge ? '<button class="pri" data-a="skick" title="確認を済ませても続きが始まらないときに押す（ウィンドウを開き直して、同じ作品を調べ直します）">確認が済んだら：続きを調べる</button>' : ''}<button data-a="spause">${L.paused ? '再開' : '一時停止'}</button><button data-a="stop">中断</button>`;
     } else if (st === 1) msg = `<div class="tx"><b>未調査が ${pend} 件あります。まず販売者を調べます</b><small>小さなウィンドウで fd2ppv.cc（見つからなければ fc2cmadb.com）の作品ページを順に開いて調べます。調べるだけでは移動しません。</small></div><button class="pri" data-a="slookup"${busy ? ' disabled' : ''}>販売者を調べる（${pend} 件）</button>`;
     else if (st === 2) msg = `<div class="tx"><b>${unk} 件は販売者が分かりませんでした。外部サイトで確かめて入力してください</b><small>${selPlan.length} 件中 ${selPlan.length - unk} 件は決まりました${parts ? `（${parts}）` : ''}。入力しなくても「${esc(sellerCfg().unknown)}」「${esc(sellerCfg().review)}」へまとめて移動できます。</small></div><button class="pri" data-a="sshowunk">分からない ${unk} 件を確かめる</button><button data-a="sack">このまま ③ 移動へ</button>`;
     else msg = `<div class="tx"><b>${mv ? `チェックした ${mv} 件を移動できます。下のボタンで実行します` : 'チェックの入った作品がありません'}</b><small>${selPlan.length} 件中 ${selPlan.length - unk} 件は販売者が決まりました${parts ? `（${parts}）` : ''}。まずは「先頭1件だけ試す」で動きを確かめてください。削除はしません。</small></div>${unk ? `<button data-a="sunack">② に戻る（分からない ${unk} 件）</button>` : ''}`;
-    return `<section class="sl-guide" aria-label="次にやること"><div class="fl">${flow}</div><div class="msg">${msg}</div></section>`;
+    const ib = infoBarHtml();
+    return `<section class="sl-guide" aria-label="次にやること"><div class="fl">${flow}</div><div class="msg">${msg}</div>${ib}</section>`;
+  }
+  function infoBarHtml() {
+    const nMiss = lookupSt.on ? 0 : infoTargets('missing').length, nDiff = sellerDiffs().length;
+    return lookupSt.on ? '' : `<div class="sl-ib"><span class="tx"><b>作品の情報（女優・タイトル・サイトごとの販売者名など）</b><small>${nMiss ? `情報がまだない作品が ${nMiss} 件あります` : '情報はそろっています'}</small></span>
+      <button data-a="sinfo" data-v="missing"${nMiss ? '' : ' disabled'}>情報がない作品だけ調べる（${nMiss}）</button><button data-a="sinfo" data-v="all" title="調べ終わった作品も含めて、すべて調べ直します（時間がかかります）">すべて調べ直す</button>
+      <button data-a="sdiff"${nDiff ? ' class="pri"' : ''} title="記録している販売者名とサイトの名前、またはサイトどうしの名前が違う作品を確かめます">販売者名の違い（${nDiff}）</button></div>`;
   }
   function sellerBarHtml() {
     if (busy) return '';
@@ -3841,6 +3853,8 @@
   function renderSeller() {
     renderSeller0(); const m = $('[data-r=main]'); if (!m) return;
     if (!m.querySelector('.kit-ex')) m.insertAdjacentHTML('afterbegin', kitExHtml('seller'));
+    // 仕分けの対象がなくても、作品の情報をまとめて調べる・販売者名の違いは使えるようにする
+    if (sellerEnabled() && !m.querySelector('.sl-ib')) { const ex = m.querySelector('.kit-ex'); const h = `<section class="sl-guide" aria-label="作品の情報">${infoBarHtml()}</section>`; if (ex) ex.insertAdjacentHTML('afterend', h); else m.insertAdjacentHTML('afterbegin', h); }
     // 実行結果のカード（ほかのステップと同じく一覧の上に残す）
     const r = lastResult.seller;
     if (r && !m.querySelector('.st-res')) { const bad = /失敗|できません|停止|エラー|止め/.test(r.text); m.insertAdjacentHTML('afterbegin', `<div class="st-res${bad ? ' warn' : ''}" role="status"><span class="ic">${bad ? '!' : '✓'}</span><span class="tx">${esc(r.text)}</span><button data-a="resclose" title="閉じる" aria-label="閉じる">${IC.x}</button></div>`); }
@@ -3969,6 +3983,8 @@
   async function lookupKey(win, k, onChallenge) {
     const stopped = (r) => r.status === 'closed' || r.status === 'challenge' || r.status === 'severed';
     // FANZA：メーカー品番（SONE-974）から作品ページ（?id=sone00974）を直接開く
+    // 作品の情報をまとめて調べるとき、FC2 は fc2cmadb.com も必ず開く（サイトごとの販売者名を両方残すため）
+    if (k.site === 'cm') { const b = await visitAndWait(win, CMADB, `${CMADB}/articles/${encodeURIComponent(k.num)}`, onChallenge, k.num); return { ...b, src: 'fc2cmadb' }; }
     if (k.kind === 'fanza') { const a = await visitAndWait(win, FANZA, `${FANZA}/av/content/?id=${encodeURIComponent(k.cid)}`, onChallenge, k.cid); return { ...a, src: 'fanza' }; }
     if (k.kind === 'fc2') {
       const a = await visitAndWait(win, FD2, `${FD2}/articles/${encodeURIComponent(k.num)}`, onChallenge, k.num);
@@ -4029,29 +4045,85 @@
   function parkWin(win) { try { win.resizeTo(340, 220); win.moveTo(Math.max(0, screen.availWidth - 360), Math.max(0, screen.availHeight - 260)); } catch (e) { /* 無視 */ } try { window.focus(); } catch (e) { /* 無視 */ } }
   function showWin(win) { try { win.resizeTo(560, 720); win.moveTo(Math.max(0, (screen.availWidth - 560) / 2), Math.max(0, (screen.availHeight - 720) / 2)); win.focus(); } catch (e) { /* 無視 */ } }
   const lookupEta = () => { const d = lookupSt.done, el = Date.now() - lookupSt.t0; if (d < 2) return '残り時間を計算中…'; return `あと約 ${fmtDur((lookupSt.total - d) * el / d)}`; };
-  async function runSellerLookup() {
+  // ---- 販売者名の違い：記録している販売者名とサイトの名前、またはサイトどうしの名前が違う作品 ----
+  const SITE_NM = { fd2ppv: 'fd2ppv', fc2cmadb: 'fc2cmadb', fanza: 'FANZA' };
+  function sellerDiffs() {
+    const out = [];
+    Object.entries(wInfo).forEach(([key, o]) => {
+      const sites = Object.entries((o && o.sellers) || {}).filter(([st]) => st !== 'fanza'); if (!sites.length) return;
+      const rec = sellerDb[key] && sellerDb[key].status === 'ok' ? sellerDb[key] : null;
+      const names = new Set(sites.map(([, x]) => x.name)); if (rec) names.add(rec.name);
+      if (names.size < 2) return;
+      const sig = [...names].sort().join('|'); if (o.ack === sig) return; // 「いまの記録のまま」にしたもの（同じ違いのままなら出さない）
+      out.push({ key, rec, sites, sig, sameSid: new Set(sites.map(([, x]) => x.sid).concat(rec ? [rec.sid] : []).filter(Boolean)).size === 1 });
+    });
+    return out;
+  }
+  function showSellerDiffs() {
+    if (document.getElementById('pd-dlg')) return;
+    const where = new Map(); workFiles().forEach((f) => { workKeys(f.name).forEach((k) => { if (!where.has(k.key)) where.set(k.key, { path: f.path || '/', label: k.label }); }); });
+    const d = mkEl('pd-dlg');
+    const draw = () => {
+      const rows = sellerDiffs();
+      d.innerHTML = `<div class="box" role="dialog" aria-label="販売者名の違い" style="width:min(1000px,96vw)"><h3>販売者名の違い（${rows.length} 件）</h3>
+        <div class="note" style="margin-bottom:10px">記録している販売者名と、サイトの名前が違う作品です。どの名前にするかを選ぶと、<b>販売者の記録だけ</b>を変えます。<b>フォルダはここでは動かしません。</b>移動は「販売者ごとに仕分け」の一覧で確かめてから行います。</div>
+        <div style="max-height:62vh;overflow:auto"><table class="sd-t" style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead><tr><th style="text-align:left;padding:6px">品番</th><th style="text-align:left;padding:6px">いまの記録</th>${['fd2ppv', 'fc2cmadb'].map((st) => `<th style="text-align:left;padding:6px">${SITE_NM[st]}</th>`).join('')}<th style="text-align:left;padding:6px">いまのフォルダ</th><th style="padding:6px">どれにするか</th></tr></thead><tbody>
+        ${rows.map((x) => { const w = where.get(x.key) || {}; const sv = Object.fromEntries(x.sites); const cell = (v) => (v ? `${esc(v.name)}<div class="note">${esc(v.sid || '')}</div>` : '<span class="note">—</span>');
+          return `<tr style="border-top:1px solid var(--line,#ddd)"><td style="padding:6px;white-space:nowrap">${esc(w.label || x.key)}${x.sameSid ? '<div class="note">販売者 ID は同じ</div>' : ''}</td><td style="padding:6px">${x.rec ? cell(x.rec) + (x.rec.src === 'manual' ? '<div class="note">手入力</div>' : '') : '<span class="note">未記録</span>'}</td>${['fd2ppv', 'fc2cmadb'].map((st) => `<td style="padding:6px">${cell(sv[st])}</td>`).join('')}<td style="padding:6px;max-width:220px;overflow-wrap:anywhere" class="note">${esc(w.path || '（いまの読み込みにはありません）')}</td>
+            <td style="padding:6px;white-space:nowrap">${x.rec ? `<button data-sd-keep="${esc(x.key)}">いまの記録のまま</button>` : ''}${['fd2ppv', 'fc2cmadb'].filter((st) => sv[st] && (!x.rec || sv[st].name !== x.rec.name)).map((st) => `<button data-sd-pick="${esc(x.key)}" data-st="${st}">${SITE_NM[st]} の名前にする</button>`).join('')}</td></tr>`; }).join('') || '<tr><td colspan="6" style="padding:12px">違いのある作品はありません</td></tr>'}
+        </tbody></table></div>
+        <div class="acts"><button data-close style="background:#306fff;border-color:#306fff;color:#fff;font-weight:700">閉じる</button></div></div>`;
+      d.querySelector('[data-close]').onclick = close;
+      d.querySelectorAll('[data-sd-keep]').forEach((b) => { b.onclick = () => { const x = rows.find((y) => y.key === b.dataset.sdKeep); if (!x) return; wInfo[x.key] = { ...wInfo[x.key], ack: x.sig }; lsSetJson(LS_WINFO, wInfo); log('info', `販売者名の違い：${x.key} はいまの記録のまま`); draw(); }; });
+      d.querySelectorAll('[data-sd-pick]').forEach((b) => { b.onclick = () => { const x = rows.find((y) => y.key === b.dataset.sdPick); const v = x && Object.fromEntries(x.sites)[b.dataset.st]; if (!v) return; sellerDb[x.key] = { name: v.name, sid: v.sid, src: 'manual', status: 'ok', at: Date.now(), from: b.dataset.st }; saveSellerDb(); log('info', `販売者名の違い：${x.key} を ${SITE_NM[b.dataset.st]} の「${v.name}」にした（フォルダはまだ動かしていない）`); draw(); }; });
+    };
+    const close = () => { d.remove(); document.removeEventListener('keydown', onKey, true); if (view === 'seller') { selPlan = buildSellerPlan(folders); renderSeller(); } };
+    const onKey = (e) => { if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); close(); } };
+    document.addEventListener('keydown', onKey, true);
+    d.addEventListener('mousedown', (e) => { if (e.target === d) close(); });
+    draw();
+  }
+  // 作品の情報をまとめて調べる対象（scope：'missing' 情報がまだない作品だけ／'all' すべて）。FC2 と ABC-123 の形（FANZA）
+  const hasInfo = (key) => { const o = wInfo[key]; return !!(o && (o.title || (o.sellers && Object.keys(o.sellers).length))); };
+  function infoTargets(scope) {
+    const out = [], seen = new Set();
+    workFiles().forEach((f) => { const { k } = infoKeyOf(f.id, f.name); if (!k || k.noLookup || k.kind === 'brand' || seen.has(k.key)) return; seen.add(k.key); if (scope === 'all' || !hasInfo(k.key)) out.push(k); });
+    return out;
+  }
+  async function runSellerLookup(mode) {
     if (busy) return;
+    const info = mode === 'missing' || mode === 'all';
     const keys = []; const seen = new Set();
-    selPlan.filter((p) => p.kind === 'pending').forEach((p) => p.keys.forEach((k) => { if (k.kind !== 'brand' && !sellerDb[k.key] && !seen.has(k.key)) { seen.add(k.key); keys.push(k); } }));
-    if (!keys.length) { status('未調査の作品はありません。'); return; }
+    if (info) keys.push(...infoTargets(mode));
+    else selPlan.filter((p) => p.kind === 'pending').forEach((p) => p.keys.forEach((k) => { if (k.kind !== 'brand' && !sellerDb[k.key] && !seen.has(k.key)) { seen.add(k.key); keys.push(k); } }));
+    if (!keys.length) { status(info ? '調べる作品はありません（情報はそろっています）。' : '未調査の作品はありません。'); return; }
+    if (info && !window.confirm(`作品の情報（女優・タイトル・タグ・配信日・収録時間・サイトごとの販売者名）を ${keys.length} 作品分調べます。\n\n・FC2 は fd2ppv.cc と fc2cmadb.com の両方を、ABC-123 の形は FANZA を開きます\n・目安：約 ${Math.max(1, Math.round(keys.length * (sellerCfg().interval + 6) * 1.6 / 60))} 分（確認画面が出るとさらにかかります）。途中で一時停止・中断できます\n・記録済みの販売者は変えません（違いは「販売者名の違い」で確かめられます）。手入力した女優名も上書きしません\n\n始めますか？`)) return;
     // ポップアップを止められないよう、押した直後に開く
     let win = window.open('about:blank', 'ppdup-lookup', 'width=560,height=720');
     if (!win) { status('小さなウィンドウを開けませんでした。ブラウザのアドレスバーで、このサイトのポップアップを許可してから、もう一度押してください。'); return; }
     const cfg = sellerCfg();
     busy = true; window.__ppdupStop = false; renderNav(); renderToolbar();
     let done = 0, ok = 0, miss = 0, stop = '', parked = false;
-    lookupSt = { on: true, total: keys.length, done: 0, ok: 0, miss: 0, cur: '', site: '', paused: false, t0: Date.now(), challenge: '' };
+    lookupSt = { on: true, total: keys.length, done: 0, ok: 0, miss: 0, cur: '', site: '', paused: false, t0: Date.now(), challenge: '', info };
     refreshSellerChrome();
     for (const k of keys) {
       while (lookupSt.paused && !window.__ppdupStop) await sleep(300);
       if (window.__ppdupStop) { stop = '中断しました'; break; }
-      lookupSt.cur = k.label; lookupSt.site = k.kind === 'fc2' ? 'fd2ppv.cc → fc2cmadb.com' : 'fd2ppv.cc'; lookupSt.challenge = '';
-      status(`販売者を調べています… ${done + 1}/${keys.length}：${k.label}`, done / keys.length, lookupEta());
+      lookupSt.cur = k.label; lookupSt.site = k.kind === 'fanza' ? 'FANZA' : k.kind === 'fc2' ? (info ? 'fd2ppv.cc ＋ fc2cmadb.com' : 'fd2ppv.cc → fc2cmadb.com') : 'fd2ppv.cc'; lookupSt.challenge = '';
+      status(`${info ? '作品の情報' : '販売者'}を調べています… ${done + 1}/${keys.length}：${k.label}`, done / keys.length, lookupEta());
       refreshSellerChrome();
       const onCh = (origin) => { lookupSt.challenge = origin.replace('https://', ''); showWin(win); parked = false; refreshSellerChrome(); status(`${origin.replace('https://', '')} の確認画面が出ています。開いた小さなウィンドウで確認を済ませてください（済むと自動で続きます）：${k.label}`, done / keys.length);};
       const ref = { win, parked };
-      if (!done) await lookupWarmUp(ref);
-      const r = ref.win ? await lookupWithRetry(ref, k, (o) => { win = ref.win; onCh(o); }) : { status: 'closed' };
+      await lookupWarmUp(ref, k);
+      let r = ref.win ? await lookupWithRetry(ref, k, (o) => { win = ref.win; onCh(o); }) : { status: 'closed' };
+      // 情報を調べるときは、FC2 は fc2cmadb.com も開く（販売者名がサイトで違うことがあるため、両方残す）
+      if (info && k.kind === 'fc2' && ref.win && r.status !== 'closed' && r.status !== 'challenge' && r.status !== 'severed' && !window.__ppdupStop) {
+        await sleep(sellerCfg().interval * 500);
+        const r2 = await lookupWithRetry(ref, { ...k, site: 'cm' }, (o) => { win = ref.win; onCh(o); });
+        if (r.status !== 'ok' && r2.status === 'ok') r = r2; // 販売者がまだ分かっていない作品は、fc2cmadb.com の結果で埋める
+        else if (r2.status === 'closed' || r2.status === 'challenge' || r2.status === 'severed') r = r2;
+      }
       win = ref.win; parked = ref.parked;
       if (!win) { stop = '小さなウィンドウを開き直せませんでした（ポップアップを許可してください）'; break; }
       lookupSt.challenge = '';
@@ -4059,6 +4131,11 @@
       if (r.status === 'closed') { stop = 'ウィンドウが閉じられたため止めました'; break; }
       if (r.status === 'challenge' || r.status === 'severed') { stop = '確認画面のあと、続きを読み取れなかったため止めました（もう一度「販売者を調べる」を押すと続きから調べます）'; break; }
       if (r.status === 'timeout') { log('warn', '販売者の調査が時間切れ', k.label); miss++; }
+      else if (info) {
+        // 情報を調べるとき：記録済みの販売者は変えない（まだ分かっていない作品だけ埋める）。FANZA のメーカーは作品情報にだけ残す
+        if (k.kind !== 'fanza' && r.status === 'ok' && !(sellerDb[k.key] && sellerDb[k.key].status === 'ok')) { sellerDb[k.key] = { name: String(r.name || '').slice(0, 120), sid: String(r.sid || '').slice(0, 64), src: r.src, status: 'ok', studio: !!r.studio, at: Date.now() }; saveSellerDb(); }
+        if (hasInfo(k.key)) ok++; else miss++;
+      }
       else {
         sellerDb[k.key] = r.status === 'ok' ? { name: String(r.name || '').slice(0, 120), sid: String(r.sid || '').slice(0, 64), src: r.src, status: 'ok', studio: !!r.studio, at: Date.now() } : { status: r.status === 'notfound' || r.status === 'ambiguous' ? r.status : 'noseller', src: r.src, at: Date.now() };
         if (r.status === 'ok') ok++; else miss++;
@@ -4074,6 +4151,12 @@
     try { win.close(); } catch (e) { /* 無視 */ }
     lookupSt.on = false;
     busy = false; sellerAck = false; setView('seller');
+    if (info) {
+      const nd = sellerDiffs().length;
+      status(`${stop ? stop + '。' : ''}${done} 作品の情報を調べました（読めた ${ok}・読めなかった ${miss}）。${nd ? `販売者名がサイトで違う作品が ${nd} 件あります（「販売者名の違い」で確かめられます）。` : ''}`);
+      log('info', `作品の情報をまとめて調べた：${done} 件（読めた ${ok}・読めなかった ${miss}）${stop ? '・' + stop : ''}`);
+      return;
+    }
     status(`${stop ? stop + '。' : ''}${done} 件を調べました（販売者が分かった ${ok} 件・分からなかった ${miss} 件）。調べた結果は保存済みです。`);
     log('info', `販売者を調べた：${done} 件（判明 ${ok}・不明 ${miss}）${stop ? '・' + stop : ''}`);
   }
@@ -4571,7 +4654,7 @@
     const row = (t, v) => `<dt>${t}</dt><dd>${v}</dd>`;
     const none = '<span class="mu">—</span>';
     const sellers = inf && inf.sellers ? Object.entries(inf.sellers) : [];
-    const sellerHtml = !sel && sellers.length ? sellers.map(([st, x]) => `${esc(x.name)} <span class="mu">（${st === 'fanza' ? 'FANZA のメーカー' : esc(st)}）</span>`).join('<br>') : sel && sel.status === 'ok' ? `${esc(sel.name)} <span class="mu">（${esc(sel.sid)}${sel.src === 'manual' ? '・手入力' : ''}）</span>${sellers.filter(([, x]) => x.name !== sel.name).map(([st, x]) => `<div class="mu">${esc(st)} では「${esc(x.name)}」</div>`).join('')}` : sel ? `<span class="mu">${sel.status === 'notfound' ? '見つかりませんでした' : '分かりませんでした'}</span>` : '<span class="mu">まだ調べていません</span>';
+    const sellerHtml = !sel && sellers.length ? sellers.map(([st, x]) => `${esc(x.name)} <span class="mu">（${st === 'fanza' ? 'FANZA のメーカー' : esc(st)}）</span>`).join('<br>') : sel && sel.status === 'ok' ? `${esc(sel.name)} <span class="mu">（${esc(sel.sid)}${sel.src === 'manual' ? '・手入力' : ''}）</span>${sellers.filter(([st]) => st !== 'fanza').map(([st, x]) => `<div class="mu">${esc(SITE_NM[st] || st)}：${esc(x.name)}（${esc(x.sid || '')}）</div>`).join('')}` : sel ? `<span class="mu">${sel.status === 'notfound' ? '見つかりませんでした' : '分かりませんでした'}</span>` : '<span class="mu">まだ調べていません</span>';
     const ttl = (inf && inf.title) || (w ? titleOf(w).replace(/_/g, ' ') : '');
     el.innerHTML = `<div class="pv-ih"><b>ⓘ 作品情報</b><button type="button" class="pv-x" data-pvi-x title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
       <dl>${row('品番', w ? esc(w.label + (w.part ? '-' + w.part : '')) : none)}${row('タイトル', ttl ? esc(ttl) : none)}${row('販売者', k ? sellerHtml : none)}
@@ -5805,6 +5888,8 @@
     if (a === 'bell') { const u = updRead(); if (u.latest && verNewer(u.latest, VER) && u.skip !== u.latest) { const el = $('[data-r=upd]'); if (el) { el.hidden = false; el.scrollIntoView({ block: 'nearest' }); } } showLog(); return; }
     if (a === 'dockx') { const dk = t.closest('.sv-dock'); if (dk) dk.classList.toggle('open'); return; }
     if (a === 'slookup') { runSellerLookup(); return; }
+    if (a === 'sinfo') { runSellerLookup(t.dataset.v); return; }
+    if (a === 'sdiff') { showSellerDiffs(); return; }
     if (t.dataset.sfilter) { sellerFilter = t.dataset.sfilter; render(); return; }
     if (a === 'sshowunk') { sellerFilter = selPlan.some((p) => p.kind === 'unknown') ? 'unknown' : 'review'; render(); const tb = $('[data-r=main] .sl-tabs'); if (tb) tb.scrollIntoView({ block: 'start', behavior: 'smooth' }); return; }
     if (a === 'sack') { sellerAck = true; sellerFilter = 'all'; render(); return; }

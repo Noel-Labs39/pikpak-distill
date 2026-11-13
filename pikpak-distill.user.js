@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.18.1
+// @version      4.18.2
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -36,6 +36,8 @@
     const challenge = () => /しばらくお待ちください|Just a moment|Attention Required/i.test(document.title) || !!document.querySelector('#challenge-form,.cf-turnstile,[id^="cf-chl"]') || ageGate();
     // 年齢確認（人が「はい」を押す）は、開き直しても消えないので gate: 'age' を付けて知らせる（すぐに人に頼む）
     const gate = () => (ageGate() ? 'age' : 'cf');
+    // 調べる側へ「このページで動き始めた」ことを知らせる（時間切れのとき、どこまで進んでいたかをログに残すため）
+    send({ status: 'alive', stage: challenge() ? 'challenge' : num || kw ? 'article' : 'other', path: location.pathname.slice(0, 60) });
     // FANZA（video.dmm.co.jp）の作品ページ：表の「出演者・メーカー・レーベル・ジャンル・配信開始日・収録時間」を読む
     if (location.hostname === 'video.dmm.co.jp') {
       let n = 0;
@@ -166,7 +168,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.18.1'; // @version と合わせて更新する
+  const VER = '4.18.2'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -3953,15 +3955,17 @@
   function visitAndWait(win, origin, url, onChallenge, num) {
     return new Promise((resolve) => {
       const token = 'p' + Date.now().toString(36) + (++lookupSeq);
-      let limit = 30000, timer = null, challenged = false;
+      let limit = 30000, timer = null, challenged = false, stage = '';
       let kwq = ''; try { kwq = new URL(url).searchParams.get('keyword') || ''; } catch (e) { /* 無視 */ }
       const off = () => { clearTimeout(timer); clearInterval(watch); window.removeEventListener('message', on); lookupSt.kick = null; };
-      const arm = () => { clearTimeout(timer); timer = setTimeout(() => { off(); resolve({ status: challenged ? 'challenge' : 'timeout' }); }, limit); };
+      const arm = () => { clearTimeout(timer); timer = setTimeout(() => { off(); resolve({ status: challenged ? 'challenge' : 'timeout', stage: stage || 'no-response' }); }, limit); };
       const on = (e) => {
         if (e.origin !== origin || !e.data || e.data.type !== 'ppdup-seller') return;
         // 合言葉で照合する（画面を後から組み立てるサイトで # が消えたときは品番で照合）
         if (e.data.token ? e.data.token !== token : !((num && e.data.num === num) || (kwq && e.data.kw === kwq))) return;
+        if (e.data.status === 'alive') { stage = `${e.data.stage}${e.data.path ? ' ' + e.data.path : ''}`; return; } // 動き始めた知らせ（結果ではない）
         if (e.data.status === 'challenge') {
+          stage = 'challenge';
           if (!challenged) {
             challenged = true;
             // 最初の 2 回は、確認画面で止まっても人に頼まず、数秒待って開き直す（開き直すと通ることが多い）。それでもだめなら人に確認を頼む
@@ -4049,13 +4053,18 @@
     let r = await lookupKey(ref.win, k, onCh);
     // 確認画面（Cloudflare など）を挟んだあとや、結果が返らず止まったときは、同じ作品をもう一度調べる（ウィンドウは使い直す）
     //   最初の 2 回は自動で調べ直し、3 回目からは小さなウィンドウを前に出して確認を頼む（年齢確認はすぐ頼む）。確認を通ったあとにつながりが切れたとき（severed）は何度か開き直す
-    for (let retry = 0, sev = 0; (r.status === 'severed' ? sev++ < 4 : retry++ < 3) && (r.status === 'timeout' || r.status === 'challenge' || r.status === 'severed' || (r.status === 'closed' && retry === 1 && lookupSt.challenge)) && !window.__ppdupStop;) {
-      log('info', `作品の調査：もう一度調べます（${r.status === 'severed' ? '確認画面のあとでつながりが切れたため' : r.status === 'challenge' ? '確認画面で止まったため' : r.status}）`, k.label);
+    const siteOf = (x) => (x.site === 'cm' ? 'fc2cmadb.com' : x.kind === 'fanza' ? 'FANZA' : 'fd2ppv.cc');
+    const STAGE = { 'no-response': 'ページから応答なし（読み込めていない・別のページへ移った・つながりが切れた）', challenge: '確認画面のまま', article: '作品ページで読み取りが終わらない', other: '作品ページ以外を表示中' };
+    const stageTx = (st) => (st ? STAGE[String(st).split(' ')[0]] + (String(st).includes(' ') ? `：${String(st).split(' ').slice(1).join(' ')}` : '') : '');
+    let tmo = 0;
+    for (let retry = 0, sev = 0; (r.status === 'severed' ? sev++ < 4 : r.status === 'timeout' ? tmo++ < 1 && retry++ < 3 : retry++ < 3) && (r.status === 'timeout' || r.status === 'challenge' || r.status === 'severed' || (r.status === 'closed' && retry === 1 && lookupSt.challenge)) && !window.__ppdupStop;) {
+      log('info', `作品の調査：${siteOf(k)} でもう一度調べます（${r.status === 'severed' ? '確認画面のあとでつながりが切れたため' : r.status === 'challenge' ? '確認画面で止まったため' : r.status === 'timeout' ? '時間切れ・' + stageTx(r.stage) : r.status}）`, k.label);
       if (!(await reopenWin(ref))) break;
       lookupSt.challenge = ''; lookupSt.quick = retry < 2;
       r = await lookupKey(ref.win, k, onCh);
     }
     lookupSt.quick = false;
+    if (r && r.status === 'timeout') log('warn', `作品の調査：${siteOf(k)} は時間切れのため飛ばしました（${stageTx(r.stage)}）`, k.label);
     if (r && r.info) saveWorkInfo(k, r);
     return r;
   }
@@ -4075,7 +4084,8 @@
   // 調べている間の進み具合（「販売者を調べる」の枠に出す）
   let lookupSt = { on: false, total: 0, done: 0, ok: 0, miss: 0, cur: '', site: '', paused: false, t0: 0, challenge: '' };
   // 小さなウィンドウ：確認画面が出たら前に出し、済んだら小さくして画面の端に寄せる（ほかのサイトに埋め込めないため、完全には隠せない）
-  function parkWin(win) { try { win.resizeTo(340, 220); win.moveTo(Math.max(0, screen.availWidth - 360), Math.max(0, screen.availHeight - 260)); } catch (e) { /* 無視 */ } try { window.focus(); } catch (e) { /* 無視 */ } }
+  // 小さく端に寄せると、ブラウザが裏のウィンドウの処理を遅くして読み取りが時間切れになることがあるため、大きさは変えずに PikPak の画面を前に戻すだけにする
+  function parkWin(win) { try { window.focus(); } catch (e) { /* 無視 */ } }
   function showWin(win) { try { win.resizeTo(560, 720); win.moveTo(Math.max(0, (screen.availWidth - 560) / 2), Math.max(0, (screen.availHeight - 720) / 2)); win.focus(); } catch (e) { /* 無視 */ } }
   const lookupEta = () => { const d = lookupSt.done, el = Date.now() - lookupSt.t0; if (d < 2) return '残り時間を計算中…'; return `あと約 ${fmtDur((lookupSt.total - d) * el / d)}`; };
   // ---- 販売者名の違い：記録している販売者名とサイトの名前、またはサイトどうしの名前が違う作品 ----
@@ -4155,7 +4165,7 @@
       lookupSt.challenge = '';
       if (!parked && r.status !== 'closed' && r.status !== 'challenge') { parkWin(win); parked = true; }
       if (r.status === 'closed') { stop = 'ウィンドウが閉じられたため止めました'; break; }
-      if (r.status === 'challenge' || r.status === 'severed') { stop = '確認画面のあと、続きを読み取れなかったため止めました（もう一度「販売者を調べる」を押すと続きから調べます）'; break; }
+      if (r.status === 'challenge' || r.status === 'severed') { stop = `確認画面のあと、続きを読み取れなかったため止めました（もう一度「${info ? '情報がない作品だけ調べる' : '販売者を調べる'}」を押すと、続きから調べます）`; break; }
       if (r.status === 'timeout') { log('warn', '販売者の調査が時間切れ', k.label); miss++; }
       else if (info) {
         // 情報を調べるとき：記録済みの販売者は変えない（まだ分かっていない作品だけ埋める）。FANZA のメーカーは作品情報にだけ残す

@@ -7,12 +7,13 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.16.0
+// @version      4.17.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
 // @match        https://fd2ppv.cc/articles/*
 // @match        https://fc2cmadb.com/articles/*
+// @match        https://video.dmm.co.jp/av/content/*
 // @grant        none
 // @require      https://cdn.jsdelivr.net/npm/hls.js@1.6.15/dist/hls.min.js#sha256=413a83e2bb0c77ed0bf0be105d539d17ef45dfd984a0b13ecd3b14a901383938
 // @run-at       document-idle
@@ -21,19 +22,51 @@
   'use strict';
   // 販売者を調べるときに開くページ（fd2ppv.cc・fc2cmadb.com）：「販売者を調べる」で開いた小さなウィンドウの中だけで動き、
   // 販売者と作品の情報（タイトル・女優・タグ・配信日・収録時間・モザイク）を読み取って PikPak の画面へ知らせる（ほかには何もしない）
-  if (location.hostname === 'fd2ppv.cc' || location.hostname === 'fc2cmadb.com') {
+  if (location.hostname === 'fd2ppv.cc' || location.hostname === 'fc2cmadb.com' || location.hostname === 'video.dmm.co.jp') {
     const hm = location.hash.match(/#ppdup-lookup(?:=([\w-]+))?/);
     // Safari は別サイトへ移るとウィンドウ名を消し、初回はサイト側の切り替えで # も消えることがあるため、
     // 開いた元（PikPak の画面）があれば動く（結果は PikPak の画面にしか送らない）
     if (!window.opener) return;
     const token = hm && hm[1] ? hm[1] : '';
-    const num = decodeURIComponent((location.pathname.match(/\/articles\/([^/?#]+)/) || [])[1] || '');
+    const num = location.hostname === 'video.dmm.co.jp' ? (new URLSearchParams(location.search).get('id') || '') : decodeURIComponent((location.pathname.match(/\/articles\/([^/?#]+)/) || [])[1] || '');
     const kw = new URLSearchParams(location.search).get('keyword') || '';
     const send = (d) => { try { window.opener.postMessage({ type: 'ppdup-seller', token, num, kw, ...d }, 'https://mypikpak.com'); } catch (e) { /* 無視 */ } };
     // Cloudflare の確認画面と、年齢確認などの「先に進む前に押す」画面（どちらも人が済ませる）
     const ageGate = () => { const t = (document.body ? document.body.innerText : '').slice(0, 3000); return /18\s*歳(以上|未満)|年齢(確認|認証)|成人向け|Age Verification|Are you (over )?18|I am 18|over 18|adults? only/i.test(t) && [...document.querySelectorAll('button,a,input[type=button],input[type=submit]')].some((b) => /はい|入る|同意|Enter|Yes|I am|Agree|Continue|OK/i.test(b.textContent || b.value || '')) && !document.querySelector('.work-meta-label,a[href*="/writers/"],a[href*="/channels/"]') && !/販売者|Sellers?\b/i.test(t); };
     const challenge = () => /しばらくお待ちください|Just a moment|Attention Required/i.test(document.title) || !!document.querySelector('#challenge-form,.cf-turnstile,[id^="cf-chl"]') || ageGate();
-    if (challenge()) { send({ status: 'challenge' }); return; }
+    // 年齢確認（人が「はい」を押す）は、開き直しても消えないので gate: 'age' を付けて知らせる（すぐに人に頼む）
+    const gate = () => (ageGate() ? 'age' : 'cf');
+    // FANZA（video.dmm.co.jp）の作品ページ：表の「出演者・メーカー・レーベル・ジャンル・配信開始日・収録時間」を読む
+    if (location.hostname === 'video.dmm.co.jp') {
+      let n = 0;
+      const tdOf = (re) => { const th = [...document.querySelectorAll('th')].find((t) => re.test(t.textContent.replace(/\s+/g, ''))); return th && th.parentElement ? th.parentElement.querySelector('td') : null; };
+      const txOf = (re) => { const t = tdOf(re); return t ? t.textContent.replace(/\s+/g, ' ').trim().slice(0, 60) : ''; };
+      const idIn = (h, key) => { try { return new URL(h, location.href).searchParams.get(key) || ''; } catch (e) { return ''; } };
+      const tick = () => {
+        if (tdOf(/^配信品番[:：]?$/)) {
+          let title = ''; try { const ld = [...document.querySelectorAll('script[type="application/ld+json"]')].map((x) => JSON.parse(x.textContent)).find((x) => x && x.name); title = ld ? ld.name : ''; } catch (e) { /* 無視 */ }
+          if (!title) title = (document.querySelector('meta[property="og:title"]') || {}).content || '';
+          const at = tdOf(/^出演者[:：]?$/), mk = tdOf(/^メーカー[:：]?$/), gn = tdOf(/^ジャンル[:：]?$/);
+          const ma = mk && mk.querySelector('a');
+          const info = {
+            site: 'fanza', title: String(title).replace(/\s+/g, ' ').trim().slice(0, 300),
+            actresses: at ? [...at.querySelectorAll('a')].map((x) => ({ name: x.textContent.replace(/\s+/g, ' ').trim().slice(0, 60), id: idIn(x.getAttribute('href'), 'actress') })).filter((x) => x.name && !/^[-－―]+$/.test(x.name)).slice(0, 20) : [],
+            tags: gn ? [...gn.querySelectorAll('a')].map((x) => x.textContent.trim().replace(/^#/, '').slice(0, 40)).filter(Boolean).slice(0, 30) : [],
+            date: txOf(/^配信開始日[:：]?$/) || txOf(/^商品発売日[:：]?$/), dur: txOf(/^収録時間[:：]?$/), mosaic: '',
+            label: txOf(/^レーベル[:：]?$/), code: txOf(/^メーカー品番[:：]?$/),
+          };
+          send(ma ? { status: 'ok', name: ma.textContent.trim(), sid: 'fanza-maker-' + idIn(ma.getAttribute('href'), 'maker'), info } : { status: 'noseller', info });
+          return;
+        }
+        if (challenge()) { send({ status: 'challenge', gate: gate() }); return; }
+        if (/404|ページが見つかりません|お探しのページ|見つかりませんでした/.test(document.title + ' ' + (document.body ? document.body.innerText.slice(0, 400) : ''))) { send({ status: 'notfound' }); return; }
+        if (++n > 60) { send({ status: 'notfound' }); return; }
+        setTimeout(tick, 250);
+      };
+      tick();
+      return;
+    }
+    if (challenge()) { send({ status: 'challenge', gate: gate() }); return; }
     const sidOf = (a, re) => decodeURIComponent((a.getAttribute('href').match(re) || [])[1] || '');
     if (location.hostname === 'fd2ppv.cc') {
       if (/(^|\s)404(\s|$)|Not Found/i.test(document.title)) { send({ status: 'notfound' }); return; }
@@ -85,7 +118,7 @@
         || [...document.querySelectorAll('div,li,dl,p')].filter((el) => /^\s*(販売者|Sellers?)\s*[：:]?/i.test(el.textContent) && el.querySelector('a[href*="/writers/"]')).sort((x, y) => x.textContent.length - y.textContent.length)[0];
       let a = row ? row.querySelector('a[href*="/writers/"]') : null;
       if (!a) { const all = [...document.querySelectorAll('a[href*="/writers/"]')]; if (all.length && new Set(all.map((x) => x.getAttribute('href'))).size === 1) a = all[0]; }
-      if (!a && challenge()) { send({ status: 'challenge' }); return; }
+      if (!a && challenge()) { send({ status: 'challenge', gate: gate() }); return; }
       if (!a && /^404|ページが見つかりません|Not Found/i.test(document.title)) { send({ status: 'notfound' }); return; }
       if (a) {
         // 女優の欄は少し遅れて表示されるので、空のうちは少しだけ待つ（最大 2 秒）
@@ -133,7 +166,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.16.0'; // @version と合わせて更新する
+  const VER = '4.17.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -3557,6 +3590,7 @@
   const LS_OPT_SELLER = 'ppdup:opt:seller:v1';
   const FD2 = 'https://fd2ppv.cc';
   const CMADB = 'https://fc2cmadb.com';
+  const FANZA = 'https://video.dmm.co.jp';
   let sellerDb = {};
   sellerDb = lsJson(LS_SELLER, {});
   const saveSellerDb = () => { lsSetJson(LS_SELLER, sellerDb); };
@@ -3572,7 +3606,7 @@
       ...o,
       title: i.title || o.title || '', actresses: acts.slice(0, 30),
       tags: [...new Set([...(o.tags || []), ...(i.tags || [])])].slice(0, 40),
-      date: i.date || o.date || '', dur: i.dur || o.dur || '', mosaic: i.mosaic || o.mosaic || '',
+      date: i.date || o.date || '', dur: i.dur || o.dur || '', mosaic: i.mosaic || o.mosaic || '', label: i.label || o.label || '',
       sellers: { ...(o.sellers || {}), ...(r.status === 'ok' && r.name ? { [site]: { name: String(r.name).slice(0, 120), sid: String(r.sid || '').slice(0, 64) } } : {}) },
       at: Date.now(),
     };
@@ -3917,7 +3951,7 @@
           if (!challenged) {
             challenged = true;
             // 最初の 2 回は、確認画面で止まっても人に頼まず、数秒待って開き直す（開き直すと通ることが多い）。それでもだめなら人に確認を頼む
-            if (lookupSt.quick) { limit = 8000; arm(); return; }
+            if (lookupSt.quick && e.data.gate !== 'age') { limit = 8000; arm(); return; }
             limit = 5 * 60 * 1000; arm(); lookupSt.kick = () => { off(); resolve({ status: 'severed' }); }; onChallenge(origin);
           }
           return;
@@ -3934,6 +3968,8 @@
   // 1 つの品番を調べる：FC2 は fd2ppv.cc → 見つからなければ fc2cmadb.com、それ以外は fd2ppv.cc で検索して作品ページの配信元
   async function lookupKey(win, k, onChallenge) {
     const stopped = (r) => r.status === 'closed' || r.status === 'challenge' || r.status === 'severed';
+    // FANZA：メーカー品番（SONE-974）から作品ページ（?id=sone00974）を直接開く
+    if (k.kind === 'fanza') { const a = await visitAndWait(win, FANZA, `${FANZA}/av/content/?id=${encodeURIComponent(k.cid)}`, onChallenge, k.cid); return { ...a, src: 'fanza' }; }
     if (k.kind === 'fc2') {
       const a = await visitAndWait(win, FD2, `${FD2}/articles/${encodeURIComponent(k.num)}`, onChallenge, k.num);
       if (stopped(a) || a.status === 'ok') return { ...a, src: 'fd2ppv' };
@@ -3958,7 +3994,8 @@
   // 最初の 1 回は捨てて開き直す：そのブラウザでまだ fd2ppv.cc を読めていないときは、先にトップを一度開いて数秒で閉じる
   //   （Cloudflare などの確認で最初のウィンドウが止まりやすいため。確認を通った記録が残るので、次からは通りやすい）
   const lookupWarm = new Set();
-  async function lookupWarmUp(ref) {
+  async function lookupWarmUp(ref, k) {
+    if (k && k.kind === 'fanza') return; // FANZA は確認画面が出ないので、捨てて開き直す必要はない
     if (lookupWarm.has(FD2)) return;
     lookupWarm.add(FD2);
     try { ref.win.location.href = FD2 + '/'; } catch (e) { return; }
@@ -4517,7 +4554,8 @@
     const w = parseWork(name, dn);
     const wk = workKeys(w && w.kind === 'fc2' ? w.label : name)[0];
     if (wk) return { k: wk, w };
-    if (w && (w.kind === 'code' || w.kind === 'fc2')) return { k: { key: 'x:' + w.label, kind: 'other', kw: w.label, label: w.label, noLookup: true }, w };
+    if (w && w.kind === 'code') { const m = w.label.match(/^([A-Z]+)-(\d+)$/); return { k: { key: 'x:' + w.label, kind: 'fanza', kw: w.label, label: w.label, cid: m ? m[1].toLowerCase() + m[2].padStart(5, '0') : w.label.toLowerCase() }, w }; }
+    if (w && w.kind === 'fc2') return { k: { key: 'x:' + w.label, kind: 'other', kw: w.label, label: w.label, noLookup: true }, w };
     return { k: null, w };
   }
   function pvInfoToggle(root, id, name) {
@@ -4533,13 +4571,13 @@
     const row = (t, v) => `<dt>${t}</dt><dd>${v}</dd>`;
     const none = '<span class="mu">—</span>';
     const sellers = inf && inf.sellers ? Object.entries(inf.sellers) : [];
-    const sellerHtml = sel && sel.status === 'ok' ? `${esc(sel.name)} <span class="mu">（${esc(sel.sid)}${sel.src === 'manual' ? '・手入力' : ''}）</span>${sellers.filter(([, x]) => x.name !== sel.name).map(([st, x]) => `<div class="mu">${esc(st)} では「${esc(x.name)}」</div>`).join('')}` : sel ? `<span class="mu">${sel.status === 'notfound' ? '見つかりませんでした' : '分かりませんでした'}</span>` : '<span class="mu">まだ調べていません</span>';
+    const sellerHtml = !sel && sellers.length ? sellers.map(([st, x]) => `${esc(x.name)} <span class="mu">（${st === 'fanza' ? 'FANZA のメーカー' : esc(st)}）</span>`).join('<br>') : sel && sel.status === 'ok' ? `${esc(sel.name)} <span class="mu">（${esc(sel.sid)}${sel.src === 'manual' ? '・手入力' : ''}）</span>${sellers.filter(([, x]) => x.name !== sel.name).map(([st, x]) => `<div class="mu">${esc(st)} では「${esc(x.name)}」</div>`).join('')}` : sel ? `<span class="mu">${sel.status === 'notfound' ? '見つかりませんでした' : '分かりませんでした'}</span>` : '<span class="mu">まだ調べていません</span>';
     const ttl = (inf && inf.title) || (w ? titleOf(w).replace(/_/g, ' ') : '');
     el.innerHTML = `<div class="pv-ih"><b>ⓘ 作品情報</b><button type="button" class="pv-x" data-pvi-x title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
       <dl>${row('品番', w ? esc(w.label + (w.part ? '-' + w.part : '')) : none)}${row('タイトル', ttl ? esc(ttl) : none)}${row('販売者', k ? sellerHtml : none)}
       ${row('女優', `${acts.length ? acts.map((x) => esc(x.name)).join('、') : (inf ? '<span class="mu">載っていませんでした</span>' : '<span class="mu">まだ調べていません</span>')}<div class="pv-ied"><input type="text" data-pvi-act placeholder="手入力（「、」区切り）" value="${esc(inf && inf.manual && inf.manual.actresses ? inf.manual.actresses.join('、') : '')}" aria-label="女優を手入力"><button type="button" data-pvi-save>保存</button></div>`)}
-      ${inf && inf.tags && inf.tags.length ? row('タグ', inf.tags.map(esc).join('・')) : ''}${inf && inf.date ? row('配信日', esc(inf.date)) : ''}${inf && inf.dur ? row('収録時間', esc(inf.dur)) : ''}${inf && inf.mosaic ? row('モザイク', esc(inf.mosaic)) : ''}</dl>
-      ${k && !k.noLookup ? `<div class="pv-ia"><button type="button" class="pri" data-pvi-look>${inf || sel ? '↻ 調べ直す' : '🔍 調べる'}</button><span class="mu">${inf ? '調べた日：' + esc(fmtDate(inf.at, 'ymd')) : 'fd2ppv.cc・fc2cmadb.com を小さなウィンドウで開いて読み取ります'}</span></div>` : ''}
+      ${inf && inf.label ? row('レーベル', esc(inf.label)) : ''}${inf && inf.tags && inf.tags.length ? row('タグ', inf.tags.map(esc).join('・')) : ''}${inf && inf.date ? row('配信日', esc(inf.date)) : ''}${inf && inf.dur ? row('収録時間', esc(inf.dur)) : ''}${inf && inf.mosaic ? row('モザイク', esc(inf.mosaic)) : ''}</dl>
+      ${k && !k.noLookup ? `<div class="pv-ia"><button type="button" class="pri" data-pvi-look>${inf || sel ? '↻ 調べ直す' : '🔍 調べる'}</button><span class="mu">${inf ? '調べた日：' + esc(fmtDate(inf.at, 'ymd')) : (k.kind === 'fanza' ? 'FANZA の作品ページを小さなウィンドウで開いて読み取ります（年齢確認が出たら「はい」を押してください）' : 'fd2ppv.cc・fc2cmadb.com を小さなウィンドウで開いて読み取ります')}</span></div>` : ''}
       ${k ? `<div class="pv-il"><span class="mu">外部サイトで確かめる</span>${extSites(k).map(([n, , u]) => `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(n)}</a>`).join('')}</div>` : '<div class="pv-il mu">ファイル名から品番が読めないため、調べられません</div>'}`;
     el.querySelector('[data-pvi-x]').onclick = (e) => { e.stopPropagation(); el.remove(); };
     const sv = el.querySelector('[data-pvi-save]');
@@ -4566,10 +4604,10 @@
       status(`作品の情報を調べています：${k.label}`);
       let r = { status: 'closed' };
       try {
-        await lookupWarmUp(ref);
+        await lookupWarmUp(ref, k);
         if (ref.win) r = await lookupWithRetry(ref, k, (o) => { lookupSt.challenge = o.replace('https://', ''); showWin(ref.win); status(`${o.replace('https://', '')} の確認画面が出ています。小さなウィンドウで確認を済ませてください（済むと自動で続きます）`); });
-        if (r.status === 'ok' && !(sellerDb[k.key] && sellerDb[k.key].src === 'manual')) { sellerDb[k.key] = { name: String(r.name || '').slice(0, 120), sid: String(r.sid || '').slice(0, 64), src: r.src, status: 'ok', studio: !!r.studio, at: Date.now() }; saveSellerDb(); }
-        else if ((r.status === 'notfound' || r.status === 'noseller') && !sellerDb[k.key]) { sellerDb[k.key] = { status: r.status, src: r.src, at: Date.now() }; saveSellerDb(); }
+        if (k.kind === 'fanza') { /* FANZA のメーカーは作品情報にだけ記録する（販売者ごとの仕分けには使わない） */ } else if (r.status === 'ok' && !(sellerDb[k.key] && sellerDb[k.key].src === 'manual')) { sellerDb[k.key] = { name: String(r.name || '').slice(0, 120), sid: String(r.sid || '').slice(0, 64), src: r.src, status: 'ok', studio: !!r.studio, at: Date.now() }; saveSellerDb(); }
+        else if (k.kind !== 'fanza' && (r.status === 'notfound' || r.status === 'noseller') && !sellerDb[k.key]) { sellerDb[k.key] = { status: r.status, src: r.src, at: Date.now() }; saveSellerDb(); }
       } finally { try { if (ref.win) ref.win.close(); } catch (e) { /* 無視 */ } lookupSt.on = false; lookupSt.challenge = ''; }
       status(r.status === 'ok' || r.info ? `作品の情報を調べました：${k.label}` : r.status === 'notfound' ? `見つかりませんでした：${k.label}` : r.status === 'closed' ? '小さなウィンドウが閉じられたため止めました' : `読み取れませんでした（${r.status}）：${k.label}`);
       log('info', `作品の情報を調べる：${k.label} → ${r.status}`);

@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.18.0
+// @version      4.18.1
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -166,7 +166,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.18.0'; // @version と合わせて更新する
+  const VER = '4.18.1'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -3821,7 +3821,7 @@
         <div class="sl-prog"><div class="bar"><i class="ok" style="width:${L.ok / Math.max(1, L.total) * 100}%"></i><i class="ng" style="width:${L.miss / Math.max(1, L.total) * 100}%"></i></div>
         <div class="nums"><b>${L.done} / ${L.total}（${pct}%）</b><span>🟩 分かった ${L.ok}</span><span>⬜ 分からない ${L.miss}</span><span>${esc(lookupEta())}（1 件 ${sellerCfg().interval} 秒＋読み込み）</span></div></div></div>
         ${L.challenge ? '<button class="pri" data-a="skick" title="確認を済ませても続きが始まらないときに押す（ウィンドウを開き直して、同じ作品を調べ直します）">確認が済んだら：続きを調べる</button>' : ''}<button data-a="spause">${L.paused ? '再開' : '一時停止'}</button><button data-a="stop">中断</button>`;
-    } else if (st === 1) msg = `<div class="tx"><b>未調査が ${pend} 件あります。まず販売者を調べます</b><small>小さなウィンドウで fd2ppv.cc（見つからなければ fc2cmadb.com）の作品ページを順に開いて調べます。調べるだけでは移動しません。</small></div><button class="pri" data-a="slookup"${busy ? ' disabled' : ''}>販売者を調べる（${pend} 件）</button>`;
+    } else if (st === 1) msg = `<div class="tx"><b>未調査が ${pend} 件あります。まず販売者を調べます</b><small>小さなウィンドウで fd2ppv.cc と fc2cmadb.com の作品ページを順に開いて調べます（女優・販売者の名前がサイトで違うことがあるため、両方見ます）。調べるだけでは移動しません。</small></div><button class="pri" data-a="slookup"${busy ? ' disabled' : ''}>販売者を調べる（${pend} 件）</button>`;
     else if (st === 2) msg = `<div class="tx"><b>${unk} 件は販売者が分かりませんでした。外部サイトで確かめて入力してください</b><small>${selPlan.length} 件中 ${selPlan.length - unk} 件は決まりました${parts ? `（${parts}）` : ''}。入力しなくても「${esc(sellerCfg().unknown)}」「${esc(sellerCfg().review)}」へまとめて移動できます。</small></div><button class="pri" data-a="sshowunk">分からない ${unk} 件を確かめる</button><button data-a="sack">このまま ③ 移動へ</button>`;
     else msg = `<div class="tx"><b>${mv ? `チェックした ${mv} 件を移動できます。下のボタンで実行します` : 'チェックの入った作品がありません'}</b><small>${selPlan.length} 件中 ${selPlan.length - unk} 件は販売者が決まりました${parts ? `（${parts}）` : ''}。まずは「先頭1件だけ試す」で動きを確かめてください。削除はしません。</small></div>${unk ? `<button data-a="sunack">② に戻る（分からない ${unk} 件）</button>` : ''}`;
     const ib = infoBarHtml();
@@ -3984,6 +3984,7 @@
     const stopped = (r) => r.status === 'closed' || r.status === 'challenge' || r.status === 'severed';
     // FANZA：メーカー品番（SONE-974）から作品ページ（?id=sone00974）を直接開く
     // 作品の情報をまとめて調べるとき、FC2 は fc2cmadb.com も必ず開く（サイトごとの販売者名を両方残すため）
+    if (k.site === 'fd') { const a = await visitAndWait(win, FD2, `${FD2}/articles/${encodeURIComponent(k.num)}`, onChallenge, k.num); return { ...a, src: 'fd2ppv' }; }
     if (k.site === 'cm') { const b = await visitAndWait(win, CMADB, `${CMADB}/articles/${encodeURIComponent(k.num)}`, onChallenge, k.num); return { ...b, src: 'fc2cmadb' }; }
     if (k.kind === 'fanza') { const a = await visitAndWait(win, FANZA, `${FANZA}/av/content/?id=${encodeURIComponent(k.cid)}`, onChallenge, k.cid); return { ...a, src: 'fanza' }; }
     if (k.kind === 'fc2') {
@@ -4007,37 +4008,69 @@
     const a = await visitAndWait(win, FD2, `${FD2}/articles/${encodeURIComponent(slug)}`, onChallenge, slug);
     return { ...a, src: 'fd2ppv' };
   }
-  // 最初の 1 回は捨てて開き直す：そのブラウザでまだ fd2ppv.cc を読めていないときは、先にトップを一度開いて数秒で閉じる
-  //   （Cloudflare などの確認で最初のウィンドウが止まりやすいため。確認を通った記録が残るので、次からは通りやすい）
+  // ---- 小さなウィンドウの開き直し ----
+  //   いま開いているウィンドウがあれば、閉じずに中身だけ空にして使い直す（閉じて開き直すと、ブラウザがポップアップを止めて続きが始まらないことがあるため）
+  //   本当に閉じられていたときだけ開き直す。ブラウザに止められたら、押せば続く「続きを調べる」ボタンを画面の右下に出す（押した操作の中で開くので止められない）
+  function askReopen() {
+    return new Promise((res) => {
+      const old = document.getElementById('pd-reopen'); if (old) old.remove();
+      const el = document.createElement('div'); el.id = 'pd-reopen'; el.setAttribute('role', 'alertdialog'); el.setAttribute('aria-label', '調べる続き');
+      el.style.cssText = 'position:fixed;right:24px;bottom:24px;z-index:2147483647;max-width:360px;padding:16px;border-radius:12px;background:#1d212a;color:#e8eaf0;box-shadow:0 12px 36px #0009;font:14px/1.6 system-ui,-apple-system,"Hiragino Sans",sans-serif';
+      el.innerHTML = '<b>調べる続きを始めます</b><div style="margin:6px 0 12px;color:#c3c8d2">ブラウザが小さなウィンドウを止めました。下のボタンを押すと、続きから調べます。</div><div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" data-no style="height:36px;padding:0 14px;border-radius:8px;border:1px solid #343a46;background:#232833;color:#e8eaf0;cursor:pointer">やめる</button><button type="button" data-go style="height:36px;padding:0 14px;border-radius:8px;border:1px solid #306fff;background:#306fff;color:#fff;font-weight:700;cursor:pointer">続きを調べる</button></div>';
+      document.body.appendChild(el);
+      el.querySelector('[data-go]').onclick = () => { const w = window.open('about:blank', 'ppdup-lookup' + (++lookupSeq), 'width=560,height=720'); if (w) { el.remove(); res(w); } else el.querySelector('div').textContent = 'まだ止められています。アドレスバーの右のアイコンから、このサイトのポップアップを「常に許可」にしてから、もう一度押してください。'; };
+      el.querySelector('[data-no]').onclick = () => { el.remove(); res(null); };
+    });
+  }
+  async function reopenWin(ref) {
+    let alive = false; try { alive = !!ref.win && !ref.win.closed; } catch (e) { alive = false; }
+    if (alive) { try { ref.win.location.href = 'about:blank'; await sleep(400); ref.parked = false; return true; } catch (e) { /* つながりが切れている：開き直す */ } }
+    try { if (ref.win) ref.win.close(); } catch (e) { /* 無視 */ }
+    await sleep(300);
+    ref.win = window.open('about:blank', 'ppdup-lookup' + (++lookupSeq), 'width=560,height=720');
+    if (!ref.win) ref.win = await askReopen();
+    ref.parked = false;
+    return !!ref.win;
+  }
+  // 最初の 1 回は捨てる：そのブラウザでまだ fd2ppv.cc を読めていないときは、先にトップを一度開き、数秒たったら空にして、2 回目から自動で調べる
+  //   （Cloudflare などの確認で最初の読み込みが止まりやすいため。確認を通った記録が残るので、次からは通りやすい）
   const lookupWarm = new Set();
   async function lookupWarmUp(ref, k) {
-    if (k && k.kind === 'fanza') return; // FANZA は確認画面が出ないので、捨てて開き直す必要はない
+    if (k && k.kind === 'fanza') return; // FANZA は確認画面が出ないので、捨てる必要はない
     if (lookupWarm.has(FD2)) return;
     lookupWarm.add(FD2);
     try { ref.win.location.href = FD2 + '/'; } catch (e) { return; }
-    await sleep(5000);
-    try { ref.win.close(); } catch (e) { /* 無視 */ }
-    await sleep(500);
-    ref.win = window.open('about:blank', 'ppdup-lookup' + (++lookupSeq), 'width=560,height=720'); ref.parked = false;
+    await sleep(6000);
+    await reopenWin(ref);
   }
   // 1 つの品番を、開き直しも含めて調べる（販売者の一括調査・作品情報の「調べる」で共通）
   async function lookupWithRetry(ref, k, onCh) {
     lookupSt.quick = true;
     let r = await lookupKey(ref.win, k, onCh);
-    // 確認画面（Cloudflare・年齢確認など）を挟んだあとや、結果が返らず止まったときは、ウィンドウを開き直して同じ作品をもう一度調べる
-    //   最初の 2 回は自動で開き直し、3 回目からは小さなウィンドウを前に出して確認を頼む。確認を通ったあとにつながりが切れたとき（severed）は何度か開き直す
+    // 確認画面（Cloudflare など）を挟んだあとや、結果が返らず止まったときは、同じ作品をもう一度調べる（ウィンドウは使い直す）
+    //   最初の 2 回は自動で調べ直し、3 回目からは小さなウィンドウを前に出して確認を頼む（年齢確認はすぐ頼む）。確認を通ったあとにつながりが切れたとき（severed）は何度か開き直す
     for (let retry = 0, sev = 0; (r.status === 'severed' ? sev++ < 4 : retry++ < 3) && (r.status === 'timeout' || r.status === 'challenge' || r.status === 'severed' || (r.status === 'closed' && retry === 1 && lookupSt.challenge)) && !window.__ppdupStop;) {
-      log('info', `作品の調査：開き直してもう一度調べます（${r.status === 'severed' ? '確認画面のあとでつながりが切れたため' : r.status === 'challenge' ? '確認画面で止まったため' : r.status}）`, k.label);
-      try { ref.win.close(); } catch (e) { /* 無視 */ }
-      await sleep(r.status === 'severed' ? 400 : 800);
-      ref.win = window.open('about:blank', 'ppdup-lookup' + (++lookupSeq), 'width=560,height=720');
-      if (!ref.win) break;
-      ref.parked = false; lookupSt.challenge = ''; lookupSt.quick = retry < 2;
+      log('info', `作品の調査：もう一度調べます（${r.status === 'severed' ? '確認画面のあとでつながりが切れたため' : r.status === 'challenge' ? '確認画面で止まったため' : r.status}）`, k.label);
+      if (!(await reopenWin(ref))) break;
+      lookupSt.challenge = ''; lookupSt.quick = retry < 2;
       r = await lookupKey(ref.win, k, onCh);
     }
     lookupSt.quick = false;
     if (r && r.info) saveWorkInfo(k, r);
     return r;
+  }
+  // FC2 は fd2ppv.cc と fc2cmadb.com を必ず両方調べる（女優・出演者・販売者の名前がサイトで違うことがあるため）。販売者は fd2ppv を優先し、なければ fc2cmadb
+  const hardStop = (r) => r.status === 'closed' || r.status === 'challenge' || r.status === 'severed';
+  async function lookupAny(ref, k, onCh) {
+    if (k.kind !== 'fc2' || k.site) return lookupWithRetry(ref, k, onCh);
+    const r1 = await lookupWithRetry(ref, { ...k, site: 'fd' }, onCh);
+    if (hardStop(r1) || window.__ppdupStop) return r1;
+    await sleep(sellerCfg().interval * 500);
+    const r2 = await lookupWithRetry(ref, { ...k, site: 'cm' }, onCh);
+    if (hardStop(r2)) return r2;
+    if (r1.status === 'ok') return r1;
+    if (r2.status === 'ok') return r2;
+    return { status: r1.status === 'noseller' || r2.status === 'noseller' ? 'noseller' : r1.status === 'timeout' && r2.status === 'timeout' ? 'timeout' : 'notfound', src: 'fd2ppv' };
   }
   // 調べている間の進み具合（「販売者を調べる」の枠に出す）
   let lookupSt = { on: false, total: 0, done: 0, ok: 0, miss: 0, cur: '', site: '', paused: false, t0: 0, challenge: '' };
@@ -4110,20 +4143,13 @@
     for (const k of keys) {
       while (lookupSt.paused && !window.__ppdupStop) await sleep(300);
       if (window.__ppdupStop) { stop = '中断しました'; break; }
-      lookupSt.cur = k.label; lookupSt.site = k.kind === 'fanza' ? 'FANZA' : k.kind === 'fc2' ? (info ? 'fd2ppv.cc ＋ fc2cmadb.com' : 'fd2ppv.cc → fc2cmadb.com') : 'fd2ppv.cc'; lookupSt.challenge = '';
+      lookupSt.cur = k.label; lookupSt.site = k.kind === 'fanza' ? 'FANZA' : k.kind === 'fc2' ? 'fd2ppv.cc ＋ fc2cmadb.com' : 'fd2ppv.cc'; lookupSt.challenge = '';
       status(`${info ? '作品の情報' : '販売者'}を調べています… ${done + 1}/${keys.length}：${k.label}`, done / keys.length, lookupEta());
       refreshSellerChrome();
       const onCh = (origin) => { lookupSt.challenge = origin.replace('https://', ''); showWin(win); parked = false; refreshSellerChrome(); status(`${origin.replace('https://', '')} の確認画面が出ています。開いた小さなウィンドウで確認を済ませてください（済むと自動で続きます）：${k.label}`, done / keys.length);};
       const ref = { win, parked };
       await lookupWarmUp(ref, k);
-      let r = ref.win ? await lookupWithRetry(ref, k, (o) => { win = ref.win; onCh(o); }) : { status: 'closed' };
-      // 情報を調べるときは、FC2 は fc2cmadb.com も開く（販売者名がサイトで違うことがあるため、両方残す）
-      if (info && k.kind === 'fc2' && ref.win && r.status !== 'closed' && r.status !== 'challenge' && r.status !== 'severed' && !window.__ppdupStop) {
-        await sleep(sellerCfg().interval * 500);
-        const r2 = await lookupWithRetry(ref, { ...k, site: 'cm' }, (o) => { win = ref.win; onCh(o); });
-        if (r.status !== 'ok' && r2.status === 'ok') r = r2; // 販売者がまだ分かっていない作品は、fc2cmadb.com の結果で埋める
-        else if (r2.status === 'closed' || r2.status === 'challenge' || r2.status === 'severed') r = r2;
-      }
+      const r = ref.win ? await lookupAny(ref, k, (o) => { win = ref.win; onCh(o); }) : { status: 'closed' };
       win = ref.win; parked = ref.parked;
       if (!win) { stop = '小さなウィンドウを開き直せませんでした（ポップアップを許可してください）'; break; }
       lookupSt.challenge = '';
@@ -4688,7 +4714,7 @@
       let r = { status: 'closed' };
       try {
         await lookupWarmUp(ref, k);
-        if (ref.win) r = await lookupWithRetry(ref, k, (o) => { lookupSt.challenge = o.replace('https://', ''); showWin(ref.win); status(`${o.replace('https://', '')} の確認画面が出ています。小さなウィンドウで確認を済ませてください（済むと自動で続きます）`); });
+        if (ref.win) r = await lookupAny(ref, k, (o) => { lookupSt.challenge = o.replace('https://', ''); showWin(ref.win); status(`${o.replace('https://', '')} の確認画面が出ています。小さなウィンドウで確認を済ませてください（済むと自動で続きます）`); });
         if (k.kind === 'fanza') { /* FANZA のメーカーは作品情報にだけ記録する（販売者ごとの仕分けには使わない） */ } else if (r.status === 'ok' && !(sellerDb[k.key] && sellerDb[k.key].src === 'manual')) { sellerDb[k.key] = { name: String(r.name || '').slice(0, 120), sid: String(r.sid || '').slice(0, 64), src: r.src, status: 'ok', studio: !!r.studio, at: Date.now() }; saveSellerDb(); }
         else if (k.kind !== 'fanza' && (r.status === 'notfound' || r.status === 'noseller') && !sellerDb[k.key]) { sellerDb[k.key] = { status: r.status, src: r.src, at: Date.now() }; saveSellerDb(); }
       } finally { try { if (ref.win) ref.win.close(); } catch (e) { /* 無視 */ } lookupSt.on = false; lookupSt.challenge = ''; }

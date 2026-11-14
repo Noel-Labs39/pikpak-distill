@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.18.2
+// @version      4.19.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -100,7 +100,9 @@
       return;
     }
     // fc2cmadb.com は画面を後から組み立てるので、販売者の欄が出るまで少し待つ
-    let n = 0, wa = 0;
+    // 裏のウィンドウでは時計の処理が遅らされることがあるので、回数ではなく経過時間で区切り、画面が変わったときにもすぐ読み直す
+    const t0 = Date.now(); let tA = 0, tRow = 0, sent = false;
+    const NAV = /^(bookmark-ranking|ranking|all|new|search|comments?)$/i; // 上のメニューの「販売者」などのリンクは販売者ではない
     const rowOf = (re) => [...document.querySelectorAll('tr')].find((tr) => { const th = tr.querySelector('th'); return th && re.test(th.textContent); });
     const tdOf = (re) => { const r = rowOf(re); return r ? r.querySelector('td') : null; };
     const txOf = (re) => { const t = tdOf(re); return t ? t.textContent.replace(/\s+/g, ' ').trim().slice(0, 60) : ''; };
@@ -119,18 +121,23 @@
       const row = [...document.querySelectorAll('tr')].find((tr) => { const th = tr.querySelector('th'); return th && /販売者|Seller/i.test(th.textContent); })
         || [...document.querySelectorAll('div,li,dl,p')].filter((el) => /^\s*(販売者|Sellers?)\s*[：:]?/i.test(el.textContent) && el.querySelector('a[href*="/writers/"]')).sort((x, y) => x.textContent.length - y.textContent.length)[0];
       let a = row ? row.querySelector('a[href*="/writers/"]') : null;
-      if (!a) { const all = [...document.querySelectorAll('a[href*="/writers/"]')]; if (all.length && new Set(all.map((x) => x.getAttribute('href'))).size === 1) a = all[0]; }
+      if (a && NAV.test(sidOf(a, /\/writers\/([^/?#]+)/))) a = null;
       if (!a && challenge()) { send({ status: 'challenge', gate: gate() }); return; }
       if (!a && /^404|ページが見つかりません|Not Found/i.test(document.title)) { send({ status: 'notfound' }); return; }
+      const fin = (d) => { if (sent) return; sent = true; try { mo.disconnect(); } catch (e) { /* 無視 */ } send(d); };
       if (a) {
         // 女優の欄は少し遅れて表示されるので、空のうちは少しだけ待つ（最大 2 秒）
-        const at = tdOf(/女優|Actress/i); if (at && !at.textContent.trim() && ++wa <= 8) { setTimeout(tick, 250); return; }
-        const sid = sidOf(a, /\/writers\/([^/?#]+)/); send(sid ? { status: 'ok', name: a.textContent.trim(), sid, info: cmInfo() } : { status: 'noseller', info: cmInfo() }); return;
+        if (!tA) tA = Date.now();
+        const at = tdOf(/女優|Actress/i); if (at && !at.textContent.trim() && Date.now() - tA < 2000) { setTimeout(tick, 250); return; }
+        const sid = sidOf(a, /\/writers\/([^/?#]+)/); fin(sid ? { status: 'ok', name: a.textContent.trim(), sid, info: cmInfo() } : { status: 'noseller', info: cmInfo() }); return;
       }
-      if (row && ++n > 10) { send({ status: 'noseller' }); return; }
-      if (++n > 48) { send({ status: document.querySelector(`a[href*="/articles/${num}"]`) ? 'noseller' : 'notfound' }); return; }
+      if (row && !tRow) tRow = Date.now();
+      if (row && Date.now() - tRow > 2500) { fin({ status: 'noseller', info: cmInfo() }); return; }
+      if (Date.now() - t0 > 12000) { fin({ status: document.querySelector(`a[href*="/articles/${num}"]`) ? 'noseller' : 'notfound' }); return; }
       setTimeout(tick, 250);
     };
+    const mo = new MutationObserver(() => { if (!sent) tick(); });
+    try { mo.observe(document.documentElement, { childList: true, subtree: true, characterData: true }); } catch (e) { /* 無視 */ }
     tick();
     return;
   }
@@ -168,7 +175,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.18.2'; // @version と合わせて更新する
+  const VER = '4.19.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1193,6 +1200,7 @@
   @media (max-width:760px){.sv-hero{grid-template-columns:1fr}.sv-badge{display:none}}
   .pd-next{display:flex;justify-content:flex-end;margin:16px 0 4px}
   #pd-dlg .sd-t button{margin:2px}
+  #pd-dlg .sd-t button:disabled{opacity:.3;cursor:default}
   .sl-ib{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
   .sl-guide > .sl-ib:first-child{margin-top:0;padding-top:0;border-top:0}
   .sl-ib .tx{flex:1 1 260px;display:flex;flex-direction:column;gap:2px}
@@ -3605,6 +3613,17 @@
   //   品番の鍵 → { title, actresses: [{ name, id, site }], tags, date, dur, mosaic, sellers: { サイト: { name, sid } }, manual: { actresses }, at }
   const LS_WINFO = 'ppdup:winfo:v1';
   let wInfo = lsJson(LS_WINFO, {});
+  // 4.18.x の不具合の後始末：fc2cmadb.com の上のメニューの「販売者」リンクを販売者として読んでいた記録を消し、その名前を選んでいた販売者は fd2ppv の名前に戻す
+  (() => {
+    const NAVSID = /^(bookmark-ranking|ranking|all|new|search|comments?)$/i; let fixed = 0;
+    Object.entries(wInfo).forEach(([key, o]) => {
+      const c = o && o.sellers && o.sellers.fc2cmadb; if (!c || !NAVSID.test(c.sid || '')) return;
+      delete o.sellers.fc2cmadb; delete o.ack; o.at = Date.now(); fixed++;
+      const rec = sellerDb[key];
+      if (rec && NAVSID.test(rec.sid || '')) { const f = o.sellers.fd2ppv; if (f) sellerDb[key] = { name: f.name, sid: f.sid, src: 'fd2ppv', status: 'ok', at: Date.now() }; else delete sellerDb[key]; saveSellerDb(); }
+    });
+    if (fixed) { lsSetJson(LS_WINFO, wInfo); setTimeout(() => { try { log('info', `fc2cmadb の販売者名の読み違い（メニューの「販売者」）を ${fixed} 件消しました`); } catch (e) { /* 無視 */ } }, 0); }
+  })();
   function saveWorkInfo(k, r) {
     const i = r.info || {}, o = wInfo[k.key] || {}, site = i.site || r.src || '';
     const acts = (o.actresses || []).slice();
@@ -3823,7 +3842,7 @@
         <div class="sl-prog"><div class="bar"><i class="ok" style="width:${L.ok / Math.max(1, L.total) * 100}%"></i><i class="ng" style="width:${L.miss / Math.max(1, L.total) * 100}%"></i></div>
         <div class="nums"><b>${L.done} / ${L.total}（${pct}%）</b><span>🟩 分かった ${L.ok}</span><span>⬜ 分からない ${L.miss}</span><span>${esc(lookupEta())}（1 件 ${sellerCfg().interval} 秒＋読み込み）</span></div></div></div>
         ${L.challenge ? '<button class="pri" data-a="skick" title="確認を済ませても続きが始まらないときに押す（ウィンドウを開き直して、同じ作品を調べ直します）">確認が済んだら：続きを調べる</button>' : ''}<button data-a="spause">${L.paused ? '再開' : '一時停止'}</button><button data-a="stop">中断</button>`;
-    } else if (st === 1) msg = `<div class="tx"><b>未調査が ${pend} 件あります。まず販売者を調べます</b><small>小さなウィンドウで fd2ppv.cc と fc2cmadb.com の作品ページを順に開いて調べます（女優・販売者の名前がサイトで違うことがあるため、両方見ます）。調べるだけでは移動しません。</small></div><button class="pri" data-a="slookup"${busy ? ' disabled' : ''}>販売者を調べる（${pend} 件）</button>`;
+    } else if (st === 1) msg = `<div class="tx"><b>未調査が ${pend} 件あります。まず販売者を調べます</b><small>小さなウィンドウで fd2ppv.cc の作品ページを開いて調べます。見つからない・販売者や女優などが足りないときだけ、fc2cmadb.com も開きます。調べるだけでは移動しません。</small></div><button class="pri" data-a="slookup"${busy ? ' disabled' : ''}>販売者を調べる（${pend} 件）</button>`;
     else if (st === 2) msg = `<div class="tx"><b>${unk} 件は販売者が分かりませんでした。外部サイトで確かめて入力してください</b><small>${selPlan.length} 件中 ${selPlan.length - unk} 件は決まりました${parts ? `（${parts}）` : ''}。入力しなくても「${esc(sellerCfg().unknown)}」「${esc(sellerCfg().review)}」へまとめて移動できます。</small></div><button class="pri" data-a="sshowunk">分からない ${unk} 件を確かめる</button><button data-a="sack">このまま ③ 移動へ</button>`;
     else msg = `<div class="tx"><b>${mv ? `チェックした ${mv} 件を移動できます。下のボタンで実行します` : 'チェックの入った作品がありません'}</b><small>${selPlan.length} 件中 ${selPlan.length - unk} 件は販売者が決まりました${parts ? `（${parts}）` : ''}。まずは「先頭1件だけ試す」で動きを確かめてください。削除はしません。</small></div>${unk ? `<button data-a="sunack">② に戻る（分からない ${unk} 件）</button>` : ''}`;
     const ib = infoBarHtml();
@@ -4068,15 +4087,17 @@
     if (r && r.info) saveWorkInfo(k, r);
     return r;
   }
-  // FC2 は fd2ppv.cc と fc2cmadb.com を必ず両方調べる（女優・出演者・販売者の名前がサイトで違うことがあるため）。販売者は fd2ppv を優先し、なければ fc2cmadb
+  // FC2 はまず fd2ppv.cc だけを調べる（軽くするため）。次のときだけ fc2cmadb.com も調べる：
+  //   見つからない・販売者が読めない・返事がない（時間切れなど）・タイトルや女優が空で情報が足りない
   const hardStop = (r) => r.status === 'closed' || r.status === 'challenge' || r.status === 'severed';
+  const needMore = (r) => r.status !== 'ok' || !r.info || !r.info.title || !(r.info.actresses || []).length;
   async function lookupAny(ref, k, onCh) {
     if (k.kind !== 'fc2' || k.site) return lookupWithRetry(ref, k, onCh);
     const r1 = await lookupWithRetry(ref, { ...k, site: 'fd' }, onCh);
-    if (hardStop(r1) || window.__ppdupStop) return r1;
+    if (hardStop(r1) || window.__ppdupStop || !needMore(r1)) return r1;
     await sleep(sellerCfg().interval * 500);
     const r2 = await lookupWithRetry(ref, { ...k, site: 'cm' }, onCh);
-    if (hardStop(r2)) return r2;
+    if (hardStop(r2)) return r1.status === 'ok' ? r1 : r2;
     if (r1.status === 'ok') return r1;
     if (r2.status === 'ok') return r2;
     return { status: r1.status === 'noseller' || r2.status === 'noseller' ? 'noseller' : r1.status === 'timeout' && r2.status === 'timeout' ? 'timeout' : 'notfound', src: 'fd2ppv' };
@@ -4108,18 +4129,27 @@
     const d = mkEl('pd-dlg');
     const draw = () => {
       const rows = sellerDiffs();
-      d.innerHTML = `<div class="box" role="dialog" aria-label="販売者名の違い" style="width:min(1000px,96vw)"><h3>販売者名の違い（${rows.length} 件）</h3>
+      d.innerHTML = `<div class="box" role="dialog" aria-label="販売者名の違い" style="width:min(1600px,98vw);max-width:98vw"><h3>販売者名の違い（${rows.length} 件）</h3>
+        ${rows.length ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px"><button data-sd-all="keep">全部いまの記録のまま（${rows.filter((x) => x.rec).length}）</button><button data-sd-all="fd2ppv">全部 fd2ppv の名前にする（${rows.filter((x) => x.sites.some(([st]) => st === 'fd2ppv')).length}）</button><button data-sd-all="fc2cmadb">全部 fc2cmadb の名前にする（${rows.filter((x) => x.sites.some(([st]) => st === 'fc2cmadb')).length}）</button></div>` : ''}
         <div class="note" style="margin-bottom:10px">記録している販売者名と、サイトの名前が違う作品です。どの名前にするかを選ぶと、<b>販売者の記録だけ</b>を変えます。<b>フォルダはここでは動かしません。</b>移動は「販売者ごとに仕分け」の一覧で確かめてから行います。</div>
-        <div style="max-height:62vh;overflow:auto"><table class="sd-t" style="width:100%;border-collapse:collapse;font-size:13px">
+        <div style="max-height:70vh;overflow:auto"><table class="sd-t" style="width:100%;border-collapse:collapse;font-size:13px">
         <thead><tr><th style="text-align:left;padding:6px">品番</th><th style="text-align:left;padding:6px">いまの記録</th>${['fd2ppv', 'fc2cmadb'].map((st) => `<th style="text-align:left;padding:6px">${SITE_NM[st]}</th>`).join('')}<th style="text-align:left;padding:6px">いまのフォルダ</th><th style="padding:6px">どれにするか</th></tr></thead><tbody>
         ${rows.map((x) => { const w = where.get(x.key) || {}; const sv = Object.fromEntries(x.sites); const cell = (v) => (v ? `${esc(v.name)}<div class="note">${esc(v.sid || '')}</div>` : '<span class="note">—</span>');
           return `<tr style="border-top:1px solid var(--line,#ddd)"><td style="padding:6px;white-space:nowrap">${esc(w.label || x.key)}${x.sameSid ? '<div class="note">販売者 ID は同じ</div>' : ''}</td><td style="padding:6px">${x.rec ? cell(x.rec) + (x.rec.src === 'manual' ? '<div class="note">手入力</div>' : '') : '<span class="note">未記録</span>'}</td>${['fd2ppv', 'fc2cmadb'].map((st) => `<td style="padding:6px">${cell(sv[st])}</td>`).join('')}<td style="padding:6px;max-width:220px;overflow-wrap:anywhere" class="note">${esc(w.path || '（いまの読み込みにはありません）')}</td>
-            <td style="padding:6px;white-space:nowrap">${x.rec ? `<button data-sd-keep="${esc(x.key)}">いまの記録のまま</button>` : ''}${['fd2ppv', 'fc2cmadb'].filter((st) => sv[st] && (!x.rec || sv[st].name !== x.rec.name)).map((st) => `<button data-sd-pick="${esc(x.key)}" data-st="${st}">${SITE_NM[st]} の名前にする</button>`).join('')}</td></tr>`; }).join('') || '<tr><td colspan="6" style="padding:12px">違いのある作品はありません</td></tr>'}
+            <td style="padding:6px;white-space:nowrap"><button data-sd-keep="${esc(x.key)}"${x.rec ? '' : ' disabled'}>いまの記録のまま</button>${['fd2ppv', 'fc2cmadb'].map((st) => `<button data-sd-pick="${esc(x.key)}" data-st="${st}"${sv[st] ? '' : ' disabled'}>${SITE_NM[st]} の名前にする</button>`).join('')}</td></tr>`; }).join('') || '<tr><td colspan="6" style="padding:12px">違いのある作品はありません</td></tr>'}
         </tbody></table></div>
         <div class="acts"><button data-close style="background:#306fff;border-color:#306fff;color:#fff;font-weight:700">閉じる</button></div></div>`;
       d.querySelector('[data-close]').onclick = close;
       d.querySelectorAll('[data-sd-keep]').forEach((b) => { b.onclick = () => { const x = rows.find((y) => y.key === b.dataset.sdKeep); if (!x) return; wInfo[x.key] = { ...wInfo[x.key], ack: x.sig }; lsSetJson(LS_WINFO, wInfo); log('info', `販売者名の違い：${x.key} はいまの記録のまま`); draw(); }; });
-      d.querySelectorAll('[data-sd-pick]').forEach((b) => { b.onclick = () => { const x = rows.find((y) => y.key === b.dataset.sdPick); const v = x && Object.fromEntries(x.sites)[b.dataset.st]; if (!v) return; sellerDb[x.key] = { name: v.name, sid: v.sid, src: 'manual', status: 'ok', at: Date.now(), from: b.dataset.st }; saveSellerDb(); log('info', `販売者名の違い：${x.key} を ${SITE_NM[b.dataset.st]} の「${v.name}」にした（フォルダはまだ動かしていない）`); draw(); }; });
+      // 名前を選んだ作品も「確かめ済み」にして一覧から消す（同じ位置を続けて押していけるように）
+      const pick = (x, st) => { const v = Object.fromEntries(x.sites)[st]; if (!v) return false; sellerDb[x.key] = { name: v.name, sid: v.sid, src: 'manual', status: 'ok', at: Date.now(), from: st }; wInfo[x.key] = { ...wInfo[x.key], ack: x.sig }; return true; };
+      d.querySelectorAll('[data-sd-all]').forEach((b) => { b.onclick = () => {
+        const how = b.dataset.sdAll, list = rows.filter((x) => (how === 'keep' ? x.rec : x.sites.some(([st]) => st === how)));
+        if (!list.length || !window.confirm(`${list.length} 件を「${how === 'keep' ? 'いまの記録のまま' : SITE_NM[how] + ' の名前にする'}」にします。\n変わるのは販売者の記録だけで、フォルダは動かしません。よろしいですか？`)) return;
+        list.forEach((x) => { if (how === 'keep') wInfo[x.key] = { ...wInfo[x.key], ack: x.sig }; else pick(x, how); });
+        lsSetJson(LS_WINFO, wInfo); saveSellerDb(); log('info', `販売者名の違い：${list.length} 件をまとめて「${how === 'keep' ? 'いまの記録のまま' : SITE_NM[how] + ' の名前'}」にした（フォルダはまだ動かしていない）`); draw();
+      }; });
+      d.querySelectorAll('[data-sd-pick]').forEach((b) => { b.onclick = () => { const x = rows.find((y) => y.key === b.dataset.sdPick); const v = x && Object.fromEntries(x.sites)[b.dataset.st]; if (!v) return; pick(x, b.dataset.st); lsSetJson(LS_WINFO, wInfo); saveSellerDb(); log('info', `販売者名の違い：${x.key} を ${SITE_NM[b.dataset.st]} の「${v.name}」にした（フォルダはまだ動かしていない）`); draw(); }; });
     };
     const close = () => { d.remove(); document.removeEventListener('keydown', onKey, true); if (view === 'seller') { selPlan = buildSellerPlan(folders); renderSeller(); } };
     const onKey = (e) => { if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); close(); } };
@@ -4141,7 +4171,7 @@
     if (info) keys.push(...infoTargets(mode));
     else selPlan.filter((p) => p.kind === 'pending').forEach((p) => p.keys.forEach((k) => { if (k.kind !== 'brand' && !sellerDb[k.key] && !seen.has(k.key)) { seen.add(k.key); keys.push(k); } }));
     if (!keys.length) { status(info ? '調べる作品はありません（情報はそろっています）。' : '未調査の作品はありません。'); return; }
-    if (info && !window.confirm(`作品の情報（女優・タイトル・タグ・配信日・収録時間・サイトごとの販売者名）を ${keys.length} 作品分調べます。\n\n・FC2 は fd2ppv.cc と fc2cmadb.com の両方を、ABC-123 の形は FANZA を開きます\n・目安：約 ${Math.max(1, Math.round(keys.length * (sellerCfg().interval + 6) * 1.6 / 60))} 分（確認画面が出るとさらにかかります）。途中で一時停止・中断できます\n・記録済みの販売者は変えません（違いは「販売者名の違い」で確かめられます）。手入力した女優名も上書きしません\n\n始めますか？`)) return;
+    if (info && !window.confirm(`作品の情報（女優・タイトル・タグ・配信日・収録時間・サイトごとの販売者名）を ${keys.length} 作品分調べます。\n\n・FC2 は fd2ppv.cc を開き、足りない情報があるときだけ fc2cmadb.com も開きます。ABC-123 の形は FANZA を開きます\n・目安：約 ${Math.max(1, Math.round(keys.length * (sellerCfg().interval + 6) * 1.6 / 60))} 分（確認画面が出るとさらにかかります）。途中で一時停止・中断できます\n・記録済みの販売者は変えません（違いは「販売者名の違い」で確かめられます）。手入力した女優名も上書きしません\n\n始めますか？`)) return;
     // ポップアップを止められないよう、押した直後に開く
     let win = window.open('about:blank', 'ppdup-lookup', 'width=560,height=720');
     if (!win) { status('小さなウィンドウを開けませんでした。ブラウザのアドレスバーで、このサイトのポップアップを許可してから、もう一度押してください。'); return; }
@@ -4153,7 +4183,7 @@
     for (const k of keys) {
       while (lookupSt.paused && !window.__ppdupStop) await sleep(300);
       if (window.__ppdupStop) { stop = '中断しました'; break; }
-      lookupSt.cur = k.label; lookupSt.site = k.kind === 'fanza' ? 'FANZA' : k.kind === 'fc2' ? 'fd2ppv.cc ＋ fc2cmadb.com' : 'fd2ppv.cc'; lookupSt.challenge = '';
+      lookupSt.cur = k.label; lookupSt.site = k.kind === 'fanza' ? 'FANZA' : k.kind === 'fc2' ? 'fd2ppv.cc（足りなければ fc2cmadb.com）' : 'fd2ppv.cc'; lookupSt.challenge = '';
       status(`${info ? '作品の情報' : '販売者'}を調べています… ${done + 1}/${keys.length}：${k.label}`, done / keys.length, lookupEta());
       refreshSellerChrome();
       const onCh = (origin) => { lookupSt.challenge = origin.replace('https://', ''); showWin(win); parked = false; refreshSellerChrome(); status(`${origin.replace('https://', '')} の確認画面が出ています。開いた小さなウィンドウで確認を済ませてください（済むと自動で続きます）：${k.label}`, done / keys.length);};

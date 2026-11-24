@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.19.0
+// @version      4.20.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -175,7 +175,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.19.0'; // @version と合わせて更新する
+  const VER = '4.20.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -642,6 +642,7 @@
     capCache.set(action, { token: d.captcha_token, until: Date.now() + Math.max(30, (+d.expires_in || 300) - 30) * 1000 });
     return d.captcha_token;
   }
+  let apiBusyHits = 0; // PikPak から「混んでいる（429）」と返された回数（読み込みの同時数を減らす目安）
   async function api(path, opt = {}) {
     for (let tries = 0; ; tries++) {
       let res;
@@ -649,7 +650,7 @@
         const hd = apiHeaders();
         if (opt.captcha) { const ct = await getCaptcha(opt.captcha, tries > 0); if (ct) hd['x-captcha-token'] = ct; }
         if (opt._nocap) delete hd['x-captcha-token'];
-        const { captcha: _c, raw: _r, _cap: _k, _nocap: _n, ...o2 } = opt;
+        const { captcha: _c, raw: _r, _cap: _k, _nocap: _n, probe: _p, ...o2 } = opt;
         res = await http(/^https?:/.test(path) ? path : API + path, { ...o2, headers: hd });
       }
       catch (e) {
@@ -659,6 +660,7 @@
         // 長時間放置後は通信自体が失敗することがあるため、ログイン切れとして扱い再読み込みで回復させる
         throw sessionError(e.message === 'Failed to fetch' ? 'PikPakのサーバーに接続できませんでした' : e.message);
       }
+      if (res.status === 429) apiBusyHits++;
       if ((res.status === 429 || res.status >= 500) && tries < 5) { await sleep(1500 * (tries + 1)); continue; }
       const data = await res.json().catch(() => ({}));
       if (!res.ok && opt.captcha && /captcha/i.test(String(data.error || '')) && tries < 2) continue; // 確認用トークンを取り直してやり直す
@@ -678,6 +680,8 @@
           // 画面から借りた確認用トークンが古くなっただけのことが多い。まず付けずに、次に取り直して試し、それでもだめなら再読み込み
           if (!opt._cap) { cap.captcha = ''; opt = { ...opt, _cap: 1, _nocap: true }; continue; }
           if (opt._cap === 1 && !opt.captcha) { opt = { ...opt, _cap: 2, _nocap: false, captcha: (opt.method || 'GET') + ':/drive/v1' + path.split('?')[0].replace(/^https?:\/\/[^/]+\/drive\/v1/, '') }; continue; }
+          // 存在を確かめるだけの通信（probe）では、削除済みのファイル・フォルダにもこの返事が来るため「見つからない」として返す
+          if (opt.probe) { const pe = new Error(msg); pe.captcha = true; pe.status = res.status; pe.where = where; throw pe; }
           log('warn', msg + '（自動で回復します）', where); throw sessionError('認証の確認が必要です（' + msg + '）');
         }
         // 404：ファイル・フォルダがもうない（削除済み）。呼び出し側で「削除済み」と分かるように印を付ける
@@ -690,10 +694,10 @@
   }
   const apiPid = (id) => (!id || id === 'root' ? '' : id);
   // ファイル一覧を最後のページまで読む（pid：'*' で全体、max：読むページ数の上限）
-  async function apiListAll(pid, filter, max = Infinity) {
+  async function apiListAll(pid, filter, max = Infinity, opt = {}) {
     const out = []; let token = '', n = 0; const fl = encodeURIComponent(JSON.stringify(filter));
     do {
-      const d = await api(`/files?thumbnail_size=SIZE_MEDIUM&limit=500&parent_id=${pid}&filters=${fl}${token ? '&page_token=' + encodeURIComponent(token) : ''}`);
+      const d = await api(`/files?thumbnail_size=SIZE_MEDIUM&limit=500&parent_id=${pid}&filters=${fl}${token ? '&page_token=' + encodeURIComponent(token) : ''}`, opt);
       (d.files || []).forEach((f) => out.push(f));
       token = d.next_page_token || '';
     } while (token && ++n < max);
@@ -731,18 +735,27 @@
     if (n) log('info', `重複の候補 ${n} 件の中身の手がかり（ハッシュ値・長さ・解像度）を取得しました`);
     return n > 0;
   }
+  // 読み込み（フォルダを順に一覧して、ファイルとフォルダを集める）
+  //   ・読めないフォルダ（途中で削除・移動されたなど）は飛ばして最後まで進め、skipped に残す
+  //   ・ログインが切れたら、読み終えた分と残りを resumeState に入れて投げる（画面の再読み込み後に続きから読む）
+  //   ・同時に読む数は 6 から。PikPak が「混んでいる」と返したら減らす
+  const SCAN_FILTER = { phase: { eq: 'PHASE_TYPE_COMPLETE' }, trashed: { eq: false } };
   async function scanApi(startTrail, opt = {}) {
-    const outFiles = [], outFolders = [];
-    const queue = [{ id: startTrail[startTrail.length - 1], path: '', trail: startTrail }];
-    let done = 0, active = 0, err = null;
+    const rs = opt.resume || null;
+    const outFiles = rs ? rs.files : [], outFolders = rs ? rs.folders : [], skipped = rs ? rs.skipped || [] : [];
+    const queue = rs ? rs.queue.slice() : [{ id: startTrail[startTrail.length - 1], path: '', trail: startTrail }];
+    const retry = []; // ログイン切れで読めなかったフォルダ（続きから読むときに先頭に戻す）
+    let done = rs ? rs.done || 0 : 0, active = 0, err = null, limit = 6, hits0 = apiBusyHits, read = 0;
     window.__ppdupStop = false;
     await new Promise((resolve) => {
       const pump = () => {
         if (err || window.__ppdupStop) { if (!active) resolve(); return; }
         if (!queue.length && !active) { resolve(); return; }
-        while (active < 4 && queue.length) {
+        if (apiBusyHits > hits0) { hits0 = apiBusyHits; limit = Math.max(2, limit - 1); }
+        while (active < limit && queue.length) {
           const cur = queue.shift(); active++;
-          apiList(cur.id).then((list) => {
+          apiListAll(apiPid(cur.id), SCAN_FILTER, Infinity, { probe: true }).then((list) => {
+            read++;
             list.forEach((f) => {
               if (f.kind === 'drive#folder' && f.name === SYNC_DIR && !cur.path) return; // 同期用のフォルダは整理の対象にしない
               if (f.kind === 'drive#folder') {
@@ -750,17 +763,22 @@
                 outFolders.push(fo); queue.push({ id: f.id, path: fo.path, trail: fo.trail });
               } else { scanDiag(f); outFiles.push({ id: f.id, name: f.name, size: +f.size || 0, thumb: f.thumbnail_link || '', ct: f.created_time || '', parentId: cur.id, path: cur.path || '/', ...metaOf(f) }); }
             });
-          }).catch((e) => { err = e; }).finally(() => { active--; done++; if (opt.onProgress) opt.onProgress(done, done + queue.length + active, outFiles.length); pump(); });
+          }).catch((e) => {
+            if (e.session) { retry.push(cur); if (!err) err = e; return; }
+            skipped.push({ id: cur.id, path: cur.path || '/', msg: e.captcha ? '見つかりません（削除・移動された可能性）' : e.message || String(e) });
+          }).finally(() => { active--; done++; if (opt.onProgress) opt.onProgress(done, done + queue.length + active, outFiles.length); pump(); });
         }
       };
       pump();
     });
-    if (err) throw err;
+    if (err) { err.resumeState = { files: outFiles, folders: outFolders, skipped, done, queue: [...retry, ...queue] }; throw err; }
+    // 1 つも読めなかった（起点から読めない）ときは、確認の不具合の可能性があるため失敗として扱う
+    if (!read && skipped.length && !window.__ppdupStop) throw new Error('フォルダを読み込めませんでした（' + skipped[0].msg + '）');
     // スキャン起点（例：My Pack）自身も仕分け対象にするため登録（名前の変更対象にはしない）
     const rootId = startTrail[startTrail.length - 1];
-    const rootName = rootId === 'root' ? 'ホーム' : ((crumbs().pop() || {}).name) || 'スキャン起点';
+    const rootName = rootId === 'root' ? 'ホーム' : opt.rootName || ((crumbs().pop() || {}).name) || 'スキャン起点';
     outFolders.unshift({ id: rootId, name: rootName, parentId: startTrail.length > 1 ? startTrail[startTrail.length - 2] : '', path: '', trail: startTrail, trailNames: rootId === 'root' ? [] : crumbs().map((c) => c.name), isRoot: true });
-    return { files: outFiles, folders: outFolders };
+    return { files: outFiles, folders: outFolders, skipped, stopped: !!window.__ppdupStop };
   }
   const apiGet = (id) => api('/files/' + id);
   // 契約容量（上限・使用量・ゴミ箱の使用量）
@@ -1299,6 +1317,10 @@
   }
   .sv-intro{margin:10px 0 0;padding:12px 14px 12px 30px;border-radius:10px;background:var(--panel2);line-height:1.9;color:var(--mute)}
   .sv-intro b{color:var(--fg)}
+  .sv-scope{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
+  .sv-scope label{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid var(--line,#dde0e6);border-radius:999px;cursor:pointer;color:var(--fg,inherit)}
+  .sv-scope label:has(input:checked){border-color:var(--pri,#306fff);background:var(--pri-soft,#306fff1f)}
+  .sv-intro li.sv-scope-li{list-style:none;margin-left:-16px}
   .sv-ask{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mute);margin-top:4px}
   .sv-stale{margin:8px 0;padding:8px 12px;border-radius:8px;background:#fff3dc;color:#8a5600;font-size:12.5px}
   html.pd-dark .sv-stale{background:#3a2c12;color:#f0c46c}
@@ -2334,7 +2356,7 @@
   EN.push(...[["fc2cmadb.com で確認", "Confirmed on fc2cmadb.com"], ["fd2ppv.cc で確認（配信元）", "Confirmed on fd2ppv.cc (studio)"], ["fd2ppv.cc・fc2cmadb.com に見つかりません", "Not found on fd2ppv.cc or fc2cmadb.com"], ["fd2ppv.cc に見つかりません", "Not found on fd2ppv.cc"], ["fc2cmadb.com で開く", "Open on fc2cmadb.com"], ["fd2ppv.cc で探す（", "Search on fd2ppv.cc ("], ["同じ番号の作品が複数のサイトにあります（名前にサイト名を入れるか、販売者を入力）", "The same number exists on several sites (add the site name to the folder name, or enter the seller)"], ["販売者名（配信元。例：カリビアンコム）", "Seller name (studio, e.g. Caribbeancom)"], ["販売者ID（英数字。例：carib）", "Seller ID (letters/digits, e.g. carib)"], ["✓ 仕分けが必要な作品フォルダはありません（FC2-PPV-品番・HEYZO・カリビアンコムなどの品番の名前のフォルダが対象です）", "✓ No work folders to sort (folders named with an FC2-PPV, HEYZO, Caribbeancom or similar ID are targets)"]]);
   EN.push(...[["全画面で開く", "Open full screen"], ["ポップアップに戻す", "Back to popup"], ["次から全画面で開く", "Always open full screen"], ["PikPak の画面を Dedupe に切り替えて使うこともできます。一覧が広くなり、キー操作やドラッグも使いやすくなります。", "You can also switch the PikPak screen to Dedupe. Lists get wider, and keys and dragging are easier to use."], ["開き方", "How to open"], ["ポップアップ", "Popup"], ["全画面（おすすめ）", "Full screen (recommended)"], ["PikPak の画面を Dedupe に切り替えて、広い画面で使います", "Switches the PikPak screen to Dedupe for a wide view"], ["全画面", "Full screen"], ["PikPak の画面の上に重ねて開きます。動かしたり大きさを変えたりでき、後ろの PikPak もそのまま使えます", "Opens on top of PikPak. You can move and resize it, and keep using PikPak behind it"], ["PikPak の画面を Dedupe に切り替えます（今までの開き方）", "Switches the PikPak screen to Dedupe (the previous way)"], ["次からは全画面で開きます（設定の「表示」→「開き方」で戻せます）", "Will open full screen from now on (change it in Settings → Display → How to open)"]]);
   EN.push(...[["品番から判定", "From the ID"], ["サイトで確認", "Confirmed on a site"], ["名前の「", "From \""], ["」から判定", "\" in the name"], ["日付型の品番だけで、名前にサイト名がありません（名前に 1pon・carib などがあれば自動で決まります）", "Only a date-style ID and no site name (names containing 1pon, carib, etc. are decided automatically)"], ["同じ番号の作品が複数のサイトにあります", "The same number exists on several sites"], ["外部サイトで確かめる", "Check on other sites"], ["外部サイト ▾", "Other sites ▾"], ["分かったら、行の入力欄に販売者名と ID を入れて「保存」", "When you find it, enter the seller name and ID in the row and press Save"], ["調べ直す", "Look up again"], ["販売者を調べる", "Look up sellers"], ["確かめる・入力", "Check & enter"], ["移動", "Move"], ["未調査はありません", "Nothing left to look up"], ["分からないものはありません", "Nothing unknown"], ["件は販売者が分かりませんでした。外部サイトで確かめて入力してください", " could not be identified. Check other sites and enter the seller"], ["このまま ③ 移動へ", "Go to ③ Move as is"], ["② に戻る", "Back to ②"], ["移動するもの ", "To move: "], ["チェックの入った作品がありません", "No works are checked"], ["先頭1件だけ試す", "Try the first one"], ["決まった", "Decided"], ["自動では移動しません（初めはチェックなし）", "Not moved automatically (unchecked at first)"], ["入力すると、その販売者の組へ移ります", "Enter a seller to move it to that group"], ["販売者名と販売者ID（英数字）を入れてください", "Enter the seller name and seller ID (letters/digits)"], ["件を確かめる", " to check"], ["分からない ", "Unknown: "]]);
-  EN.push(...[["残り時間を計算中…", "Estimating time left…"], ["まもなく完了", "Almost done"], ["あと約 ", "About "], ["（目安・前回 ", "(estimate, last time "], ["（目安）", "(estimate)"], ["実行中…", "Running…"], ["中断すると、そこまでの分は反映されます", "If you stop, what has been done so far is kept"], ["削除するもの ", "To delete: "], ["PikPak のゴミ箱へ移動します", "Moves to the PikPak trash"], ["チェックの入ったファイルがありません", "No files are checked"], ["削除するものにチェックを入れてください", "Check the files to delete"], ["表示中 ", "Showing "], ["チェックした（削除の）ファイルを PikPak のゴミ箱へ移動します", "Moves the checked (delete) files to the PikPak trash"], ["対象 ", "Targets: "], ["まずは「先頭1件だけ試す」で動きを確かめてください", "First check how it works with \"Try the first one\""], ["下の「画質」で別の画質を試せます。", "Try another quality from the quality menu below."]]);
+  EN.push(...[["残り時間を計算中…", "Estimating time left…"], ["まもなく完了", "Almost done"], ["あと約 ", "About "], ["（目安・前回 ", "(estimate, last time "], ["（目安）", "(estimate)"], ["実行中…", "Running…"], ["中断すると、そこまでの分は反映されます", "If you stop, what has been done so far is kept"], ["中断すると、前回の読み込み結果をそのまま使います", "If you stop, the previous scan result is kept"], ["📁 読み込む場所：", "📁 Scan: "], [" このフォルダだけ（", " This folder only ("], [" ホーム全体", " Whole Home"], ["読み込みを中断しました。前回の読み込み結果をそのまま使います。", "Scan stopped. The previous result is kept."], ["削除するもの ", "To delete: "], ["PikPak のゴミ箱へ移動します", "Moves to the PikPak trash"], ["チェックの入ったファイルがありません", "No files are checked"], ["削除するものにチェックを入れてください", "Check the files to delete"], ["表示中 ", "Showing "], ["チェックした（削除の）ファイルを PikPak のゴミ箱へ移動します", "Moves the checked (delete) files to the PikPak trash"], ["対象 ", "Targets: "], ["まずは「先頭1件だけ試す」で動きを確かめてください", "First check how it works with \"Try the first one\""], ["下の「画質」で別の画質を試せます。", "Try another quality from the quality menu below."]]);
   EN.push(...[["（残り ", "(left "], ["リンク・マグネットを追加", "Add links / magnets"], ["追加する前に、もうあるか確かめる", "Checks whether you already have it before adding"], ["中身を確認", "Check contents"], ["もうあります", "Already have"], ["すべて保存", "Save all"], ["一部だけ保存", "Save selected only"], ["キャッシュなし", "No cache"], ["中身を確認中…", "Checking contents…"], ["中身を確認できません", "Can't check contents"], ["追加するもの ", "To add: "], ["追加するものがありません", "Nothing to add"], ["PikPak の既定の保存先（My Pack）", "PikPak default location (My Pack)"], ["保存先", "Save to"], ["🔗 リンクを追加", "🔗 Add links"], ["ここにリンクを追加…", "Add links here…"], ["リンク・マグネットを追加…", "Add links / magnets…"]]);
   EN.push(...[["▦ コマ一覧", "▦ Frames"], ["▦ コマで比べる", "▦ Compare frames"], ["▦ 2 本をコマで比べる", "▦ Compare 2 videos by frames"], ["コマ一覧", "Frames"], ["同じ位置のコマを左右に並べています", "Frames at the same positions, side by side"], ["▶ 選んだコマから再生", "▶ Play from selected frame"], ["画像で保存", "Save as image"], ["動画を読み込んでいます…", "Loading video…"], ["コマを作っています… ", "Making frames… "], ["コマを作れませんでした：", "Could not make frames: "], ["この動画はブラウザの制限でコマを作れません", "The browser does not allow frames for this video"], ["再生速度：", "Speed: "], ["残す", "Keep"], [" コマ", " frames"]]);
   EN.push(...[["名前で絞り込み・検索", "Filter / search by name"], ["このフォルダ", "This folder"], ["すべて", "All"], ["行を押すとその場所を開きます", "Click a row to open its location"], ["名前とパスで探しています", "searching names and paths"], ["書き出し／読み込み", "Export / import"], ["別のブラウザやパソコンへ移すときに使います（ログイン情報は含めません）", "Use this to move to another browser or PC (login info is not included)"], ["書き出す（.json）", "Export (.json)"], ["読み込む…", "Import…"], ["販売者の調査結果と手入力", "Seller lookups and manual entries"], ["重複の判断（残す・削除の記録）", "Duplicate decisions (keep / delete)"], ["解凍パスワード", "Archive passwords"], ["読み込む内容", "What to import"], ["今のものに足す（同じものは読み込んだ方を優先）", "Add to the current data (imported wins on conflicts)"], ["置き換える", "Replace"]]);
@@ -2468,7 +2490,14 @@
   let decision = {};
   decision = lsJson(LS_DECISION, {});
   const saveDecision = () => { lsSetJson(LS_DECISION, decision); };
-  const saveAll = () => { try { localStorage.setItem(LS_SCAN, JSON.stringify(files)); localStorage.setItem(LS_FOLD, JSON.stringify(folders)); } catch (e) { /* 容量超過は無視 */ } };
+  const saveAll = () => {
+    try { localStorage.setItem(LS_FOLD, JSON.stringify(folders)); localStorage.setItem(LS_SCAN, JSON.stringify(files)); return true; }
+    catch (e) {
+      // 保存容量があふれたら、サムネイルのアドレス（大きい項目）を外して保存し直す（表示中の一覧はそのまま）
+      try { localStorage.setItem(LS_SCAN, JSON.stringify(files.map(({ thumb: _t, ...x }) => x))); log('warn', `読み込み結果が大きいため、サムネイルのアドレスを外して保存しました（ファイル ${files.length} 件）`, 'scan'); return true; }
+      catch (e2) { try { localStorage.removeItem(LS_SCAN); localStorage.removeItem(LS_FOLD); localStorage.removeItem(LS_META); } catch (e3) { /* 無視 */ } log('error', `読み込み結果を保存できませんでした（ブラウザの保存容量が足りません・ファイル ${files.length} 件）。次に開いたときは読み込み直しが必要です`, 'scan'); return false; }
+    }
+  };
   const stateOf = (f, idx) => decision[f.id] || (idx === 0 ? 'keep' : 'del');
   const hasScan = () => !!meta && (folders.length > 0 || files.length > 0); // このバージョンで読み込んだ結果だけを使う
   let view = 'scan';
@@ -2536,7 +2565,7 @@
       await sleep(1000);
     }
     if (!sessionValid() && !readCred()) { reloadForSession(r); return; }
-    try { sessionStorage.removeItem(SS_RESUME); localStorage.removeItem('ppdup:reloadguard:v1'); } catch (e) { /* 無視 */ }
+    try { sessionStorage.removeItem(SS_RESUME); } catch (e) { /* 無視 */ } // 再読み込みの回数は 10 分たつまで数え続ける（ここで 0 に戻すと、繰り返しを止められない）
     log('info', 'ログイン情報を更新して再開', JSON.stringify(r));
     if (r.action === 'scan') { runScan(); return; } // 読み込みは読み取りだけなので自動で再開
     setView(r.view || 'scan');
@@ -2571,14 +2600,14 @@
   function askRescan() {
     if (document.getElementById('pd-dlg')) return;
     const back = view;
-    const where = (meta && meta.where) || crumbs().map((c) => c.name).filter(Boolean).join(' › ') || 'ホーム';
-    let st = null; try { st = (JSON.parse(localStorage.getItem(LS_SCANSTAT) || '{}') || {})[String(currentTrail().slice(-1)[0] || 'root')]; } catch (e) { st = null; }
+    const where = scanWhereLabel();
+    let st = null; try { st = (JSON.parse(localStorage.getItem(LS_SCANSTAT) || '{}') || {})[scopeHome() ? 'root' : hereId()]; } catch (e) { st = null; }
     const when = meta ? fmtDate(meta.at) : '';
     const d = mkEl('pd-dlg');
     d.innerHTML = `<div class="box" role="dialog" aria-label="再読み込み"><h3>PikPak の中身を読み込み直しますか？</h3>
       <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px">
-        <div>📁 読み込む場所：<b>${esc(where)}</b></div>
-        ${meta ? `<div>🕘 前回：<b>${esc(when)}</b>（フォルダ ${meta.nfo.toLocaleString()} ／ ファイル ${meta.nfi.toLocaleString()}）</div>` : ''}
+        ${scopeHtml() || `<div>📁 読み込む場所：<b>${esc(where)}</b></div>`}
+        ${meta ? `<div>🕘 前回（${esc(meta.where || 'ホーム')}）：<b>${esc(when)}</b>（フォルダ ${meta.nfo.toLocaleString()} ／ ファイル ${meta.nfi.toLocaleString()}）</div>` : ''}
         <div>⏱ かかる時間：<b>${st ? `前回は ${fmtDur(st.ms)}` : '数十秒〜数分'}</b></div>
       </div>
       <div class="note" style="margin-bottom:16px">PikPak で追加・削除・移動したものを反映します。<b>読み込み中は、移動・削除・名前の変更などの操作ができません</b>（途中で「中断」できます）。ファイルは何も変更しません。</div>
@@ -2587,6 +2616,7 @@
     const onKey = (e) => { if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); close(); } };
     document.addEventListener('keydown', onKey, true);
     d.addEventListener('mousedown', (e) => { if (e.target === d) close(); });
+    wireScope(d);
     d.querySelector('[data-no]').onclick = close;
     d.querySelector('[data-go]').onclick = () => { close(); if (busy) return; afterScan = back; runScan(); };
     d.querySelector('[data-go]').focus();
@@ -2892,7 +2922,7 @@
     const el = $('[data-r=acts]'); if (!el) return;
     const bar = $('[data-r=stbar]'), btx = $('[data-r=stbartx]');
     if (bar) bar.classList.remove('done');
-    if (busy) { el.innerHTML = '<button data-a="stop">中断</button>'; if (btx) btx.innerHTML = '<b>実行中…</b><small>中断すると、そこまでの分は反映されます</small>'; return; }
+    if (busy) { el.innerHTML = '<button data-a="stop">中断</button>'; if (btx) btx.innerHTML = scanning ? '<b>読み込み中…</b><small>中断すると、前回の読み込み結果をそのまま使います</small>' : '<b>実行中…</b><small>中断すると、そこまでの分は反映されます</small>'; return; }
     const c = counts();
     if (bar) {
       // 帯の左：何件を実行するか／押せない理由
@@ -3168,7 +3198,7 @@
     status(done ? '整理はすべて完了しています。PikPak で操作したら「読み込み直す」で最新にできます。' : '読み込み済みです。カードから作業を選べます。');
   }
   function renderScan() {
-    const where = crumbs().map((c) => c.name).filter(Boolean).join(' › ') || (currentFolderId() === 'root' ? 'ホーム' : 'いま開いているフォルダ');
+    const where = scanWhereLabel();
     const c = counts();
     const next = c && (WORK.find((k) => c[k] > 0));
     if (meta && c && !busy) { renderDash(crumbs().map((x) => x.name).filter(Boolean).join(' › ') || meta.where || 'ホーム', c, next); return; }
@@ -3191,7 +3221,7 @@
         <div class="sv-badge">${done ? '✓' : meta ? '↻' : '⇣'}</div>${!meta && !busy ? (() => {
           let st = null; try { st = (JSON.parse(localStorage.getItem(LS_SCANSTAT) || '{}') || {})[String(currentTrail().slice(-1)[0] || 'root')]; } catch (e) { st = null; }
           return `<div class="sv-main"><h2>まず PikPak の中身を読み込みます</h2><p>フォルダとファイルの一覧を読み込んで、重複や不要ファイルを見つけます。<b>読むだけで、ファイルは何も変更しません。</b></p>
-            <ul class="sv-intro"><li>📁 読み込む場所：<b>${esc(where)}</b>（この中のすべて。ほかの場所は PikPak の画面でフォルダを開いてから）</li><li>⏱ かかる時間：<b>${st ? `前回は ${fmtDur(st.ms)}（フォルダ ${st.folders}）` : '数十秒〜数分'}</b>（フォルダが多いほど長くなります）</li><li>💡 読み込み中も画面は見られます。途中で止めても大丈夫です</li></ul></div>
+            <ul class="sv-intro">${scopeHtml() ? `<li class="sv-scope-li">${scopeHtml()}</li>` : `<li>📁 読み込む場所：<b>${esc(where)}</b>（この中のすべて。ほかの場所は PikPak の画面でフォルダを開いてから）</li>`}<li>⏱ かかる時間：<b>${st ? `前回は ${fmtDur(st.ms)}（フォルダ ${st.folders}）` : '数十秒〜数分'}</b>（フォルダが多いほど長くなります）</li><li>💡 読み込み中も画面は見られます。途中で止めても大丈夫です</li></ul></div>
             <div class="sv-act"><button class="pri big" data-a="scan">読み込みを始める</button><button class="big ghost" data-a="close">あとで</button><label class="sv-ask"><input type="checkbox" data-a="scanask"${scanAsk() ? '' : ' checked'}> 次からは確認しない</label></div>`;
         })() : ''}
         ${!meta && !busy ? '' : `<div class="sv-main">
@@ -3211,6 +3241,7 @@
       <label class="sv-opt" title="オンにすると、作品と関係ないファイルを、仕分け・名前の変更・重複比較の対象から外します（「2. 不要ファイルを削除」で確認・削除できます）"><span class="sw"><input type="checkbox" data-a="junkopt"${junkEnabled() ? ' checked' : ''}><i></i></span><span><b>作品と関係ないファイルを除外する</b><small>広告・宣伝のファイルや 10MB 以下のファイルなどを、ほかの作業の対象から外します</small></span></label>
       ${c ? `<div class="sv-grid">${WORK.map(card).join('')}</div>` : ''}
     </div>`;
+    wireScope($('[data-r=main]'));
     if (!busy) status(meta ? '読み込み済みです。カードから作業を選べます（操作したら再スキャンで最新にできます）。' : 'まずは「スキャン開始」を押してください。');
   }
   // 読み込みの残り時間（目安）：同じ場所を前に読み込んだときのフォルダ数・時間と、今の速さから見積もる
@@ -3250,32 +3281,80 @@
       },
     };
   }
+  // 読み込む場所：「いま開いているフォルダ」か「ホーム全体」（前回選んだほうを覚える）
+  const LS_SCOPE = 'ppdup:scanscope:v1', SS_SCANCP = 'ppdup:scancp:v1';
+  const scopeHome = () => lsGet(LS_SCOPE) === 'home';
+  const hereId = () => String(currentTrail().slice(-1)[0] || 'root');
+  function hereLabel() {
+    const c = crumbs().map((x) => x.name).filter(Boolean).join(' › ');
+    if (c) return c;
+    const id = hereId(); if (id === 'root') return 'ホーム';
+    const d = folders.find((x) => x.id === id);
+    if (d && d.isRoot && meta && meta.where) return meta.where;
+    return d && d.path ? 'ホーム' + d.path.replace(/\//g, ' › ') : 'いま開いているフォルダ';
+  }
+  const scanWhereLabel = () => (hereId() === 'root' || scopeHome() ? 'ホーム' : hereLabel());
+  // 開いているフォルダがホーム以外のときだけ、読み込む場所を選べるようにする
+  const scopeHtml = () => hereId() === 'root' ? '' : `<div class="sv-scope" role="radiogroup" aria-label="読み込む場所"><span>📁 読み込む場所：</span><label><input type="radio" name="pdscope" value="here"${scopeHome() ? '' : ' checked'}> <span>このフォルダだけ（<b>${esc(hereLabel())}</b>）</span></label><label><input type="radio" name="pdscope" value="home"${scopeHome() ? ' checked' : ''}> <span><b>ホーム全体</b></span></label></div>`;
+  const wireScope = (el) => el.querySelectorAll('input[name=pdscope]').forEach((r) => { r.onchange = () => { if (r.checked) lsSet(LS_SCOPE, r.value); }; });
+  // フォルダの場所を「ホーム › A › B」の形で調べる（表示用。たどれないところで止める）
+  async function folderPathLabel(d) {
+    const names = [d.name]; let pid = d.parent_id, n = 0;
+    try { while (pid && n++ < 12) { const p = await apiGet(pid); names.unshift(p.name); pid = p.parent_id; } } catch (e) { if (e.session) throw e; }
+    return ['ホーム', ...names].join(' › ');
+  }
+  let scanning = false;
   async function runScan() {
     rsHide();
     if (busy) return;
     if (!ensureSession('scan')) return;
-    busy = true; renderNav(); renderScan();
+    busy = true; scanning = true; renderNav(); renderScan();
     status('読み込み中…', 0);
+    let trail = currentTrail(), where = '';
     try {
-      const where = crumbs().map((c) => c.name).filter(Boolean).join(' › ') || 'ホーム';
-      let trail = currentTrail();
-      // 開いていたフォルダが消えた・移動した（まとめた・ゴミ箱へ移したなど）ときは、ホームを読み込む
-      if (trail.length && trail[trail.length - 1] !== 'root') {
-        const chk = await api('/files/' + trail[trail.length - 1], { raw: true });
-        if (!chk.ok || (chk.data && chk.data.trashed)) { const trail0 = trail[trail.length - 1]; trail = ['root']; status('開いていたフォルダが見つからないため、ホームを読み込みます'); log('warn', `開いていたフォルダが見つからないため、ホームを読み込みました（${chk.ok ? 'ゴミ箱の中' : 'HTTP ' + chk.status}・URL の最後「${trail0}」・ページ ${location.pathname}）`, 'scan'); }
+      const here = trail[trail.length - 1];
+      if (here === 'root' || scopeHome()) { trail = ['root']; where = 'ホーム'; }
+      else {
+        // 開いていたフォルダが消えた・移動した（まとめた・ゴミ箱へ移したなど）ときは、ホームを読み込む
+        //   ※ 削除したフォルダには「認証コードが無効です」が返ることがあるため、それも「見つからない」として扱う（ログイン切れにしない）
+        let chk; try { chk = await api('/files/' + here, { raw: true, probe: true }); } catch (e) { if (!e.captcha) throw e; chk = { ok: false, status: e.status, why: e.message }; }
+        if (!chk.ok || (chk.data && (chk.data.trashed || (chk.data.kind && chk.data.kind !== 'drive#folder')))) {
+          trail = ['root']; where = 'ホーム';
+          status('開いていたフォルダが見つからないため、ホームを読み込みます');
+          log('warn', `開いていたフォルダが見つからないため、ホームを読み込みました（${chk.ok ? 'ゴミ箱の中' : (chk.why || 'HTTP ' + chk.status)}・URL の最後「${here}」・ページ ${location.pathname}）`, 'scan');
+        } else where = crumbs().map((c) => c.name).filter(Boolean).join(' › ') || (await folderPathLabel(chk.data));
       }
+      const key = String(trail[trail.length - 1]);
+      // ログイン切れで中断した読み込みがあれば続きから（15 分以内・同じ場所）
+      let cp = null; try { cp = JSON.parse(sessionStorage.getItem(SS_SCANCP) || 'null'); } catch (e) { cp = null; }
+      try { sessionStorage.removeItem(SS_SCANCP); } catch (e) { /* 無視 */ }
+      const resume = cp && cp.key === key && Date.now() - cp.at < 15 * 60e3 ? cp.st : null;
+      if (resume) log('info', `ログイン切れの前に読んだ続きから読み込みます（フォルダ ${resume.done} まで読み済み）`, where);
       const eta = scanEta(trail);
-      const r = await scanApi(trail, { onProgress: (d, total, n) => { const e = eta.tick(d, total); status(`読み込み中… フォルダ ${d} / ${e.expectedLabel} ／ ファイル ${n} 件`, e.frac, e.text); } });
+      let r;
+      try { r = await scanApi(trail, { resume, rootName: where.split(' › ').pop(), onProgress: (d, total, n) => { const e = eta.tick(d, total); status(`読み込み中（${where}）… フォルダ ${d} / ${e.expectedLabel} ／ ファイル ${n} 件`, e.frac, e.text); } }); }
+      catch (e) {
+        if (e.session && e.resumeState) { try { sessionStorage.setItem(SS_SCANCP, JSON.stringify({ key, at: Date.now(), st: e.resumeState })); } catch (e2) { log('warn', '途中までの読み込み結果を保存できませんでした（再読み込み後は最初から読みます）', 'scan'); } }
+        throw e;
+      }
+      busy = false; scanning = false;
+      // 中断したときは、途中までの結果で前回の結果を上書きしない
+      if (r.stopped) { renderNav(); setView('scan'); status(meta ? '読み込みを中断しました。前回の読み込み結果をそのまま使います。' : '読み込みを中断しました。'); log('info', '読み込みを中断（前回の結果はそのまま）', where); return; }
       eta.done(r.folders.length, r.files.length);
-      files = r.files; folders = r.folders; saveAll();
+      const prev = meta;
+      files = r.files; folders = r.folders;
+      const saved = saveAll();
       meta = { at: Date.now(), where, nfo: folders.length, nfi: files.length };
-      lsSetJson(LS_META, meta);
-      busy = false;
-      status(`読み込み完了：フォルダ ${folders.length} ／ ファイル ${files.length} 件`);
-      if (afterScan) { const v = afterScan; afterScan = null; setView(v); status(`読み込み完了：フォルダ ${folders.length} ／ ファイル ${files.length} 件`); }
-      else { setView('scan'); status(`読み込み完了：フォルダ ${folders.length} ／ ファイル ${files.length} 件。次のステップを選んでください。`); }
-      log('info', `読み込み完了：フォルダ ${folders.length} ／ ファイル ${files.length}`, where);
-    } catch (err) { busy = false; renderNav(); renderScan(); handleErr(err, 'scan', '読み込みに失敗しました：' + err.message); }
+      if (saved) lsSetJson(LS_META, meta);
+      const skip = r.skipped.length ? `・読めなかったフォルダ ${r.skipped.length}（ログに場所があります）` : '';
+      r.skipped.slice(0, 50).forEach((x) => log('warn', '読めなかったフォルダを飛ばしました：' + x.msg, x.path));
+      // 同じ場所なのに前回より大きく減ったときは知らせる（読む場所の勘違い・読み込みの不具合に気づけるように）
+      const drop = prev && prev.where === where && prev.nfi >= 50 && files.length < prev.nfi * 0.5 ? `　⚠ 前回（ファイル ${prev.nfi} 件）より大きく減っています。場所が合っているか確かめてください。` : '';
+      const head = `読み込み完了（${where}）：フォルダ ${folders.length} ／ ファイル ${files.length} 件${skip}`;
+      if (afterScan) { const v = afterScan; afterScan = null; setView(v); status(head + drop); }
+      else { setView('scan'); status(head + (drop || '。次のステップを選んでください。')); }
+      log(drop ? 'warn' : 'info', `読み込み完了：フォルダ ${folders.length} ／ ファイル ${files.length}${skip}${drop ? `（前回 ${prev.nfi} 件から大きく減少）` : ''}`, where);
+    } catch (err) { busy = false; scanning = false; renderNav(); renderScan(); handleErr(err, 'scan', '読み込みに失敗しました：' + err.message); }
   }
 
   // ---------- 2. 不要ファイルを削除 ----------
@@ -7338,7 +7417,7 @@
   }
   // 変わったら 20 秒ほど待ってまとめて保存。開いたときと 10 分おきに取り込み
   setInterval(() => {
-    const c = syncCfg(); if (!c.on || !c.asked || syncBusy || !sessionValid()) return;
+    const c = syncCfg(); if (!c.on || !c.asked || syncBusy || scanning || !sessionValid()) return; // 読み込み中は同期しない（通信を読み込みに回す）
     if (syncTouch() || Date.now() - syncAt > 10 * 60e3) syncNow(Date.now() - syncAt > 10 * 60e3 ? '定期' : '変更');
   }, 20e3);
   // ---------- 一括解凍（PikPak のサーバー側で解凍する。成功したパスワードを記録して次から自動で試す） ----------

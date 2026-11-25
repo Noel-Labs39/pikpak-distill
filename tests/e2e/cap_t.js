@@ -1,0 +1,20 @@
+const open = require('./h.js');
+(async () => {
+  const t = new Date().toISOString();
+  const tree = { '': [{ id: 'v1', name: 'sample-A.mp4', kind: 'drive#file', size: '2000000000', created_time: t }, { id: 'v2', name: 'sample-B.mp4', kind: 'drive#file', size: '1900000000', created_time: t }] };
+  let { b, p, SP } = await open(tree, 'https://mypikpak.com/drive/all#dd/tree/');
+  await p.click('[data-tid="v1"]'); await p.keyboard.press('Space'); await p.waitForTimeout(1500);
+  await p.screenshot({ path: SP + 'new_ql.png' });
+  await p.keyboard.press('Escape'); await p.waitForTimeout(300);
+  await p.evaluate(() => { localStorage.setItem('ppdup:player:v1', JSON.stringify({ mode: 'full' })); });
+  const pref = await p.evaluate(() => Object.keys(localStorage).filter((k) => /play/i.test(k)));
+  console.log(pref);
+  await p.click('[data-tid="v1"]'); await p.keyboard.press('Enter'); await p.waitForTimeout(1800); await p.evaluate(() => document.fullscreenElement && document.exitFullscreen()); await p.waitForTimeout(500);
+  console.log('player?', await p.evaluate(() => [!!document.getElementById('pd-player'), !!document.getElementById('pd-ql')]));
+  await p.screenshot({ path: SP + 'new_pl.png' });
+  await b.close();
+  ({ b, p } = await open(tree, 'https://mypikpak.com/drive/all#dd/lib/recent'));
+  await p.click('[data-lbc]'); await p.keyboard.press('Space'); await p.waitForTimeout(1500);
+  await p.screenshot({ path: SP + 'new_lib.png' });
+  await b.close();
+})();

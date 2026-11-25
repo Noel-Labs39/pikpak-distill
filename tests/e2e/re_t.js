@@ -1,0 +1,21 @@
+const open = require('./h.js');
+(async () => {
+  const t = new Date().toISOString();
+  const { b, p, SP } = await open({ '': [{ id: 'v1', name: 'sample-A.mp4', kind: 'drive#file', size: '10', created_time: t }, { id: 'v2', name: 'sample-B.mp4', kind: 'drive#file', size: '9', created_time: t }] }, 'https://mypikpak.com/drive/all#dd/tree/');
+  await p.waitForTimeout(1500);
+  console.log('rows', await p.evaluate(() => document.querySelectorAll('[data-tid]').length));
+  await p.click('[data-tid="v1"]'); await p.keyboard.press('Space'); await p.waitForTimeout(1500);
+  const st = () => p.evaluate(() => { const v = document.querySelector('#pd-ql video'); return { ql: !!document.getElementById('pd-ql'), rate: v && v.playbackRate, sels: document.querySelectorAll('#pd-ql select[data-rate]').length }; });
+  console.log('開いた', JSON.stringify(await st()));
+  await p.selectOption('#pd-ql select[data-rate]', '2'); await p.waitForTimeout(200);
+  await p.screenshot({ path: SP + 'rate_ql.png' });
+  console.log('2倍に変更', JSON.stringify(await st()));
+  await p.click('#pd-ql .qp-stage', { position: { x: 30, y: 30 } }).catch(() => {}); await p.waitForTimeout(300);
+  await p.keyboard.press('?'); await p.waitForTimeout(200);
+  console.log('キー一覧', await p.evaluate(() => !document.querySelector('#pd-ql .qp-keys').hidden));
+  await p.keyboard.press('Escape'); await p.waitForTimeout(200);
+  console.log('Esc1回目（一覧を閉じる）', await p.evaluate(() => [!!document.getElementById('pd-ql'), document.querySelector('#pd-ql .qp-keys') && document.querySelector('#pd-ql .qp-keys').hidden]));
+  await p.keyboard.press('Escape'); await p.waitForTimeout(300);
+  console.log('Esc2回目（閉じる）', JSON.stringify(await st()));
+  await b.close();
+})();

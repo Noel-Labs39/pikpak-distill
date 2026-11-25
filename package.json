@@ -1,0 +1,13 @@
+{
+  "name": "pikpak-distill",
+  "private": true,
+  "description": "PikPak Distill の開発用（試験の実行のみ。配信物は pikpak-distill.user.js の 1 本）",
+  "scripts": {
+    "test": "node --check pikpak-distill.user.js && node tests/work-id.test.js && node tests/e2e/run.js",
+    "test:unit": "node tests/work-id.test.js",
+    "test:e2e": "node tests/e2e/run.js"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}

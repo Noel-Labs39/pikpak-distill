@@ -121,7 +121,7 @@
       const row = [...document.querySelectorAll('tr')].find((tr) => { const th = tr.querySelector('th'); return th && /販売者|Seller/i.test(th.textContent); })
         || [...document.querySelectorAll('div,li,dl,p')].filter((el) => /^\s*(販売者|Sellers?)\s*[：:]?/i.test(el.textContent) && el.querySelector('a[href*="/writers/"]')).sort((x, y) => x.textContent.length - y.textContent.length)[0];
       let a = row ? row.querySelector('a[href*="/writers/"]') : null;
-      if (a && NAV.test(sidOf(a, /\/writers\/([^/?#]+)/))) a = null;
+      if (a && (NAV.test(sidOf(a, /\/writers\/([^/?#]+)/)) || /^(販売者|Sellers?|賣家|卖家)$/i.test(a.textContent.trim()))) a = null;
       if (!a && challenge()) { send({ status: 'challenge', gate: gate() }); return; }
       if (!a && /^404|ページが見つかりません|Not Found/i.test(document.title)) { send({ status: 'notfound' }); return; }
       const fin = (d) => { if (sent) return; sent = true; try { mo.disconnect(); } catch (e) { /* 無視 */ } send(d); };
@@ -3741,7 +3741,18 @@
       const rec = sellerDb[key];
       if (rec && NAVSID.test(rec.sid || '')) { const f = o.sellers.fd2ppv; if (f) sellerDb[key] = { name: f.name, sid: f.sid, src: 'fd2ppv', status: 'ok', at: Date.now() }; else delete sellerDb[key]; saveSellerDb(); }
     });
-    if (fixed) { lsSetJson(LS_WINFO, wInfo); setTimeout(() => { try { log('info', `fc2cmadb の販売者名の読み違い（メニューの「販売者」）を ${fixed} 件消しました`); } catch (e) { /* 無視 */ } }, 0); }
+    // 作品の情報に fc2cmadb の記録が残っていない（前の版で調べた・調べ直して上書きされた）ものも、販売者の記録そのものから見つけて直す
+    const BADNAME = /^(販売者|Sellers?|賣家|卖家)$/i;
+    let fixed2 = 0;
+    Object.entries(sellerDb).forEach(([key, rec]) => {
+      if (!rec || rec.src === 'manual' || !(NAVSID.test(rec.sid || '') || BADNAME.test(String(rec.name || '').trim()))) return;
+      const o = wInfo[key]; const ok = o && o.sellers && Object.values(o.sellers).find((x) => x && x.sid && !NAVSID.test(x.sid) && !BADNAME.test(String(x.name || '').trim()));
+      if (ok) sellerDb[key] = { name: ok.name, sid: ok.sid, src: ok === (o.sellers.fd2ppv || null) ? 'fd2ppv' : 'fc2cmadb', status: 'ok', at: Date.now() }; else delete sellerDb[key];
+      if (o) { Object.keys(o.sellers || {}).forEach((st) => { const x = o.sellers[st]; if (x && (NAVSID.test(x.sid || '') || BADNAME.test(String(x.name || '').trim()))) delete o.sellers[st]; }); delete o.ack; }
+      fixed2++;
+    });
+    if (fixed2) { saveSellerDb(); }
+    if (fixed || fixed2) { lsSetJson(LS_WINFO, wInfo); setTimeout(() => { try { log('info', `販売者名の読み違い（メニューの「販売者」）を ${fixed + fixed2} 件直しました。ほかのサイトで分かっているものはその名前に、分からないものは未調査に戻しました（「販売者を調べる」で調べ直せます）`); } catch (e) { /* 無視 */ } }, 0); }
   })();
   function saveWorkInfo(k, r) {
     const i = r.info || {}, o = wInfo[k.key] || {}, site = i.site || r.src || '';

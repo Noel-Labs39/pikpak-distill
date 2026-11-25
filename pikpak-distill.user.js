@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.21.1
+// @version      4.22.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -175,7 +175,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.21.1'; // @version と合わせて更新する
+  const VER = '4.22.0'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1955,6 +1955,33 @@
   .tr-row.drop{outline:2px solid #4b8df8;outline-offset:-2px;background:#4b8df833 !important}
   #pd-drag{position:fixed;z-index:100005;pointer-events:none;background:#306fff;color:#fff;font:600 12px system-ui,sans-serif;padding:4px 10px;border-radius:6px;box-shadow:0 4px 14px #0005;max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   #pd-drag.ng{background:#6a7080}
+  #pd-lib .pp-wrap{display:flex;gap:16px;align-items:flex-start;min-height:60vh}
+  #pd-lib .pp-side{width:260px;flex:0 0 auto;display:flex;flex-direction:column;gap:10px;position:sticky;top:0}
+  #pd-lib .pp-mode{display:flex;gap:6px}
+  #pd-lib .pp-mode button{flex:1;height:34px;border-radius:17px;border:1px solid var(--line,#dde0e6);background:var(--bg2,#fff);color:var(--fg);font-weight:700;cursor:pointer}
+  #pd-lib .pp-mode button.on{background:var(--pri,#306fff);border-color:var(--pri,#306fff);color:#fff}
+  #pd-lib .pp-q{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mute)}
+  #pd-lib .pp-q input{height:34px;border:1px solid var(--line,#dde0e6);border-radius:8px;padding:0 10px;font-size:14px;background:var(--bg2,#fff);color:var(--fg)}
+  #pd-lib .pp-names{display:flex;flex-direction:column;gap:2px;max-height:60vh;overflow:auto}
+  #pd-lib .pp-names button{display:flex;justify-content:space-between;gap:8px;padding:8px 10px;border:0;border-radius:8px;background:none;color:var(--fg);text-align:left;cursor:pointer;font-size:14px}
+  #pd-lib .pp-names button:hover{background:var(--hov,#0000000d)}
+  #pd-lib .pp-names button.on{background:var(--pri-soft,#306fff1f);font-weight:700}
+  #pd-lib .pp-names button.mu{color:var(--mute)}
+  #pd-lib .pp-names i{font-style:normal;color:var(--mute);font-size:12px;white-space:nowrap}
+  #pd-lib .pp-main{flex:1;min-width:0}
+  #pd-lib .pp-hd{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 12px;margin:0 0 12px}
+  #pd-lib .pp-hd b{font-size:18px}
+  #pd-lib .pp-sub{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  #pd-lib .pp-chip{border:1px solid var(--line,#dde0e6);border-radius:999px;background:var(--bg2,#fff);color:var(--fg);padding:2px 10px;font-size:12px;cursor:pointer}
+  @media (max-width:720px){#pd-lib .pp-wrap{flex-direction:column}#pd-lib .pp-side{width:100%;position:static}#pd-lib .pp-names{max-height:30vh}}
+  .pv-info .pv-ppl{display:flex;flex-direction:column;gap:4px;margin:0;padding:0 12px 8px}
+  .pv-info .pv-ppl a{color:#7aa2ff}
+  .pv-info .pv-rel{margin:0;padding:0 12px 8px}
+  .pv-info .pv-rels{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;padding:6px 0 8px;min-height:84px}
+  .pv-info .pv-rels button{flex:0 0 104px;min-height:78px;display:flex;flex-direction:column;gap:4px;border:0;background:none;color:inherit;padding:0;cursor:pointer;text-align:left}
+  .pv-info .pv-rels .th{display:block;height:58px;border-radius:6px;background:#3a3f4b;overflow:hidden}
+  .pv-info .pv-rels img{width:100%;height:100%;object-fit:cover}
+  .pv-info .pv-rels .nm{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   #pd-ctx{position:fixed;z-index:100004;min-width:220px;background:#f6f6f8f2;color:#1c1f26;border:1px solid #0002;border-radius:8px;box-shadow:0 10px 30px #0004;padding:5px;font:13px system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Yu Gothic","Meiryo","Noto Sans CJK JP","Noto Sans JP",sans-serif;backdrop-filter:blur(16px)}
   #pd-ctx button{display:flex;justify-content:space-between;gap:24px;width:100%;border:0;background:none;color:inherit;font:inherit;padding:4px 10px;border-radius:4px;text-align:left;cursor:default}
   #pd-ctx button:hover:not(:disabled){background:#0a64d6;color:#fff}
@@ -2272,6 +2299,7 @@
     cont: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M10 8.5v5l4-2.5z"/><path d="M3 20.5h11" stroke-width="2.4"/></svg>',
     cand: '<svg viewBox="0 0 24 24"><path d="M5 7h14M9.5 7V5h5v2"/><path d="M7 7l.8 12.2A1.5 1.5 0 0 0 9.3 20.6h5.4a1.5 1.5 0 0 0 1.5-1.4L17 7"/><path d="M10 11.5l4 4M14 11.5l-4 4"/></svg>',
     hist: '<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/><path d="M10.5 9.2v5.6l4.4-2.8z"/></svg>',
+    people: '<svg viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19.5a5.5 5.5 0 0 1 11 0"/><circle cx="16.8" cy="9.5" r="2.6"/><path d="M15.5 14.6a4.6 4.6 0 0 1 5 4.9"/></svg>',
     star: '<svg viewBox="0 0 24 24"><path d="M12 3.8l2.5 5.1 5.6.8-4 3.9.9 5.6-5-2.6-5 2.6.9-5.6-4-3.9 5.6-.8z"/></svg>',
     trash: '<svg viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V4.8h5V7"/><path d="M6 7l1 12.2A1.5 1.5 0 0 0 8.5 20.6h7a1.5 1.5 0 0 0 1.5-1.4L18 7"/><path d="M10 11v6M14 11v6"/></svg>',
     add: '<svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.2 1.2"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.2-1.2"/></svg>',
@@ -2313,6 +2341,7 @@
       <button data-a="lib" data-v="dl" data-rail="lib-dl" title="追加したもの（リンク・マグネットで追加した作品の保存状況とダウンロードの進み具合）">${RAIL_IC.dl}<span>追加したもの</span><i class="rb" data-r="rb-dl"></i></button>
       <button data-a="lib" data-v="recent" data-rail="lib-recent" title="最近追加したもの（追加日の新しい順）">${RAIL_IC.recent}<span>最近の追加</span><i class="rb" data-r="rb-recent"></i></button>
       <button data-a="lib" data-v="cont" data-rail="lib-cont" title="続きを見る（途中で止めた動画）">${RAIL_IC.cont}<span>続きを見る</span></button>
+      <button data-a="lib" data-v="people" data-rail="lib-people" title="出演者・販売者（作品の情報から、出演者・販売者ごとに作品を並べます。フォルダは動かしません）">${RAIL_IC.people}<span>出演者・販売者</span></button>
       <button data-a="lib" data-v="cand" data-rail="lib-cand" title="消す候補（見ながら仕分けで D を付けたもの）">${RAIL_IC.cand}<span>消す候補</span><i class="rb" data-r="rb-cand"></i></button>
       <button data-a="lib" data-v="hist" data-rail="lib-hist" title="再生した履歴">${RAIL_IC.hist}<span>再生履歴</span><i class="rb" data-r="rb-hist"></i></button>
       <button data-a="lib" data-v="star" data-rail="lib-star" title="スター付き">${RAIL_IC.star}<span>スター</span><i class="rb" data-r="rb-star"></i></button>
@@ -4840,6 +4869,23 @@
       ${k && !k.noLookup ? `<div class="pv-ia"><button type="button" class="pri" data-pvi-look>${inf || sel ? '↻ 調べ直す' : '🔍 調べる'}</button><span class="mu">${inf ? '調べた日：' + esc(fmtDate(inf.at, 'ymd')) : (k.kind === 'fanza' ? 'FANZA の作品ページを小さなウィンドウで開いて読み取ります（年齢確認が出たら「はい」を押してください）' : 'fd2ppv.cc・fc2cmadb.com を小さなウィンドウで開いて読み取ります')}</span></div>` : ''}
       ${k ? `<div class="pv-il"><span class="mu">外部サイトで確かめる</span>${extSites(k).map(([n, , u]) => `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(n)}</a>`).join('')}</div>` : '<div class="pv-il mu">ファイル名から品番が読めないため、調べられません</div>'}`;
     el.querySelector('[data-pvi-x]').onclick = (e) => { e.stopPropagation(); el.remove(); };
+    // 出演者・販売者のリンクと、関連する作品（同じ出演者 → 同じ販売者）。読み込み済みのときだけ
+    if (k && hasScan()) {
+      const P = peopleIndex(), wo = P.works.get(k.key);
+      if (wo) {
+        const lnk = (mode, n) => { const c = ((mode === 'sel' ? P.sel : P.act).get(n) || []).length - 1; return `<a href="#" data-pvi-ppl="${mode}" data-n="${esc(n)}">${esc(n)}</a>${c > 0 ? `<span class="mu">（ほかに ${c} 作品）</span>` : ''}`; };
+        const rel = relatedWorks(k.key, 8);
+        const html = `<div class="pv-ppl">${wo.seller ? `<div><span class="mu">販売者：</span>${lnk('sel', wo.seller)}</div>` : ''}${wo.actors.length ? `<div><span class="mu">出演者：</span>${wo.actors.map((n) => lnk('act', n)).join('、')}</div>` : ''}<div class="mu" style="font-size:11px">名前を押すと「出演者・販売者」でその作品の一覧を開きます</div></div>`
+          + (rel.length ? `<div class="pv-rel"><b>関連する作品</b><div class="pv-rels">${rel.map((o) => `<button type="button" data-pvi-rel="${esc(o.file.id)}" title="${esc(o.label + (o.title ? '　' + o.title : '') + '\n' + o.why)}"><span class="th">${o.file.thumb ? `<img loading="lazy" referrerpolicy="no-referrer" src="${esc(o.file.thumb)}" alt="">` : ''}</span><span class="nm">${esc(o.label)}</span></button>`).join('')}</div></div>` : '');
+        const dl = el.querySelector('dl'); if (dl) dl.insertAdjacentHTML('afterend', html);
+        el.querySelectorAll('[data-pvi-ppl]').forEach((a) => { a.onclick = (e) => { e.preventDefault(); e.stopPropagation(); openPeople(a.dataset.pviPpl, a.dataset.n); }; });
+        el.querySelectorAll('[data-pvi-rel]').forEach((b) => { b.onclick = (e) => {
+          e.stopPropagation(); const fid = b.dataset.pviRel, f = fileById(fid); if (!f) return;
+          if (el.closest('#pd-lib') && libSt) { if (!libItem(fid)) libSt.items.unshift({ id: fid, name: f.name, size: f.size, at: f.ct, path: f.path, thumb: f.thumb || '' }); libPreview(fid).then(() => { const pv = document.querySelector('#pd-lib .lb-pv'); if (pv) pvInfoToggle(pv, fid, f.name); }); }
+          else playFile(fid);
+        }; });
+      }
+    }
     const sv = el.querySelector('[data-pvi-save]');
     if (sv) sv.onclick = (e) => {
       e.stopPropagation(); if (!k) return;
@@ -5153,13 +5199,14 @@
       it('preview', 'プレビュー', 'Space', !!one), '<hr>',
       it('rename', '名前を変更', KEY.rename, !!one), it('move', `移動…${rows.length > 1 ? `（${rows.length} 項目）` : ''}`, 'ドラッグ', rows.length > 0 && !rows.some((r) => isRootOrAbove(r.id))), it('mkdir', '新規フォルダ', KEY.mkdir, true), it('addlink', one && one.kind === 'folder' ? 'ここにリンクを追加…' : 'リンク・マグネットを追加…', '', true), '<hr>',
       rows.some((r) => r.kind === 'file' && isArchive(r.name)) ? it('unzip', `📦 解凍…${rows.filter((r) => r.kind === 'file' && isArchive(r.name)).length > 1 ? `（${rows.filter((r) => r.kind === 'file' && isArchive(r.name)).length} ファイル）` : ''}`, '', true) + '<hr>' : '',
-      it('copy', '場所をコピー', KEY.copy, !!one), '<hr>',
+      it('copy', '場所をコピー', KEY.copy, !!one),
+      (() => { if (!isVideoRow(one)) return ''; const { k } = infoKeyOf(one.id, one.name); const wo = k && hasScan() && peopleIndex().works.get(k.key); if (!wo) return ''; return '<hr>' + wo.actors.slice(0, 3).map((n) => `<button data-tppl="act" data-n="${esc(n)}"><span>同じ出演者の作品（${esc(n)}）</span><kbd></kbd></button>`).join('') + (wo.seller ? `<button data-tppl="sel" data-n="${esc(wo.seller)}"><span>同じ販売者の作品（${esc(wo.seller)}）</span><kbd></kbd></button>` : ''); })(), '<hr>',
       it('trash', `ゴミ箱に入れる${rows.length > 1 ? `（${rows.length} 項目）` : ''}`, KEY.trash, rows.length > 0 && !rows.some((r) => isRootOrAbove(r.id)), 'red'),
     ].join('');
     document.body.appendChild(m);
     const w = m.offsetWidth || 220, h = m.offsetHeight || 300;
     m.style.left = Math.min(e.clientX, innerWidth - w - 8) + 'px'; m.style.top = Math.min(e.clientY, innerHeight - h - 8) + 'px';
-    m.addEventListener('click', (ev) => { const b = ev.target.closest('[data-ta]'); if (b && !b.disabled) treeAction(b.dataset.ta); });
+    m.addEventListener('click', (ev) => { const pb = ev.target.closest('[data-tppl]'); if (pb) { closeCtx(); openPeople(pb.dataset.tppl, pb.dataset.n); return; } const b = ev.target.closest('[data-ta]'); if (b && !b.disabled) treeAction(b.dataset.ta); });
   });
   document.addEventListener('mousedown', (e) => { const m = document.getElementById('pd-ctx'); if (m && !m.contains(e.target)) closeCtx(); }, true);
   root.addEventListener('click', (e) => { const b = e.target.closest('[data-ta]'); if (b && !b.disabled && view === 'tree' && !busy) treeAction(b.dataset.ta); });
@@ -6872,17 +6919,125 @@
     if (row) { row.scrollIntoView({ block: 'center' }); flash(row); }
     const t = $('[data-r=tree]'); if (t) t.focus({ preventScroll: true });
   }
-  const LIB_IC = { cand: RAIL_IC.cand, cont: RAIL_IC.cont, dl: RAIL_IC.dl, recent: RAIL_IC.recent, hist: RAIL_IC.hist, star: RAIL_IC.star, trash: RAIL_IC.trash };
+  const LIB_IC = { people: RAIL_IC.people, cand: RAIL_IC.cand, cont: RAIL_IC.cont, dl: RAIL_IC.dl, recent: RAIL_IC.recent, hist: RAIL_IC.hist, star: RAIL_IC.star, trash: RAIL_IC.trash };
   // ---------- 左メニュー：ダウンロード中・最近追加したもの・再生した履歴・スター付き・ゴミ箱 ----------
   // ---- 追加したもの：Dedupe でリンクを追加したときの記録（このブラウザに保存）と、PikPak のダウンロードタスクを合わせて見せる ----
   const LS_ADDLOG = 'ppdup:addlog:v1';
   const addLogRead = () => { return lsJson(LS_ADDLOG, []); };
   const addLogWrite = (a) => { lsSetJson(LS_ADDLOG, a.slice(0, 300)); };
   const addLogPush = (r) => { const a = addLogRead(); a.unshift({ ...r, lid: 'L' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), at: Date.now() }); addLogWrite(a); };
-  const LIB_TABS = [['dl', '追加したもの'], ['recent', '最近追加したもの'], ['cont', '続きを見る'], ['cand', '消す候補'], ['hist', '再生した履歴'], ['star', 'スター付き'], ['trash', 'ゴミ箱']];
+  const LIB_TABS = [['dl', '追加したもの'], ['recent', '最近追加したもの'], ['cont', '続きを見る'], ['people', '出演者・販売者'], ['cand', '消す候補'], ['hist', '再生した履歴'], ['star', 'スター付き'], ['trash', 'ゴミ箱']];
   let libSt = null, libBadge = { dl: 0, trash: 0 };
   const encF = (o) => encodeURIComponent(JSON.stringify(o));
   const phaseTxt = { PHASE_TYPE_RUNNING: 'ダウンロード中', PHASE_TYPE_PENDING: '順番待ち', PHASE_TYPE_ERROR: '失敗', PHASE_TYPE_COMPLETE: '完了' };
+  // ---------- 出演者・販売者（フォルダは動かさず、作品の情報から並べる） ----------
+  //   作品ごと（品番）に代表の動画 1 本（いちばん大きいもの）を選び、出演者（手入力を優先）と販売者（調べた結果）で引けるようにする
+  const NO_ACT = '出演者不明', NO_SEL = '販売者不明';
+  let pplCache = null;
+  function peopleIndex() {
+    // 作り直しは軽いので、同じ一覧なら 3 秒だけ使い回す（作品の情報を調べ直したら次に開いたときに反映）
+    if (pplCache && pplCache.files === files && Date.now() - pplCache.at < 3000) return pplCache;
+    const works = new Map();
+    files.forEach((f) => {
+      if (!VIDEO_EXT.has(extOf(f.name))) return;
+      const { k, w } = infoKeyOf(f.id, f.name); if (!k) return;
+      const o = works.get(k.key);
+      if (!o) works.set(k.key, { key: k.key, label: k.label, w, file: f, n: 1 });
+      else { o.n++; if ((+f.size || 0) > (+o.file.size || 0)) o.file = f; }
+    });
+    const act = new Map(), sel = new Map();
+    const add = (m, n, key) => { if (!m.has(n)) m.set(n, []); m.get(n).push(key); };
+    works.forEach((o, key) => {
+      const inf = wInfo[key];
+      const acts = inf && inf.manual && inf.manual.actresses ? inf.manual.actresses : ((inf && inf.actresses) || []).map((x) => x.name);
+      o.actors = acts.filter(Boolean);
+      const sd = sellerDb[key]; o.seller = sd && sd.status === 'ok' && sd.name ? sd.name : '';
+      o.title = (inf && inf.title) || '';
+      if (o.actors.length) o.actors.forEach((n) => add(act, n, key)); else add(act, NO_ACT, key);
+      add(sel, o.seller || NO_SEL, key);
+    });
+    pplCache = { at: Date.now(), files, works, act, sel };
+    return pplCache;
+  }
+  // 関連する作品：同じ出演者 → 同じ販売者の順（自分は除く）
+  function relatedWorks(key, max = 8) {
+    const P = peopleIndex(), o = P.works.get(key); if (!o) return [];
+    const out = [], seen = new Set([key]);
+    const push = (k, why) => { if (seen.has(k) || out.length >= max) return; seen.add(k); const x = P.works.get(k); if (x) out.push({ ...x, why }); };
+    o.actors.forEach((n) => (P.act.get(n) || []).forEach((k) => push(k, n)));
+    if (o.seller) (P.sel.get(o.seller) || []).forEach((k) => push(k, o.seller));
+    return out;
+  }
+  let pplWant = null; // 開いたときに選んでおく {mode, name}
+  // 名前の一覧（作品数の多い順。「不明」は最後）。q で絞り込む
+  const pplNames = (m, q) => [...m.entries()].map(([n, ks]) => [n, ks.length])
+    .filter(([n]) => !q || n.toLowerCase().includes(q.toLowerCase()))
+    .sort((a, b) => ((a[0] === NO_ACT || a[0] === NO_SEL) - (b[0] === NO_ACT || b[0] === NO_SEL)) || b[1] - a[1] || a[0].localeCompare(b[0], 'ja'));
+  function pplSideHtml() {
+    const S = libSt, P = peopleIndex(), m = S.pmode === 'sel' ? P.sel : P.act;
+    const list = pplNames(m, S.pq || '');
+    return `<div class="pp-side"><div class="pp-mode" role="tablist">${[['act', '出演者'], ['sel', '販売者']].map(([k, l]) => `<button role="tab" aria-selected="${S.pmode === k}" data-lbpm="${k}" class="${S.pmode === k ? 'on' : ''}">${l}</button>`).join('')}</div>
+      <label class="pp-q"><span>名前で絞り込む</span><input type="search" data-lbpq value="${esc(S.pq || '')}" placeholder="例：さんぷる"></label>
+      <div class="pp-names">${list.length ? list.slice(0, 400).map(([n, c]) => `<button data-lbpn="${esc(n)}" class="${n === S.pname ? 'on' : ''}${n === NO_ACT || n === NO_SEL ? ' mu' : ''}"><span>${esc(n)}</span><i>${c} 作品</i></button>`).join('') : '<div class="note" style="padding:8px">見つかりません</div>'}</div>
+      <div class="note pp-hint">作品の情報（「作品の情報をまとめて調べる」・プレーヤーの ⓘ）から作ります。フォルダは動かしません。</div></div>`;
+  }
+  function openPeople(mode, name) {
+    pplWant = { mode, name };
+    closeCtx(); closeQL(); try { closePlayer(); } catch (e) { /* 無視 */ }
+    if (document.getElementById('pd-lib') && libSt) { libSt.pmode = mode; libSt.pname = name; libSt.pq = ''; pplWant = null; libLoad('people'); }
+    else openLib('people');
+  }
+  // 作品の行・カードの右クリック（長押し）メニュー。消す・動かすなど戻せない操作は入れない
+  function workMenu(x, y, o) {
+    closeCtx();
+    const f = fileById(o.id), name = o.name || (f && f.name) || '';
+    const { k } = infoKeyOf(o.id, name);
+    const P = k ? peopleIndex() : null, wo = P && P.works.get(k.key);
+    const vid = VIDEO_EXT.has(extOf(name));
+    const btn = (a, label, ok = true) => `<button data-wm="${a}"${ok ? '' : ' disabled'}><span>${label}</span><kbd></kbd></button>`;
+    const m = document.createElement('div'); m.id = 'pd-ctx'; m.setAttribute('role', 'menu');
+    m.innerHTML = [
+      vid ? btn('pv', '▶ 簡易プレーヤーで再生') : '',
+      vid ? btn('ext', `↗ 外部プレーヤーで再生（${EXT_PLAYERS[playPref().ext].short}）`) : '',
+      btn('loc', '格納しているフォルダを開く', !!f), '<hr>',
+      vid ? btn('info', 'ⓘ 作品の情報') : '',
+      ...(wo ? wo.actors.slice(0, 3).map((n, i) => `<button data-wm="act" data-n="${esc(n)}"><span>同じ出演者の作品（${esc(n)}）</span><kbd></kbd></button>`) : []),
+      wo && wo.seller ? `<button data-wm="sel" data-n="${esc(wo.seller)}"><span>同じ販売者の作品（${esc(wo.seller)}）</span><kbd></kbd></button>` : '',
+      k ? '<hr>' + btn('copy', `品番をコピー（${esc(k.label)}）`) : '',
+    ].join('');
+    document.body.appendChild(m);
+    const w = m.offsetWidth || 240, h = m.offsetHeight || 300;
+    m.style.left = Math.max(8, Math.min(x, innerWidth - w - 8)) + 'px'; m.style.top = Math.max(8, Math.min(y, innerHeight - h - 8)) + 'px';
+    const items = () => [...m.querySelectorAll('button:not(:disabled)')];
+    m.addEventListener('click', (ev) => {
+      const b = ev.target.closest('[data-wm]'); if (!b || b.disabled) return; ev.stopPropagation();
+      const a = b.dataset.wm; closeCtx();
+      if (a === 'pv') o.preview ? o.preview() : playFile(o.id);
+      else if (a === 'ext') { if (o.beforeExt) o.beforeExt(); openExternal(o.id, '', name); }
+      else if (a === 'loc') { if (document.getElementById('pd-lib')) libReveal(o.id); else { if (view !== 'tree') openTree(); revealInTree(o.id); } }
+      else if (a === 'info') { if (o.info) o.info(); }
+      else if (a === 'act') openPeople('act', b.dataset.n);
+      else if (a === 'sel') openPeople('sel', b.dataset.n);
+      else if (a === 'copy') { try { navigator.clipboard.writeText(k.label); } catch (e) { /* 無視 */ } status('品番をコピーしました：' + k.label); }
+    });
+    // キー操作：↑↓で選ぶ・Enter で決定・Esc で閉じる
+    m.addEventListener('keydown', (ev) => {
+      const it = items(), i = it.indexOf(document.activeElement);
+      if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') { ev.preventDefault(); const n = it.length; if (n) it[(i + (ev.key === 'ArrowDown' ? 1 : n - 1) + (i < 0 && ev.key === 'ArrowUp' ? 1 : 0)) % n].focus(); }
+      else if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); closeCtx(); if (o.el) o.el.focus(); }
+    });
+    if (o.kbd) { const f0 = items()[0]; if (f0) f0.focus(); }
+  }
+  // 開いているメニューは Esc で先に閉じる（後ろの一覧やプレーヤーは閉じない）
+  addEventListener('keydown', (e) => { if (e.key !== 'Escape') return; const m = document.getElementById('pd-ctx'); if (!m) return; e.preventDefault(); e.stopImmediatePropagation(); const back = libSt && libSt.cur && document.querySelector(`#pd-lib [data-lbc="${CSS.escape(libSt.cur)}"]`); closeCtx(); if (back) back.focus(); }, true);
+  // スマホ・タブレット：長押しで右クリックと同じメニューを出す
+  function longPress(el, sel, fn) {
+    let t = 0, sx = 0, sy = 0;
+    el.addEventListener('touchstart', (e) => { const c = e.target.closest(sel); if (!c || e.touches.length !== 1) return; sx = e.touches[0].clientX; sy = e.touches[0].clientY; clearTimeout(t); t = setTimeout(() => { t = 0; fn(c, sx, sy); }, 550); }, { passive: true });
+    const stop = () => { clearTimeout(t); t = 0; };
+    el.addEventListener('touchmove', (e) => { if (t && Math.abs(e.touches[0].clientX - sx) + Math.abs(e.touches[0].clientY - sy) > 10) stop(); }, { passive: true });
+    el.addEventListener('touchend', stop); el.addEventListener('touchcancel', stop);
+  }
   // 追加したときに不要と判定したファイル（すべて保存になったため一緒に保存されたもの）を、ダウンロードが終わったらゴミ箱へ移す
   //   名前（フォルダの中の位置も含む）と大きさが両方合うものだけ。ゴミ箱なので元に戻せる。7 日たっても終わらないものはあきらめる
   let junkSweeping = false;
@@ -6915,7 +7070,7 @@
     } catch (e) { if (!e.session) log('warn', '追加後の不要ファイルの片付けに失敗：' + (e.message || e)); }
     finally { junkSweeping = false; }
   }
-  const LIB_GRID = new Set(['recent', 'cont', 'cand', 'hist', 'star']);
+  const LIB_GRID = new Set(['recent', 'cont', 'people', 'cand', 'hist', 'star']);
   async function libFetch(tab) {
     if (tab === 'dl') {
       const d = await api(`/tasks?type=offline&limit=100&thumbnail_size=SIZE_SMALL&filters=${encF({ phase: { in: 'PHASE_TYPE_RUNNING,PHASE_TYPE_PENDING,PHASE_TYPE_ERROR,PHASE_TYPE_COMPLETE' } })}`);
@@ -6986,6 +7141,17 @@
       }
       return out;
     }
+    if (tab === 'people') {
+      if (!hasScan()) return null;
+      const P = peopleIndex();
+      if (pplWant) { libSt.pmode = pplWant.mode; libSt.pname = pplWant.name; pplWant = null; }
+      if (!libSt.pmode) libSt.pmode = lsGet('ppdup:pplmode:v1') === 'sel' ? 'sel' : 'act';
+      const m = libSt.pmode === 'sel' ? P.sel : P.act;
+      if (!libSt.pname || !m.has(libSt.pname)) libSt.pname = (pplNames(m, '')[0] || [''])[0];
+      return (m.get(libSt.pname) || []).map((k) => P.works.get(k)).filter(Boolean)
+        .sort((a, b) => Date.parse(b.file.ct || 0) - Date.parse(a.file.ct || 0))
+        .map((o) => ({ id: o.file.id, name: o.file.name, size: o.file.size, at: o.file.ct, path: o.file.path, thumb: o.file.thumb || '', work: o }));
+    }
     // 最近追加したもの：読み込んだ内容から（追加日の新しい順）
     if (!hasScan()) return null;
     const lim = Date.now() - libSt.days * 864e5;
@@ -7017,6 +7183,9 @@
         }
         if (b.disabled) return;
         const x = b.dataset;
+        if (x.lbpm) { libSt.pmode = x.lbpm; libSt.pname = ''; libSt.pq = ''; lsSet('ppdup:pplmode:v1', x.lbpm); libLoad('people'); return; }
+        if (x.lbpn !== undefined) { libSt.pname = x.lbpn; libLoad('people'); return; }
+        if (x.lbpj) { libSt.pmode = x.lbpj; libSt.pname = x.n; libSt.pq = ''; libLoad('people'); return; }
         if (x.lbclose !== undefined) { if (!libSt.busy) closeLib(); }
         else if (x.lbtab) { if (!libSt.busy) libLoad(x.lbtab); }
         else if (x.lbdays) { libSt.days = +x.lbdays; libLoad('recent'); }
@@ -7045,6 +7214,22 @@
         if (e.key === 'Enter') { e.preventDefault(); const it = libItem(c.dataset.lbc); if (libIsVid(it)) libPlayDefault(it); else if (it) libReveal(it.id); }
         else if (e.key === ' ') { e.preventDefault(); c.click(); const it = libItem(c.dataset.lbc); if (libIsVid(it)) libPreview(it.id, { armed: true }); }
       });
+      // 名前で絞り込む（入力のたびに左の一覧だけ描き直す）
+      d.addEventListener('input', (e) => {
+        const t = e.target; if (!libSt || t.dataset.lbpq === undefined) return;
+        libSt.pq = t.value; const side = d.querySelector('.pp-side'); if (!side) return;
+        const pos = t.selectionStart; side.outerHTML = pplSideHtml();
+        const ni = d.querySelector('[data-lbpq]'); if (ni) { ni.focus(); try { ni.setSelectionRange(pos, pos); } catch (er) { /* 無視 */ } }
+      });
+      // 右クリック・長押し・Shift+F10（メニューキー）で作品のメニュー
+      const libMenu = (c, x, y, kbd) => {
+        const it = libItem(c.dataset.lbc); if (!it || it.folder) return;
+        libSt.cur = it.id; d.querySelectorAll('[data-lbc].cur').forEach((q) => q.classList.remove('cur')); c.classList.add('cur');
+        workMenu(x, y, { id: it.id, name: it.name, el: c, kbd, preview: () => libPreview(it.id), beforeExt: () => libPvClose(), info: () => libPreview(it.id).then(() => { const pv = d.querySelector('.lb-pv'); if (pv) pvInfoToggle(pv, it.id, it.name); }) });
+      };
+      d.addEventListener('contextmenu', (e) => { const c = e.target.closest('[data-lbc]'); if (!c || !libSt) return; e.preventDefault(); libMenu(c, e.clientX, e.clientY); });
+      longPress(d, '[data-lbc]', (c, x, y) => { if (libSt) libMenu(c, x, y); });
+      d.addEventListener('keydown', (e) => { if (!((e.key === 'F10' && e.shiftKey) || e.key === 'ContextMenu')) return; const c = e.target.closest && e.target.closest('[data-lbc]'); if (!c || !libSt) return; e.preventDefault(); const r = c.getBoundingClientRect(); libMenu(c, r.left + 20, r.top + 20, true); });
       d.addEventListener('change', (e) => {
         const t = e.target; if (!libSt) return;
         if (t.dataset.lbi !== undefined) { if (t.checked) libSt.sel.add(t.dataset.lbi); else libSt.sel.delete(t.dataset.lbi); renderLib(); }
@@ -7226,9 +7411,17 @@
       else body = `<div class="lb-lst ${lv}">${S.items.map(li).join('')}</div>`;
     }
     else body = S.items.map(row).join('');
+    if (tab === 'people' && S.err !== 'scan') {
+      const P = !S.loading && S.pname ? peopleIndex() : null;
+      const ks = P ? ((S.pmode === 'sel' ? P.sel : P.act).get(S.pname) || []) : [];
+      // 出演者を見ているときは販売者の内訳、販売者のときは出演者の内訳
+      const cnt = new Map(); ks.forEach((k) => { const o = P.works.get(k); (S.pmode === 'sel' ? (o.actors.length ? o.actors : [NO_ACT]) : [o.seller || NO_SEL]).forEach((n) => cnt.set(n, (cnt.get(n) || 0) + 1)); });
+      const sub = [...cnt.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6).map(([n2, c]) => `<button class="pp-chip" data-lbpj="${S.pmode === 'sel' ? 'act' : 'sel'}" data-n="${esc(n2)}">${esc(n2)} ${c}</button>`).join('');
+      body = `<div class="pp-wrap">${pplSideHtml()}<div class="pp-main">${S.pname ? `<div class="pp-hd"><b>${esc(S.pname)}</b><span class="note">${S.items.length} 作品</span><span class="pp-sub"><span class="note">${S.pmode === 'sel' ? '出演者：' : '販売者：'}</span>${sub}</span></div>` : ''}${body}</div></div>`;
+    }
     const n = S.sel.size, dis = S.busy || S.loading ? ' disabled' : '';
     const pvTip = `スペースでプレビュー（止まった状態で開きます。画質はプレビューの中で選べます）、ダブルクリック・Enter は設定の「再生のしかた」（${esc(prefLabel())}）で開きます。本編は「↗ 外部プレーヤー」（オリジナル画質）がおすすめ。`;
-    const note = { dl: 'リンク・マグネットで追加したもの（直近 60 日）。すぐ保存した分は保存先にあるかを、クラウドダウンロードの分は進み具合を確かめて表示します。「一覧から外す」は記録とタスクを消すだけで、保存したファイルは消しません。', recent: '追加日の新しい順（読み込んだ範囲：' + esc(dirLabel((scanRoot() || {}).id) || '—') + '）。' + pvTip, cand: '見ながら仕分けで「消す候補」にしたもの。選んで「ゴミ箱へ」で PikPak のゴミ箱へ移します（すぐには消しません）。', cont: '途中で止めた動画（新しい順）。開くと前回の続きから再生します。', hist: 'Dedupe と PikPak で再生した動画（新しい順）。Dedupe で再生した分はこのブラウザに記録します。' + pvTip, star: 'PikPak でスターを付けた項目。' + pvTip, trash: `ゴミ箱の中身${quota ? `（${fmtCap(quota.trash)}）` : ''}。「完全に削除」「空にする」は元に戻せません。` }[tab];
+    const note = { people: '作品の情報から、出演者・販売者ごとに作品を並べます（フォルダは動かしません）。右クリック・長押しでメニュー。', dl: 'リンク・マグネットで追加したもの（直近 60 日）。すぐ保存した分は保存先にあるかを、クラウドダウンロードの分は進み具合を確かめて表示します。「一覧から外す」は記録とタスクを消すだけで、保存したファイルは消しません。', recent: '追加日の新しい順（読み込んだ範囲：' + esc(dirLabel((scanRoot() || {}).id) || '—') + '）。' + pvTip, cand: '見ながら仕分けで「消す候補」にしたもの。選んで「ゴミ箱へ」で PikPak のゴミ箱へ移します（すぐには消しません）。', cont: '途中で止めた動画（新しい順）。開くと前回の続きから再生します。', hist: 'Dedupe と PikPak で再生した動画（新しい順）。Dedupe で再生した分はこのブラウザに記録します。' + pvTip, star: 'PikPak でスターを付けた項目。' + pvTip, trash: `ゴミ箱の中身${quota ? `（${fmtCap(quota.trash)}）` : ''}。「完全に削除」「空にする」は元に戻せません。` }[tab];
     const all = selectable && S.items.length ? `<label class="note lb-all"><input type="checkbox" data-lball${n && n === S.items.length ? ' checked' : ''}${dis}> すべて選ぶ</label>` : '';
     const html = `<div class="lk-box" role="dialog" aria-label="${esc(LIB_TABS.find((x) => x[0] === tab)[1])}"><div class="lk-hd"><b>${LIB_TABS.find((x) => x[0] === tab)[1]}</b><span class="note">${S.items.length && !S.loading ? S.items.length + ' 項目' : ''}</span><span class="sp"></span>${grid ? `<span class="seg lb-vw" title="表示のしかた">${[['list', tab === 'recent' ? '🌲 ツリー' : '☰ リスト'], ['thumb', '▤ サムネイル'], ['tile', '▦ タイル']].map(([k, l]) => `<button data-lbview="${k}" class="${lv === k ? 'on' : ''}">${l}</button>`).join('')}</span>${lv === 'list' && tab === 'recent' ? '<span class="seg"><button data-lbtall="open" title="すべて開く">⊞ 全展開</button><button data-lbtall="close" title="すべて閉じる">⊟ 全格納</button></span>' : ''}<button data-lbauto class="${libAuto() ? 'on' : ''}" title="プレビューで動画が終わったら、次の動画を続けて再生します">${libAuto() ? '✓ ' : ''}続けて再生</button>` : ''}${grid && lv === 'tile' ? `<span class="seg lb-sz" title="サムネイルの大きさ">${[['s', '小'], ['m', '中'], ['l', '大']].map(([k, l]) => `<button data-lbsz="${k}" class="${lsz === k ? 'on' : ''}">${l}</button>`).join('')}</span>` : ''}<button data-lbreload title="読み込み直す"${dis}>更新</button><button class="x" data-lbclose title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
       <div class="lb-tabs">${tabs}</div>

@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.22.1
+// @version      4.22.2
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -121,7 +121,7 @@
       const row = [...document.querySelectorAll('tr')].find((tr) => { const th = tr.querySelector('th'); return th && /販売者|Seller/i.test(th.textContent); })
         || [...document.querySelectorAll('div,li,dl,p')].filter((el) => /^\s*(販売者|Sellers?)\s*[：:]?/i.test(el.textContent) && el.querySelector('a[href*="/writers/"]')).sort((x, y) => x.textContent.length - y.textContent.length)[0];
       let a = row ? row.querySelector('a[href*="/writers/"]') : null;
-      if (a && NAV.test(sidOf(a, /\/writers\/([^/?#]+)/))) a = null;
+      if (a && (NAV.test(sidOf(a, /\/writers\/([^/?#]+)/)) || /^(販売者|Sellers?|賣家|卖家)$/i.test(a.textContent.trim()))) a = null;
       if (!a && challenge()) { send({ status: 'challenge', gate: gate() }); return; }
       if (!a && /^404|ページが見つかりません|Not Found/i.test(document.title)) { send({ status: 'notfound' }); return; }
       const fin = (d) => { if (sent) return; sent = true; try { mo.disconnect(); } catch (e) { /* 無視 */ } send(d); };
@@ -175,7 +175,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.22.1'; // @version と合わせて更新する
+  const VER = '4.22.2'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -3741,7 +3741,18 @@
       const rec = sellerDb[key];
       if (rec && NAVSID.test(rec.sid || '')) { const f = o.sellers.fd2ppv; if (f) sellerDb[key] = { name: f.name, sid: f.sid, src: 'fd2ppv', status: 'ok', at: Date.now() }; else delete sellerDb[key]; saveSellerDb(); }
     });
-    if (fixed) { lsSetJson(LS_WINFO, wInfo); setTimeout(() => { try { log('info', `fc2cmadb の販売者名の読み違い（メニューの「販売者」）を ${fixed} 件消しました`); } catch (e) { /* 無視 */ } }, 0); }
+    // 作品の情報に fc2cmadb の記録が残っていない（前の版で調べた・調べ直して上書きされた）ものも、販売者の記録そのものから見つけて直す
+    const BADNAME = /^(販売者|Sellers?|賣家|卖家)$/i;
+    let fixed2 = 0;
+    Object.entries(sellerDb).forEach(([key, rec]) => {
+      if (!rec || rec.src === 'manual' || !(NAVSID.test(rec.sid || '') || BADNAME.test(String(rec.name || '').trim()))) return;
+      const o = wInfo[key]; const ok = o && o.sellers && Object.values(o.sellers).find((x) => x && x.sid && !NAVSID.test(x.sid) && !BADNAME.test(String(x.name || '').trim()));
+      if (ok) sellerDb[key] = { name: ok.name, sid: ok.sid, src: ok === (o.sellers.fd2ppv || null) ? 'fd2ppv' : 'fc2cmadb', status: 'ok', at: Date.now() }; else delete sellerDb[key];
+      if (o) { Object.keys(o.sellers || {}).forEach((st) => { const x = o.sellers[st]; if (x && (NAVSID.test(x.sid || '') || BADNAME.test(String(x.name || '').trim()))) delete o.sellers[st]; }); delete o.ack; }
+      fixed2++;
+    });
+    if (fixed2) { saveSellerDb(); }
+    if (fixed || fixed2) { lsSetJson(LS_WINFO, wInfo); setTimeout(() => { try { log('info', `販売者名の読み違い（メニューの「販売者」）を ${fixed + fixed2} 件直しました。ほかのサイトで分かっているものはその名前に、分からないものは未調査に戻しました（「販売者を調べる」で調べ直せます）`); } catch (e) { /* 無視 */ } }, 0); }
   })();
   function saveWorkInfo(k, r) {
     const i = r.info || {}, o = wInfo[k.key] || {}, site = i.site || r.src || '';

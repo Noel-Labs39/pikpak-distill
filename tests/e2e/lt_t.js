@@ -9,7 +9,7 @@ const fs = require('fs');
   const { b, p, SP } = await open({ '': [{ id: 'F', name: 'サンプル', kind: 'drive#folder' }], F: [mk('a', 'FC2-PPV-1234567.mp4'), mk('b', 'FC2-PPV-7654321.mp4'), mk('c', 'FC2-PPV-1111111.mp4')] }, 'https://mypikpak.com/drive/all', pre);
   console.log('後始末', await p.evaluate(() => [JSON.parse(localStorage.getItem('ppdup:seller:v1'))['1111111'], JSON.parse(localStorage.getItem('ppdup:winfo:v1'))['1111111'].sellers]));
   const ctx = p.context();
-  const SRC = fs.readFileSync('/home/claude/pikpak-distill/pikpak-distill.user.js', 'utf8');
+  const SRC = fs.readFileSync(require('path').join(__dirname, '..', '..', 'pikpak-distill.user.js'), 'utf8');
   await ctx.addInitScript({ content: `if (/fd2ppv|fc2cmadb/.test(location.hostname)) addEventListener('DOMContentLoaded', () => { ${SRC} });` });
   const hits = [];
   await ctx.route('https://fd2ppv.cc/**', (r) => { const u = r.request().url(); hits.push('fd:' + (u.match(/articles\/(\d+)/) || [, 'top'])[1]);

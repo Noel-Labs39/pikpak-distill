@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.21.0
+// @version      4.21.1
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -175,7 +175,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.21.0'; // @version と合わせて更新する
+  const VER = '4.21.1'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -6883,11 +6883,44 @@
   let libSt = null, libBadge = { dl: 0, trash: 0 };
   const encF = (o) => encodeURIComponent(JSON.stringify(o));
   const phaseTxt = { PHASE_TYPE_RUNNING: 'ダウンロード中', PHASE_TYPE_PENDING: '順番待ち', PHASE_TYPE_ERROR: '失敗', PHASE_TYPE_COMPLETE: '完了' };
+  // 追加したときに不要と判定したファイル（すべて保存になったため一緒に保存されたもの）を、ダウンロードが終わったらゴミ箱へ移す
+  //   名前（フォルダの中の位置も含む）と大きさが両方合うものだけ。ゴミ箱なので元に戻せる。7 日たっても終わらないものはあきらめる
+  let junkSweeping = false;
+  async function addJunkSweep(tasks) {
+    if (junkSweeping || !sessionValid()) return;
+    const logs = addLogRead(); const todo = logs.filter((r) => r.junk && !r.jdone && Date.now() - r.at < 7 * 864e5);
+    if (!todo.length) return;
+    junkSweeping = true;
+    try {
+      if (!tasks) { const d = await api(`/tasks?type=offline&limit=100&filters=${encodeURIComponent(JSON.stringify({ phase: { in: 'PHASE_TYPE_RUNNING,PHASE_TYPE_PENDING,PHASE_TYPE_ERROR,PHASE_TYPE_COMPLETE' } }))}`); tasks = new Map((d.tasks || []).map((t) => [t.id, t])); }
+      for (const r of todo) {
+        const t = r.task && tasks.get(r.task);
+        if (t && t.phase !== 'PHASE_TYPE_COMPLETE') { if (t.phase === 'PHASE_TYPE_ERROR') r.jdone = true; continue; }
+        const fid = (t && t.file_id) || r.fid; if (!fid) continue;
+        const want = new Map(r.junk.map((j) => [j.p + '|' + j.s, j]));
+        const hit = [];
+        const walk = async (id, pre, depth) => { for (const x of await apiList(id)) { if (x.kind === 'drive#folder') { if (depth < 6) await walk(x.id, pre + x.name + '/', depth + 1); } else if (want.has((pre + x.name).toLowerCase() + '|' + (+x.size || 0))) hit.push(x); } };
+        let top = null; try { top = await apiGet(fid); } catch (e) { if (e.session) throw e; }
+        if (!top || top.trashed) { r.jdone = true; continue; }
+        if (top.kind === 'drive#folder') await walk(fid, '', 0);
+        if (hit.length) {
+          await api('/files:batchTrash', { method: 'POST', body: JSON.stringify({ ids: hit.map((x) => x.id) }) });
+          const gone = new Set(hit.map((x) => x.id)); files = files.filter((f) => !gone.has(f.id)); saveAll();
+          log('info', `追加後に不要ファイル ${hit.length} 件をゴミ箱へ移しました（${hit.map((x) => x.name).slice(0, 5).join('、')}）`, r.name);
+        }
+        r.jdone = true;
+      }
+      const byId = new Map(todo.map((r) => [r.lid, r]));
+      addLogWrite(addLogRead().map((r) => byId.get(r.lid) || r));
+    } catch (e) { if (!e.session) log('warn', '追加後の不要ファイルの片付けに失敗：' + (e.message || e)); }
+    finally { junkSweeping = false; }
+  }
   const LIB_GRID = new Set(['recent', 'cont', 'cand', 'hist', 'star']);
   async function libFetch(tab) {
     if (tab === 'dl') {
       const d = await api(`/tasks?type=offline&limit=100&thumbnail_size=SIZE_SMALL&filters=${encF({ phase: { in: 'PHASE_TYPE_RUNNING,PHASE_TYPE_PENDING,PHASE_TYPE_ERROR,PHASE_TYPE_COMPLETE' } })}`);
       const tasks = new Map((d.tasks || []).map((t) => [t.id, t]));
+      addJunkSweep(tasks);
       const ST = { PHASE_TYPE_RUNNING: 'run', PHASE_TYPE_PENDING: 'wait', PHASE_TYPE_ERROR: 'err', PHASE_TYPE_COMPLETE: 'ok' };
       const lim = Date.now() - 60 * 864e5;
       const logs = addLogRead().filter((r) => r.at >= lim);
@@ -7452,6 +7485,8 @@
     const c = syncCfg(); if (!c.on || !c.asked || syncBusy || scanning || !sessionValid()) return; // 読み込み中は同期しない（通信を読み込みに回す）
     if (syncTouch() || Date.now() - syncAt > 10 * 60e3) syncNow(Date.now() - syncAt > 10 * 60e3 ? '定期' : '変更');
   }, 20e3);
+  // 追加したもののダウンロードが終わったかを 2 分おきに見て、不要ファイルを片付ける（読み込み中・操作中は休む）
+  setInterval(() => { if (!busy && !scanning) addJunkSweep(); }, 120e3);
   // ---------- 一括解凍（PikPak のサーバー側で解凍する。成功したパスワードを記録して次から自動で試す） ----------
   const LS_UNZIPPW = 'ppdup:unzippw:v1';
   const DEC = 'https://api-drive.mypikpak.com/decompress/v1';
@@ -7771,7 +7806,7 @@
         it.exists = findInLib(it.name) || (it.files.length && it.files.every((f) => f.exists || f.junk) && it.files.some((f) => f.exists) ? it.files.find((f) => f.exists).exists : null);
         it.on = !it.exists;
         // 一部だけにしたいのにキャッシュがないファイルを含むときは、すべて保存に戻す
-        if (addMode(it) === 'part' && it.files.some((f) => f.on && !f.gcid)) { it.files.forEach((f) => { f.on = true; }); it.note = 'キャッシュがないファイルがあるため、広告ファイルも含めてすべて保存します'; }
+        if (addMode(it) === 'part' && it.files.some((f) => f.on && !f.gcid)) { it.files.forEach((f) => { f.on = true; }); it.note = 'キャッシュがないファイルがあるため、すべて保存します（不要と判定したファイルは、ダウンロードが終わったら自動でゴミ箱へ移します）'; }
         it.st = 'ok';
       } catch (err) {
         if (err.session) { try { sessionStorage.setItem(SS_ADDTEXT, addSt.text); } catch (e) { /* 無視 */ } addSt.busy = false; handleErr(err, view); return; }
@@ -7952,7 +7987,9 @@
           const body = { kind: 'drive#file', upload_type: 'UPLOAD_TYPE_URL', url: { url: it.url }, params: { with_thumbnail: 'true', from: 'manual' } };
           if (pid) body.parent_id = pid; else body.folder_type = 'DOWNLOAD';
           const res = await api('/files', { method: 'POST', captcha: 'POST:/drive/v1/files', body: JSON.stringify(body) });
-          addLogPush({ mode: 'all', name: it.name || it.rootName || it.url, task: (res && res.task && res.task.id) || '', fid: (res && res.file && res.file.id) || '', url: it.url, size: it.files ? it.files.reduce((a, f) => a + (+f.size || 0), 0) : 0 });
+          // すべて保存になったときも、不要と判定したファイル（広告など）は覚えておき、ダウンロードが終わったらゴミ箱へ移す
+          const junk = (it.files || []).filter((f) => f.junk).map((f) => ({ p: ((f.dir ? f.dir + '/' : '') + f.name).toLowerCase(), s: +f.size || 0, r: f.junk }));
+          addLogPush({ mode: 'all', name: it.name || it.rootName || it.url, task: (res && res.task && res.task.id) || '', fid: (res && res.file && res.file.id) || '', url: it.url, size: it.files ? it.files.reduce((a, f) => a + (+f.size || 0), 0) : 0, ...(junk.length ? { junk } : {}) });
         }
         ok++; it.on = false; it.done = true;
         log('info', `リンクを追加（${addMode(it) === 'part' ? '一部だけ保存' : 'クラウドダウンロード'}）：${it.name || it.url}`);
@@ -8203,5 +8240,5 @@
   resumeAfterReload();
   ddStart();
 
-  window.PPDup = { visHooks, buildCleanPlan, buildSortPlan, buildRenamePlan, get folders() { return folders; }, scanApi, buildGroups, render, get files() { return files; }, set files(v) { files = v; } };
+  window.PPDup = { visHooks, addJunkSweep, buildCleanPlan, buildSortPlan, buildRenamePlan, get folders() { return folders; }, scanApi, buildGroups, render, get files() { return files; }, set files(v) { files = v; } };
 })();

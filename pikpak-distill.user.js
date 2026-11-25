@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.22.0
+// @version      4.22.1
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -175,7 +175,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.22.0'; // @version と合わせて更新する
+  const VER = '4.22.1'; // @version と合わせて更新する
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -1958,7 +1958,7 @@
   #pd-lib .pp-wrap{display:flex;gap:16px;align-items:flex-start;min-height:60vh}
   #pd-lib .pp-side{width:260px;flex:0 0 auto;display:flex;flex-direction:column;gap:10px;position:sticky;top:0}
   #pd-lib .pp-mode{display:flex;gap:6px}
-  #pd-lib .pp-mode button{flex:1;height:34px;border-radius:17px;border:1px solid var(--line,#dde0e6);background:var(--bg2,#fff);color:var(--fg);font-weight:700;cursor:pointer}
+  #pd-lib .pp-mode button{flex:1;height:34px;border-radius:17px;border:1px solid var(--line,#dde0e6);background:transparent;color:var(--fg);font-weight:700;cursor:pointer}
   #pd-lib .pp-mode button.on{background:var(--pri,#306fff);border-color:var(--pri,#306fff);color:#fff}
   #pd-lib .pp-q{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mute)}
   #pd-lib .pp-q input{height:34px;border:1px solid var(--line,#dde0e6);border-radius:8px;padding:0 10px;font-size:14px;background:var(--bg2,#fff);color:var(--fg)}
@@ -1967,7 +1967,8 @@
   #pd-lib .pp-names button:hover{background:var(--hov,#0000000d)}
   #pd-lib .pp-names button.on{background:var(--pri-soft,#306fff1f);font-weight:700}
   #pd-lib .pp-names button.mu{color:var(--mute)}
-  #pd-lib .pp-names i{font-style:normal;color:var(--mute);font-size:12px;white-space:nowrap}
+  #pd-lib .pp-names span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #pd-lib .pp-names i{flex:0 0 auto;font-style:normal;color:var(--mute);font-size:12px;white-space:nowrap}
   #pd-lib .pp-main{flex:1;min-width:0}
   #pd-lib .pp-hd{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 12px;margin:0 0 12px}
   #pd-lib .pp-hd b{font-size:18px}
@@ -6978,7 +6979,7 @@
     const list = pplNames(m, S.pq || '');
     return `<div class="pp-side"><div class="pp-mode" role="tablist">${[['act', '出演者'], ['sel', '販売者']].map(([k, l]) => `<button role="tab" aria-selected="${S.pmode === k}" data-lbpm="${k}" class="${S.pmode === k ? 'on' : ''}">${l}</button>`).join('')}</div>
       <label class="pp-q"><span>名前で絞り込む</span><input type="search" data-lbpq value="${esc(S.pq || '')}" placeholder="例：さんぷる"></label>
-      <div class="pp-names">${list.length ? list.slice(0, 400).map(([n, c]) => `<button data-lbpn="${esc(n)}" class="${n === S.pname ? 'on' : ''}${n === NO_ACT || n === NO_SEL ? ' mu' : ''}"><span>${esc(n)}</span><i>${c} 作品</i></button>`).join('') : '<div class="note" style="padding:8px">見つかりません</div>'}</div>
+      <div class="pp-names">${list.length ? list.slice(0, 400).map(([n, c]) => `<button data-lbpn="${esc(n)}" title="${esc(n)}（${c} 作品）" class="${n === S.pname ? 'on' : ''}${n === NO_ACT || n === NO_SEL ? ' mu' : ''}"><span>${esc(n)}</span><i>${c} 作品</i></button>`).join('') : '<div class="note" style="padding:8px">見つかりません</div>'}</div>
       <div class="note pp-hint">作品の情報（「作品の情報をまとめて調べる」・プレーヤーの ⓘ）から作ります。フォルダは動かしません。</div></div>`;
   }
   function openPeople(mode, name) {
@@ -7183,7 +7184,7 @@
         }
         if (b.disabled) return;
         const x = b.dataset;
-        if (x.lbpm) { libSt.pmode = x.lbpm; libSt.pname = ''; libSt.pq = ''; lsSet('ppdup:pplmode:v1', x.lbpm); libLoad('people'); return; }
+        if (x.lbpm) { libSt.pmode = x.lbpm; libSt.pname = ''; libSt.pq = ''; libSt.ppScroll = 0; lsSet('ppdup:pplmode:v1', x.lbpm); libLoad('people'); return; }
         if (x.lbpn !== undefined) { libSt.pname = x.lbpn; libLoad('people'); return; }
         if (x.lbpj) { libSt.pmode = x.lbpj; libSt.pname = x.n; libSt.pq = ''; libLoad('people'); return; }
         if (x.lbclose !== undefined) { if (!libSt.busy) closeLib(); }
@@ -7218,7 +7219,7 @@
       d.addEventListener('input', (e) => {
         const t = e.target; if (!libSt || t.dataset.lbpq === undefined) return;
         libSt.pq = t.value; const side = d.querySelector('.pp-side'); if (!side) return;
-        const pos = t.selectionStart; side.outerHTML = pplSideHtml();
+        const pos = t.selectionStart; libSt.ppScroll = 0; side.outerHTML = pplSideHtml();
         const ni = d.querySelector('[data-lbpq]'); if (ni) { ni.focus(); try { ni.setSelectionRange(pos, pos); } catch (er) { /* 無視 */ } }
       });
       // 右クリック・長押し・Shift+F10（メニューキー）で作品のメニュー
@@ -7430,8 +7431,11 @@
       <div class="lk-ft">${libActs()}</div></div>`;
     // プレビューを開いたままでも一覧だけ描き直す（動画は止めない）
     const old = d.querySelector('.lk-box'); const sc = old ? (old.querySelector('.lk-list') || {}).scrollTop || 0 : 0;
+    // 出演者・販売者の名前の一覧は、選んだ位置のまま（一番上に戻さない）
+    const pn = old && old.querySelector('.pp-names'); if (pn) S.ppScroll = pn.scrollTop;
     if (old) old.outerHTML = html; else d.insertAdjacentHTML('afterbegin', html);
     if (sc) { const l = d.querySelector('.lk-list'); if (l) l.scrollTop = sc; }
+    if (S.ppScroll) { const l = d.querySelector('.pp-names'); if (l) l.scrollTop = S.ppScroll; }
   }
   // ---------- 新しいバージョンのお知らせ（12 時間に 1 回、GitHub の最新版の番号だけを確かめる） ----------
   const LS_UPD = 'ppdup:update:v1';

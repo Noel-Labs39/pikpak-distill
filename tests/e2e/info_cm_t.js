@@ -4,7 +4,7 @@ const fs = require('fs');
   const t = new Date().toISOString();
   const { b, p, SP } = await open({ '': [{ id: 'v1', name: 'FC2-PPV-1234567_サンプル題名.mp4', kind: 'drive#file', size: '2000000000', created_time: t }] }, 'https://mypikpak.com/drive/all#dd/tree/');
   const ctx = p.context();
-  const SRC = fs.readFileSync('/home/claude/pikpak-distill/pikpak-distill.user.js', 'utf8');
+  const SRC = fs.readFileSync(require('path').join(__dirname, '..', '..', 'pikpak-distill.user.js'), 'utf8');
   await ctx.addInitScript({ content: `if (/fd2ppv|fc2cmadb/.test(location.hostname)) addEventListener('DOMContentLoaded', () => { ${SRC} });` });
   let hits = { fd: 0, cm: 0 };
   await ctx.route('https://fd2ppv.cc/**', (r) => { hits.fd++; return r.fulfill({ contentType: 'text/html', body: '<html><head><meta charset="utf-8"><title>404 Not Found</title></head><body>404</body></html>' }); });

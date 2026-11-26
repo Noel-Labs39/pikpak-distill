@@ -2741,6 +2741,13 @@
     } else { $('[data-r=ppct]').textContent = ''; $('[data-r=psub]').textContent = ''; }
   };
 
+  // ---------- 共有している状態（読み込み結果・画面の状態・各ステップの計画） ----------
+  //   多くの部品から読み書きされる変数はここにまとめる（一覧は CLAUDE.md の「共有している状態」）
+  //   files / folders / meta … 読み込み結果（localStorage の scan / folders / scanmeta。保存は saveAll）
+  //   decision               … 重複で「残す／消す」を選んだ記録（ppdup:decision）
+  //   view / mode            … いま開いている画面（scan・dup・tree など）／1〜8 の流れで見せるか 1 つだけか
+  //   busy / afterScan       … 何か実行中か（ほかの操作を止める）／読み込みのあとに開く画面
+  //   splan・cplan・rplan・nplan・jplan … 各ステップの計画（作品ごとの仕分け・仕上げ・フォルダ名・ファイル名・不要ファイル）
   let folders = [];
   folders = lsJson(LS_FOLD, []);
   let files = [];
@@ -4685,6 +4692,11 @@
     d.querySelector('[data-go]').focus();
   }
 
+  // ---------- フォルダ一覧の状態（OS ごとのキー表示・開いているフォルダ・選択・並び） ----------
+  //   tree      … 並び・表示の仕方・開いているフォルダ（ppdup:tree に保存。保存は saveTree）
+  //   treeSel / treeCur / treeAnchor … 選んでいる行・いまの行・範囲選択の起点
+  //   treeRowsCache / treeIdx        … 描いた行の一覧と、その中の位置（キー操作用）
+  //   qlOpen / renaming              … クイックルックが開いているか／名前を変えている行
   const OS = (() => {
     const p = String((navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || navigator.userAgent || '');
     return /mac|iphone|ipad/i.test(p) ? 'mac' : /win/i.test(p) ? 'win' : 'linux';

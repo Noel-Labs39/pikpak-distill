@@ -29,7 +29,7 @@ Claude（Claude Code など）がこのリポジトリで作業するときに�
 - 配信先（Tampermonkey の自動更新・Mac アプリ）は main 直下の `pikpak-distill.user.js` を読むので、組み立てた結果もリポジトリに入れておく。
 - GitHub の試験が「`src/` から組み立てた結果と一致するか」を確かめる（`npm run check`）。
 - 部品は `src/<番号-分類>/<番号-名前>.js`。番号の順につなぐ。これらは「1 つの大きな関数を区切りごとに切ったもの」なので、部品どうしは同じ変数を共有している。
-- **判定と通信の部分は本当のモジュール（`src/core/*.mjs`）。** 品番の読み取り（`work-id.mjs`）、整理の判定（`plan.mjs`：重複・フォルダ名・作品ごとの仕分け・ファイル名・不要ファイル・仕上げ）、PikPak とのやり取り（`pikpak-api.mjs`：ログイン情報・確認用トークン・やり直しの決まり。fetch・保存領域・ログ・待ち時間は外から渡す）、左メニューの一覧の中身（`library.mjs`：出演者・販売者の索引・関連作品・続きを見る・消す候補・再生した履歴・最近の追加・ゴミ箱の取りこぼし。描くのは `src/70-lib`）。画面の変数には頼らず、必要なものは引数で受け取る。組み立てのときに esbuild で 1 つにまとめて `src/20-core/015-core.js` の印の場所に入れ、画面側からは今までと同じ名前で呼ぶ（画面側の状態を渡す包みもそこにある）。
+- **判定と通信の部分は本当のモジュール（`src/core/*.mjs`）。** 品番の読み取り（`work-id.mjs`）、整理の判定（`plan.mjs`：重複・フォルダ名・作品ごとの仕分け・ファイル名・不要ファイル・仕上げ）、PikPak とのやり取り（`pikpak-api.mjs`：ログイン情報・確認用トークン・やり直しの決まり。fetch・保存領域・ログ・待ち時間は外から渡す）、左メニューの一覧の中身（`library.mjs`：出演者・販売者の索引・関連作品・続きを見る・消す候補・再生した履歴・最近の追加・ゴミ箱の取りこぼし。描くのは `src/70-lib`）、8. 販売者の判定（`seller-plan.mjs`：品番の拾い方・販売者の決め方・仕分けの計画）。画面の変数には頼らず、必要なものは引数で受け取る。組み立てのときに esbuild で 1 つにまとめて `src/20-core/015-core.js` の印の場所に入れ、画面側からは今までと同じ名前で呼ぶ（画面側の状態を渡す包みもそこにある）。
 - 判定を直したら、`tests/unit/` に見本を足して `npm run test:unit` で確かめる。
 
 ## 版の番号（3 か所をそろえる）
@@ -59,6 +59,7 @@ node tests/e2e/run.js scan      # 名前に scan を含む試験だけ
 - `tests/unit/work-id.test.mjs`：品番の読み取りの見本（追加したら件数が増える）。
 - `tests/unit/plan.test.mjs`：整理の判定の試験（見本のファイル一覧から計画を確かめる。node:test）。
 - `tests/unit/library.test.mjs`：左メニューの一覧の中身の試験（索引・名前の並び・関連作品・続き・候補・履歴・最近・取りこぼし）。
+- `tests/unit/seller-plan.test.mjs`：販売者の判定の試験（品番の拾い方・決め方・計画：入れ子・販売者違い・同じ品番の複数フォルダなど）。
 - `tests/unit/pikpak-api.test.mjs`：PikPak とのやり取りの試験（模擬の返事で、混雑・ログイン切れ・認証コード・削除済み・通信失敗・複数ページを確かめる）。
 - `tests/e2e/*_t.js`：PikPak の画面と API を模した中でスクリプトを動かす試験。共通の試験台は `tests/e2e/h.js`（`open(tree, url, pre)`：`tree` がフォルダの中身、`pre` が読み込み前に動かすコード）。
   - 結果は `OK …` / `NG …` を 1 行ずつ出す。`NG` かページのエラー（`pageerr`）が出たら失敗。
@@ -76,7 +77,7 @@ node tests/e2e/run.js scan      # 名前に scan を含む試験だけ
 | `scanApi()` / `runScan()` | 1. 読み込み（同時 6 本・読めないフォルダは飛ばす・ログイン切れは続きから） |
 | StepKit | 3〜5・7 の共通の型（一覧・タブ・チェック・実行） |
 | 6. 重複 | `buildGroups()` |
-| 8. 販売者 | `buildSellerPlan()` / `runSeller()`。再調査したものは My Pack に戻して 1 から |
+| 8. 販売者 | `buildSellerPlan()`（`src/core/seller-plan.mjs`）/ `runSeller()`。再調査したものは My Pack に戻して 1 から |
 | 作品の情報 | `lookupAny()`（fd2ppv を先に、足りないときだけ fc2cmadb）・`wInfo`・`sellerDb` |
 | 簡易プレーヤー | `pvHeadHtml` / `pvFootHtml` / `pvWire`（共通の形）・情報の枠 `pvInfoRender` |
 | 左メニューの一覧 | `openLib` / `libFetch` / `renderLib`（最近の追加・出演者・販売者など）・右クリック `workMenu` |

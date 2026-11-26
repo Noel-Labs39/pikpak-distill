@@ -1,4 +1,5 @@
 // src/ の部品をつないで、配信用の pikpak-distill.user.js を作る
+//   判定の部品（src/core/*.mjs・本当のモジュール）は esbuild で 1 つにまとめ、印（/* @core-bundle */）の場所に入れる
 //   node scripts/build.js          … 作り直す
 //   node scripts/build.js --check  … 作り直した結果が、いまのファイルと 1 文字も違わないか確かめる（GitHub の試験で使う）
 // つなぐ順番は、フォルダ名・ファイル名の先頭の番号の順（00-header → 10-sites → 20-core → …）。
@@ -14,7 +15,17 @@ const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true })
   .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
   .forEach((e) => { const p = path.join(dir, e.name); if (e.isDirectory()) walk(p); else if (e.name.endsWith('.js')) parts.push(p); });
 walk(SRC);
-const text = parts.map((p) => fs.readFileSync(p, 'utf8')).join('');
+// 判定の部品をまとめる（PPCore という名前で、ユーザースクリプトの中だけで使う）
+function coreBundle() {
+  const r = require('esbuild').buildSync({
+    entryPoints: [path.join(SRC, 'core', 'index.mjs')], bundle: true, write: false,
+    format: 'iife', globalName: 'PPCore', target: 'es2020', charset: 'utf8', legalComments: 'none',
+  });
+  const code = r.outputFiles[0].text.trimEnd();
+  return '  // ↓ src/core/*.mjs から組み立て（ここは直接直さない）\n' + code.split('\n').map((l) => (l ? '  ' + l : l)).join('\n') + '\n  // ↑ ここまで\n';
+}
+const MARK = /^[ \t]*\/\* @core-bundle \*\/[ \t]*\n/m;
+const text = parts.map((p) => { const t = fs.readFileSync(p, 'utf8'); return MARK.test(t) ? t.replace(MARK, () => coreBundle()) : t; }).join('');
 
 if (process.argv.includes('--check')) {
   const now = fs.existsSync(OUT) ? fs.readFileSync(OUT, 'utf8') : '';

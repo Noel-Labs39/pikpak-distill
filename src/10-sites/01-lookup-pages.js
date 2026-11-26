@@ -146,7 +146,6 @@
   const mkEl = (id) => { const d = document.createElement('div'); d.id = id; document.body.appendChild(d); return d; };
   // </common>
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const NEAR = 0.015; // 最大サイズとの差が1.5%以内なら「サイズが近い」
   const LS_DECISION = 'ppdup:decision:v1';
   const LS_SCAN = 'ppdup:scan:v1';
   const LS_FOLD = 'ppdup:folders:v1';

@@ -80,6 +80,22 @@ node tests/e2e/run.js scan      # 名前に scan を含む試験だけ
 | 簡易プレーヤー | `pvHeadHtml` / `pvFootHtml` / `pvWire`（共通の形）・情報の枠 `pvInfoRender` |
 | 左メニューの一覧 | `openLib` / `libFetch` / `renderLib`（最近の追加・出演者・販売者など）・右クリック `workMenu` |
 
+### 共有している状態（多くの部品から読み書きされる変数）
+
+新しい部品から使うときは、ここに書いた置き場所を見る。書き換えたら、関係する画面を描き直す（`refreshView()` など）。
+
+| 変数 | 中身 | 置き場所 |
+| --- | --- | --- |
+| `files` / `folders` / `meta` | 読み込み結果（ファイル・フォルダ・いつどこを読んだか）。保存は `saveAll()` | `src/30-ui/125-state.js` |
+| `decision` | 重複で「残す／消す」を選んだ記録 | 同上 |
+| `view` / `mode` | いま開いている画面／1〜8 の流れで見せるか 1 つだけか | 同上 |
+| `busy` / `afterScan` | 実行中か（ほかの操作を止める）／読み込みのあとに開く画面 | 同上 |
+| `splan` `cplan` `rplan` `nplan` `jplan` | 各ステップの計画 | 同上 |
+| `LANG` | 表示の言語 | `src/30-ui/11-i18n.js` |
+| `tree` / `treeSel` / `treeCur` など | フォルダ一覧の並び・選択・いまの行 | `src/50-tree/235-tree-state.js` |
+| `sellerDb` / `wInfo` | 販売者の記録／作品の情報 | `src/40-steps/23-s8-seller.js` |
+| `libSt` | 左メニューの一覧（最近の追加・出演者・販売者など）の状態 | `src/70-lib/35-rail-lists.js` |
+
 保存先はブラウザの localStorage（キーは `ppdup:…:v1`）。主なもの：読み込み結果 `scan` / `folders` / `scanmeta`、販売者 `seller`、作品の情報 `winfo`、ログ `log`。
 保存の形を変えるときは、古い形を読み替える処理（起動時の後始末）を必ず付ける。
 

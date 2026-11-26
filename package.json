@@ -1,9 +1,11 @@
 {
   "name": "pikpak-distill",
   "private": true,
-  "description": "PikPak Distill の開発用（試験の実行のみ。配信物は pikpak-distill.user.js の 1 本）",
+  "description": "PikPak Distill の開発用（src/ を組み立てて pikpak-distill.user.js を作る・試験を動かす）",
   "scripts": {
-    "test": "node --check pikpak-distill.user.js && node tests/work-id.test.js && node tests/e2e/run.js",
+    "build": "node scripts/build.js",
+    "check": "node scripts/build.js --check",
+    "test": "node scripts/build.js --check && node --check pikpak-distill.user.js && node tests/work-id.test.js && node tests/e2e/run.js",
     "test:unit": "node tests/work-id.test.js",
     "test:e2e": "node tests/e2e/run.js"
   },

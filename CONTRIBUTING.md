@@ -15,7 +15,8 @@
 ## 流れ
 
 1. **作業ブランチを作る**　`main` から `feat/…` などを作成して開発します。
-2. **バージョンを上げる**　`pikpak-distill.user.js` の `@version` を上げます（下の「バージョンの付け方」）。
+2. **`src/` を直して組み立てる**　ソースは `src/` にあります。直したら `npm run build` で `pikpak-distill.user.js` を作り直し、両方をコミットします（`pikpak-distill.user.js` を直接直すと、GitHub の試験で「組み立てた結果と違う」と失敗します）。
+   **バージョンを上げる**　`src/00-header/00-meta.js` の `@version` と `src/10-sites/01-lookup-pages.js` の `VER` を上げます（下の「バージョンの付け方」）。
 3. **CHANGELOG を書く**　`CHANGELOG.md` の先頭に変更内容を追記します。
 4. **PR を作る**　`main` 向けの PR を作成します。本文には次を書きます。
    - 変更内容

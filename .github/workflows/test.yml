@@ -18,6 +18,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: src/ から組み立てた結果と一致するか
+        run: node scripts/build.js --check
       - name: 構文チェック
         run: node --check pikpak-distill.user.js
       - name: 品番の読み取りの見本

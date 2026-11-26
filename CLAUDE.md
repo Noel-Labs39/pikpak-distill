@@ -23,10 +23,17 @@ Claude（Claude Code など）がこのリポジトリで作業するときに�
 - キーボードで操作できるようにする（Esc は「いちばん手前のものだけ閉じる」）。スマホでは長押しを右クリックの代わりにする。
 - ライト・ダーク両方で見え方を確かめる。
 
+## ソースの置き場所（直すのは src/）
+
+- **`pikpak-distill.user.js` は直接直さない。** `src/` の部品をつないで作る（`npm run build`）。直したら必ず組み立てて、両方をコミットする。
+- 配信先（Tampermonkey の自動更新・Mac アプリ）は main 直下の `pikpak-distill.user.js` を読むので、組み立てた結果もリポジトリに入れておく。
+- GitHub の試験が「`src/` から組み立てた結果と一致するか」を確かめる（`npm run check`）。
+- 部品は `src/<番号-分類>/<番号-名前>.js`。番号の順につなぐ。いまは「1 つの大きな関数を区切りごとに切っただけ」なので、部品どうしは同じ変数を共有している（本当のモジュールにするのは次の段階）。
+
 ## 版の番号（3 か所をそろえる）
 
-- `pikpak-distill.user.js` の `// @version`
-- 同じファイルの `const VER = '…'`
+- `src/00-header/00-meta.js` の `// @version`
+- `src/10-sites/01-lookup-pages.js` の `const VER = '…'`
 - `CHANGELOG.md` の先頭（`# 変更履歴` の下に `## X.Y.Z`、新しいものが上）
 
 `main` にマージされると自動でリリースされる（`.github/workflows/release.yml`）。
@@ -41,7 +48,8 @@ Claude（Claude Code など）がこのリポジトリで作業するときに�
 ```bash
 npm install                     # 初回だけ（playwright）
 npx playwright install chromium # 初回だけ
-npm test                        # 構文チェック＋品番の見本＋画面の試験すべて
+npm run build                   # src/ から pikpak-distill.user.js を組み立てる
+npm test                        # 組み立ての一致＋構文チェック＋品番の見本＋画面の試験すべて
 node tests/e2e/run.js scan      # 名前に scan を含む試験だけ
 ```
 
@@ -51,9 +59,9 @@ node tests/e2e/run.js scan      # 名前に scan を含む試験だけ
   - スクリーンショットは `tests/e2e/out/`（git に入れない）。
 - GitHub Actions（`.github/workflows/test.yml`）が PR ごとに全部を実行する。
 
-## 中身の地図（pikpak-distill.user.js）
+## 中身の地図（src/）
 
-1 ファイルのユーザースクリプト。大きな区切りは `// ---------- …` のコメント。
+組み立てると 1 ファイルのユーザースクリプトになる。部品の分け方は `src/` のフォルダ（`20-core` 判定と API、`30-ui` 画面の土台、`40-steps` 1〜8 のステップ、`50-tree` フォルダ一覧、`60-player` プレーヤー、`70-lib` 左メニューの一覧、`80-misc` そのほか）。
 
 | 区切り | 中身 |
 | --- | --- |

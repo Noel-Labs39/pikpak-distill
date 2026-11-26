@@ -1,12 +1,7 @@
-// 品番の読み取りの見本。pikpak-distill.user.js の <work-id> 〜 </work-id> を取り出して確かめる
-//   実行：node tests/work-id.test.js（PR ごとに GitHub Actions でも走る）
+// 品番の読み取りの見本。src/core/work-id.mjs を直接読んで確かめる
+//   実行：node tests/unit/work-id.test.mjs（npm test・PR ごとの GitHub Actions でも走る）
 //   取りこぼし・読み違いを見つけたら、まずここに見本を足してから直す
-const fs = require('fs');
-const path = require('path');
-const src = fs.readFileSync(path.join(__dirname, '..', 'pikpak-distill.user.js'), 'utf8');
-const a = src.indexOf('// <work-id>'), b = src.indexOf('// </work-id>');
-if (a < 0 || b < 0) throw new Error('<work-id> の区切りが見つかりません');
-const W = new Function(src.slice(a, b) + '\nreturn { parseWork, fc2CleanName, baseName, hasWorkId, dupKeyOf };')();
+import * as W from '../../src/core/work-id.mjs';
 
 // [ファイル名, 入っているフォルダ名, 整えた名前（null＝変えない）, 品番（null＝品番なし）, 重複の鍵]
 const CASES = [

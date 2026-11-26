@@ -28,7 +28,9 @@ Claude（Claude Code など）がこのリポジトリで作業するときに�
 - **`pikpak-distill.user.js` は直接直さない。** `src/` の部品をつないで作る（`npm run build`）。直したら必ず組み立てて、両方をコミットする。
 - 配信先（Tampermonkey の自動更新・Mac アプリ）は main 直下の `pikpak-distill.user.js` を読むので、組み立てた結果もリポジトリに入れておく。
 - GitHub の試験が「`src/` から組み立てた結果と一致するか」を確かめる（`npm run check`）。
-- 部品は `src/<番号-分類>/<番号-名前>.js`。番号の順につなぐ。いまは「1 つの大きな関数を区切りごとに切っただけ」なので、部品どうしは同じ変数を共有している（本当のモジュールにするのは次の段階）。
+- 部品は `src/<番号-分類>/<番号-名前>.js`。番号の順につなぐ。これらは「1 つの大きな関数を区切りごとに切ったもの」なので、部品どうしは同じ変数を共有している。
+- **判定の部分は本当のモジュール（`src/core/*.mjs`）。** 品番の読み取り（`work-id.mjs`）と整理の判定（`plan.mjs`：重複・フォルダ名・作品ごとの仕分け・ファイル名・不要ファイル・仕上げ）。画面の変数には頼らず、必要なものは引数で受け取る。組み立てのときに esbuild で 1 つにまとめて `src/20-core/015-core.js` の印の場所に入れ、画面側からは今までと同じ名前で呼ぶ（画面側の状態を渡す包みもそこにある）。
+- 判定を直したら、`tests/unit/` に見本を足して `npm run test:unit` で確かめる。
 
 ## 版の番号（3 か所をそろえる）
 
@@ -46,14 +48,16 @@ Claude（Claude Code など）がこのリポジトリで作業するときに�
 ## テスト
 
 ```bash
-npm install                     # 初回だけ（playwright）
+npm install                     # 初回だけ（esbuild・playwright）
 npx playwright install chromium # 初回だけ
 npm run build                   # src/ から pikpak-distill.user.js を組み立てる
-npm test                        # 組み立ての一致＋構文チェック＋品番の見本＋画面の試験すべて
+npm test                        # 組み立ての一致＋構文チェック＋判定の単体テスト＋画面の試験すべて
+npm run test:unit               # 判定の単体テストだけ（数秒）
 node tests/e2e/run.js scan      # 名前に scan を含む試験だけ
 ```
 
-- `tests/work-id.test.js`：品番の読み取りの見本（追加したら件数が増える）。
+- `tests/unit/work-id.test.mjs`：品番の読み取りの見本（追加したら件数が増える）。
+- `tests/unit/plan.test.mjs`：整理の判定の試験（見本のファイル一覧から計画を確かめる。node:test）。
 - `tests/e2e/*_t.js`：PikPak の画面と API を模した中でスクリプトを動かす試験。共通の試験台は `tests/e2e/h.js`（`open(tree, url, pre)`：`tree` がフォルダの中身、`pre` が読み込み前に動かすコード）。
   - 結果は `OK …` / `NG …` を 1 行ずつ出す。`NG` かページのエラー（`pageerr`）が出たら失敗。
   - スクリーンショットは `tests/e2e/out/`（git に入れない）。

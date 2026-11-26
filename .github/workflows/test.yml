@@ -1,4 +1,4 @@
-# 品番の読み取りの見本（tests/work-id.test.js）と画面の試験（tests/e2e）を、PR と main への反映のたびに確かめる
+# 組み立ての一致・判定の単体テスト（tests/unit）・画面の試験（tests/e2e）を、PR と main への反映のたびに確かめる
 name: Test
 
 on:
@@ -18,12 +18,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: 道具を入れる（esbuild）
+        run: npm install --no-audit --no-fund
       - name: src/ から組み立てた結果と一致するか
         run: node scripts/build.js --check
       - name: 構文チェック
         run: node --check pikpak-distill.user.js
-      - name: 品番の読み取りの見本
-        run: node tests/work-id.test.js
+      - name: 判定の単体テスト（品番の読み取り・整理の判定）
+        run: npm run test:unit
 
   e2e:
     # 画面の試験（PikPak の画面と API を模した中でスクリプトを動かす）

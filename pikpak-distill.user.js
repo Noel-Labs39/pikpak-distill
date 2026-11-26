@@ -166,7 +166,6 @@
   const mkEl = (id) => { const d = document.createElement('div'); d.id = id; document.body.appendChild(d); return d; };
   // </common>
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const NEAR = 0.015; // 最大サイズとの差が1.5%以内なら「サイズが近い」
   const LS_DECISION = 'ppdup:decision:v1';
   const LS_SCAN = 'ppdup:scan:v1';
   const LS_FOLD = 'ppdup:folders:v1';
@@ -176,6 +175,499 @@
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
   const VER = '4.22.2'; // @version と合わせて更新する
+
+  // ---------- 判定の部品（src/core/*.mjs）----------
+  // 組み立てのときに esbuild で 1 つにまとめて、下の印の場所に入れる（PPCore）。画面側からは今までと同じ名前で呼ぶ
+  // ↓ src/core/*.mjs から組み立て（ここは直接直さない）
+  var PPCore = (() => {
+    var __defProp = Object.defineProperty;
+    var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+    var __getOwnPropNames = Object.getOwnPropertyNames;
+    var __hasOwnProp = Object.prototype.hasOwnProperty;
+    var __export = (target, all) => {
+      for (var name in all)
+        __defProp(target, name, { get: all[name], enumerable: true });
+    };
+    var __copyProps = (to, from, except, desc) => {
+      if (from && typeof from === "object" || typeof from === "function") {
+        for (let key of __getOwnPropNames(from))
+          if (!__hasOwnProp.call(to, key) && key !== except)
+            __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+      }
+      return to;
+    };
+    var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+    // src/core/index.mjs
+    var index_exports = {};
+    __export(index_exports, {
+      AD_EXT: () => AD_EXT,
+      AD_VIDEO_MAX: () => AD_VIDEO_MAX,
+      AD_WORD: () => AD_WORD,
+      BRANDS: () => BRANDS,
+      CODE2_RE: () => CODE2_RE,
+      CODE_NG: () => CODE_NG,
+      CODE_RE: () => CODE_RE,
+      DOMAIN: () => DOMAIN,
+      FC2_RE: () => FC2_RE,
+      JUNK_MAX: () => JUNK_MAX,
+      KANA: () => KANA,
+      PAREN_DIR: () => PAREN_DIR,
+      PAREN_FILE: () => PAREN_FILE,
+      PART_ONLY: () => PART_ONLY,
+      SPREAD_MAX: () => SPREAD_MAX,
+      SUB_EXT: () => SUB_EXT,
+      TITLE_AD: () => TITLE_AD,
+      ZH_ONLY: () => ZH_ONLY,
+      addSuffix: () => addSuffix,
+      baseName: () => baseName,
+      buildCleanPlan: () => buildCleanPlan,
+      buildGroups: () => buildGroups,
+      buildJunkPlan: () => buildJunkPlan,
+      buildNamePlan: () => buildNamePlan,
+      buildRenamePlan: () => buildRenamePlan,
+      buildSortPlan: () => buildSortPlan,
+      codeNum: () => codeNum,
+      dirFc2: () => dirFc2,
+      dropBoxLeftovers: () => dropBoxLeftovers,
+      dupKeyOf: () => dupKeyOf,
+      fc2CleanName: () => fc2CleanName,
+      hasWorkId: () => hasWorkId,
+      isDropBox: () => isDropBox,
+      junkInfo: () => junkInfo,
+      keyOf: () => keyOf,
+      parseWork: () => parseWork,
+      partOf: () => partOf,
+      prepJunk: () => prepJunk,
+      splitName: () => splitName,
+      titleOf: () => titleOf,
+      workCleanName: () => workCleanName,
+      workKey: () => workKey
+    });
+
+    // src/core/work-id.mjs
+    var FC2_RE = /FC2[\s_-]*(?:PPV[\s_-]*)?(\d{5,8})(?!\d)/i;
+    var CODE_RE = /(^|[^A-Za-z0-9])([A-Za-z]{2,6})-(\d{3,5})(?![\dpP])/;
+    var CODE_NG = /^(FC|MP|AVI|MKV|HD|FHD|UHD|PART|CD|DISC|VOL|EP|PON|CARIB|MURA|PACO|HEVC|AAC|DTS|WEB|JAV|JAVHD|SEXY|NO|NUM|NUMBER|TOP|BEST|DAY|ROOM|LIVE|STEP|FILE|VIDEO|MOVIE|CLIP|SCENE|TAKE|SAMPLE)$/i;
+    var CODE2_RE = /(^|[^A-Za-z0-9])(?:h_\d{2,4}|\d{1,4})?([A-Za-z]{2,6})(\d{3,5})(?![\dpP])/;
+    var codeNum = (n) => {
+      const x = String(+n);
+      return x.length < 3 ? x.padStart(3, "0") : x;
+    };
+    var PART_ONLY = /^(?:(?:part|cd|disc)\s?)?(\d{1,2}|[A-Ea-e])$/i;
+    var BRANDS = [
+      ["caribpr", "Caribbeancom Premium", /caribbeancompr|caribpr|カリビアンコム\s*プレミアム/i],
+      ["carib", "Caribbeancom", /caribbean|carib|カリビアン/i],
+      ["1pon", "1pondo", /1pondo|1pon(?![a-z])|一本道/i],
+      ["10mu", "10musume", /10musume|10mu(?![a-z])|天然むすめ/i],
+      ["paco", "Pacopacomama", /pacopacomama|(?:^|[^a-z])paco(?![a-z])|パコパコママ/i],
+      ["mura", "Muramura", /muramura|(?:^|[^a-z])mura(?![a-z])|ムラムラ/i]
+    ];
+    function splitName(name) {
+      const m = String(name || "").match(/^(.*?)(\.[A-Za-z0-9]{2,5})?$/);
+      let stem = m[1];
+      const ext = m[2] || "";
+      const dup = stem.match(/\s?\((\d+)\)$/);
+      if (dup) stem = stem.slice(0, dup.index);
+      return { stem, ext, dup: dup ? dup[1] : "" };
+    }
+    function partOf(rest) {
+      const pm = rest.match(/^[\s_\-－]*(?:(?:part|cd)\s?)?(\d{1,2}|[A-Ea-e])(?=$|[\s_\-－.[(（【])/i) || rest.match(/[\s_\-－](?:(?:part|cd)\s?)?(\d{1,2}|[A-Ea-e])$/i) || rest.match(/第\s?(\d{1,2})\s?[話部巻章]/);
+      return pm ? pm[1].toUpperCase() : "";
+    }
+    var dirFc2 = (dirName) => (String(dirName || "").match(FC2_RE) || [])[1] || "";
+    function parseWork(name, dirName) {
+      const { stem, ext, dup } = splitName(name);
+      const fc2 = (num, rest, src, pre) => ({ kind: "fc2", num, key: "FC2-PPV-" + num, label: "FC2-PPV-" + num, part: partOf(rest), src, ext, dup, pre: pre || "", rest });
+      const m = stem.match(FC2_RE);
+      if (m) return fc2(m[1], stem.slice(m.index + m[0].length), "name", stem.slice(0, m.index));
+      const d = dirFc2(dirName);
+      if (d) {
+        const b = stem.match(/^(?:[^@]*@)?\s*(\d{5,8})(?!\d)/);
+        if (b && b[1] === d) return fc2(d, stem.slice(b.index + b[0].length), "dir", "");
+      }
+      const hz = stem.match(/heyzo[\s_-]*(\d{4})(?!\d)/i);
+      if (hz) return { kind: "brand", num: hz[1], key: "HEYZO-" + hz[1], label: "HEYZO-" + hz[1], part: "", src: "name", ext, dup };
+      const dt = stem.match(/(?:^|[^\d])(\d{6})([-_])(\d{2,4})(?![\d])/);
+      if (dt) {
+        const br = BRANDS.find(([, , re]) => re.test(stem));
+        const code = dt[1] + "_" + dt[3];
+        const key = (br ? br[0] + "-" : "") + code;
+        return { kind: br ? "brand" : "date", num: code, key, label: key, part: "", src: "name", ext, dup };
+      }
+      let c = stem.match(CODE_RE);
+      if (c && CODE_NG.test(c[2])) c = null;
+      if (!c) {
+        c = stem.match(CODE2_RE);
+        if (c && CODE_NG.test(c[2])) c = null;
+      }
+      if (c) {
+        const num = codeNum(c[3]), label = c[2].toUpperCase() + "-" + num, at = c.index + c[1].length;
+        return { kind: "code", num, key: label, label, part: partOf(stem.slice(c.index + c[0].length)), src: "name", ext, dup, pre: stem.slice(0, at), rest: stem.slice(c.index + c[0].length) };
+      }
+      if (dirName) {
+        const pm = stem.replace(/^[^@]*@/, "").trim().match(PART_ONLY);
+        if (pm) {
+          const dw = parseWork(String(dirName), "");
+          if (dw && (dw.kind === "fc2" || dw.kind === "code")) return { ...dw, part: pm[1].toUpperCase(), src: "dir", ext, dup, pre: "", rest: "" };
+        }
+      }
+      return null;
+    }
+    var hasWorkId = (name, dirName) => !!parseWork(name, dirName);
+    function baseName(n, dirName) {
+      const w = parseWork(n, dirName);
+      if (w && (w.kind === "fc2" || w.kind === "code")) return w.label;
+      let b = splitName(n).stem;
+      b = b.replace(/^[^@]*@/, "").replace(/^\[[^\]]*\]\s*/, "").trim();
+      return b.replace(/^(.*\d{4,})(?:[\s_-]+(?:\d{1,2}|[A-Ea-e])|[\s_-]*(?:part|cd)\s?\d{1,2})$/i, "$1");
+    }
+    var TITLE_AD = /高画質|高清|無碼|无码|無修正|无修正|字幕|最新|地址|永久|发布|發佈|广告|廣告|宣伝|宣传|宣傳|推荐|推薦|FHD|UHD|4K|1080|720|HD/i;
+    function titleOf(w) {
+      let t = ((w.pre || "").replace(/^[^@]*@/, "") + " " + (w.rest || "")).trim();
+      if (w.part) t = t.replace(/^[\s_\-－]*(?:(?:part|cd)\s?)?(\d{1,2}|[A-Ea-e])(?=$|[\s_\-－.[(（【])/i, " ").replace(/[\s_\-－](?:(?:part|cd)\s?)?(\d{1,2}|[A-Ea-e])$/i, " ").replace(/第\s?\d{1,2}\s?[話部巻章]/, " ");
+      t = t.replace(/(^|[^a-z0-9])[a-z0-9-]{2,}\.(com|net|org|la|xyz|cc|me|tv|top|info|vip|club|io|co|jp|cn|tw|hk|life|site|online|live|fun|app|link)(\/\S*)?/gi, " ").replace(/[【\[]([^】\]]*)[】\]]/g, (x, y) => TITLE_AD.test(y) ? " " : x).replace(/(^|[^A-Za-z0-9])(?:2160|1080|720|480)[pP](?![A-Za-z0-9])|(^|[^A-Za-z0-9])(?:4K|FHD|UHD|HD|x26[45]|h\.?26[45]|HEVC|AAC)(?![A-Za-z0-9])/gi, " ").replace(/[\\/:*?"<>|\s　]+/g, "_").replace(/_+/g, "_").replace(/^[_\-.・]+|[_\-.・]+$/g, "");
+      t = [...t].slice(0, 40).join("").replace(/[_\-.・]+$/, "");
+      if (/^(\d{1,2}|[A-Ea-e])$/.test(t)) return "";
+      t = t.replace(/^(\d{1,2}|[A-Ea-e])[_\-](?=.)/, "$1").replace(/[_\-](\d{1,2}|[A-Ea-e])$/, "$1");
+      return t;
+    }
+    function workCleanName(name, dirName) {
+      const w = parseWork(name, dirName);
+      if (!w || w.kind !== "fc2" && w.kind !== "code") return null;
+      const t = titleOf(w);
+      return w.label + (w.part ? "-" + w.part : "") + (t ? "_" + t : "") + (w.dup ? "(" + w.dup + ")" : "") + w.ext;
+    }
+    var fc2CleanName = workCleanName;
+    var dupKeyOf = (name, dirName) => {
+      const w = parseWork(name, dirName);
+      return w ? w.key + (w.part ? "#" + w.part : "") : "";
+    };
+
+    // src/core/const.mjs
+    var UNIT = { B: 1, KB: 1024, MB: 1048576, GB: 1073741824, TB: 1099511627776 };
+    var NEAR = 0.015;
+
+    // src/core/plan.mjs
+    var keyOf = (name, mode, dirName) => mode === "id" ? (parseWork(name, dirName) || {}).key || (name.match(/(\d{5,8})/) || [])[1] || name.toLowerCase() : (dupKeyOf(name, dirName) ? "w:" + dupKeyOf(name, dirName) + (splitName(name).ext || "").toLowerCase() : name.toLowerCase()).replace(/\s?\(\d+\)(?=\.[a-z0-9]{2,5}$|$)/, "");
+    function buildGroups(files, mode, folders = []) {
+      const m = /* @__PURE__ */ new Map();
+      const dn = new Map(folders.map((d) => [d.id, d.name]));
+      files.forEach((f) => {
+        const k = keyOf(f.name, mode, dn.get(f.parentId));
+        if (!m.has(k)) m.set(k, []);
+        m.get(k).push(f);
+      });
+      return [...m.entries()].filter(([, v]) => v.length > 1).map(([k, v]) => {
+        v.sort((a, b) => b.size - a.size);
+        const max = v[0].size || 1;
+        const near = v.some((x, i) => i > 0 && (v[i - 1].size - x.size) / (v[i - 1].size || 1) <= NEAR);
+        return { key: k, items: v, near };
+      }).sort((a, b) => b.near - a.near || a.key.localeCompare(b.key));
+    }
+    function buildRenamePlan(files, folders, opts = {}) {
+      const direct = /* @__PURE__ */ new Map();
+      files.forEach((f) => {
+        if (!direct.has(f.parentId)) direct.set(f.parentId, []);
+        direct.get(f.parentId).push(f);
+      });
+      const kids = /* @__PURE__ */ new Map();
+      folders.forEach((f) => {
+        if (!kids.has(f.parentId)) kids.set(f.parentId, []);
+        kids.get(f.parentId).push(f);
+      });
+      const taken = /* @__PURE__ */ new Map();
+      const add = (pid, n) => {
+        if (!taken.has(pid)) taken.set(pid, /* @__PURE__ */ new Set());
+        taken.get(pid).add(n.toLowerCase());
+      };
+      const keep = opts.keep || /* @__PURE__ */ new Set();
+      const plan = folders.map((fo) => {
+        const fs = (direct.get(fo.id) || []).filter((f) => hasWorkId(f.name, fo.name));
+        let bases = [...new Set(fs.map((f) => baseName(f.name, fo.name)))];
+        let fromSub = false;
+        if (!bases.length) {
+          const sub = (kids.get(fo.id) || []).filter((k) => hasWorkId(k.name) || !(AD_WORD.test(k.name) || DOMAIN.test(k.name)));
+          if (sub.length && sub.every((k) => hasWorkId(k.name))) {
+            bases = [...new Set(sub.map((k) => baseName(k.name)))];
+            fromSub = true;
+          }
+        }
+        const p = { id: fo.id, parentId: fo.parentId, trail: fo.trail, path: fo.path, cur: fo.name, target: "", status: "skip", note: "" };
+        if (fo.isRoot || fo.parentId === "root" || fo.parentId === "") p.note = "最上位・スキャン起点のフォルダは変更しません";
+        else if (keep.has(fo.id)) p.note = "「販売者ごとに仕分け」のフォルダは変更しません";
+        else if (!bases.length) p.note = (direct.get(fo.id) || []).length ? "品番の入ったファイルがないため変更しません" : "直下にファイルなし";
+        else if (bases.length > 1) {
+          p.note = (fromSub ? "中に品番の異なるフォルダが複数: " : "直下に名前の異なるファイルが複数: ") + bases.slice(0, 3).join(" / ");
+          p.cands = bases;
+        } else {
+          p.target = bases[0];
+          if (fromSub) p.why = "中のフォルダの品番に揃えます";
+        }
+        return p;
+      });
+      plan.forEach((p) => {
+        if (p.target && p.target === p.cur) {
+          p.status = "same";
+          add(p.parentId, p.target);
+        }
+      });
+      plan.forEach((p) => {
+        if (p.status === "same" || !p.target) return;
+        const esc2 = p.target.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        if (new RegExp("^" + esc2 + "\\(\\d+\\)$").test(p.cur) && !(taken.get(p.parentId) || /* @__PURE__ */ new Set()).has(p.cur.toLowerCase())) {
+          p.status = "same";
+          add(p.parentId, p.cur);
+        }
+      });
+      plan.forEach((p) => {
+        if (!p.target) add(p.parentId, p.cur);
+      });
+      plan.forEach((p) => {
+        if (!p.target || p.status === "same") return;
+        let n = p.target, i = 0;
+        while (taken.get(p.parentId) && taken.get(p.parentId).has(n.toLowerCase())) {
+          i++;
+          n = `${p.target}(${i})`;
+        }
+        if (n === p.cur) {
+          p.status = "same";
+          add(p.parentId, n);
+          return;
+        }
+        add(p.parentId, n);
+        p.finalName = n;
+        p.status = i ? "dup" : "rename";
+        p.note = [p.why, i ? "同名フォルダがあるため (" + i + ") を付与" : ""].filter(Boolean).join("／");
+      });
+      plan.forEach((p) => {
+        if (p.finalName) p.target = p.finalName;
+        else if (p.status === "same") p.target = p.cur;
+      });
+      return plan;
+    }
+    var workKey = (n, dirName) => {
+      const b = baseName(n, dirName);
+      return /\d{5,8}/.test(b) ? b : "";
+    };
+    var addSuffix = (name, taken) => {
+      const m = name.match(/^(.*?)(\.[A-Za-z0-9]{2,5})?$/);
+      let i = 1, n;
+      do {
+        n = `${m[1]}(${i})${m[2] || ""}`;
+        i++;
+      } while (taken.has(n.toLowerCase()));
+      return n;
+    };
+    var isDropBox = (c) => c.isRoot ? c.id !== "root" && !!c.id : c.parentId === "root" || c.parentId === "";
+    function dropBoxLeftovers(files, folders) {
+      const box = new Map(folders.filter(isDropBox).map((d) => [d.id, d]));
+      return files.filter((f) => box.has(f.parentId) && !workKey(f.name, box.get(f.parentId).name));
+    }
+    function buildSortPlan(files, folders) {
+      const kids = /* @__PURE__ */ new Map(), direct = /* @__PURE__ */ new Map();
+      folders.forEach((f) => {
+        if (!kids.has(f.parentId)) kids.set(f.parentId, []);
+        kids.get(f.parentId).push(f);
+      });
+      files.forEach((f) => {
+        if (!direct.has(f.parentId)) direct.set(f.parentId, []);
+        direct.get(f.parentId).push(f);
+      });
+      const plan = [];
+      folders.forEach((c) => {
+        const fs = direct.get(c.id) || [];
+        const groups = /* @__PURE__ */ new Map();
+        fs.forEach((f) => {
+          const k = workKey(f.name);
+          if (!k) return;
+          if (!groups.has(k)) groups.set(k, []);
+          groups.get(k).push(f);
+        });
+        if (groups.size < (isDropBox(c) ? 1 : 2)) return;
+        const own = [...groups.keys()].find((k) => k.toLowerCase() === baseName(c.name).toLowerCase());
+        const byId = new Map(folders.map((f) => [f.id, f]));
+        const upper = new Set((c.trail || []).slice(0, -1).map((id) => byId.get(id)).filter((f) => f && !f.isRoot).map((f) => baseName(f.name).toLowerCase()));
+        [...groups.keys()].sort().forEach((k) => {
+          if (k === own || upper.has(k.toLowerCase())) return;
+          const ex = (kids.get(c.id) || []).find((f) => f.name.toLowerCase() === k.toLowerCase()) || (kids.get(c.id) || []).find((f) => baseName(f.name).toLowerCase() === k.toLowerCase());
+          const taken = new Set((ex ? direct.get(ex.id) || [] : []).map((f) => f.name.toLowerCase()));
+          const items = groups.get(k).map((f) => {
+            let to = f.name;
+            if (taken.has(to.toLowerCase())) to = addSuffix(f.name, taken);
+            taken.add(to.toLowerCase());
+            return { id: f.id, name: f.name, to };
+          });
+          plan.push({ cid: c.id, ctrail: c.trail, cpath: c.path, work: k, folderId: ex ? ex.id : "", folderNew: !ex, items, status: "todo", note: "" });
+        });
+      });
+      return plan.sort((a, b) => b.ctrail.length - a.ctrail.length || a.cpath.localeCompare(b.cpath));
+    }
+    function buildNamePlan(files, folders) {
+      const fPath = new Map(folders.map((f) => [f.id, f.path]));
+      const fName = new Map(folders.map((f) => [f.id, f.name]));
+      const byP = /* @__PURE__ */ new Map();
+      files.forEach((f) => {
+        if (!byP.has(f.parentId)) byP.set(f.parentId, []);
+        byP.get(f.parentId).push(f);
+      });
+      const plan = [];
+      byP.forEach((list, pid) => {
+        const taken = new Set(list.map((x) => x.name.toLowerCase()));
+        list.forEach((x) => {
+          const to0 = fc2CleanName(x.name, fName.get(pid));
+          if (!to0 || to0 === x.name) return;
+          taken.delete(x.name.toLowerCase());
+          let to = to0, note = "";
+          if (taken.has(to.toLowerCase())) {
+            to = addSuffix(to0, taken);
+            note = "同じ名前のファイルがあるため (n) を付けます（重複の可能性：「重複を比べて削除」で確認できます）";
+          }
+          taken.add(to.toLowerCase());
+          plan.push({ op: "rename", kind: "file", id: x.id, parentId: pid, path: fPath.has(pid) ? fPath.get(pid) : x.path || "", cur: x.name, target: to, status: "todo", note });
+        });
+      });
+      return plan;
+    }
+    var JUNK_MAX = 10 * UNIT.MB;
+    var AD_VIDEO_MAX = 50 * UNIT.MB;
+    var SPREAD_MAX = 200 * UNIT.MB;
+    var AD_EXT = /* @__PURE__ */ new Set(["url", "lnk", "webloc", "txt", "htm", "html", "mht", "mhtml", "chm", "exe", "apk", "bat", "cmd", "scr", "vbs", "torrent"]);
+    var SUB_EXT = /* @__PURE__ */ new Set(["srt", "ass", "ssa", "vtt", "sub", "idx", "smi"]);
+    var AD_WORD = /广告|廣告|広告|宣传|宣傳|宣伝|推广|推廣|地址|網址|网址|发布|發布|获取|獲取|下载|下載|防屏蔽|永久|澳门|澳門|葡京|赌场|賭場|博彩|娱乐|娛樂|直播|约炮|約炮|社区|社區|论坛|論壇|福利|扫码|掃碼|客服|微信|QQ群|电报|電報|telegram|公告|必看|招募|关注|關注|聯繫|联系|最新アドレス|promo|advert/i;
+    var DOMAIN = /(^|[^a-z0-9])[a-z0-9-]{2,}\.(com|net|org|la|xyz|cc|me|tv|top|vip|club|info|app|io|co|link|site|online|live|fun|win|life)($|[^a-z0-9])/i;
+    var KANA = /[぀-ヿ]/;
+    var ZH_ONLY = /[们这个资视频获发址网载为无码对时说请关联报电级备实购买么吗该进过还从让给见门问间开头东车马书读写语话认识记广场论坛专业产单经现选择变态爱亲热线红际欢边领导员样传统观众极简习盘约骚妇鸡伦强调們這發實從讓讀寫專產單廣碼說聯對麼嗎]/;
+    var spreadNames = /* @__PURE__ */ new Set();
+    var workDirs = /* @__PURE__ */ new Set();
+    var adDirs = /* @__PURE__ */ new Set();
+    var dirNames = /* @__PURE__ */ new Map();
+    function prepJunk(files, folders) {
+      dirNames = new Map(folders.map((d) => [d.id, d.name]));
+      const where = /* @__PURE__ */ new Map();
+      files.forEach((f) => {
+        if (hasWorkId(f.name, dirNames.get(f.parentId))) return;
+        const k = f.name.toLowerCase();
+        if (!where.has(k)) where.set(k, /* @__PURE__ */ new Set());
+        where.get(k).add(f.parentId);
+      });
+      spreadNames = new Set([...where].filter(([, s]) => s.size >= 2).map(([k]) => k));
+      workDirs = /* @__PURE__ */ new Set();
+      const top = new Set(folders.filter((d) => d.isRoot || d.parentId === "root" || d.parentId === "").map((d) => d.id));
+      folders.forEach((d) => {
+        if (hasWorkId(d.name)) {
+          workDirs.add(d.id);
+          if (!top.has(d.parentId)) workDirs.add(d.parentId);
+        }
+      });
+      files.forEach((f) => {
+        if (hasWorkId(f.name, dirNames.get(f.parentId)) && !top.has(f.parentId)) workDirs.add(f.parentId);
+      });
+      const ad = folders.filter((d) => !d.isRoot && !hasWorkId(d.name) && (AD_WORD.test(d.name) || DOMAIN.test(d.name))).map((d) => d.id);
+      adDirs = new Set(folders.filter((d) => (d.trail || []).some((id) => ad.includes(id))).map((d) => d.id));
+    }
+    function junkInfo(f) {
+      const name = String(f.name || "");
+      const m = name.match(/^(.*?)(?:\.([A-Za-z0-9]{2,7}))?$/);
+      const stem = m[1], ext = (m[2] || "").toLowerCase();
+      const id = hasWorkId(name, dirNames.get(f.parentId));
+      const zh = !KANA.test(stem) && ZH_ONLY.test(stem);
+      if (AD_EXT.has(ext)) return { level: "del", reason: "広告・宣伝（" + ext + " ファイル）" };
+      if (!id && adDirs.has(f.parentId)) return { level: "del", reason: "広告・宣伝（広告フォルダの中）" };
+      if (!id && (AD_WORD.test(stem) || DOMAIN.test(stem))) return { level: "del", reason: "広告・宣伝（品番なし）" };
+      if (SUB_EXT.has(ext)) return { level: "review", reason: "字幕ファイル" };
+      if (f.size <= JUNK_MAX) return { level: "del", reason: "10MB以下" };
+      if (zh && !id) return f.size < AD_VIDEO_MAX ? { level: "del", reason: "広告・宣伝（品番のない宣伝向けの名前）" } : { level: "review", reason: "品番のないファイル（作品の可能性）" };
+      if (!id && f.size < SPREAD_MAX && spreadNames.has(name.toLowerCase())) return { level: "del", reason: "広告・宣伝（品番がなく、複数のフォルダに同じ名前）" };
+      if (!id && workDirs.has(f.parentId)) return f.size < AD_VIDEO_MAX ? { level: "del", reason: "広告・宣伝（作品フォルダの中の、品番のない小さなファイル）" } : { level: "review", reason: "作品フォルダの中の、品番のないファイル" };
+      if (zh) return { level: "review", reason: "品番あり・作品の可能性（念のため確認）" };
+      return null;
+    }
+    function buildJunkPlan(files, folders) {
+      prepJunk(files, folders);
+      return files.map((f) => {
+        const j = junkInfo(f);
+        return j ? { ...f, level: j.level, reason: j.reason } : null;
+      }).filter(Boolean).sort((a, b) => (a.level === b.level ? 0 : a.level === "del" ? -1 : 1) || a.path.localeCompare(b.path) || a.name.localeCompare(b.name));
+    }
+    var PAREN_DIR = /^(.*?)\s?\((\d+)\)$/;
+    var PAREN_FILE = /^(.*?)\s?\((\d+)\)(\.[A-Za-z0-9]{2,5})$/;
+    function buildCleanPlan(files, folders, opts = {}) {
+      const plan = [];
+      const fTrail = new Map(folders.map((f) => [f.id, f.trail]));
+      const fPath = new Map(folders.map((f) => [f.id, f.path]));
+      const nChild = /* @__PURE__ */ new Map();
+      files.forEach((f) => nChild.set(f.parentId, (nChild.get(f.parentId) || 0) + 1));
+      folders.forEach((f) => nChild.set(f.parentId, (nChild.get(f.parentId) || 0) + 1));
+      const isEmpty = (f) => !nChild.get(f.id);
+      const protectedDir = (f) => f.isRoot || f.parentId === "root" || f.parentId === "";
+      const item = (op, kind, x, pid, target, status, note) => ({ op, kind, id: x.id, parentId: pid, ptrail: fTrail.get(pid), path: fPath.has(pid) ? fPath.get(pid) : x.path || "", cur: x.name, target, status: fTrail.get(pid) ? status : "skip", note: fTrail.get(pid) ? note : "場所の情報がありません（ホームから読み込み直してください）" });
+      const sib = (arr) => {
+        const m = /* @__PURE__ */ new Map();
+        arr.forEach((x) => {
+          if (!m.has(x.parentId)) m.set(x.parentId, []);
+          m.get(x.parentId).push(x);
+        });
+        return m;
+      };
+      sib(folders.filter((f) => !protectedDir(f))).forEach((list, pid) => {
+        const groups = /* @__PURE__ */ new Map();
+        list.forEach((f) => {
+          const m = f.name.match(PAREN_DIR);
+          const b = m ? m[1] : f.name;
+          const k = b.toLowerCase();
+          if (!groups.has(k)) groups.set(k, { base: b, items: [] });
+          groups.get(k).items.push({ f, n: m ? +m[2] : 0 });
+        });
+        groups.forEach(({ base, items }) => {
+          items.sort((a, b) => a.n - b.n);
+          const empties = items.filter((o) => isEmpty(o.f)), full = items.filter((o) => !isEmpty(o.f));
+          empties.forEach((o) => plan.push(item("trash", "folder", o.f, pid, "", "todo", items.length > 1 ? "中身が空の同名フォルダ" : "中身が空のフォルダ")));
+          if (full.length === 1) {
+            const o = full[0];
+            if (o.f.name !== base) plan.push(item("rename", "folder", o.f, pid, base, "todo", empties.length ? "空の同名フォルダを片付けたあとに外します" : ""));
+          } else if (full.length > 1) {
+            full.filter((o) => o.n > 0).forEach((o) => plan.push(item("rename", "folder", o.f, pid, base, "skip", "中身のある同名フォルダが複数あります（「重複を比べて削除」で整理してください）")));
+          }
+        });
+      });
+      const junkDel = opts.junk ? (prepJunk(files, folders), (f) => {
+        const j = junkInfo(f);
+        return !!j && j.level === "del";
+      }) : () => false;
+      const dKids = sib(folders.filter((f) => !f.isRoot)), fKids = sib(files);
+      folders.forEach((P) => {
+        if (P.isRoot || P.parentId === "root" || P.parentId === "") return;
+        const cd = dKids.get(P.id) || [], cf = (fKids.get(P.id) || []).filter((f) => !junkDel(f));
+        if (cd.length !== 1 || cf.length) return;
+        const C = cd[0];
+        if (baseName(C.name).toLowerCase() !== baseName(P.name).toLowerCase()) return;
+        plan.push(item("flatten", "folder", C, P.id, P.name, "todo", "同じ名前のフォルダが入れ子になっているため、中身を 1 つ上の「" + P.name + "」へ出して、空になったフォルダを片付けます"));
+      });
+      sib(files).forEach((list, pid) => {
+        const taken = new Set(list.map((x) => x.name.toLowerCase()));
+        list.map((x) => ({ x, m: x.name.match(PAREN_FILE) })).filter((o) => o.m).sort((a, b) => +a.m[2] - +b.m[2] || a.x.name.localeCompare(b.x.name)).forEach(({ x, m }) => {
+          const to = m[1] + m[3];
+          if (taken.has(to.toLowerCase())) {
+            plan.push(item("rename", "file", x, pid, to, "skip", "同じ場所に「" + to + "」が残っています（「重複を比べて削除」で整理してください）"));
+            return;
+          }
+          taken.delete(x.name.toLowerCase());
+          taken.add(to.toLowerCase());
+          plan.push(item("rename", "file", x, pid, to, "todo", ""));
+        });
+      });
+      const ORDER = { trash: 0, flatten: 1, rename: 2 };
+      return plan.sort((a, b) => ORDER[a.op] - ORDER[b.op] || (a.op === "flatten" ? (b.ptrail || []).length - (a.ptrail || []).length : 0));
+    }
+    return __toCommonJS(index_exports);
+  })();
+  // ↑ ここまで
+  const { FC2_RE, BRANDS, splitName, parseWork, baseName, titleOf, dupKeyOf, keyOf, addSuffix, buildSortPlan, dropBoxLeftovers, buildNamePlan, SUB_EXT, prepJunk, junkInfo, buildJunkPlan } = PPCore;
+  // 画面側の状態（読み込んだフォルダ一覧・販売者のフォルダ・設定）を渡す
+  const buildGroups = (fs, mode) => PPCore.buildGroups(fs, mode, folders);
+  const buildRenamePlan = (fs, fo) => PPCore.buildRenamePlan(fs, fo, { keep: sellerBoxIds(fo) });
+  const buildCleanPlan = (fs, fo) => PPCore.buildCleanPlan(fs, fo, { junk: junkEnabled() });
 
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
@@ -201,373 +693,6 @@
   const currentFolderId = () => { if (isPem()) return (crumbs().pop() || {}).id || 'root'; const last = location.pathname.split('/').filter(Boolean).pop(); return !last || !/^[A-Za-z0-9_-]{16,}$/.test(last) ? 'root' : last; };  // recent・starred・trash など、フォルダ以外のページはホーム
   const currentTrail = () => (isPem() && crumbs().length ? crumbs().map((c) => c.id) : [currentFolderId()]);
 
-  // <work-id> ---------- 品番の読み取り（品番に関わる判定はすべてここを通す） ----------
-  //   変えたら tests/work-id.test.js の見本で確かめる（PR ごとに自動で走る）
-  //   読み取る順番：
-  //     ① ファイル名に品番がある（FC2-PPV-1234567・FC2PPV1234567・FC2_PPV_1234567・FC2-1234567・サイト名@… など）
-  //     ② ファイル名が数字で始まり、その数字が入っているフォルダの品番と同じ（フォルダ FC2-PPV-1234567 の 1234567-1.mp4）
-  //     ③ ABC-123 の形（FC2 以外）。ハイフンなしの ABC123、FANZA の作品番号の形 abc00123・1abc00123・h_1234abc00123 も読む
-  //       番号の頭の 0 は外して 3 けたにそろえる（abc00123・ABC-0123 → ABC-123）
-  //     ⑥ ファイル名が連番だけ（1.mp4・part2.mp4・B.mp4）で、入っているフォルダ名に品番がある → フォルダの品番の作品
-  //   日付などの数字だけ（20260609.mp4）や、フォルダと違う数字は品番とみなさない
-  const FC2_RE = /FC2[\s_-]*(?:PPV[\s_-]*)?(\d{5,8})(?!\d)/i;
-  // ABC-123：英字の前が数字（1pon-1080p の pon）や、数字の後ろが p（1080p・720p＝解像度）のものは品番とみなさない
-  const CODE_RE = /(^|[^A-Za-z0-9])([A-Za-z]{2,6})-(\d{3,5})(?![\dpP])/;
-  const CODE_NG = /^(FC|MP|AVI|MKV|HD|FHD|UHD|PART|CD|DISC|VOL|EP|PON|CARIB|MURA|PACO|HEVC|AAC|DTS|WEB|JAV|JAVHD|SEXY|NO|NUM|NUMBER|TOP|BEST|DAY|ROOM|LIVE|STEP|FILE|VIDEO|MOVIE|CLIP|SCENE|TAKE|SAMPLE)$/i;
-  // ハイフンなし（ABC123）・FANZA の作品番号（abc00123／先頭に数字や h_1234 が付くこともある）
-  const CODE2_RE = /(^|[^A-Za-z0-9])(?:h_\d{2,4}|\d{1,4})?([A-Za-z]{2,6})(\d{3,5})(?![\dpP])/;
-  const codeNum = (n) => { const x = String(+n); return x.length < 3 ? x.padStart(3, '0') : x; };
-  // ファイル名が連番だけ（1・02・part2・cd1・disc2・B）
-  const PART_ONLY = /^(?:(?:part|cd|disc)\s?)?(\d{1,2}|[A-Ea-e])$/i;
-  // 日付型の品番を使うメーカー（121815_3315-1pon・122415-053-carib など）
-  const BRANDS = [
-    ['caribpr', 'Caribbeancom Premium', /caribbeancompr|caribpr|カリビアンコム\s*プレミアム/i],
-    ['carib', 'Caribbeancom', /caribbean|carib|カリビアン/i],
-    ['1pon', '1pondo', /1pondo|1pon(?![a-z])|一本道/i],
-    ['10mu', '10musume', /10musume|10mu(?![a-z])|天然むすめ/i],
-    ['paco', 'Pacopacomama', /pacopacomama|(?:^|[^a-z])paco(?![a-z])|パコパコママ/i],
-    ['mura', 'Muramura', /muramura|(?:^|[^a-z])mura(?![a-z])|ムラムラ/i],
-  ];
-
-  // 拡張子・重複回避の (1) を分ける
-  function splitName(name) {
-    const m = String(name || '').match(/^(.*?)(\.[A-Za-z0-9]{2,5})?$/);
-    let stem = m[1]; const ext = m[2] || '';
-    const dup = stem.match(/\s?\((\d+)\)$/); if (dup) stem = stem.slice(0, dup.index);
-    return { stem, ext, dup: dup ? dup[1] : '' };
-  }
-  // 品番の後ろの文字から連番を取る（すぐ後ろの _2・-2・part2・cd2・_A／タイトル末尾の「…編-3」／第3話）
-  function partOf(rest) {
-    const pm = rest.match(/^[\s_\-－]*(?:(?:part|cd)\s?)?(\d{1,2}|[A-Ea-e])(?=$|[\s_\-－.[(（【])/i)
-      || rest.match(/[\s_\-－](?:(?:part|cd)\s?)?(\d{1,2}|[A-Ea-e])$/i)
-      || rest.match(/第\s?(\d{1,2})\s?[話部巻章]/);
-    return pm ? pm[1].toUpperCase() : '';
-  }
-  const dirFc2 = (dirName) => (String(dirName || '').match(FC2_RE) || [])[1] || '';
-  // 返り値：{ kind: 'fc2'|'code', num, key（作品の鍵）, label（そろえた品番）, part（連番）, src: 'name'|'dir', ext, dup } または null
-  function parseWork(name, dirName) {
-    const { stem, ext, dup } = splitName(name);
-    const fc2 = (num, rest, src, pre) => ({ kind: 'fc2', num, key: 'FC2-PPV-' + num, label: 'FC2-PPV-' + num, part: partOf(rest), src, ext, dup, pre: pre || '', rest });
-    const m = stem.match(FC2_RE);
-    if (m) return fc2(m[1], stem.slice(m.index + m[0].length), 'name', stem.slice(0, m.index));
-    const d = dirFc2(dirName);
-    if (d) { const b = stem.match(/^(?:[^@]*@)?\s*(\d{5,8})(?!\d)/); if (b && b[1] === d) return fc2(d, stem.slice(b.index + b[0].length), 'dir', ''); }
-    // ④ HEYZO-1234
-    const hz = stem.match(/heyzo[\s_-]*(\d{4})(?!\d)/i);
-    if (hz) return { kind: 'brand', num: hz[1], key: 'HEYZO-' + hz[1], label: 'HEYZO-' + hz[1], part: '', src: 'name', ext, dup };
-    // ⑤ 日付型（121815_3315-1pon など）。メーカー名が分かればメーカーごとに分ける
-    const dt = stem.match(/(?:^|[^\d])(\d{6})([-_])(\d{2,4})(?![\d])/);
-    if (dt) { const br = BRANDS.find(([, , re]) => re.test(stem)); const code = dt[1] + '_' + dt[3]; const key = (br ? br[0] + '-' : '') + code; return { kind: br ? 'brand' : 'date', num: code, key, label: key, part: '', src: 'name', ext, dup }; }
-    let c = stem.match(CODE_RE); if (c && CODE_NG.test(c[2])) c = null;
-    if (!c) { c = stem.match(CODE2_RE); if (c && CODE_NG.test(c[2])) c = null; }
-    if (c) { const num = codeNum(c[3]), label = c[2].toUpperCase() + '-' + num, at = c.index + c[1].length; return { kind: 'code', num, key: label, label, part: partOf(stem.slice(c.index + c[0].length)), src: 'name', ext, dup, pre: stem.slice(0, at), rest: stem.slice(c.index + c[0].length) }; }
-    // ⑥ ファイル名が連番だけで、フォルダ名に品番がある（FC2 以外も）
-    if (dirName) {
-      const pm = stem.replace(/^[^@]*@/, '').trim().match(PART_ONLY);
-      if (pm) { const dw = parseWork(String(dirName), ''); if (dw && (dw.kind === 'fc2' || dw.kind === 'code')) return { ...dw, part: pm[1].toUpperCase(), src: 'dir', ext, dup, pre: '', rest: '' }; }
-    }
-    return null;
-  }
-  const hasWorkId = (name, dirName) => !!parseWork(name, dirName);
-  // 作品の品番（作品ID）。次の違いは同じ作品として扱う（フォルダ名を揃える・作品ごとに仕分けで使う）
-  //   ・拡張子、重複回避の (1)
-  //   ・分割・シーン違いの連番：-1 / -2、_1 / _2、part1、cd1、-A など
-  //   ・配布元サイト名などの接頭辞：hhd800.com@FC2-PPV-1234567_1.mp4 → FC2-PPV-1234567
-  //   ・FC2の表記ゆれ：FC2PPV-1234567 / FC2_PPV_1234567 / FC2-1234567 → FC2-PPV-1234567
-  function baseName(n, dirName) {
-    const w = parseWork(n, dirName); if (w && (w.kind === 'fc2' || w.kind === 'code')) return w.label; // フォルダ名は品番だけ（タイトルはファイル名に残す）
-    let b = splitName(n).stem;
-    b = b.replace(/^[^@]*@/, '').replace(/^\[[^\]]*\]\s*/, '').trim();
-    return b.replace(/^(.*\d{4,})(?:[\s_-]+(?:\d{1,2}|[A-Ea-e])|[\s_-]*(?:part|cd)\s?\d{1,2})$/i, '$1');
-  }
-  // ファイル名を整えた形：品番（-連番）_タイトル.拡張子（例：4k688.com@FC2-PPV-4988183_1 夏の思い出【高画質】.mp4 → FC2-PPV-4988183-1_夏の思い出.mp4）
-  //   ・品番は FC2-PPV-数字／ABC-123 にそろえる。連番は「-1」「-A」の形
-  //   ・品番以外の文字はタイトルとして「_」のあとに残す。サイト名・URL・宣伝の【】・画質の表記は外す
-  //   ・空白や Windows で使えない記号は「_」にする。タイトルは 40 文字まで
-  //   ・重複回避の (1) と拡張子はそのまま。FC2・ABC-123 の形以外は変えない（null）
-  const TITLE_AD = /高画質|高清|無碼|无码|無修正|无修正|字幕|最新|地址|永久|发布|發佈|广告|廣告|宣伝|宣传|宣傳|推荐|推薦|FHD|UHD|4K|1080|720|HD/i;
-  function titleOf(w) {
-    let t = ((w.pre || '').replace(/^[^@]*@/, '') + ' ' + (w.rest || '')).trim();
-    if (w.part) t = t.replace(/^[\s_\-－]*(?:(?:part|cd)\s?)?(\d{1,2}|[A-Ea-e])(?=$|[\s_\-－.[(（【])/i, ' ').replace(/[\s_\-－](?:(?:part|cd)\s?)?(\d{1,2}|[A-Ea-e])$/i, ' ').replace(/第\s?\d{1,2}\s?[話部巻章]/, ' ');
-    t = t.replace(/(^|[^a-z0-9])[a-z0-9-]{2,}\.(com|net|org|la|xyz|cc|me|tv|top|info|vip|club|io|co|jp|cn|tw|hk|life|site|online|live|fun|app|link)(\/\S*)?/gi, ' ')
-      .replace(/[【\[]([^】\]]*)[】\]]/g, (x, y) => (TITLE_AD.test(y) ? ' ' : x))
-      .replace(/(^|[^A-Za-z0-9])(?:2160|1080|720|480)[pP](?![A-Za-z0-9])|(^|[^A-Za-z0-9])(?:4K|FHD|UHD|HD|x26[45]|h\.?26[45]|HEVC|AAC)(?![A-Za-z0-9])/gi, ' ')
-      .replace(/[\\/:*?"<>|\s　]+/g, '_').replace(/_+/g, '_').replace(/^[_\-.・]+|[_\-.・]+$/g, '');
-    t = [...t].slice(0, 40).join('').replace(/[_\-.・]+$/, '');
-    if (/^(\d{1,2}|[A-Ea-e])$/.test(t)) return ''; // 連番と読み違えるだけの文字は残さない
-    // 読み直したときに連番と読み違えない形にする（先頭・末尾の「_2」などはつなげる）
-    t = t.replace(/^(\d{1,2}|[A-Ea-e])[_\-](?=.)/, '$1').replace(/[_\-](\d{1,2}|[A-Ea-e])$/, '$1');
-    return t;
-  }
-  function workCleanName(name, dirName) {
-    const w = parseWork(name, dirName); if (!w || (w.kind !== 'fc2' && w.kind !== 'code')) return null;
-    const t = titleOf(w);
-    return w.label + (w.part ? '-' + w.part : '') + (t ? '_' + t : '') + (w.dup ? '(' + w.dup + ')' : '') + w.ext;
-  }
-  const fc2CleanName = workCleanName; // 以前の名前（呼び出し側の互換）
-  // 連番まで同じものの鍵（-1 と -2 を別に扱う）。いまの「同じ品番でまとめる」は -1/-2 違いも 1 組にする仕様なので、そちらは key を使う
-  const dupKeyOf = (name, dirName) => { const w = parseWork(name, dirName); return w ? w.key + (w.part ? '#' + w.part : '') : ''; };
-  // </work-id>
-  // ---------- グルーピング ----------
-  // 同じファイル名モードでも、重複回避の (1) 等は同名として扱う
-  const keyOf = (name, mode, dirName) => (mode === 'id' ? ((parseWork(name, dirName) || {}).key || ((name.match(/(\d{5,8})/) || [])[1]) || name.toLowerCase()) : (dupKeyOf(name, dirName) ? 'w:' + dupKeyOf(name, dirName) + (splitName(name).ext || '').toLowerCase() : name.toLowerCase()).replace(/\s?\(\d+\)(?=\.[a-z0-9]{2,5}$|$)/, ''));
-  function buildGroups(files, mode) {
-    const m = new Map();
-    const dn = new Map((typeof folders !== 'undefined' ? folders : []).map((d) => [d.id, d.name]));
-    files.forEach((f) => { const k = keyOf(f.name, mode, dn.get(f.parentId)); if (!m.has(k)) m.set(k, []); m.get(k).push(f); });
-    return [...m.entries()]
-      .filter(([, v]) => v.length > 1)
-      .map(([k, v]) => {
-        v.sort((a, b) => b.size - a.size);
-        const max = v[0].size || 1;
-        // 隣り合うサイズ同士が1.5%以内なら「サイズが近い組」（最大以外の組も拾う）
-        const near = v.some((x, i) => i > 0 && (v[i - 1].size - x.size) / (v[i - 1].size || 1) <= NEAR);
-        return { key: k, items: v, near };
-      })
-      .sort((a, b) => (b.near - a.near) || a.key.localeCompare(b.key));
-  }
-
-
-  // ---------- フォルダ名を中のファイル名に揃える ----------
-  // 計画: [{id, parentId, path, cur, target, status, note}]  status: same / rename / dup / skip
-  function buildRenamePlan(files, folders) {
-    const direct = new Map();
-    files.forEach((f) => { if (!direct.has(f.parentId)) direct.set(f.parentId, []); direct.get(f.parentId).push(f); });
-    const kids = new Map();
-    folders.forEach((f) => { if (!kids.has(f.parentId)) kids.set(f.parentId, []); kids.get(f.parentId).push(f); });
-    const taken = new Map(); // parentId -> Set(小文字の名前) ※「そのまま残るフォルダ」と確定済みの新名
-    const add = (pid, n) => { if (!taken.has(pid)) taken.set(pid, new Set()); taken.get(pid).add(n.toLowerCase()); };
-    const keep = sellerBoxIds(folders);
-    const plan = folders.map((fo) => {
-      // 品番の入ったファイルだけを見る（広告など品番のないファイルの名前をフォルダ名にしない）
-      const fs = (direct.get(fo.id) || []).filter((f) => hasWorkId(f.name, fo.name));
-      let bases = [...new Set(fs.map((f) => baseName(f.name, fo.name)))];
-      let fromSub = false;
-      if (!bases.length) { // 直下に作品ファイルがなく、中のフォルダが（広告フォルダを除いて）1作品だけなら、その品番に揃える
-        const sub = (kids.get(fo.id) || []).filter((k) => hasWorkId(k.name) || !(AD_WORD.test(k.name) || DOMAIN.test(k.name)));
-        if (sub.length && sub.every((k) => hasWorkId(k.name))) { bases = [...new Set(sub.map((k) => baseName(k.name)))]; fromSub = true; }
-      }
-      const p = { id: fo.id, parentId: fo.parentId, trail: fo.trail, path: fo.path, cur: fo.name, target: '', status: 'skip', note: '' };
-      if (fo.isRoot || fo.parentId === 'root' || fo.parentId === '') p.note = '最上位・スキャン起点のフォルダは変更しません';
-      else if (keep.has(fo.id)) p.note = '「販売者ごとに仕分け」のフォルダは変更しません';
-      else if (!bases.length) p.note = (direct.get(fo.id) || []).length ? '品番の入ったファイルがないため変更しません' : '直下にファイルなし';
-      else if (bases.length > 1) { p.note = (fromSub ? '中に品番の異なるフォルダが複数: ' : '直下に名前の異なるファイルが複数: ') + bases.slice(0, 3).join(' / '); p.cands = bases; }
-      else { p.target = bases[0]; if (fromSub) p.why = '中のフォルダの品番に揃えます'; }
-      return p;
-    });
-    // すでに一致しているものを先に確定（衝突時にこちらを優先して名前を守る）
-    plan.forEach((p) => { if (p.target && p.target === p.cur) { p.status = 'same'; add(p.parentId, p.target); } });
-    // 既に「名前(n)」形式で付いているものも、その名前が空いていれば維持（毎回付け替わらないように）
-    plan.forEach((p) => {
-      if (p.status === 'same' || !p.target) return;
-      const esc2 = p.target.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      if (new RegExp('^' + esc2 + '\\(\\d+\\)$').test(p.cur) && !(taken.get(p.parentId) || new Set()).has(p.cur.toLowerCase())) { p.status = 'same'; add(p.parentId, p.cur); }
-    });
-    // 目的地のない・要確認のフォルダは現状の名前を占有
-    plan.forEach((p) => { if (!p.target) add(p.parentId, p.cur); });
-    plan.forEach((p) => {
-      if (!p.target || p.status === 'same') return;
-      let n = p.target, i = 0;
-      while (taken.get(p.parentId) && taken.get(p.parentId).has(n.toLowerCase())) { i++; n = `${p.target}(${i})`; }
-      // 自分自身の現名が (n) と一致している場合は変更不要
-      if (n === p.cur) { p.status = 'same'; add(p.parentId, n); return; }
-      add(p.parentId, n);
-      p.finalName = n; p.status = i ? 'dup' : 'rename';
-      p.note = [p.why, i ? '同名フォルダがあるため (' + i + ') を付与' : ''].filter(Boolean).join('／');
-    });
-    plan.forEach((p) => { if (p.finalName) p.target = p.finalName; else if (p.status === 'same') p.target = p.cur; });
-    return plan;
-  }
-
-  // ---------- 作品ごとに仕分け（混在フォルダの中に品番フォルダを作り、そこへ移動） ----------
-  const workKey = (n, dirName) => { const b = baseName(n, dirName); return /\d{5,8}/.test(b) ? b : ''; };
-  const addSuffix = (name, taken) => {
-    const m = name.match(/^(.*?)(\.[A-Za-z0-9]{2,5})?$/); let i = 1, n;
-    do { n = `${m[1]}(${i})${m[2] || ''}`; i++; } while (taken.has(n.toLowerCase()));
-    return n;
-  };
-  // 置き場所のフォルダ：読み込んだ場所（ホーム以外）と、ホームの直下のフォルダ（My Pack など）
-  const isDropBox = (c) => (c.isRoot ? c.id !== 'root' && !!c.id : c.parentId === 'root' || c.parentId === '');
-  // 置き場所のフォルダの直下にあって、品番が読めないため仕分けできないファイル（「要確認」で理由を見せる）
-  function dropBoxLeftovers(files, folders) {
-    const box = new Map(folders.filter(isDropBox).map((d) => [d.id, d]));
-    return files.filter((f) => box.has(f.parentId) && !workKey(f.name, box.get(f.parentId).name));
-  }
-  // 計画: [{cid, ctrail, cpath, work, folderId, folderNew, items:[{id,name,to}], status, note}]
-  function buildSortPlan(files, folders) {
-    const kids = new Map(), direct = new Map();
-    folders.forEach((f) => { if (!kids.has(f.parentId)) kids.set(f.parentId, []); kids.get(f.parentId).push(f); });
-    files.forEach((f) => { if (!direct.has(f.parentId)) direct.set(f.parentId, []); direct.get(f.parentId).push(f); });
-    const plan = [];
-    folders.forEach((c) => {
-      const fs = direct.get(c.id) || [];
-      const groups = new Map();
-      fs.forEach((f) => { const k = workKey(f.name); if (!k) return; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(f); });
-      // 1作品だけのフォルダは仕分け不要（フォルダ名の整合で対応）。ただし My Pack など置き場所のフォルダ（読み込んだ場所・ホームの直下）は、
-      // 1 作品でも作品フォルダを作る（作らないと「販売者ごとに仕分け」の対象にならず、ずっと残るため）
-      if (groups.size < (isDropBox(c) ? 1 : 2)) return;
-      const own = [...groups.keys()].find((k) => k.toLowerCase() === baseName(c.name).toLowerCase()); // フォルダ名と同じ作品はそのまま残す
-      // 上の階層にすでに同じ作品のフォルダがある場合は、さらに下へフォルダを作らない（入れ子になるのを防ぐ）
-      const byId = new Map(folders.map((f) => [f.id, f]));
-      const upper = new Set((c.trail || []).slice(0, -1).map((id) => byId.get(id)).filter((f) => f && !f.isRoot).map((f) => baseName(f.name).toLowerCase()));
-      [...groups.keys()].sort().forEach((k) => {
-        if (k === own || upper.has(k.toLowerCase())) return;
-        const ex = (kids.get(c.id) || []).find((f) => f.name.toLowerCase() === k.toLowerCase()) || (kids.get(c.id) || []).find((f) => baseName(f.name).toLowerCase() === k.toLowerCase());
-        const taken = new Set((ex ? direct.get(ex.id) || [] : []).map((f) => f.name.toLowerCase()));
-        const items = groups.get(k).map((f) => {
-          let to = f.name;
-          if (taken.has(to.toLowerCase())) to = addSuffix(f.name, taken);
-          taken.add(to.toLowerCase());
-          return { id: f.id, name: f.name, to };
-        });
-        plan.push({ cid: c.id, ctrail: c.trail, cpath: c.path, work: k, folderId: ex ? ex.id : '', folderNew: !ex, items, status: 'todo', note: '' });
-      });
-    });
-    // 下の階層の混在フォルダから先に（My Pack直下の大量振り分けは最後）
-    return plan.sort((a, b) => (b.ctrail.length - a.ctrail.length) || a.cpath.localeCompare(b.cpath));
-  }
-
-  // ---------- FC2 ファイル名を整える ----------
-  // 計画: [{op:'rename', kind:'file', id, parentId, path, cur, target, status, note}]
-  function buildNamePlan(files, folders) {
-    const fPath = new Map(folders.map((f) => [f.id, f.path]));
-    const fName = new Map(folders.map((f) => [f.id, f.name]));
-    const byP = new Map(); files.forEach((f) => { if (!byP.has(f.parentId)) byP.set(f.parentId, []); byP.get(f.parentId).push(f); });
-    const plan = [];
-    byP.forEach((list, pid) => {
-      const taken = new Set(list.map((x) => x.name.toLowerCase()));
-      list.forEach((x) => {
-        const to0 = fc2CleanName(x.name, fName.get(pid));
-        if (!to0 || to0 === x.name) return;
-        taken.delete(x.name.toLowerCase());
-        let to = to0, note = '';
-        if (taken.has(to.toLowerCase())) { to = addSuffix(to0, taken); note = '同じ名前のファイルがあるため (n) を付けます（重複の可能性：「重複を比べて削除」で確認できます）'; }
-        taken.add(to.toLowerCase());
-        plan.push({ op: 'rename', kind: 'file', id: x.id, parentId: pid, path: fPath.has(pid) ? fPath.get(pid) : (x.path || ''), cur: x.name, target: to, status: 'todo', note });
-      });
-    });
-    return plan;
-  }
-
-  // ---------- 作品と関係ないファイル（広告・宣伝／10MB以下 など）の判定 ----------
-  // 読み込んだファイルのうち作品と関係ないものを見分け、ほかのステップの対象から外す
-  //   del    … 作品と関係ないと判断（最初からチェックあり）
-  //   review … 作品の可能性があるので確認してほしいもの（最初はチェックなし）
-  const JUNK_MAX = 10 * UNIT.MB;
-  const AD_VIDEO_MAX = 50 * UNIT.MB; // 作品フォルダに紛れた品番のない動画は、これより小さければ広告とみなす
-  const SPREAD_MAX = 200 * UNIT.MB;
-  const AD_EXT = new Set(['url', 'lnk', 'webloc', 'txt', 'htm', 'html', 'mht', 'mhtml', 'chm', 'exe', 'apk', 'bat', 'cmd', 'scr', 'vbs', 'torrent']);
-  const SUB_EXT = new Set(['srt', 'ass', 'ssa', 'vtt', 'sub', 'idx', 'smi']);
-  const AD_WORD = /广告|廣告|広告|宣传|宣傳|宣伝|推广|推廣|地址|網址|网址|发布|發布|获取|獲取|下载|下載|防屏蔽|永久|澳门|澳門|葡京|赌场|賭場|博彩|娱乐|娛樂|直播|约炮|約炮|社区|社區|论坛|論壇|福利|扫码|掃碼|客服|微信|QQ群|电报|電報|telegram|公告|必看|招募|关注|關注|聯繫|联系|最新アドレス|promo|advert/i;
-  const DOMAIN = /(^|[^a-z0-9])[a-z0-9-]{2,}\.(com|net|org|la|xyz|cc|me|tv|top|vip|club|info|app|io|co|link|site|online|live|fun|win|life)($|[^a-z0-9])/i;
-  const KANA = /[぀-ヿ]/;
-  // 中国語にしかない字（簡体字・繁体字）。日本語の漢字だけのタイトルを中国語と誤判定しないよう、日本語と共通の字は入れない
-  const ZH_ONLY = /[们这个资视频获发址网载为无码对时说请关联报电级备实购买么吗该进过还从让给见门问间开头东车马书读写语话认识记广场论坛专业产单经现选择变态爱亲热线红际欢边领导员样传统观众极简习盘约骚妇鸡伦强调們這發實從讓讀寫專產單廣碼說聯對麼嗎]/;
-  // 品番＝FC2-PPV-数字、または ABC-123 の形。日付などの数字だけ（例：发布器20260609）は品番とみなさない
-  // 判定に使う周りの情報
-  //   spreadNames … 品番のない同じ名前のファイルが、別々のフォルダに入っている（作品に付いてきた広告）
-  //   workDirs    … 作品のフォルダ（フォルダ名か、中のファイル・フォルダに品番がある）
-  //   adDirs      … 名前が広告・宣伝のフォルダ（その中身も含む）
-  let spreadNames = new Set(), workDirs = new Set(), adDirs = new Set(), dirNames = new Map();
-  function prepJunk(files, folders) {
-    dirNames = new Map(folders.map((d) => [d.id, d.name]));
-    const where = new Map();
-    files.forEach((f) => { if (hasWorkId(f.name, dirNames.get(f.parentId))) return; const k = f.name.toLowerCase(); if (!where.has(k)) where.set(k, new Set()); where.get(k).add(f.parentId); });
-    spreadNames = new Set([...where].filter(([, s]) => s.size >= 2).map(([k]) => k));
-    workDirs = new Set();
-    const top = new Set(folders.filter((d) => d.isRoot || d.parentId === 'root' || d.parentId === '').map((d) => d.id)); // 起点・ホーム直下（My Pack 等）は除く
-    folders.forEach((d) => { if (hasWorkId(d.name)) { workDirs.add(d.id); if (!top.has(d.parentId)) workDirs.add(d.parentId); } });
-    files.forEach((f) => { if (hasWorkId(f.name, dirNames.get(f.parentId)) && !top.has(f.parentId)) workDirs.add(f.parentId); });
-    const ad = folders.filter((d) => !d.isRoot && !hasWorkId(d.name) && (AD_WORD.test(d.name) || DOMAIN.test(d.name))).map((d) => d.id);
-    adDirs = new Set(folders.filter((d) => (d.trail || []).some((id) => ad.includes(id))).map((d) => d.id));
-  }
-  function junkInfo(f) {
-    const name = String(f.name || '');
-    const m = name.match(/^(.*?)(?:\.([A-Za-z0-9]{2,7}))?$/);
-    const stem = m[1], ext = (m[2] || '').toLowerCase();
-    const id = hasWorkId(name, dirNames.get(f.parentId));
-    const zh = !KANA.test(stem) && ZH_ONLY.test(stem);
-    if (AD_EXT.has(ext)) return { level: 'del', reason: '広告・宣伝（' + ext + ' ファイル）' };
-    if (!id && adDirs.has(f.parentId)) return { level: 'del', reason: '広告・宣伝（広告フォルダの中）' };
-    if (!id && (AD_WORD.test(stem) || DOMAIN.test(stem))) return { level: 'del', reason: '広告・宣伝（品番なし）' };
-    if (SUB_EXT.has(ext)) return { level: 'review', reason: '字幕ファイル' };
-    if (f.size <= JUNK_MAX) return { level: 'del', reason: '10MB以下' };
-    // 海外の宣伝ファイルによくある名前（品番なし）。大きいものは本編の可能性もあるため「要確認」に回す
-    if (zh && !id) return f.size < AD_VIDEO_MAX ? { level: 'del', reason: '広告・宣伝（品番のない宣伝向けの名前）' } : { level: 'review', reason: '品番のないファイル（作品の可能性）' };
-    if (!id && f.size < SPREAD_MAX && spreadNames.has(name.toLowerCase())) return { level: 'del', reason: '広告・宣伝（品番がなく、複数のフォルダに同じ名前）' };
-    if (!id && workDirs.has(f.parentId)) return f.size < AD_VIDEO_MAX ? { level: 'del', reason: '広告・宣伝（作品フォルダの中の、品番のない小さなファイル）' } : { level: 'review', reason: '作品フォルダの中の、品番のないファイル' };
-    if (zh) return { level: 'review', reason: '品番あり・作品の可能性（念のため確認）' };
-    return null;
-  }
-  // 計画: [{id, name, path, parentId, size, thumb, level, reason}]
-  function buildJunkPlan(files, folders) {
-    prepJunk(files, folders);
-    return files.map((f) => { const j = junkInfo(f); return j ? { ...f, level: j.level, reason: j.reason } : null; }).filter(Boolean)
-      .sort((a, b) => (a.level === b.level ? 0 : a.level === 'del' ? -1 : 1) || a.path.localeCompare(b.path) || a.name.localeCompare(b.name));
-  }
-
-  // ---------- 仕上げ：(1) を外す・空フォルダを片付ける ----------
-  // 重複を削除したあとに残る「中身が空のフォルダ」をゴミ箱へ移し、
-  // 同じ場所に元の名前が無くなったフォルダ・ファイルの (n) を外す
-  const PAREN_DIR = /^(.*?)\s?\((\d+)\)$/;
-  const PAREN_FILE = /^(.*?)\s?\((\d+)\)(\.[A-Za-z0-9]{2,5})$/;
-  // 計画: [{op:'trash'|'rename', kind, id, parentId, ptrail, path, cur, target, status:'todo'|'skip', note}]
-  function buildCleanPlan(files, folders) {
-    const plan = [];
-    const fTrail = new Map(folders.map((f) => [f.id, f.trail]));
-    const fPath = new Map(folders.map((f) => [f.id, f.path]));
-    const nChild = new Map();
-    files.forEach((f) => nChild.set(f.parentId, (nChild.get(f.parentId) || 0) + 1));
-    folders.forEach((f) => nChild.set(f.parentId, (nChild.get(f.parentId) || 0) + 1));
-    const isEmpty = (f) => !nChild.get(f.id);
-    const protectedDir = (f) => f.isRoot || f.parentId === 'root' || f.parentId === ''; // 読み込み起点とホーム直下（My Pack 等）は触らない
-    const item = (op, kind, x, pid, target, status, note) => ({ op, kind, id: x.id, parentId: pid, ptrail: fTrail.get(pid), path: fPath.has(pid) ? fPath.get(pid) : (x.path || ''), cur: x.name, target, status: fTrail.get(pid) ? status : 'skip', note: fTrail.get(pid) ? note : '場所の情報がありません（ホームから読み込み直してください）' });
-    const sib = (arr) => { const m = new Map(); arr.forEach((x) => { if (!m.has(x.parentId)) m.set(x.parentId, []); m.get(x.parentId).push(x); }); return m; };
-    // フォルダ：同じ場所の「X」「X(1)」「X(2)」…をまとめて判断
-    sib(folders.filter((f) => !protectedDir(f))).forEach((list, pid) => {
-      const groups = new Map();
-      list.forEach((f) => { const m = f.name.match(PAREN_DIR); const b = m ? m[1] : f.name; const k = b.toLowerCase(); if (!groups.has(k)) groups.set(k, { base: b, items: [] }); groups.get(k).items.push({ f, n: m ? +m[2] : 0 }); });
-      groups.forEach(({ base, items }) => {
-        items.sort((a, b) => a.n - b.n);
-        const empties = items.filter((o) => isEmpty(o.f)), full = items.filter((o) => !isEmpty(o.f));
-        empties.forEach((o) => plan.push(item('trash', 'folder', o.f, pid, '', 'todo', items.length > 1 ? '中身が空の同名フォルダ' : '中身が空のフォルダ')));
-        if (full.length === 1) {
-          const o = full[0];
-          if (o.f.name !== base) plan.push(item('rename', 'folder', o.f, pid, base, 'todo', empties.length ? '空の同名フォルダを片付けたあとに外します' : ''));
-        } else if (full.length > 1) {
-          full.filter((o) => o.n > 0).forEach((o) => plan.push(item('rename', 'folder', o.f, pid, base, 'skip', '中身のある同名フォルダが複数あります（「重複を比べて削除」で整理してください）')));
-        }
-      });
-    });
-    // 入れ子：X の中身が「X と同じ名前のフォルダ 1 つだけ」なら、中身を 1 つ上へ出して入れ子をなくす
-    //   例：FC2-PPV-123/FC2-PPV-123/FC2-PPV-123.mp4 → FC2-PPV-123/FC2-PPV-123.mp4
-    //   複数の作品が入ったフォルダ（オムニバスなど）は対象外
-    const junkDel = (typeof junkEnabled === 'function' && junkEnabled()) ? (prepJunk(files, folders), (f) => { const j = junkInfo(f); return !!j && j.level === 'del'; }) : () => false;
-    const dKids = sib(folders.filter((f) => !f.isRoot)), fKids = sib(files);
-    folders.forEach((P) => {
-      if (P.isRoot || P.parentId === 'root' || P.parentId === '') return;
-      const cd = dKids.get(P.id) || [], cf = (fKids.get(P.id) || []).filter((f) => !junkDel(f));
-      if (cd.length !== 1 || cf.length) return;
-      const C = cd[0];
-      if (baseName(C.name).toLowerCase() !== baseName(P.name).toLowerCase()) return;
-      plan.push(item('flatten', 'folder', C, P.id, P.name, 'todo', '同じ名前のフォルダが入れ子になっているため、中身を 1 つ上の「' + P.name + '」へ出して、空になったフォルダを片付けます'));
-    });
-    // ファイル：同じ場所に元の名前が無ければ (n) を外す
-    sib(files).forEach((list, pid) => {
-      const taken = new Set(list.map((x) => x.name.toLowerCase()));
-      list.map((x) => ({ x, m: x.name.match(PAREN_FILE) })).filter((o) => o.m)
-        .sort((a, b) => (+a.m[2] - +b.m[2]) || a.x.name.localeCompare(b.x.name))
-        .forEach(({ x, m }) => {
-          const to = m[1] + m[3];
-          if (taken.has(to.toLowerCase())) { plan.push(item('rename', 'file', x, pid, to, 'skip', '同じ場所に「' + to + '」が残っています（「重複を比べて削除」で整理してください）')); return; }
-          taken.delete(x.name.toLowerCase()); taken.add(to.toLowerCase());
-          plan.push(item('rename', 'file', x, pid, to, 'todo', ''));
-        });
-    });
-    // 空フォルダの片付け → 入れ子の解消（深い階層から） → 名前の変更 の順に実行する
-    const ORDER = { trash: 0, flatten: 1, rename: 2 };
-    return plan.sort((a, b) => (ORDER[a.op] - ORDER[b.op]) || (a.op === 'flatten' ? (b.ptrail || []).length - (a.ptrail || []).length : 0));
-  }
   // ---------- PikPak API を直接呼ぶ（画面操作なし・バックグラウンド処理） ----------
   // ログイン中のPikPak画面が保存している認証情報を、このブラウザ内でだけ使います（外部へは送りません）。
   const API = 'https://api-drive.mypikpak.com/drive/v1';

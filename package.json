@@ -5,11 +5,12 @@
   "scripts": {
     "build": "node scripts/build.js",
     "check": "node scripts/build.js --check",
-    "test": "node scripts/build.js --check && node --check pikpak-distill.user.js && node tests/work-id.test.js && node tests/e2e/run.js",
-    "test:unit": "node tests/work-id.test.js",
+    "test": "node scripts/build.js --check && node --check pikpak-distill.user.js && npm run test:unit && node tests/e2e/run.js",
+    "test:unit": "node --test tests/unit/*.test.mjs",
     "test:e2e": "node tests/e2e/run.js"
   },
   "devDependencies": {
+    "esbuild": "0.28.2",
     "playwright": "1.63.0"
   }
 }

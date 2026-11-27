@@ -271,7 +271,7 @@
   //   上：ファイル名と ✕／中：動画と操作バー・見ながら仕分け／下：情報・画質・コマ一覧・場所を開く・外部プレーヤー
   //   速度・歯車・全画面・前へ／次へは操作バーだけに置く（二重に置かない）
   const pvHeadHtml = (name, closeAttr) => `<div class="pv-hd"><b title="${esc(name)}">${esc(name)}</b><button type="button" class="pv-x" ${closeAttr} title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>`;
-  const pvFootHtml = (o) => `<div class="pv-ft"><div class="pv-inf"><div><span data-pvinfo>${o.info}</span><span data-pvdim></span></div><div class="note" title="${esc(o.path)}">${esc(o.path)}</div>${o.extra || ''}</div>${o.acts === false ? '' : `<div class="pv-acts"><span class="pv-q"></span><button type="button" data-pvinfob title="作品名・販売者・女優などを見る（I）">ⓘ 作品情報</button><button type="button" data-pvframes title="動画の中身をコマで見る">▦ コマ一覧</button><button type="button" data-pvloc title="この動画のあるフォルダを、フォルダ一覧で開く">場所を開く</button><button type="button" class="pri" data-pvext title="外部プレーヤーで開く（オリジナル画質）">↗ 外部プレーヤー</button></div>`}</div>`;
+  const pvFootHtml = (o) => `<div class="pv-ft"><div class="pv-inf"><div><span data-pvinfo>${o.info}</span><span data-pvdim></span></div><div class="note" title="${esc(o.path)}">${esc(o.path)}</div>${o.extra || ''}</div>${o.acts === false ? '' : `<div class="pv-acts"><span class="pv-q"></span><button type="button" data-pvinfob title="作品名・販売者・出演者などを見る（I）">ⓘ 作品情報</button><button type="button" data-pvframes title="動画の中身をコマで見る">▦ コマ一覧</button><button type="button" data-pvloc title="この動画のあるフォルダを、フォルダ一覧で開く">場所を開く</button><button type="button" class="pri" data-pvext title="外部プレーヤーで開く（オリジナル画質）">↗ 外部プレーヤー</button></div>`}</div>`;
   function pvWire(root, h) {
     const on = (sel, fn) => { const b = root.querySelector(sel); if (!b) return; b.onclick = (e) => { e.stopPropagation(); fn(); }; };
     on('[data-pvframes]', h.frames);
@@ -308,8 +308,8 @@
     const ttl = (inf && inf.title) || (w ? titleOf(w).replace(/_/g, ' ') : '');
     el.innerHTML = `<div class="pv-ih"><b>ⓘ 作品情報</b><button type="button" class="pv-x" data-pvi-x title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
       <dl>${row('品番', w ? esc(w.label + (w.part ? '-' + w.part : '')) : none)}${row('タイトル', ttl ? esc(ttl) : none)}${row('販売者', k ? sellerHtml : none)}
-      ${row('女優', `${acts.length ? acts.map((x) => esc(x.name)).join('、') : (inf ? '<span class="mu">載っていませんでした</span>' : '<span class="mu">まだ調べていません</span>')}<div class="pv-ied"><input type="text" data-pvi-act placeholder="手入力（「、」区切り）" value="${esc(inf && inf.manual && inf.manual.actresses ? inf.manual.actresses.join('、') : '')}" aria-label="女優を手入力"><button type="button" data-pvi-save>保存</button></div>`)}
-      ${inf && inf.label ? row('レーベル', esc(inf.label)) : ''}${inf && inf.tags && inf.tags.length ? row('タグ', inf.tags.map(esc).join('・')) : ''}${inf && inf.date ? row('配信日', esc(inf.date)) : ''}${inf && inf.dur ? row('収録時間', esc(inf.dur)) : ''}${inf && inf.mosaic ? row('モザイク', esc(inf.mosaic)) : ''}</dl>
+      ${row('出演者', `${acts.length ? acts.map((x) => esc(x.name)).join('、') : (inf ? '<span class="mu">載っていませんでした</span>' : '<span class="mu">まだ調べていません</span>')}<div class="pv-ied"><input type="text" data-pvi-act placeholder="手入力（「、」区切り）" value="${esc(inf && inf.manual && inf.manual.actresses ? inf.manual.actresses.join('、') : '')}" aria-label="出演者を手入力"><button type="button" data-pvi-save>保存</button></div>`)}
+      ${inf && inf.label ? row('レーベル', esc(inf.label)) : ''}${inf && inf.tags && inf.tags.length ? row('タグ', inf.tags.map(esc).join('・')) : ''}${inf && inf.date ? row('配信日', esc(inf.date)) : ''}${inf && inf.dur ? row('収録時間', esc(inf.dur)) : ''}</dl>
       ${k && !k.noLookup ? `<div class="pv-ia"><button type="button" class="pri" data-pvi-look>${inf || sel ? '↻ 調べ直す' : '🔍 調べる'}</button><span class="mu">${inf ? '調べた日：' + esc(fmtDate(inf.at, 'ymd')) : (k.kind === 'fanza' ? 'FANZA の作品ページを小さなウィンドウで開いて読み取ります（年齢確認が出たら「はい」を押してください）' : 'fd2ppv.cc・fc2cmadb.com を小さなウィンドウで開いて読み取ります')}</span></div>` : ''}
       ${k ? `<div class="pv-il"><span class="mu">外部サイトで確かめる</span>${extSites(k).map(([n, , u]) => `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(n)}</a>`).join('')}</div>` : '<div class="pv-il mu">ファイル名から品番が読めないため、調べられません</div>'}`;
     el.querySelector('[data-pvi-x]').onclick = (e) => { e.stopPropagation(); el.remove(); };
@@ -336,7 +336,7 @@
       const names = el.querySelector('[data-pvi-act]').value.split(/[、,，\n]/).map((x) => x.trim()).filter(Boolean).slice(0, 30);
       const o = wInfo[k.key] || { at: Date.now() };
       if (names.length) o.manual = { actresses: names }; else delete o.manual;
-      wInfo[k.key] = o; lsSetJson(LS_WINFO, wInfo); log('info', `女優を手入力：${k.label} → ${names.join('、') || '（消去）'}`); pvInfoRender(el, id, name);
+      wInfo[k.key] = o; lsSetJson(LS_WINFO, wInfo); log('info', `出演者を手入力：${k.label} → ${names.join('、') || '（消去）'}`); pvInfoRender(el, id, name);
     };
     const lb = el.querySelector('[data-pvi-look]');
     if (lb) lb.onclick = (e) => { e.stopPropagation(); lookupOne(k, () => { if (el.isConnected) pvInfoRender(el, id, name); }); };

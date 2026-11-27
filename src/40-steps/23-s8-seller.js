@@ -16,8 +16,8 @@
   const resolveKeys = (keys) => PPCore.resolveKeys(keys, sellerDb);
   const buildSellerPlan = (ds) => PPCore.buildSellerPlan(ds, { cfg: sellerCfg(), sellerDb, dirLabel });
   const saveSellerDb = () => { lsSetJson(LS_SELLER, sellerDb); };
-  // ---- 作品の情報（販売者を調べるときに一緒に読み取る：タイトル・女優・タグ・配信日・収録時間・モザイク）----
-  //   品番の鍵 → { title, actresses: [{ name, id, site }], tags, date, dur, mosaic, sellers: { サイト: { name, sid } }, manual: { actresses }, at }
+  // ---- 作品の情報（販売者を調べるときに一緒に読み取る：タイトル・出演者・タグ・配信日・収録時間）----
+  //   品番の鍵 → { title, actresses: [{ name, id, site }], tags, date, dur, sellers: { サイト: { name, sid } }, manual: { actresses }, at }
   const LS_WINFO = 'ppdup:winfo:v1';
   let wInfo = lsJson(LS_WINFO, {});
   // 4.18.x の不具合の後始末：fc2cmadb.com の上のメニューの「販売者」リンクを販売者として読んでいた記録を直す（判定は src/core/seller-plan.mjs）
@@ -28,6 +28,8 @@
     saveSellerDb(); lsSetJson(LS_WINFO, wInfo);
     setTimeout(() => { try { log('info', `販売者名の読み違い（メニューの「販売者」）を ${n} 件直しました。ほかのサイトで分かっているものはその名前に、分からないものは未調査に戻しました（「販売者を調べる」で調べ直せます）`); } catch (e) { /* 無視 */ } }, 0);
   })();
+  // 4.24.1：作品の情報から「モザイク」の記録を外す（読み取らない・表示しない）
+  (() => { let n = 0; Object.values(wInfo).forEach((o) => { if (o && 'mosaic' in o) { delete o.mosaic; n++; } }); if (n) lsSetJson(LS_WINFO, wInfo); })();
   function saveWorkInfo(k, r) {
     const i = r.info || {}, o = wInfo[k.key] || {}, site = i.site || r.src || '';
     const acts = (o.actresses || []).slice();
@@ -36,7 +38,7 @@
       ...o,
       title: i.title || o.title || '', actresses: acts.slice(0, 30),
       tags: [...new Set([...(o.tags || []), ...(i.tags || [])])].slice(0, 40),
-      date: i.date || o.date || '', dur: i.dur || o.dur || '', mosaic: i.mosaic || o.mosaic || '', label: i.label || o.label || '',
+      date: i.date || o.date || '', dur: i.dur || o.dur || '', label: i.label || o.label || '',
       sellers: { ...(o.sellers || {}), ...(r.status === 'ok' && r.name ? { [site]: { name: String(r.name).slice(0, 120), sid: String(r.sid || '').slice(0, 64) } } : {}) },
       at: Date.now(),
     };
@@ -71,15 +73,14 @@
     if (k.kind === 'fc2') {
       const id = 'FC2-PPV-' + k.num;
       return [['FD2PPV', 'FC2・配信元', `${FD2}/articles/${k.num}`], ['FC2CMADB', 'FC2 販売者', `${CMADB}/articles/${k.num}`], ['FC2DB', 'FC2 販売者', `https://fc2db.net/work/${k.num}/`], ['FC2', '公式', `https://adult.contents.fc2.com/article/${k.num}/`],
-        ['MissAV', '作品', `https://missav.ws/cn/fc2-ppv-${k.num}`], ['Supjav', '作品', `https://supjav.com/zh/?s=${encodeURIComponent(id)}`], ['JavDB', '作品', `https://javdb.com/search?q=${encodeURIComponent(id)}&f=all`], ['Sukebei', '名前で検索', `https://sukebei.nyaa.si/?f=0&c=0_0&q=${encodeURIComponent(id)}`]];
+        ['JavDB', '作品', `https://javdb.com/search?q=${encodeURIComponent(id)}&f=all`]];
     }
     const short = k.kind === 'brand' && k.date ? k.sid : '';
     const code = k.date && short ? `${k.date}${short === 'carib' ? '-' : '_'}${k.serial}` : k.kw || k.code || '';
     const jav = short ? `${short.toUpperCase()}-${k.date}-${k.serial}` : k.label;
-    const suke = short ? `${code}-${short}` : (k.kw || k.label);
     return [['FD2PPV', '配信元', `${FD2}/articles/?keyword=${encodeURIComponent(k.kw || k.label)}`], ['JavDB', 'メーカー', `https://javdb.com/search?q=${encodeURIComponent(jav)}&f=all`], ['JavBus', 'メーカー', `https://www.javbus.com/${encodeURIComponent(jav)}`],
-      ['JavLibrary', 'メーカー', `https://www.javlibrary.com/cn/vl_searchbyid.php?keyword=${encodeURIComponent(jav)}`], ['MissAV', '作品', `https://missav.ws/cn/${encodeURIComponent(jav.toLowerCase())}`], ['Supjav', '作品', `https://supjav.com/zh/?s=${encodeURIComponent(code || jav)}`],
-      ['Sukebei', '名前で検索', `https://sukebei.nyaa.si/?f=0&c=0_0&q=${encodeURIComponent(suke)}`], ['DMM', 'FANZA', `https://www.dmm.co.jp/search/=/searchstr=${encodeURIComponent(code || jav)}`]];
+      ['JavLibrary', 'メーカー', `https://www.javlibrary.com/cn/vl_searchbyid.php?keyword=${encodeURIComponent(jav)}`],
+      ['DMM', 'FANZA', `https://www.dmm.co.jp/search/=/searchstr=${encodeURIComponent(code || jav)}`]];
   }
   function openExt(btn, id) {
     closeExt();
@@ -132,7 +133,7 @@
         <div class="sl-prog"><div class="bar"><i class="ok" style="width:${L.ok / Math.max(1, L.total) * 100}%"></i><i class="ng" style="width:${L.miss / Math.max(1, L.total) * 100}%"></i></div>
         <div class="nums"><b>${L.done} / ${L.total}（${pct}%）</b><span>🟩 分かった ${L.ok}</span><span>⬜ 分からない ${L.miss}</span><span>${esc(lookupEta())}（1 件 ${sellerCfg().interval} 秒＋読み込み）</span></div></div></div>
         ${L.challenge ? '<button class="pri" data-a="skick" title="確認を済ませても続きが始まらないときに押す（ウィンドウを開き直して、同じ作品を調べ直します）">確認が済んだら：続きを調べる</button>' : ''}<button data-a="spause">${L.paused ? '再開' : '一時停止'}</button><button data-a="stop">中断</button>`;
-    } else if (st === 1) msg = `<div class="tx"><b>未調査が ${pend} 件あります。まず販売者を調べます</b><small>小さなウィンドウで fd2ppv.cc の作品ページを開いて調べます。見つからない・販売者や女優などが足りないときだけ、fc2cmadb.com も開きます。調べるだけでは移動しません。</small></div><button class="pri" data-a="slookup"${busy ? ' disabled' : ''}>販売者を調べる（${pend} 件）</button>`;
+    } else if (st === 1) msg = `<div class="tx"><b>未調査が ${pend} 件あります。まず販売者を調べます</b><small>小さなウィンドウで fd2ppv.cc の作品ページを開いて調べます。見つからない・販売者や出演者などが足りないときだけ、fc2cmadb.com も開きます。調べるだけでは移動しません。</small></div><button class="pri" data-a="slookup"${busy ? ' disabled' : ''}>販売者を調べる（${pend} 件）</button>`;
     else if (st === 2) msg = `<div class="tx"><b>${unk} 件は販売者が分かりませんでした。外部サイトで確かめて入力してください</b><small>${selPlan.length} 件中 ${selPlan.length - unk} 件は決まりました${parts ? `（${parts}）` : ''}。入力しなくても「${esc(sellerCfg().unknown)}」「${esc(sellerCfg().review)}」へまとめて移動できます。</small></div><button class="pri" data-a="sshowunk">分からない ${unk} 件を確かめる</button><button data-a="sack">このまま ③ 移動へ</button>`;
     else msg = `<div class="tx"><b>${mv ? `チェックした ${mv} 件を移動できます。下のボタンで実行します` : 'チェックの入った作品がありません'}</b><small>${selPlan.length} 件中 ${selPlan.length - unk} 件は販売者が決まりました${parts ? `（${parts}）` : ''}。まずは「先頭1件だけ試す」で動きを確かめてください。削除はしません。</small></div>${unk ? `<button data-a="sunack">② に戻る（分からない ${unk} 件）</button>` : ''}`;
     const ib = infoBarHtml();
@@ -140,7 +141,7 @@
   }
   function infoBarHtml() {
     const nMiss = lookupSt.on ? 0 : infoTargets('missing').length, nDiff = sellerDiffs().length;
-    return lookupSt.on ? '' : `<div class="sl-ib"><span class="tx"><b>作品の情報（女優・タイトル・サイトごとの販売者名など）</b><small>${nMiss ? `情報がまだない作品が ${nMiss} 件あります` : '情報はそろっています'}</small></span>
+    return lookupSt.on ? '' : `<div class="sl-ib"><span class="tx"><b>作品の情報（出演者・タイトル・サイトごとの販売者名など）</b><small>${nMiss ? `情報がまだない作品が ${nMiss} 件あります` : '情報はそろっています'}</small></span>
       <button data-a="sinfo" data-v="missing"${nMiss ? '' : ' disabled'}>情報がない作品だけ調べる（${nMiss}）</button><button data-a="sinfo" data-v="all" title="調べ終わった作品も含めて、すべて調べ直します（時間がかかります）">すべて調べ直す</button>
       <button data-a="sdiff"${nDiff ? ' class="pri"' : ''} title="記録している販売者名とサイトの名前、またはサイトどうしの名前が違う作品を確かめます">販売者名の違い（${nDiff}）</button></div>`;
   }
@@ -378,7 +379,7 @@
     return r;
   }
   // FC2 はまず fd2ppv.cc だけを調べる（軽くするため）。次のときだけ fc2cmadb.com も調べる：
-  //   見つからない・販売者が読めない・返事がない（時間切れなど）・タイトルや女優が空で情報が足りない
+  //   見つからない・販売者が読めない・返事がない（時間切れなど）・タイトルや出演者が空で情報が足りない
   const hardStop = (r) => r.status === 'closed' || r.status === 'challenge' || r.status === 'severed';
   const needMore = (r) => r.status !== 'ok' || !r.info || !r.info.title || !(r.info.actresses || []).length;
   async function lookupAny(ref, k, onCh) {
@@ -461,7 +462,7 @@
     if (info) keys.push(...infoTargets(mode));
     else selPlan.filter((p) => p.kind === 'pending').forEach((p) => p.keys.forEach((k) => { if (k.kind !== 'brand' && !sellerDb[k.key] && !seen.has(k.key)) { seen.add(k.key); keys.push(k); } }));
     if (!keys.length) { status(info ? '調べる作品はありません（情報はそろっています）。' : '未調査の作品はありません。'); return; }
-    if (info && !window.confirm(`作品の情報（女優・タイトル・タグ・配信日・収録時間・サイトごとの販売者名）を ${keys.length} 作品分調べます。\n\n・FC2 は fd2ppv.cc を開き、足りない情報があるときだけ fc2cmadb.com も開きます。ABC-123 の形は FANZA を開きます\n・目安：約 ${Math.max(1, Math.round(keys.length * (sellerCfg().interval + 6) * 1.6 / 60))} 分（確認画面が出るとさらにかかります）。途中で一時停止・中断できます\n・記録済みの販売者は変えません（違いは「販売者名の違い」で確かめられます）。手入力した女優名も上書きしません\n\n始めますか？`)) return;
+    if (info && !window.confirm(`作品の情報（出演者・タイトル・タグ・配信日・収録時間・サイトごとの販売者名）を ${keys.length} 作品分調べます。\n\n・FC2 は fd2ppv.cc を開き、足りない情報があるときだけ fc2cmadb.com も開きます。ABC-123 の形は FANZA を開きます\n・目安：約 ${Math.max(1, Math.round(keys.length * (sellerCfg().interval + 6) * 1.6 / 60))} 分（確認画面が出るとさらにかかります）。途中で一時停止・中断できます\n・記録済みの販売者は変えません（違いは「販売者名の違い」で確かめられます）。手入力した出演者名も上書きしません\n\n始めますか？`)) return;
     // ポップアップを止められないよう、押した直後に開く
     let win = window.open('about:blank', 'ppdup-lookup', 'width=560,height=720');
     if (!win) { status('小さなウィンドウを開けませんでした。ブラウザのアドレスバーで、このサイトのポップアップを許可してから、もう一度押してください。'); return; }

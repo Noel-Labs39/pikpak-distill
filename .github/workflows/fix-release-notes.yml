@@ -1,0 +1,27 @@
+# 一度だけ使う：過去のリリースの本文を、公開の決まり（CLAUDE.md「公開するものに入れないもの」）に合わせて書き直す
+#   直した本文は release-notes/fix-2026-11.json（tag ごとの name・body）
+#   使い方：GitHub の「Actions」→「Fix release notes」→「Run workflow」。済んだら、このファイルと JSON は次の PR で消す
+name: Fix release notes
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rewrite release notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          n=$(jq length release-notes/fix-2026-11.json)
+          for i in $(seq 0 $((n - 1))); do
+            tag=$(jq -r ".[$i].tag" release-notes/fix-2026-11.json)
+            id=$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${tag}" --jq .id)
+            jq "{name: .[$i].name, body: .[$i].body}" release-notes/fix-2026-11.json \
+              | gh api -X PATCH "repos/${GITHUB_REPOSITORY}/releases/${id}" --input - --jq .tag_name
+          done

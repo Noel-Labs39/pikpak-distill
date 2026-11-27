@@ -9,22 +9,22 @@ const CASES = [
   ['FC2-PPV-1234567.mp4', 'x', 'FC2-PPV-1234567.mp4', 'FC2-PPV-1234567', 'FC2-PPV-1234567'],
   ['FC2PPV-1234567_2.mp4', 'x', 'FC2-PPV-1234567-2.mp4', 'FC2-PPV-1234567', 'FC2-PPV-1234567#2'],
   ['fc2_ppv_1234567 part1.mkv', 'x', 'FC2-PPV-1234567-1.mkv', 'FC2-PPV-1234567', 'FC2-PPV-1234567#1'],
-  ['hhd800.com@FC2-PPV-4988183_1.mp4', 'x', 'FC2-PPV-4988183-1.mp4', 'FC2-PPV-4988183', 'FC2-PPV-4988183#1'],
-  ['4k688.com@FC2-PPV-4988183-A.mp4', 'x', 'FC2-PPV-4988183-A.mp4', 'FC2-PPV-4988183', 'FC2-PPV-4988183#A'],
+  ['sample.com@FC2-PPV-2345678_1.mp4', 'x', 'FC2-PPV-2345678-1.mp4', 'FC2-PPV-2345678', 'FC2-PPV-2345678#1'],
+  ['sample.net@FC2-PPV-2345678-A.mp4', 'x', 'FC2-PPV-2345678-A.mp4', 'FC2-PPV-2345678', 'FC2-PPV-2345678#A'],
   ['FC2-PPV-1234567 (1).mp4', 'x', 'FC2-PPV-1234567(1).mp4', 'FC2-PPV-1234567', 'FC2-PPV-1234567'],
   ['FC2-PPV-1234567 サンプル作品 前編-3.mp4', 'x', 'FC2-PPV-1234567-3_サンプル作品_前編.mp4', 'FC2-PPV-1234567', 'FC2-PPV-1234567#3'],
   ['FC2-PPV-1234567 第2話.mp4', 'x', 'FC2-PPV-1234567-2.mp4', 'FC2-PPV-1234567', 'FC2-PPV-1234567#2'],
   // PPV が抜けている
-  ['FC2-4927660.mp4', 'FC2-PPV-4927660', 'FC2-PPV-4927660.mp4', 'FC2-PPV-4927660', 'FC2-PPV-4927660'],
-  ['FC2_4927660_2.mp4', 'x', 'FC2-PPV-4927660-2.mp4', 'FC2-PPV-4927660', 'FC2-PPV-4927660#2'],
+  ['FC2-3456789.mp4', 'FC2-PPV-3456789', 'FC2-PPV-3456789.mp4', 'FC2-PPV-3456789', 'FC2-PPV-3456789'],
+  ['FC2_3456789_2.mp4', 'x', 'FC2-PPV-3456789-2.mp4', 'FC2-PPV-3456789', 'FC2-PPV-3456789#2'],
   // ② 数字だけで、フォルダの品番と同じ
-  ['3189316-1.mp4', 'FC2-PPV-3189316', 'FC2-PPV-3189316-1.mp4', 'FC2-PPV-3189316', 'FC2-PPV-3189316#1'],
-  ['3189316-2.mp4', 'FC2-PPV-3189316', 'FC2-PPV-3189316-2.mp4', 'FC2-PPV-3189316', 'FC2-PPV-3189316#2'],
-  ['3576378.mp4', 'FC2-PPV-3576378', 'FC2-PPV-3576378.mp4', 'FC2-PPV-3576378', 'FC2-PPV-3576378'],
-  ['sample.com@3576378.mp4', 'FC2-PPV-3576378', 'FC2-PPV-3576378.mp4', 'FC2-PPV-3576378', 'FC2-PPV-3576378'],
+  ['4567890-1.mp4', 'FC2-PPV-4567890', 'FC2-PPV-4567890-1.mp4', 'FC2-PPV-4567890', 'FC2-PPV-4567890#1'],
+  ['4567890-2.mp4', 'FC2-PPV-4567890', 'FC2-PPV-4567890-2.mp4', 'FC2-PPV-4567890', 'FC2-PPV-4567890#2'],
+  ['5678901.mp4', 'FC2-PPV-5678901', 'FC2-PPV-5678901.mp4', 'FC2-PPV-5678901', 'FC2-PPV-5678901'],
+  ['sample.com@5678901.mp4', 'FC2-PPV-5678901', 'FC2-PPV-5678901.mp4', 'FC2-PPV-5678901', 'FC2-PPV-5678901'],
   // 数字だけでも、フォルダと違う・フォルダが作品でない → 品番とみなさない
-  ['3576378.mp4', 'FC2-PPV-9999999', null, null, ''],
-  ['3576378.mp4', 'sample-folder', null, null, ''],
+  ['5678901.mp4', 'FC2-PPV-9999999', null, null, ''],
+  ['5678901.mp4', 'sample-folder', null, null, ''],
   ['20260609.mp4', 'FC2-PPV-1234567', null, null, ''],
   // ③ FC2 以外：ABC-123 の形にそろえる（番号の頭の 0 は外して 3 けた）。連番も読む
   ['ABC-123.mp4', 'x', 'ABC-123.mp4', 'ABC-123', 'ABC-123'],
@@ -45,7 +45,7 @@ const CASES = [
   ['promo_video.mp4', 'ABC-123', null, null, ''],
   // タイトルを残す：品番（-連番）_タイトル。サイト名・URL・宣伝の【】・画質の表記は外し、空白と使えない記号は「_」
   ['FC2-PPV-1234567 夏の思い出【高画質】 1080p.mp4', 'x', 'FC2-PPV-1234567_夏の思い出.mp4', 'FC2-PPV-1234567', 'FC2-PPV-1234567'],
-  ['hhd800.com@FC2-PPV-1234567_1 サンプル 題名.mp4', 'x', 'FC2-PPV-1234567-1_サンプル_題名.mp4', 'FC2-PPV-1234567', 'FC2-PPV-1234567#1'],
+  ['sample.com@FC2-PPV-1234567_1 サンプル 題名.mp4', 'x', 'FC2-PPV-1234567-1_サンプル_題名.mp4', 'FC2-PPV-1234567', 'FC2-PPV-1234567#1'],
   ['サンプル題名 FC2PPV-1234567.mp4', 'x', 'FC2-PPV-1234567_サンプル題名.mp4', 'FC2-PPV-1234567', 'FC2-PPV-1234567'],
   ['FC2-PPV-1234567 x:y?z*w.mp4', 'x', 'FC2-PPV-1234567_x_y_z_w.mp4', 'FC2-PPV-1234567', 'FC2-PPV-1234567'],
   ['FC2-PPV-1234567 【サンプル】題名 (1).mp4', 'x', 'FC2-PPV-1234567_【サンプル】題名(1).mp4', 'FC2-PPV-1234567', 'FC2-PPV-1234567'],
@@ -81,7 +81,7 @@ CASES.forEach(([name, dir, clean]) => { if (!clean) return; const again = W.fc2C
   .forEach(([a, b]) => { if (W.dupKeyOf(a, 'x') !== W.dupKeyOf(b, 'x')) { ng++; console.log('NG 同じ鍵にならない', a, b); } });
 if (W.dupKeyOf('FC2-PPV-1234567-1_題名.mp4', 'x') === W.dupKeyOf('FC2-PPV-1234567-2_題名.mp4', 'x')) { ng++; console.log('NG -1 と -2 が同じ鍵'); }
 // フォルダ名にそろえる品番（baseName）
-[['FC2-PPV-1234567_2.mp4', '', 'FC2-PPV-1234567'], ['3189316-1.mp4', 'FC2-PPV-3189316', 'FC2-PPV-3189316'], ['hhd800.com@FC2-1234567.mp4', '', 'FC2-PPV-1234567']]
+[['FC2-PPV-1234567_2.mp4', '', 'FC2-PPV-1234567'], ['4567890-1.mp4', 'FC2-PPV-4567890', 'FC2-PPV-4567890'], ['sample.com@FC2-1234567.mp4', '', 'FC2-PPV-1234567']]
   .forEach(([n, d, want]) => { const got = W.baseName(n, d); if (got !== want) { ng++; console.log('NG baseName', n, d, 'want', want, 'got', got); } });
 console.log(ng ? `${ng} 件 NG` : `OK（${CASES.length} 件の見本）`);
 process.exit(ng ? 1 : 0);

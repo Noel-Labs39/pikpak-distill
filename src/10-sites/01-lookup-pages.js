@@ -1,7 +1,7 @@
 (async function () {
   'use strict';
   // 販売者を調べるときに開くページ（fd2ppv.cc・fc2cmadb.com）：「販売者を調べる」で開いた小さなウィンドウの中だけで動き、
-  // 販売者と作品の情報（タイトル・女優・タグ・配信日・収録時間・モザイク）を読み取って PikPak の画面へ知らせる（ほかには何もしない）
+  // 販売者と作品の情報（タイトル・出演者・タグ・配信日・収録時間）を読み取って PikPak の画面へ知らせる（ほかには何もしない）
   if (location.hostname === 'fd2ppv.cc' || location.hostname === 'fc2cmadb.com' || location.hostname === 'video.dmm.co.jp') {
     const hm = location.hash.match(/#ppdup-lookup(?:=([\w-]+))?/);
     // Safari は別サイトへ移るとウィンドウ名を消し、初回はサイト側の切り替えで # も消えることがあるため、
@@ -34,7 +34,7 @@
             site: 'fanza', title: String(title).replace(/\s+/g, ' ').trim().slice(0, 300),
             actresses: at ? [...at.querySelectorAll('a')].map((x) => ({ name: x.textContent.replace(/\s+/g, ' ').trim().slice(0, 60), id: idIn(x.getAttribute('href'), 'actress') })).filter((x) => x.name && !/^[-－―]+$/.test(x.name)).slice(0, 20) : [],
             tags: gn ? [...gn.querySelectorAll('a')].map((x) => x.textContent.trim().replace(/^#/, '').slice(0, 40)).filter(Boolean).slice(0, 30) : [],
-            date: txOf(/^配信開始日[:：]?$/) || txOf(/^商品発売日[:：]?$/), dur: txOf(/^収録時間[:：]?$/), mosaic: '',
+            date: txOf(/^配信開始日[:：]?$/) || txOf(/^商品発売日[:：]?$/), dur: txOf(/^収録時間[:：]?$/),
             label: txOf(/^レーベル[:：]?$/), code: txOf(/^メーカー品番[:：]?$/),
           };
           send(ma ? { status: 'ok', name: ma.textContent.trim(), sid: 'fanza-maker-' + idIn(ma.getAttribute('href'), 'maker'), info } : { status: 'noseller', info });
@@ -65,7 +65,7 @@
         title: ((document.querySelector('.work-brief') || {}).textContent || '').replace(/\s+/g, ' ').trim().slice(0, 300),
         actresses: [...new Map([...document.querySelectorAll('.artist-info-card a[href*="/actresses/"], a.artistUrl[href*="/actresses/"]')].map((x) => [idOf(x.getAttribute('href')), { name: x.textContent.replace(/\s+/g, ' ').trim().slice(0, 60), id: idOf(x.getAttribute('href')) }])).values()].filter((x) => x.name && x.id).slice(0, 20),
         tags: [...new Set([...document.querySelectorAll('a[href^="/tags/"]')].filter((x) => !/^\/tags\/actresses\//.test(x.getAttribute('href')) && /^#/.test(x.textContent.trim())).map((x) => x.textContent.trim().replace(/^#/, '').slice(0, 40)))].slice(0, 30),
-        date: lv(/^(配信日|販売日|發行日|发行日|Release)/i), dur: lv(/^(収録時間|時長|时长|Duration)/i), mosaic: lv(/^(モザイク|Mosaic)/i),
+        date: lv(/^(配信日|販売日|發行日|发行日|Release)/i), dur: lv(/^(収録時間|時長|时长|Duration)/i),
       };
       const lab = label(/^(販売者|賣家|卖家|Sellers?|판매자)$/i);
       let a = lab && lab.nextElementSibling ? lab.nextElementSibling.querySelector('a[href*="/channels/"]') : null;
@@ -93,7 +93,7 @@
         title: ((document.querySelector('h1') || {}).textContent || '').replace(/\s+/g, ' ').trim().slice(0, 300),
         actresses: at ? [...at.querySelectorAll('a[href*="/actresses/"]')].map((x) => ({ name: x.textContent.replace(/\s+/g, ' ').trim().slice(0, 60), id: decodeURIComponent((x.getAttribute('href').match(/\/actresses\/([^/?#]+)/) || [])[1] || '') })).filter((x) => x.name).slice(0, 20) : [],
         tags: tg ? [...tg.querySelectorAll('a')].map((x) => x.textContent.trim().slice(0, 40)).filter(Boolean).slice(0, 30) : [],
-        date: txOf(/販売日|配信日/), dur: txOf(/収録時間/), mosaic: txOf(/モザイク/),
+        date: txOf(/販売日|配信日/), dur: txOf(/収録時間/),
       };
     };
     const tick = () => {
@@ -106,7 +106,7 @@
       if (!a && /^404|ページが見つかりません|Not Found/i.test(document.title)) { send({ status: 'notfound' }); return; }
       const fin = (d) => { if (sent) return; sent = true; try { mo.disconnect(); } catch (e) { /* 無視 */ } send(d); };
       if (a) {
-        // 女優の欄は少し遅れて表示されるので、空のうちは少しだけ待つ（最大 2 秒）
+        // 出演者（サイトの表記は「女優」）の欄は少し遅れて表示されるので、空のうちは少しだけ待つ（最大 2 秒）
         if (!tA) tA = Date.now();
         const at = tdOf(/女優|Actress/i); if (at && !at.textContent.trim() && Date.now() - tA < 2000) { setTimeout(tick, 250); return; }
         const sid = sidOf(a, /\/writers\/([^/?#]+)/); fin(sid ? { status: 'ok', name: a.textContent.trim(), sid, info: cmInfo() } : { status: 'noseller', info: cmInfo() }); return;
@@ -157,5 +157,5 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.24.0'; // @version と合わせて更新する
+  const VER = '4.24.1'; // @version と合わせて更新する
 

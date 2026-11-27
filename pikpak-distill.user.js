@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.23.2
+// @version      4.24.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -177,7 +177,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.23.2'; // @version と合わせて更新する
+  const VER = '4.24.0'; // @version と合わせて更新する
 
   // ---------- 判定の部品（src/core/*.mjs）----------
   // 組み立てのときに esbuild で 1 つにまとめて、下の印の場所に入れる（PPCore）。画面側からは今までと同じ名前で呼ぶ
@@ -2658,7 +2658,7 @@
   #pd-lib .pp-mode button{flex:1;height:34px;border-radius:17px;border:1px solid var(--line,#dde0e6);background:transparent;color:var(--fg);font-weight:700;cursor:pointer}
   #pd-lib .pp-mode button.on{background:var(--pri,#306fff);border-color:var(--pri,#306fff);color:#fff}
   #pd-lib .pp-q{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mute)}
-  #pd-lib .pp-q input{height:34px;border:1px solid var(--line,#dde0e6);border-radius:8px;padding:0 10px;font-size:14px;background:var(--bg2,#fff);color:var(--fg)}
+  #pd-lib .pp-q input{height:34px;border:1px solid var(--line,#dde0e6);border-radius:8px;padding:0 10px;font-size:14px;background:var(--ctl);color:var(--fg)}
   #pd-lib .pp-names{display:flex;flex-direction:column;gap:2px;max-height:60vh;overflow:auto}
   #pd-lib .pp-names button{display:flex;justify-content:space-between;gap:8px;padding:8px 10px;border:0;border-radius:8px;background:none;color:var(--fg);text-align:left;cursor:pointer;font-size:14px}
   #pd-lib .pp-names button:hover{background:var(--hov,#0000000d)}
@@ -2670,7 +2670,7 @@
   #pd-lib .pp-hd{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 12px;margin:0 0 12px}
   #pd-lib .pp-hd b{font-size:18px}
   #pd-lib .pp-sub{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-  #pd-lib .pp-chip{border:1px solid var(--line,#dde0e6);border-radius:999px;background:var(--bg2,#fff);color:var(--fg);padding:2px 10px;font-size:12px;cursor:pointer}
+  #pd-lib .pp-chip{border:1px solid var(--line,#dde0e6);border-radius:999px;background:var(--ctl);color:var(--fg);padding:2px 10px;font-size:12px;cursor:pointer}
   @media (max-width:720px){#pd-lib .pp-wrap{flex-direction:column}#pd-lib .pp-side{width:100%;position:static}#pd-lib .pp-names{max-height:30vh}}
   .pv-info .pv-ppl{display:flex;flex-direction:column;gap:4px;margin:0;padding:0 12px 8px}
   .pv-info .pv-ppl a{color:#7aa2ff}
@@ -2969,6 +2969,19 @@
   #ppdup.narrow .sv-dock.open .dk-q{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
   #ppdup .sv-dock .dk-q button{height:auto;padding:12px 8px;border-radius:16px;display:flex;flex-direction:column;align-items:flex-start;gap:2px;background:var(--panel2);border:0}
   #ppdup .sv-dock .dk-q small{font-size:11px;color:var(--mute);font-weight:500}
+  /* ---- 4.24 全体の骨組み：左メニューのまとまり・上のバーの検索と名前付きボタン ---- */
+  #ppdup .rail .rl-grp{display:none}
+  #ppdup:not(.pop):not(.narrow):not(.navmin) .rail .rl-grp{display:block;flex:none;padding:12px 12px 4px;font-size:11px;font-weight:800;color:var(--mute);letter-spacing:.04em}
+  #ppdup:not(.pop):not(.narrow):not(.navmin) .rail .rl-grp:first-child{padding-top:2px}
+  #ppdup .rail .rl-sep{margin-top:auto}
+  #ppdup .rail .rl-acct{margin-top:6px}
+  #ppdup:not(.phone) .hq{display:inline-flex}
+  #ppdup:not(.narrow):not(.pop) .sv-dock .dk-b [data-a=addlink],#ppdup:not(.narrow):not(.pop) .sv-dock .dk-b [data-a=rescan]{display:none}
+  #ppdup:not(.navhide):not(.narrow) header .hbtn[data-a=settings],#ppdup:not(.navhide):not(.narrow) header .hbtn.hacct{display:none!important}
+  #ppdup.pop header .hscan > span,#ppdup.narrow header .hscan > span{display:none}
+  #ppdup:not(.pop):not(.narrow) header .brand > .hbtn[data-a=addlink]{width:auto;padding:0 12px!important}
+  #ppdup:not(.pop):not(.narrow) header .brand > .hbtn[data-a=addlink] > span{display:inline}
+  @media (max-width:1100px){#ppdup header .hscan > span,#ppdup header .brand > .hbtn[data-a=addlink] > span{display:none!important}#ppdup header .hscan,#ppdup header .brand > .hbtn[data-a=addlink]{width:38px;padding:0!important;justify-content:center}}
   `;
   const style = document.createElement('style'); style.textContent = css; document.head.appendChild(style);
 
@@ -3034,33 +3047,32 @@
   const root = document.createElement('div'); root.id = 'ppdup';
   root.innerHTML = `
     <aside class="rail" data-r="rail">
-      <button data-a="toflow" data-rail="flow" title="整理（1〜7のステップ）">${RAIL_IC.flow}<span>整理</span></button>
+      <div class="rl-grp" aria-hidden="true">整理する</div>
+      <button data-a="toflow" data-rail="flow" title="整理（1〜8 のステップ）">${RAIL_IC.flow}<span>整理</span></button>
       <button data-a="tree" data-rail="tree" title="フォルダ一覧（Finder やエクスプローラーのように、フォルダを開いて中身を見られます）">${RAIL_IC.tree}<span>フォルダ​一覧</span></button>
-      <button data-a="lib" data-v="dl" data-rail="lib-dl" title="追加したもの（リンク・マグネットで追加した作品の保存状況とダウンロードの進み具合）">${RAIL_IC.dl}<span>追加したもの</span><i class="rb" data-r="rb-dl"></i></button>
+      <div class="rl-grp" aria-hidden="true">見る</div>
       <button data-a="lib" data-v="recent" data-rail="lib-recent" title="最近追加したもの（追加日の新しい順）">${RAIL_IC.recent}<span>最近の追加</span><i class="rb" data-r="rb-recent"></i></button>
       <button data-a="lib" data-v="cont" data-rail="lib-cont" title="続きを見る（途中で止めた動画）">${RAIL_IC.cont}<span>続きを見る</span></button>
       <button data-a="lib" data-v="people" data-rail="lib-people" title="出演者・販売者（作品の情報から、出演者・販売者ごとに作品を並べます。フォルダは動かしません）">${RAIL_IC.people}<span>出演者・販売者</span></button>
-      <button data-a="lib" data-v="cand" data-rail="lib-cand" title="消す候補（見ながら仕分けで D を付けたもの）">${RAIL_IC.cand}<span>消す候補</span><i class="rb" data-r="rb-cand"></i></button>
-      <button data-a="lib" data-v="hist" data-rail="lib-hist" title="再生した履歴">${RAIL_IC.hist}<span>再生履歴</span><i class="rb" data-r="rb-hist"></i></button>
       <button data-a="lib" data-v="star" data-rail="lib-star" title="スター付き">${RAIL_IC.star}<span>スター</span><i class="rb" data-r="rb-star"></i></button>
+      <button data-a="lib" data-v="hist" data-rail="lib-hist" title="再生した履歴">${RAIL_IC.hist}<span>再生履歴</span><i class="rb" data-r="rb-hist"></i></button>
+      <div class="rl-grp" aria-hidden="true">片付ける</div>
+      <button data-a="lib" data-v="dl" data-rail="lib-dl" title="追加したもの（リンク・マグネットで追加した作品の保存状況とダウンロードの進み具合）">${RAIL_IC.dl}<span>追加したもの</span><i class="rb" data-r="rb-dl"></i></button>
+      <button data-a="lib" data-v="cand" data-rail="lib-cand" title="消す候補（見ながら仕分けで D を付けたもの）">${RAIL_IC.cand}<span>消す候補</span><i class="rb" data-r="rb-cand"></i></button>
       <button data-a="lib" data-v="trash" data-rail="lib-trash" title="ゴミ箱（中身を見る・元に戻す・完全に削除）">${RAIL_IC.trash}<span>ゴミ箱</span><i class="rb" data-r="rb-trash"></i></button>
-      <button data-a="addlink" data-rail="add" title="リンク・マグネットを追加">${RAIL_IC.add}<span>リンク</span></button>
-      <button data-a="rescan" data-rail="scan" title="最新の状態を読み込み直す">${RAIL_IC.scan}<span>再読み込み</span></button>
-      <button data-a="settings" data-rail="set" title="設定（表示・再生・整理・情報）">${RAIL_IC.set}<span>設定</span></button>
       <div class="rl-sep"></div>
+      <button data-a="settings" data-rail="set" title="設定（表示・再生・整理・情報）">${RAIL_IC.set}<span>設定</span></button>
       <button class="rl-sub" data-a="log" title="ログを見る・不具合を報告する">${RAIL_IC.log}<span>ログ・不具合の報告</span></button>
-      <button class="rl-sub" data-a="setinfo" title="設定や記録を書き出す・読み込む">${RAIL_IC.setinfo}<span>書き出し／読み込み</span></button>
-      <button class="rl-sub" data-a="changelog" title="更新履歴（いまは v${VER}）">${RAIL_IC.changelog}<span>更新履歴（v${VER}）</span></button>
       <button class="rl-acct" data-a="acct" data-r="acct" title="PikPak のログイン状態と同期"></button>
     </aside>
     <header>
       <div class="brand"><button class="hbtn hic" data-a="navtoggle" title="左のメニューの表示を切り替える" aria-label="左のメニューの表示を切り替える"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>${LOGO}<h1 class="wm" aria-label="PikPak Distill – Dedupe"><small>PIKPAK DISTILL</small><span class="gw"><i aria-hidden="true">Dedupe</i><i aria-hidden="true">Dedupe</i><b>Dedupe</b></span></h1><span class="ver" title="いま動いているバージョン">v${VER}</span><span class="sp"></span>
-        <label class="hq" title="名前で絞り込み">${IC.search}<input type="text" data-a="tq" placeholder="名前で絞り込み・検索"></label><span class="seg hqs" data-r="tqs" title="探す範囲"><button data-a="tqs" data-v="here">このフォルダ</button><button data-a="tqs" data-v="all">すべて</button></span>
+        <label class="hq" title="名前で絞り込み">${IC.search}<input type="text" data-a="tq" placeholder="検索（品番・名前）"></label><span class="seg hqs" data-r="tqs" title="探す範囲"><button data-a="tqs" data-v="here">このフォルダ</button><button data-a="tqs" data-v="all">すべて</button></span>
         <div class="pd-quota" data-r="quota"></div>
         <span class="seg thm" data-r="theme" role="group" aria-label="テーマ"></span>
         <button class="hbtn" data-a="lang" title="表示言語を切り替える">${IC.globe}<span class="raw" data-r="langname"></span></button>
         <button class="hbtn" data-a="addlink" title="リンク・マグネットを追加（追加する前に、もうあるか確かめる）">${IC.link}<span>リンクを追加</span></button>
-        <button class="hbtn hic" data-a="edgescroll" data-r="edgebtn" title="端でスクロール：マウスを一覧の下（上）の端へ持っていくと、ゆっくりスクロールします" aria-label="端でスクロール"><svg viewBox="0 0 24 24"><path d="M12 4v16M8 8l4-4 4 4M8 16l4 4 4-4"/></svg></button>
+        <button class="hbtn hscan" data-a="rescan" title="PikPak の最新の状態を読み込み直す">${RAIL_IC.scan}<span>読み込み直す</span></button>
         <button class="hbtn hic" data-a="bell" title="お知らせ（エラー・新しいバージョン）" aria-label="お知らせ"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><i data-r="logbadge"></i></button>
         <button class="hbtn hacct" data-a="acct" data-r="acctbtn" title="PikPak のログイン状態と同期"></button>
         <button class="hbtn" data-a="settings" title="設定（表示・再生・整理・情報）">${IC.gear}<span>設定</span></button>
@@ -6095,14 +6107,14 @@
       <div class="tabs" role="tablist">${SET_TABS.map(([k, l]) => `<button role="tab" data-s="tab" data-v="${k}" class="${setTab === k ? 'on' : ''}" aria-selected="${setTab === k}">${l}</button>`).join('')}</div>
       <div class="bd">
         ${sec('view') ? `<h3>表示</h3>
-        <div class="row"><span><b>テーマ</b><small>右上のボタンと同じ設定です</small></span><span class="seg">${[['light', 'ライト'], ['dark', 'ダーク'], ['auto', '自動']].map(([k, l]) => `<button data-s="theme" data-v="${k}" class="${th === k ? 'on' : ''}">${l}</button>`).join('')}</span></div>
+        <div class="row"><span><b>テーマ</b></span><span class="seg">${[['light', 'ライト'], ['dark', 'ダーク'], ['auto', '自動']].map(([k, l]) => `<button data-s="theme" data-v="${k}" class="${th === k ? 'on' : ''}">${l}</button>`).join('')}</span></div>
         <div class="row col"><b>開き方</b>${[['full', '全画面（おすすめ）', 'PikPak の画面を Dedupe に切り替えて、広い画面で使います'], ['pop', 'ポップアップ', 'PikPak の画面の上に重ねて開きます。動かしたり大きさを変えたりでき、後ろの PikPak もそのまま使えます']].map(([k, l, d]) => `<label><input type="radio" name="pdopen" data-s="openmode" value="${k}"${(root.classList.contains('on') ? winMode : openPref()) === k ? ' checked' : ''}> <span><b>${l}</b><small style="display:block">${d}</small></span></label>`).join('')}</div>
         <div class="row"><span><b>表示言語</b></span><select data-s="lang"><option value="auto"${lp === 'auto' ? ' selected' : ''}>自動（ブラウザ）</option><option value="ja" data-raw${lp === 'ja' ? ' selected' : ''}>日本語</option><option value="en" data-raw${lp === 'en' ? ' selected' : ''}>English</option></select></div>
         <div class="row"><span><b>フォルダ一覧の表示</b></span><select data-s="tview"><option value="list"${tree.view === 'list' ? ' selected' : ''}>☰ リスト</option><option value="thumb"${tree.view === 'thumb' ? ' selected' : ''}>▤ サムネイル</option><option value="tile"${tree.view === 'tile' ? ' selected' : ''}>▦ タイル</option></select></div>
         <label class="row"><span><b>サムネイルをぼかす</b><small>人に画面を見られても分からないよう、サムネイル・プレビュー・コマをぼかします（このブラウザだけの設定）</small></span><input type="checkbox" data-s="blur"${blurOn() ? ' checked' : ''}></label>
         <label class="row"><span><b>マウスを乗せたら、はっきり表示</b><small>「サムネイルをぼかす」がオンのとき、マウスを乗せた（スマホは押している）間だけぼかしを外します</small></span><input type="checkbox" data-s="blurhov"${blurHov() ? ' checked' : ''}${blurOn() ? '' : ' disabled'}></label>
         <label class="row"><span><b>起動時に Dedupe を全画面で開く</b><small>PikPak を開いたら、最初から Dedupe の画面で使います（✕ で閉じれば PikPak の画面に戻ります）。開いている画面は URL に残るので、戻る・再読み込み・ブックマークで同じ画面に戻れます</small></span><input type="checkbox" data-s="autostart"${autoStart() ? ' checked' : ''}></label>
-        <label class="row"><span><b>端でスクロール</b><small>一覧の下（上）の端にマウスを持っていくと、ゆっくりスクロールします。上のバーの ⇕ ボタンでも切り替えられます</small></span><input type="checkbox" data-s="edge"${edgeOn() ? ' checked' : ''}></label>
+        <label class="row"><span><b>端でスクロール</b><small>一覧の下（上）の端にマウスを持っていくと、ゆっくりスクロールします</small></span><input type="checkbox" data-s="edge"${edgeOn() ? ' checked' : ''}></label>
         <div class="row"><span><b>入口ボタン（Dedupe）の位置</b><small>ボタンはドラッグで好きな場所へ動かせます（右クリックで置き場所を選べます）。既定は PikPak の左メニューの空き</small></span><button data-s="fabreset"${fabSaved() ? '' : ' disabled'}>元に戻す</button></div>
         <label class="row"><span><b>ホバーでサムネイル</b><small>マウスを乗せたときにサムネイルを大きく表示します</small></span><input type="checkbox" data-s="hover"${tree.hover !== false ? ' checked' : ''}></label>
         <div class="row"><span><b>フォルダ一覧の操作</b><small>${esc(helpTree)}</small></span></div>` : ''}
@@ -6796,7 +6808,7 @@
   root.addEventListener('click', (e) => { const r = e.target.closest('[data-sr]'); if (r && view === 'tree' && !busy) revealInTree(r.dataset.sr); });
   const syncTqs = () => root.querySelectorAll('[data-a=tqs]').forEach((b) => b.classList.toggle('on', (tree.qs || 'here') === b.dataset.v));
   syncTqs();
-  root.addEventListener('input', (e) => { if (e.target.dataset.kq !== undefined && kitQ[view] !== undefined) { kitQ[view] = e.target.value; clearTimeout(kitQ.t); kitQ.t = setTimeout(() => { render(); const q = $('[data-kq]'); if (q) { q.focus(); q.setSelectionRange(q.value.length, q.value.length); } }, 250); return; } if (e.target.dataset.a === 'q') render(); if (e.target.dataset.a === 'tq') { tree.q = e.target.value; renderTree(); } });
+  root.addEventListener('input', (e) => { if (e.target.dataset.kq !== undefined && kitQ[view] !== undefined) { kitQ[view] = e.target.value; clearTimeout(kitQ.t); kitQ.t = setTimeout(() => { render(); const q = $('[data-kq]'); if (q) { q.focus(); q.setSelectionRange(q.value.length, q.value.length); } }, 250); return; } if (e.target.dataset.a === 'q') render(); if (e.target.dataset.a === 'tq') { tree.q = e.target.value; if (view !== 'tree' && tree.q.trim()) { if (busy) return; tree.qs = 'all'; syncTqs(); setView('tree'); const qi = $('[data-a=tq]'); if (qi) { qi.value = tree.q; qi.focus(); } } renderTree(); } });
   // ---------- 開き方（ポップアップ／全画面） ----------
   // ポップアップは PikPak の画面の上に重ねる小さな画面。見出しをつかんで移動、右下で大きさを変える。位置と大きさは覚えておく
   const LS_OPEN = 'ppdup:open:v1', LS_POPGEOM = 'ppdup:popgeom:v1', LS_POPBAN = 'ppdup:popban:v1';
@@ -7884,7 +7896,6 @@
     const d = document.getElementById('pd-lib'); if (!d || !libSt) return;
     const S = libSt, tab = S.tab, grid = LIB_GRID.has(tab);
     const when = (t) => fmtDate(t);
-    const tabs = LIB_TABS.map(([k, l]) => `<button class="lb-tab${k === tab ? ' on' : ''}" data-lbtab="${k}">${LIB_IC[k]}<span>${l}</span>${k === 'dl' && libBadge.dl ? `<i>${libBadge.dl}</i>` : k === 'trash' && libBadge.trash ? `<i>${libBadge.trash}</i>` : ''}</button>`).join('');
     const selectable = tab === 'dl' || tab === 'trash' || tab === 'star' || tab === 'cand';
     const cb = (it) => `<input type="checkbox" data-lbi="${esc(it.id)}"${S.sel.has(it.id) ? ' checked' : ''}${S.busy ? ' disabled' : ''} aria-label="選ぶ">`;
     // どこまで見たか（青い線。見終わったものは灰色の線）
@@ -7961,7 +7972,6 @@
     const note = { people: '作品の情報から、出演者・販売者ごとに作品を並べます（フォルダは動かしません）。右クリック・長押しでメニュー。', dl: 'リンク・マグネットで追加したもの（直近 60 日）。すぐ保存した分は保存先にあるかを、クラウドダウンロードの分は進み具合を確かめて表示します。「一覧から外す」は記録とタスクを消すだけで、保存したファイルは消しません。', recent: '追加日の新しい順（読み込んだ範囲：' + esc(dirLabel((scanRoot() || {}).id) || '—') + '）。' + pvTip, cand: '見ながら仕分けで「消す候補」にしたもの。選んで「ゴミ箱へ」で PikPak のゴミ箱へ移します（すぐには消しません）。', cont: '途中で止めた動画（新しい順）。開くと前回の続きから再生します。', hist: 'Dedupe と PikPak で再生した動画（新しい順）。Dedupe で再生した分はこのブラウザに記録します。' + pvTip, star: 'PikPak でスターを付けた項目。' + pvTip, trash: `ゴミ箱の中身${quota ? `（${fmtCap(quota.trash)}）` : ''}。「完全に削除」「空にする」は元に戻せません。` }[tab];
     const all = selectable && S.items.length ? `<label class="note lb-all"><input type="checkbox" data-lball${n && n === S.items.length ? ' checked' : ''}${dis}> すべて選ぶ</label>` : '';
     const html = `<div class="lk-box" role="dialog" aria-label="${esc(LIB_TABS.find((x) => x[0] === tab)[1])}"><div class="lk-hd"><b>${LIB_TABS.find((x) => x[0] === tab)[1]}</b><span class="note">${S.items.length && !S.loading ? S.items.length + ' 項目' : ''}</span><span class="sp"></span>${grid ? `<span class="seg lb-vw" title="表示のしかた">${[['list', tab === 'recent' ? '🌲 ツリー' : '☰ リスト'], ['thumb', '▤ サムネイル'], ['tile', '▦ タイル']].map(([k, l]) => `<button data-lbview="${k}" class="${lv === k ? 'on' : ''}">${l}</button>`).join('')}</span>${lv === 'list' && tab === 'recent' ? '<span class="seg"><button data-lbtall="open" title="すべて開く">⊞ 全展開</button><button data-lbtall="close" title="すべて閉じる">⊟ 全格納</button></span>' : ''}<button data-lbauto class="${libAuto() ? 'on' : ''}" title="プレビューで動画が終わったら、次の動画を続けて再生します">${libAuto() ? '✓ ' : ''}続けて再生</button>` : ''}${grid && lv === 'tile' ? `<span class="seg lb-sz" title="サムネイルの大きさ">${[['s', '小'], ['m', '中'], ['l', '大']].map(([k, l]) => `<button data-lbsz="${k}" class="${lsz === k ? 'on' : ''}">${l}</button>`).join('')}</span>` : ''}<button data-lbreload title="読み込み直す"${dis}>更新</button><button class="x" data-lbclose title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
-      <div class="lb-tabs">${tabs}</div>
       <div class="lb-note">${note}</div>
       <div class="lk-list">${all}${body}</div>
       <div class="lk-ft">${libActs()}</div></div>`;

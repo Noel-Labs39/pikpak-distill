@@ -354,7 +354,6 @@
     const d = document.getElementById('pd-lib'); if (!d || !libSt) return;
     const S = libSt, tab = S.tab, grid = LIB_GRID.has(tab);
     const when = (t) => fmtDate(t);
-    const tabs = LIB_TABS.map(([k, l]) => `<button class="lb-tab${k === tab ? ' on' : ''}" data-lbtab="${k}">${LIB_IC[k]}<span>${l}</span>${k === 'dl' && libBadge.dl ? `<i>${libBadge.dl}</i>` : k === 'trash' && libBadge.trash ? `<i>${libBadge.trash}</i>` : ''}</button>`).join('');
     const selectable = tab === 'dl' || tab === 'trash' || tab === 'star' || tab === 'cand';
     const cb = (it) => `<input type="checkbox" data-lbi="${esc(it.id)}"${S.sel.has(it.id) ? ' checked' : ''}${S.busy ? ' disabled' : ''} aria-label="選ぶ">`;
     // どこまで見たか（青い線。見終わったものは灰色の線）
@@ -431,7 +430,6 @@
     const note = { people: '作品の情報から、出演者・販売者ごとに作品を並べます（フォルダは動かしません）。右クリック・長押しでメニュー。', dl: 'リンク・マグネットで追加したもの（直近 60 日）。すぐ保存した分は保存先にあるかを、クラウドダウンロードの分は進み具合を確かめて表示します。「一覧から外す」は記録とタスクを消すだけで、保存したファイルは消しません。', recent: '追加日の新しい順（読み込んだ範囲：' + esc(dirLabel((scanRoot() || {}).id) || '—') + '）。' + pvTip, cand: '見ながら仕分けで「消す候補」にしたもの。選んで「ゴミ箱へ」で PikPak のゴミ箱へ移します（すぐには消しません）。', cont: '途中で止めた動画（新しい順）。開くと前回の続きから再生します。', hist: 'Dedupe と PikPak で再生した動画（新しい順）。Dedupe で再生した分はこのブラウザに記録します。' + pvTip, star: 'PikPak でスターを付けた項目。' + pvTip, trash: `ゴミ箱の中身${quota ? `（${fmtCap(quota.trash)}）` : ''}。「完全に削除」「空にする」は元に戻せません。` }[tab];
     const all = selectable && S.items.length ? `<label class="note lb-all"><input type="checkbox" data-lball${n && n === S.items.length ? ' checked' : ''}${dis}> すべて選ぶ</label>` : '';
     const html = `<div class="lk-box" role="dialog" aria-label="${esc(LIB_TABS.find((x) => x[0] === tab)[1])}"><div class="lk-hd"><b>${LIB_TABS.find((x) => x[0] === tab)[1]}</b><span class="note">${S.items.length && !S.loading ? S.items.length + ' 項目' : ''}</span><span class="sp"></span>${grid ? `<span class="seg lb-vw" title="表示のしかた">${[['list', tab === 'recent' ? '🌲 ツリー' : '☰ リスト'], ['thumb', '▤ サムネイル'], ['tile', '▦ タイル']].map(([k, l]) => `<button data-lbview="${k}" class="${lv === k ? 'on' : ''}">${l}</button>`).join('')}</span>${lv === 'list' && tab === 'recent' ? '<span class="seg"><button data-lbtall="open" title="すべて開く">⊞ 全展開</button><button data-lbtall="close" title="すべて閉じる">⊟ 全格納</button></span>' : ''}<button data-lbauto class="${libAuto() ? 'on' : ''}" title="プレビューで動画が終わったら、次の動画を続けて再生します">${libAuto() ? '✓ ' : ''}続けて再生</button>` : ''}${grid && lv === 'tile' ? `<span class="seg lb-sz" title="サムネイルの大きさ">${[['s', '小'], ['m', '中'], ['l', '大']].map(([k, l]) => `<button data-lbsz="${k}" class="${lsz === k ? 'on' : ''}">${l}</button>`).join('')}</span>` : ''}<button data-lbreload title="読み込み直す"${dis}>更新</button><button class="x" data-lbclose title="閉じる（Esc）" aria-label="閉じる">${IC.x}</button></div>
-      <div class="lb-tabs">${tabs}</div>
       <div class="lb-note">${note}</div>
       <div class="lk-list">${all}${body}</div>
       <div class="lk-ft">${libActs()}</div></div>`;

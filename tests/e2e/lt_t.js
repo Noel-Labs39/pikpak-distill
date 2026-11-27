@@ -7,7 +7,7 @@ const fs = require('fs');
     localStorage.setItem('ppdup:winfo:v1', JSON.stringify({ 1111111: { title: 'x', sellers: { fd2ppv: { name: '正しい名前', sid: 'good' }, fc2cmadb: { name: '販売者', sid: 'bookmark-ranking' } }, at: 1 } }));
   };
   const { b, p, SP } = await open({ '': [{ id: 'F', name: 'サンプル', kind: 'drive#folder' }], F: [mk('a', 'FC2-PPV-1234567.mp4'), mk('b', 'FC2-PPV-7654321.mp4'), mk('c', 'FC2-PPV-1111111.mp4')] }, 'https://mypikpak.com/drive/all', pre);
-  console.log('後始末', await p.evaluate(() => [JSON.parse(localStorage.getItem('ppdup:seller:v1'))['1111111'], JSON.parse(localStorage.getItem('ppdup:winfo:v1'))['1111111'].sellers]));
+  console.log('後始末', await p.evaluate(() => [JSON.parse(PPDup.lsGet('ppdup:seller:v1'))['1111111'], JSON.parse(PPDup.lsGet('ppdup:winfo:v1'))['1111111'].sellers]));
   const ctx = p.context();
   const SRC = fs.readFileSync(require('path').join(__dirname, '..', '..', 'pikpak-distill.user.js'), 'utf8');
   await ctx.addInitScript({ content: `if (/fd2ppv|fc2cmadb/.test(location.hostname)) addEventListener('DOMContentLoaded', () => { ${SRC} });` });
@@ -23,7 +23,7 @@ const fs = require('fs');
   for (let i = 0; i < 160; i++) { await p.waitForTimeout(500); if (await p.evaluate(() => /作品の情報を調べました/.test((document.querySelector('[data-r=status]') || {}).textContent || ''))) break; }
   console.log('開いたページ', hits.filter((h) => !/top|\?/.test(h)).join(','));
   console.log('status', await p.evaluate(() => (document.querySelector('[data-r=status]') || {}).textContent));
-  console.log('7654321', await p.evaluate(() => JSON.stringify(JSON.parse(localStorage.getItem('ppdup:winfo:v1'))['7654321'].sellers)));
+  console.log('7654321', await p.evaluate(() => JSON.stringify(JSON.parse(PPDup.lsGet('ppdup:winfo:v1'))['7654321'].sellers)));
   await p.click('[data-a=sdiff]'); await p.waitForTimeout(300);
   const btns = () => p.evaluate(() => [...document.querySelectorAll('#pd-dlg tbody tr')].map((tr) => [...tr.querySelectorAll('button')].map((x) => (x.disabled ? '×' : '○') + x.textContent).join('|')));
   console.log('一覧', JSON.stringify(await btns()));

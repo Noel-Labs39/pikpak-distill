@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.22.2
+// @version      4.23.0
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -18,7 +18,7 @@
 // @require      https://cdn.jsdelivr.net/npm/hls.js@1.6.15/dist/hls.min.js#sha256=413a83e2bb0c77ed0bf0be105d539d17ef45dfd984a0b13ecd3b14a901383938
 // @run-at       document-idle
 // ==/UserScript==
-(function () {
+(async function () {
   'use strict';
   // 販売者を調べるときに開くページ（fd2ppv.cc・fc2cmadb.com）：「販売者を調べる」で開いた小さなウィンドウの中だけで動き、
   // 販売者と作品の情報（タイトル・女優・タグ・配信日・収録時間・モザイク）を読み取って PikPak の画面へ知らせる（ほかには何もしない）
@@ -148,9 +148,12 @@
   const UNIT = { B: 1, KB: 1024, MB: 1048576, GB: 1073741824, TB: 1099511627776 };
   const fmt = (b) => (b >= UNIT.GB ? (b / UNIT.GB).toFixed(2) + ' GB' : b >= UNIT.MB / 10 ? (b / UNIT.MB).toFixed(1) + ' MB' : (b ? Math.max(1, Math.round(b / UNIT.KB)) : 0) + ' KB');
   // <common> ---------- 共通部品（設定の読み書き・日時と時間の表示） ----------
-  const lsGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
-  const lsSet = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
-  const lsJson = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
+  // 大きい記録（読み込み結果・作品の情報・販売者・再生の記録・ログ）は IndexedDB（bigKV）に置く。用意は 20-core/016-store.js
+  let bigKV = null;
+  const lsGet = (k) => { if (bigKV && bigKV.has(k)) return bigKV.get(k); try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const lsSet = (k, v) => { if (bigKV && bigKV.has(k)) return bigKV.set(k, v); try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
+  const lsDel = (k) => { if (bigKV && bigKV.has(k)) return bigKV.del(k); try { localStorage.removeItem(k); } catch (e) { /* 無視 */ } };
+  const lsJson = (k, d) => { try { const v = JSON.parse(lsGet(k)); return v == null ? d : v; } catch (e) { return d; } };
   const lsSetJson = (k, v) => lsSet(k, JSON.stringify(v));
   // 日時：'md' 10/29 19:14（既定）・'ymd' 2026/10/29 19:14・'full' 秒まで・'d2' 26/10/29
   const DATE_FMT = { md: { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }, ymd: { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }, full: undefined };
@@ -174,7 +177,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.22.2'; // @version と合わせて更新する
+  const VER = '4.23.0'; // @version と合わせて更新する
 
   // ---------- 判定の部品（src/core/*.mjs）----------
   // 組み立てのときに esbuild で 1 つにまとめて、下の印の場所に入れる（PPCore）。画面側からは今までと同じ名前で呼ぶ
@@ -234,6 +237,7 @@
       buildSellerPlan: () => buildSellerPlan,
       buildSortPlan: () => buildSortPlan,
       codeNum: () => codeNum,
+      createBigStore: () => createBigStore,
       createPikPakApi: () => createPikPakApi,
       dirFc2: () => dirFc2,
       dropBoxLeftovers: () => dropBoxLeftovers,
@@ -1163,6 +1167,131 @@
       }
       return plan;
     }
+
+    // src/core/store.mjs
+    var DB = "ppdup-store";
+    var ST = "kv";
+    function createBigStore({ keys, idb = globalThis.indexedDB, ls = globalThis.localStorage, log = () => {
+    }, delay = 300, setTimer = (f, ms2) => setTimeout(f, ms2) }) {
+      const BIG = new Set(keys);
+      const cache = /* @__PURE__ */ new Map(), dirty = /* @__PURE__ */ new Set();
+      let db = null, mode = "ls", timer = 0, warned = false, flushing = Promise.resolve();
+      const lsGet = (k) => {
+        try {
+          return ls.getItem(k);
+        } catch (e) {
+          return null;
+        }
+      };
+      const lsDel = (k) => {
+        try {
+          ls.removeItem(k);
+        } catch (e) {
+        }
+      };
+      const req = (r) => new Promise((res, rej) => {
+        r.onsuccess = () => res(r.result);
+        r.onerror = () => rej(r.error);
+      });
+      const done = (tx) => new Promise((res, rej) => {
+        tx.oncomplete = () => res();
+        tx.onerror = () => rej(tx.error);
+        tx.onabort = () => rej(tx.error || new Error("abort"));
+      });
+      async function ready() {
+        try {
+          if (!idb) throw new Error("IndexedDB がありません");
+          db = await new Promise((res, rej) => {
+            const r = idb.open(DB, 1);
+            r.onupgradeneeded = () => {
+              if (!r.result.objectStoreNames.contains(ST)) r.result.createObjectStore(ST);
+            };
+            r.onsuccess = () => res(r.result);
+            r.onerror = () => rej(r.error);
+            r.onblocked = () => rej(new Error("blocked"));
+          });
+          const tx = db.transaction(ST, "readonly"), os = tx.objectStore(ST);
+          await Promise.all([...BIG].map(async (k) => {
+            const v = await req(os.get(k));
+            if (typeof v === "string") cache.set(k, v);
+          }));
+          mode = "idb";
+        } catch (e) {
+          db = null;
+          mode = "ls";
+          log("warn", `大きい記録の置き場所（IndexedDB）が使えないため、今までどおりブラウザの保存領域を使います（${e && e.message || e}）`);
+          return mode;
+        }
+        const move = [...BIG].filter((k) => lsGet(k) != null);
+        if (move.length) {
+          move.forEach((k) => cache.set(k, lsGet(k)));
+          try {
+            const tx = db.transaction(ST, "readwrite"), os = tx.objectStore(ST);
+            move.forEach((k) => os.put(cache.get(k), k));
+            await done(tx);
+            const tx2 = db.transaction(ST, "readonly"), os2 = tx2.objectStore(ST);
+            const back = await Promise.all(move.map((k) => req(os2.get(k))));
+            let n = 0;
+            move.forEach((k, i) => {
+              if (back[i] === cache.get(k)) {
+                lsDel(k);
+                n++;
+              }
+            });
+            log("info", `大きい記録を IndexedDB へ移しました（${n} 件・ブラウザの保存領域を空けました）`);
+          } catch (e) {
+            log("warn", `大きい記録を IndexedDB へ移せませんでした（次に開いたときにやり直します）：${e && e.message || e}`);
+          }
+        }
+        return mode;
+      }
+      async function flush() {
+        if (mode !== "idb" || !dirty.size) return;
+        clearTimeout(timer);
+        timer = 0;
+        const ks = [...dirty];
+        dirty.clear();
+        flushing = flushing.then(async () => {
+          try {
+            const tx = db.transaction(ST, "readwrite"), os = tx.objectStore(ST);
+            ks.forEach((k) => cache.has(k) ? os.put(cache.get(k), k) : os.delete(k));
+            await done(tx);
+          } catch (e) {
+            ks.forEach((k) => dirty.add(k));
+            if (!warned) {
+              warned = true;
+              log("error", `記録を保存できませんでした（IndexedDB）：${e && e.message || e}`);
+            }
+          }
+        });
+        return flushing;
+      }
+      const later = () => {
+        if (!timer) timer = setTimer(() => {
+          timer = 0;
+          flush();
+        }, delay);
+      };
+      return {
+        keys: BIG,
+        ready,
+        flush,
+        mode: () => mode,
+        has: (k) => BIG.has(k) && mode === "idb",
+        get: (k) => cache.has(k) ? cache.get(k) : null,
+        set: (k, v) => {
+          cache.set(k, String(v));
+          dirty.add(k);
+          later();
+          return true;
+        },
+        del: (k) => {
+          cache.delete(k);
+          dirty.add(k);
+          later();
+        }
+      };
+    }
     return __toCommonJS(index_exports);
   })();
   // ↑ ここまで
@@ -1172,13 +1301,25 @@
   const buildRenamePlan = (fs, fo) => PPCore.buildRenamePlan(fs, fo, { keep: sellerBoxIds(fo) });
   const buildCleanPlan = (fs, fo) => PPCore.buildCleanPlan(fs, fo, { junk: junkEnabled() });
 
+  // ---------- 大きい記録の置き場所（IndexedDB・src/core/store.mjs） ----------
+  // 読み込み結果・作品の情報・販売者の記録・再生の記録・ログを IndexedDB に置く。起動のはじめに全部を読み、そのあとはすぐに読み書きできる
+  // （ここで待つので、この先の部品はすべて読み終えてから動く。使えないときは今までどおり localStorage）
+  bigKV = PPCore.createBigStore({
+    keys: [LS_SCAN, LS_FOLD, LS_LOG, 'ppdup:winfo:v1', 'ppdup:seller:v1', 'ppdup:media:v1'],
+    log: (lv, m) => setTimeout(() => { try { log(lv, m); } catch (e) { /* 無視 */ } }, 0),
+  });
+  await bigKV.ready();
+  // 閉じる・隠れるときは、まとめて待っている書き込みをすぐ送る
+  window.addEventListener('pagehide', () => { bigKV.flush(); });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) bigKV.flush(); });
+
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
     try {
-      const a = JSON.parse(localStorage.getItem(LS_LOG) || '[]');
+      const a = JSON.parse(lsGet(LS_LOG) || '[]');
       a.push({ t: Date.now(), level, msg: String(msg || '').slice(0, 500), ctx: ctx ? String(ctx).slice(0, 300) : '', v: VER });
       while (a.length > 300) a.shift();
-      localStorage.setItem(LS_LOG, JSON.stringify(a));
+      lsSet(LS_LOG, JSON.stringify(a));
     } catch (e) { /* 保存できなくても処理は続ける */ }
   }
   const readLog = () => { return lsJson(LS_LOG, []); };
@@ -3025,7 +3166,7 @@
 
   // ---------- 共有している状態（読み込み結果・画面の状態・各ステップの計画） ----------
   //   多くの部品から読み書きされる変数はここにまとめる（一覧は CLAUDE.md の「共有している状態」）
-  //   files / folders / meta … 読み込み結果（localStorage の scan / folders / scanmeta。保存は saveAll）
+  //   files / folders / meta … 読み込み結果（scan / folders は IndexedDB・scanmeta は localStorage。保存は saveAll）
   //   decision               … 重複で「残す／消す」を選んだ記録（ppdup:decision）
   //   view / mode            … いま開いている画面（scan・dup・tree など）／1〜8 の流れで見せるか 1 つだけか
   //   busy / afterScan       … 何か実行中か（ほかの操作を止める）／読み込みのあとに開く画面
@@ -3040,13 +3181,14 @@
   decision = lsJson(LS_DECISION, {});
   const saveDecision = () => { lsSetJson(LS_DECISION, decision); };
   const saveAll = () => {
-    try { localStorage.setItem(LS_FOLD, JSON.stringify(folders)); localStorage.setItem(LS_SCAN, JSON.stringify(files)); return true; }
-    catch (e) {
-      // 保存容量があふれたら、サムネイルのアドレス（大きい項目）を外して保存し直す（表示中の一覧はそのまま）
-      try { localStorage.setItem(LS_SCAN, JSON.stringify(files.map(({ thumb: _t, ...x }) => x))); log('warn', `読み込み結果が大きいため、サムネイルのアドレスを外して保存しました（ファイル ${files.length} 件）`, 'scan'); return true; }
-      catch (e2) { try { localStorage.removeItem(LS_SCAN); localStorage.removeItem(LS_FOLD); localStorage.removeItem(LS_META); } catch (e3) { /* 無視 */ } log('error', `読み込み結果を保存できませんでした（ブラウザの保存容量が足りません・ファイル ${files.length} 件）。次に開いたときは読み込み直しが必要です`, 'scan'); return false; }
-    }
+    if (lsSet(LS_FOLD, JSON.stringify(folders)) && lsSet(LS_SCAN, JSON.stringify(files))) return true;
+    // 保存容量があふれたら（IndexedDB が使えず、ブラウザの保存領域を使っているとき）、サムネイルのアドレス（大きい項目）を外して保存し直す（表示中の一覧はそのまま）
+    if (lsSet(LS_SCAN, JSON.stringify(files.map(({ thumb: _t, ...x }) => x)))) { log('warn', `読み込み結果が大きいため、サムネイルのアドレスを外して保存しました（ファイル ${files.length} 件）`, 'scan'); return true; }
+    lsDel(LS_SCAN); lsDel(LS_FOLD); lsDel(LS_META);
+    log('error', `読み込み結果を保存できませんでした（ブラウザの保存容量が足りません・ファイル ${files.length} 件）。次に開いたときは読み込み直しが必要です`, 'scan');
+    return false;
   };
+
   const stateOf = (f, idx) => decision[f.id] || (idx === 0 ? 'keep' : 'del');
   const hasScan = () => !!meta && (folders.length > 0 || files.length > 0); // このバージョンで読み込んだ結果だけを使う
   let view = 'scan';
@@ -3142,7 +3284,7 @@
     d.querySelector('[data-close]').onclick = () => d.remove();
     d.querySelector('[data-copy]').onclick = async () => { try { await navigator.clipboard.writeText(text()); d.querySelector('[data-copy]').textContent = 'コピーしました'; } catch (e) { d.querySelector('[data-copy]').textContent = 'コピー失敗'; } };
     d.querySelector('[data-save]').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text()], { type: 'text/plain' })); a.download = 'pikpak-distill-log.txt'; a.click(); };
-    d.querySelector('[data-clear]').onclick = () => { if (confirm(tr('ログを消去しますか？'))) { try { localStorage.removeItem(LS_LOG); } catch (e) { /* 無視 */ } d.remove(); updateLogBadge(); } };
+    d.querySelector('[data-clear]').onclick = () => { if (confirm(tr('ログを消去しますか？'))) { lsDel(LS_LOG); d.remove(); updateLogBadge(); } };
   }
 
   // 左メニューの「再読み込み」：いきなり始めず、確認してから（読み込み中はファイルの操作ができないため）
@@ -7882,7 +8024,7 @@
           if (k === LS_PWX) { const pass = askPass('書き出したときの合言葉を入れると、解凍パスワードを読み込みます。'); if (pass) pwImportBox(src[k], pass).then((l) => { const n = addPws(l); log('info', `解凍パスワードを ${n} 件読み込みました`); }).catch(() => alert(tr('合言葉が違うため、解凍パスワードは読み込めませんでした'))); return; }
           let v = src[k];
           if (mode === 'merge' && EXPORT_GROUPS[g].merge) { try { const cur = JSON.parse(lsGet(k) || 'null'); const inc = JSON.parse(v); if (Array.isArray(cur) && Array.isArray(inc)) v = JSON.stringify([...new Set([...inc, ...cur])]); else if (cur && typeof cur === 'object' && inc && typeof inc === 'object') v = JSON.stringify({ ...cur, ...inc }); } catch (e) { /* そのまま */ } }
-          try { localStorage.setItem(k, v); n++; } catch (e) { /* 無視 */ }
+          if (lsSet(k, v)) n++;
         }));
         d.remove(); log('info', `設定などを読み込み（${mode === 'merge' ? '足す' : '置き換え'}・${n} 項目）`);
         status(`読み込みました（${n} 項目）。画面を読み込み直します…`);
@@ -7985,7 +8127,7 @@
       const merged = R.data ? syncMerge(local, R.data) : local;
       // 手元に反映
       let changed = [];
-      Object.entries(merged).forEach(([k, o]) => { if (!syncKeys().includes(k) || o.v == null) return; if (lsGet(k) !== o.v) { try { localStorage.setItem(k, o.v); changed.push(k); } catch (e) { /* 無視 */ } } m[k] = { h: strHash(o.v), at: o.at || 0, clr: o.clr || 0 }; });
+      Object.entries(merged).forEach(([k, o]) => { if (!syncKeys().includes(k) || o.v == null) return; if (lsGet(k) !== o.v) { if (lsSet(k, o.v)) changed.push(k); } m[k] = { h: strHash(o.v), at: o.at || 0, clr: o.clr || 0 }; });
       saveSyncMeta(m);
       if (changed.length) syncApply(changed);
       // PikPak 側と違えば、新しいファイルを置いて古いものを消す
@@ -8791,5 +8933,5 @@
   resumeAfterReload();
   ddStart();
 
-  window.PPDup = { visHooks, addJunkSweep, buildCleanPlan, buildSortPlan, buildRenamePlan, get folders() { return folders; }, scanApi, buildGroups, render, get files() { return files; }, set files(v) { files = v; } };
+  window.PPDup = { visHooks, lsGet, bigKV, addJunkSweep, buildCleanPlan, buildSortPlan, buildRenamePlan, get folders() { return folders; }, scanApi, buildGroups, render, get files() { return files; }, set files(v) { files = v; } };
 })();

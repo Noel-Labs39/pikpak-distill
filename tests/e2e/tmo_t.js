@@ -30,11 +30,11 @@ const fs = require('fs');
   await p.click('#pd-ql [data-pvi-look]');
   for (let i = 0; i < 200; i++) { await p.waitForTimeout(500); if (/サンプル女優/.test(await txt()) && !(await p.evaluate(() => document.querySelector('[data-pvi-look]') && /調べています/.test(document.body.innerText.slice(-300))))) {} if (await p.evaluate(() => /作品の情報を調べました|読み取れませんでした/.test((document.querySelector('[data-r=status]')||{}).textContent||''))) break; }
   console.log('調べた後', Math.round((Date.now() - t0) / 1000) + '秒', JSON.stringify(hits), await txt());
-  console.log('log', await p.evaluate(() => JSON.parse(localStorage.getItem('ppdup:log:v1') || '[]').filter((x) => /作品の調査|作品の情報/.test(x.msg)).map((x) => x.level + ':' + x.msg)));
+  console.log('log', await p.evaluate(() => JSON.parse(PPDup.lsGet('ppdup:log:v1') || '[]').filter((x) => /作品の調査|作品の情報/.test(x.msg)).map((x) => x.level + ':' + x.msg)));
   await p.screenshot({ path: SP + 'info_ql.png' });
   await p.fill('#pd-ql [data-pvi-act]', 'サンプルA、サンプルB'); await p.click('#pd-ql [data-pvi-save]'); await p.waitForTimeout(200);
   console.log('手入力', (await txt()).match(/女優.{0,30}/)[0]);
   await p.keyboard.press('Escape'); await p.waitForTimeout(200); console.log('Esc', await txt(), await p.evaluate(() => !!document.getElementById('pd-ql')));
-  console.log('log', await p.evaluate(() => JSON.stringify(JSON.parse(localStorage.getItem('ppdup:winfo:v1')))));
+  console.log('log', await p.evaluate(() => JSON.stringify(JSON.parse(PPDup.lsGet('ppdup:winfo:v1')))));
   await b.close();
 })();

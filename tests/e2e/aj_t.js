@@ -13,6 +13,6 @@ const pre = `(() => { localStorage.setItem('ppdup:addlog:v1', JSON.stringify([{ 
   const r1 = await p.evaluate(() => ({ t: window.__trash.slice(), d: JSON.parse(localStorage.getItem('ppdup:addlog:v1'))[0].jdone }));
   console.log((r1.t.length === 0 && !r1.d ? 'OK' : 'NG') + ' ダウンロード中は何もしない', JSON.stringify(r1));
   await p.evaluate(async () => { window.__ph = 'PHASE_TYPE_COMPLETE'; await PPDup.addJunkSweep(); });
-  const r2 = await p.evaluate(() => ({ t: window.__trash.slice(), d: JSON.parse(localStorage.getItem('ppdup:addlog:v1'))[0].jdone, lg: JSON.parse(localStorage.getItem('ppdup:log:v1') || '[]').slice(-1)[0].msg }));
+  const r2 = await p.evaluate(() => ({ t: window.__trash.slice(), d: JSON.parse(localStorage.getItem('ppdup:addlog:v1'))[0].jdone, lg: JSON.parse(PPDup.lsGet('ppdup:log:v1') || '[]').slice(-1)[0].msg }));
   console.log((r2.t.sort().join() === 'g1,g2' && r2.d ? 'OK' : 'NG') + ' 完了後に名前と大きさが合うものだけゴミ箱へ', JSON.stringify(r2));
   await b.close(); })();

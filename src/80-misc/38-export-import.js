@@ -50,7 +50,7 @@
           if (k === LS_PWX) { const pass = askPass('書き出したときの合言葉を入れると、解凍パスワードを読み込みます。'); if (pass) pwImportBox(src[k], pass).then((l) => { const n = addPws(l); log('info', `解凍パスワードを ${n} 件読み込みました`); }).catch(() => alert(tr('合言葉が違うため、解凍パスワードは読み込めませんでした'))); return; }
           let v = src[k];
           if (mode === 'merge' && EXPORT_GROUPS[g].merge) { try { const cur = JSON.parse(lsGet(k) || 'null'); const inc = JSON.parse(v); if (Array.isArray(cur) && Array.isArray(inc)) v = JSON.stringify([...new Set([...inc, ...cur])]); else if (cur && typeof cur === 'object' && inc && typeof inc === 'object') v = JSON.stringify({ ...cur, ...inc }); } catch (e) { /* そのまま */ } }
-          try { localStorage.setItem(k, v); n++; } catch (e) { /* 無視 */ }
+          if (lsSet(k, v)) n++;
         }));
         d.remove(); log('info', `設定などを読み込み（${mode === 'merge' ? '足す' : '置き換え'}・${n} 項目）`);
         status(`読み込みました（${n} 項目）。画面を読み込み直します…`);

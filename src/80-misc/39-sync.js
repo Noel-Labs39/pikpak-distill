@@ -92,7 +92,7 @@
       const merged = R.data ? syncMerge(local, R.data) : local;
       // 手元に反映
       let changed = [];
-      Object.entries(merged).forEach(([k, o]) => { if (!syncKeys().includes(k) || o.v == null) return; if (lsGet(k) !== o.v) { try { localStorage.setItem(k, o.v); changed.push(k); } catch (e) { /* 無視 */ } } m[k] = { h: strHash(o.v), at: o.at || 0, clr: o.clr || 0 }; });
+      Object.entries(merged).forEach(([k, o]) => { if (!syncKeys().includes(k) || o.v == null) return; if (lsGet(k) !== o.v) { if (lsSet(k, o.v)) changed.push(k); } m[k] = { h: strHash(o.v), at: o.at || 0, clr: o.clr || 0 }; });
       saveSyncMeta(m);
       if (changed.length) syncApply(changed);
       // PikPak 側と違えば、新しいファイルを置いて古いものを消す

@@ -17,7 +17,7 @@
     d.querySelector('[data-close]').onclick = () => d.remove();
     d.querySelector('[data-copy]').onclick = async () => { try { await navigator.clipboard.writeText(text()); d.querySelector('[data-copy]').textContent = 'コピーしました'; } catch (e) { d.querySelector('[data-copy]').textContent = 'コピー失敗'; } };
     d.querySelector('[data-save]').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text()], { type: 'text/plain' })); a.download = 'pikpak-distill-log.txt'; a.click(); };
-    d.querySelector('[data-clear]').onclick = () => { if (confirm(tr('ログを消去しますか？'))) { try { localStorage.removeItem(LS_LOG); } catch (e) { /* 無視 */ } d.remove(); updateLogBadge(); } };
+    d.querySelector('[data-clear]').onclick = () => { if (confirm(tr('ログを消去しますか？'))) { lsDel(LS_LOG); d.remove(); updateLogBadge(); } };
   }
 
   // 左メニューの「再読み込み」：いきなり始めず、確認してから（読み込み中はファイルの操作ができないため）

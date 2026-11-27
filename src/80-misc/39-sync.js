@@ -43,6 +43,14 @@
       } else v = { ...(vb || {}), ...(va || {}) };
       out[k] = { v: JSON.stringify(v), at: Math.max(a.at || 0, b.at || 0), clr };
     });
+    // 販売者名の読み違い（4.18.x）が PikPak 側の古い記録から戻ってこないよう、合わせた結果からも取り除く
+    if (out[LS_SELLER] || out[LS_WINFO]) {
+      const sdb = parseJ(out[LS_SELLER] && out[LS_SELLER].v, {}) || {}, wi = parseJ(out[LS_WINFO] && out[LS_WINFO].v, {}) || {};
+      if (PPCore.fixMisreadSellers(sdb, wi)) {
+        if (out[LS_SELLER]) out[LS_SELLER] = { ...out[LS_SELLER], v: JSON.stringify(sdb) };
+        if (out[LS_WINFO]) out[LS_WINFO] = { ...out[LS_WINFO], v: JSON.stringify(wi) };
+      }
+    }
     return out;
   }
   // Thunder 方式のハッシュ（PikPak のファイル作成に必要）
@@ -115,6 +123,7 @@
   // ほかの環境の内容を取り込んだら、画面に反映する
   function syncApply(keys) {
     if (keys.includes(LS_SELLER)) { sellerDb = parseJ(lsGet(LS_SELLER), {}) || {}; }
+    if (keys.includes(LS_WINFO)) { wInfo = parseJ(lsGet(LS_WINFO), {}) || {}; }
     if (keys.includes(LS_DECISION)) { decision = parseJ(lsGet(LS_DECISION), {}) || {}; }
     if (keys.includes(LS_THEME)) applyTheme();
     if (keys.includes(LS_LANG) && resolveLang() !== LANG) setLang(langPref());

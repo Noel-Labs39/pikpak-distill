@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.23.1
+// @version      4.23.2
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -177,7 +177,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.23.1'; // @version と合わせて更新する
+  const VER = '4.23.2'; // @version と合わせて更新する
 
   // ---------- 判定の部品（src/core/*.mjs）----------
   // 組み立てのときに esbuild で 1 つにまとめて、下の印の場所に入れる（PPCore）。画面側からは今までと同じ名前で呼ぶ
@@ -207,6 +207,7 @@
       AD_EXT: () => AD_EXT,
       AD_VIDEO_MAX: () => AD_VIDEO_MAX,
       AD_WORD: () => AD_WORD,
+      BAD_SELLER_NAME: () => BAD_SELLER_NAME,
       BRANDS: () => BRANDS,
       CODE2_RE: () => CODE2_RE,
       CODE_NG: () => CODE_NG,
@@ -215,6 +216,7 @@
       FC2_RE: () => FC2_RE,
       JUNK_MAX: () => JUNK_MAX,
       KANA: () => KANA,
+      NAV_SID: () => NAV_SID,
       NO_ACT: () => NO_ACT,
       NO_SEL: () => NO_SEL,
       PAREN_DIR: () => PAREN_DIR,
@@ -243,8 +245,10 @@
       dropBoxLeftovers: () => dropBoxLeftovers,
       dupKeyOf: () => dupKeyOf,
       fc2CleanName: () => fc2CleanName,
+      fixMisreadSellers: () => fixMisreadSellers,
       hasWorkId: () => hasWorkId,
       isDropBox: () => isDropBox,
+      isMisreadSeller: () => isMisreadSeller,
       junkInfo: () => junkInfo,
       keyOf: () => keyOf,
       keyRec: () => keyRec,
@@ -1174,6 +1178,36 @@
         });
       }
       return plan;
+    }
+    var NAV_SID = /^(bookmark-ranking|ranking|all|new|search|comments?)$/i;
+    var BAD_SELLER_NAME = /^(販売者|Sellers?|賣家|卖家)$/i;
+    var isMisreadSeller = (x) => !!x && (NAV_SID.test(String(x.sid || "")) || BAD_SELLER_NAME.test(String(x.name || "").trim()));
+    function fixMisreadSellers(sellerDb = {}, wInfo = {}, now = Date.now()) {
+      const keys = /* @__PURE__ */ new Set();
+      Object.entries(wInfo).forEach(([key, o]) => {
+        if (!o || !o.sellers) return;
+        let hit = false;
+        Object.keys(o.sellers).forEach((st) => {
+          if (isMisreadSeller(o.sellers[st])) {
+            delete o.sellers[st];
+            hit = true;
+          }
+        });
+        if (hit) {
+          delete o.ack;
+          o.at = now;
+          keys.add(key);
+        }
+      });
+      Object.entries(sellerDb).forEach(([key, rec]) => {
+        if (!rec || rec.src === "manual" || !isMisreadSeller(rec)) return;
+        const ss = wInfo[key] && wInfo[key].sellers || {};
+        const st = Object.keys(ss).find((s) => ss[s] && ss[s].sid && !isMisreadSeller(ss[s]));
+        if (st) sellerDb[key] = { name: ss[st].name, sid: ss[st].sid, src: st === "fd2ppv" ? "fd2ppv" : "fc2cmadb", status: "ok", at: now };
+        else delete sellerDb[key];
+        keys.add(key);
+      });
+      return keys.size;
     }
 
     // src/core/store.mjs
@@ -4409,27 +4443,13 @@
   //   品番の鍵 → { title, actresses: [{ name, id, site }], tags, date, dur, mosaic, sellers: { サイト: { name, sid } }, manual: { actresses }, at }
   const LS_WINFO = 'ppdup:winfo:v1';
   let wInfo = lsJson(LS_WINFO, {});
-  // 4.18.x の不具合の後始末：fc2cmadb.com の上のメニューの「販売者」リンクを販売者として読んでいた記録を消し、その名前を選んでいた販売者は fd2ppv の名前に戻す
+  // 4.18.x の不具合の後始末：fc2cmadb.com の上のメニューの「販売者」リンクを販売者として読んでいた記録を直す（判定は src/core/seller-plan.mjs）
+  //   同期でも同じ判定で取り除くので、PikPak 側の古い記録から戻ってくることはない
   (() => {
-    const NAVSID = /^(bookmark-ranking|ranking|all|new|search|comments?)$/i; let fixed = 0;
-    Object.entries(wInfo).forEach(([key, o]) => {
-      const c = o && o.sellers && o.sellers.fc2cmadb; if (!c || !NAVSID.test(c.sid || '')) return;
-      delete o.sellers.fc2cmadb; delete o.ack; o.at = Date.now(); fixed++;
-      const rec = sellerDb[key];
-      if (rec && NAVSID.test(rec.sid || '')) { const f = o.sellers.fd2ppv; if (f) sellerDb[key] = { name: f.name, sid: f.sid, src: 'fd2ppv', status: 'ok', at: Date.now() }; else delete sellerDb[key]; saveSellerDb(); }
-    });
-    // 作品の情報に fc2cmadb の記録が残っていない（前の版で調べた・調べ直して上書きされた）ものも、販売者の記録そのものから見つけて直す
-    const BADNAME = /^(販売者|Sellers?|賣家|卖家)$/i;
-    let fixed2 = 0;
-    Object.entries(sellerDb).forEach(([key, rec]) => {
-      if (!rec || rec.src === 'manual' || !(NAVSID.test(rec.sid || '') || BADNAME.test(String(rec.name || '').trim()))) return;
-      const o = wInfo[key]; const ok = o && o.sellers && Object.values(o.sellers).find((x) => x && x.sid && !NAVSID.test(x.sid) && !BADNAME.test(String(x.name || '').trim()));
-      if (ok) sellerDb[key] = { name: ok.name, sid: ok.sid, src: ok === (o.sellers.fd2ppv || null) ? 'fd2ppv' : 'fc2cmadb', status: 'ok', at: Date.now() }; else delete sellerDb[key];
-      if (o) { Object.keys(o.sellers || {}).forEach((st) => { const x = o.sellers[st]; if (x && (NAVSID.test(x.sid || '') || BADNAME.test(String(x.name || '').trim()))) delete o.sellers[st]; }); delete o.ack; }
-      fixed2++;
-    });
-    if (fixed2) { saveSellerDb(); }
-    if (fixed || fixed2) { lsSetJson(LS_WINFO, wInfo); setTimeout(() => { try { log('info', `販売者名の読み違い（メニューの「販売者」）を ${fixed + fixed2} 件直しました。ほかのサイトで分かっているものはその名前に、分からないものは未調査に戻しました（「販売者を調べる」で調べ直せます）`); } catch (e) { /* 無視 */ } }, 0); }
+    const n = PPCore.fixMisreadSellers(sellerDb, wInfo);
+    if (!n) return;
+    saveSellerDb(); lsSetJson(LS_WINFO, wInfo);
+    setTimeout(() => { try { log('info', `販売者名の読み違い（メニューの「販売者」）を ${n} 件直しました。ほかのサイトで分かっているものはその名前に、分からないものは未調査に戻しました（「販売者を調べる」で調べ直せます）`); } catch (e) { /* 無視 */ } }, 0);
   })();
   function saveWorkInfo(k, r) {
     const i = r.info || {}, o = wInfo[k.key] || {}, site = i.site || r.src || '';
@@ -8098,6 +8118,14 @@
       } else v = { ...(vb || {}), ...(va || {}) };
       out[k] = { v: JSON.stringify(v), at: Math.max(a.at || 0, b.at || 0), clr };
     });
+    // 販売者名の読み違い（4.18.x）が PikPak 側の古い記録から戻ってこないよう、合わせた結果からも取り除く
+    if (out[LS_SELLER] || out[LS_WINFO]) {
+      const sdb = parseJ(out[LS_SELLER] && out[LS_SELLER].v, {}) || {}, wi = parseJ(out[LS_WINFO] && out[LS_WINFO].v, {}) || {};
+      if (PPCore.fixMisreadSellers(sdb, wi)) {
+        if (out[LS_SELLER]) out[LS_SELLER] = { ...out[LS_SELLER], v: JSON.stringify(sdb) };
+        if (out[LS_WINFO]) out[LS_WINFO] = { ...out[LS_WINFO], v: JSON.stringify(wi) };
+      }
+    }
     return out;
   }
   // Thunder 方式のハッシュ（PikPak のファイル作成に必要）
@@ -8170,6 +8198,7 @@
   // ほかの環境の内容を取り込んだら、画面に反映する
   function syncApply(keys) {
     if (keys.includes(LS_SELLER)) { sellerDb = parseJ(lsGet(LS_SELLER), {}) || {}; }
+    if (keys.includes(LS_WINFO)) { wInfo = parseJ(lsGet(LS_WINFO), {}) || {}; }
     if (keys.includes(LS_DECISION)) { decision = parseJ(lsGet(LS_DECISION), {}) || {}; }
     if (keys.includes(LS_THEME)) applyTheme();
     if (keys.includes(LS_LANG) && resolveLang() !== LANG) setLang(langPref());

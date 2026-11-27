@@ -13,7 +13,7 @@ let ng = 0; const ok = (c, m) => { console.log((c ? 'OK ' : 'NG ') + m); if (!c)
     await p.waitForTimeout(200);
     await p.evaluate(() => { const x = document.querySelector('[data-a=stop]'); if (x) x.click(); else window.__ppdupStop = true; });
     await p.waitForTimeout(5000);
-    const n1 = await p.evaluate(() => PPDup.files.length), saved = await p.evaluate(() => JSON.parse(localStorage.getItem('ppdup:scan:v1')).length);
+    const n1 = await p.evaluate(() => PPDup.files.length), saved = await p.evaluate(() => JSON.parse(PPDup.lsGet('ppdup:scan:v1')).length);
     const s = await p.evaluate(() => document.querySelector('[data-r=status]').textContent);
     ok(n1 === n0 && saved === n0 && /中断/.test(s), `中断しても前回の結果のまま（${n0}→${n1}・保存 ${saved}）：${s.slice(0, 50)}`);
     await b.close(); }
@@ -25,8 +25,8 @@ let ng = 0; const ok = (c, m) => { console.log((c ? 'OK ' : 'NG ') + m); if (!c)
     ok(r2 === 3, '続きから読んで合計 3 件 → ' + r2);
     await b.close(); }
   // 保存容量あふれ：サムネイルを外して保存
-  { const { b, p } = await open(tree, 'https://mypikpak.com/drive/all', `(() => { const s0 = Storage.prototype.setItem; Storage.prototype.setItem = function (k, v) { if (k === 'ppdup:scan:v1' && String(v).includes('thumb')) throw new Error('QuotaExceededError'); return s0.call(this, k, v); }; })()`);
-    const r = await p.evaluate(() => { const v = JSON.parse(localStorage.getItem('ppdup:scan:v1') || 'null'); const lg = JSON.parse(localStorage.getItem('ppdup:log:v1') || '[]'); return { n: v && v.length, thumb: v && v.some((x) => 'thumb' in x), warn: lg.some((x) => /サムネイルのアドレスを外して/.test(x.msg)) }; });
+  { const { b, p } = await open(tree, 'https://mypikpak.com/drive/all', `(() => { Object.defineProperty(window, 'indexedDB', { value: undefined, configurable: true }); const s0 = Storage.prototype.setItem; Storage.prototype.setItem = function (k, v) { if (k === 'ppdup:scan:v1' && String(v).includes('thumb')) throw new Error('QuotaExceededError'); return s0.call(this, k, v); }; })()`);
+    const r = await p.evaluate(() => { const v = JSON.parse(PPDup.lsGet('ppdup:scan:v1') || 'null'); const lg = JSON.parse(PPDup.lsGet('ppdup:log:v1') || '[]'); return { n: v && v.length, thumb: v && v.some((x) => 'thumb' in x), warn: lg.some((x) => /サムネイルのアドレスを外して/.test(x.msg)) }; });
     ok(r.n === 3 && !r.thumb && r.warn, '容量あふれ：サムネイルなしで保存・ログ ' + JSON.stringify(r));
     await b.close(); }
   // 確認画面（場所の選択）

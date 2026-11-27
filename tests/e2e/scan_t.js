@@ -17,7 +17,7 @@ const pre = (bad) => `(() => { const f0 = window.fetch; window.__bad = ${JSON.st
     if (m && m[1] === '${A}') { const body = { id: '${A}', name: '販売者別', kind: 'drive#folder', parent_id: '' }; return { ok: true, status: 200, json: async () => body }; }
     if (window.__slow) await new Promise((r) => setTimeout(r, 400));
     return f0(u0, o); }; })()`;
-const lastLog = (p) => p.evaluate(() => JSON.parse(localStorage.getItem('ppdup:log:v1') || '[]').slice(-6).map((x) => x.level + ' ' + x.msg + (x.ctx ? ' | ' + x.ctx : '')));
+const lastLog = (p) => p.evaluate(() => JSON.parse(PPDup.lsGet('ppdup:log:v1') || '[]').slice(-6).map((x) => x.level + ' ' + x.msg + (x.ctx ? ' | ' + x.ctx : '')));
 const st = (p) => p.evaluate(() => (document.querySelector('[data-r=status]') || {}).textContent || '');
 let ng = 0; const ok = (c, m) => { console.log((c ? 'OK ' : 'NG ') + m); if (!c) ng++; };
 (async () => {

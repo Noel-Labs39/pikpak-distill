@@ -53,5 +53,5 @@
   resumeAfterReload();
   ddStart();
 
-  window.PPDup = { visHooks, addJunkSweep, buildCleanPlan, buildSortPlan, buildRenamePlan, get folders() { return folders; }, scanApi, buildGroups, render, get files() { return files; }, set files(v) { files = v; } };
+  window.PPDup = { visHooks, lsGet, bigKV, addJunkSweep, buildCleanPlan, buildSortPlan, buildRenamePlan, get folders() { return folders; }, scanApi, buildGroups, render, get files() { return files; }, set files(v) { files = v; } };
 })();

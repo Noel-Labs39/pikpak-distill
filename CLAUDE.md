@@ -60,6 +60,7 @@ node tests/e2e/run.js scan      # 名前に scan を含む試験だけ
 - `tests/unit/plan.test.mjs`：整理の判定の試験（見本のファイル一覧から計画を確かめる。node:test）。
 - `tests/unit/library.test.mjs`：左メニューの一覧の中身の試験（索引・名前の並び・関連作品・続き・候補・履歴・最近・取りこぼし）。
 - `tests/unit/seller-plan.test.mjs`：販売者の判定の試験（品番の拾い方・決め方・計画：入れ子・販売者違い・同じ品番の複数フォルダなど）。
+- `tests/unit/store.test.mjs`：大きい記録の置き場所の試験（初回の引っ越し・まとめ書き・消す・古い版のあと・使えないとき・失敗）。
 - `tests/unit/pikpak-api.test.mjs`：PikPak とのやり取りの試験（模擬の返事で、混雑・ログイン切れ・認証コード・削除済み・通信失敗・複数ページを確かめる）。
 - `tests/e2e/*_t.js`：PikPak の画面と API を模した中でスクリプトを動かす試験。共通の試験台は `tests/e2e/h.js`（`open(tree, url, pre)`：`tree` がフォルダの中身、`pre` が読み込み前に動かすコード）。
   - 結果は `OK …` / `NG …` を 1 行ずつ出す。`NG` かページのエラー（`pageerr`）が出たら失敗。
@@ -98,7 +99,10 @@ node tests/e2e/run.js scan      # 名前に scan を含む試験だけ
 | `sellerDb` / `wInfo` | 販売者の記録／作品の情報 | `src/40-steps/23-s8-seller.js` |
 | `libSt` | 左メニューの一覧（最近の追加・出演者・販売者など）の状態 | `src/70-lib/35-rail-lists.js` |
 
-保存先はブラウザの localStorage（キーは `ppdup:…:v1`）。主なもの：読み込み結果 `scan` / `folders` / `scanmeta`、販売者 `seller`、作品の情報 `winfo`、ログ `log`。
+保存先（キーは `ppdup:…:v1`）
+- **大きい記録は IndexedDB**（`src/core/store.mjs`・用意は `src/20-core/016-store.js`）：読み込み結果 `scan` / `folders`、作品の情報 `winfo`、販売者 `seller`、再生の記録 `media`、ログ `log`。起動のはじめに全部をメモリへ読み、あとは `lsGet` / `lsSet` / `lsJson` / `lsSetJson` / `lsDel` で今までどおり読み書きする（書き込みはまとめて送る）。**`localStorage` を直接さわらず、必ずこの関数を通す。**
+- そのほかの小さい設定は localStorage（`scanmeta` など）。IndexedDB が使えないときは全部 localStorage。
+- 対象を増やすときは `016-store.js` の `keys` に足す（初回に localStorage から自動で写る）。
 保存の形を変えるときは、古い形を読み替える処理（起動時の後始末）を必ず付ける。
 
 ## ログの読み方（不具合の報告で送られてくるもの）

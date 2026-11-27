@@ -1,4 +1,4 @@
-(function () {
+(async function () {
   'use strict';
   // 販売者を調べるときに開くページ（fd2ppv.cc・fc2cmadb.com）：「販売者を調べる」で開いた小さなウィンドウの中だけで動き、
   // 販売者と作品の情報（タイトル・女優・タグ・配信日・収録時間・モザイク）を読み取って PikPak の画面へ知らせる（ほかには何もしない）
@@ -128,9 +128,12 @@
   const UNIT = { B: 1, KB: 1024, MB: 1048576, GB: 1073741824, TB: 1099511627776 };
   const fmt = (b) => (b >= UNIT.GB ? (b / UNIT.GB).toFixed(2) + ' GB' : b >= UNIT.MB / 10 ? (b / UNIT.MB).toFixed(1) + ' MB' : (b ? Math.max(1, Math.round(b / UNIT.KB)) : 0) + ' KB');
   // <common> ---------- 共通部品（設定の読み書き・日時と時間の表示） ----------
-  const lsGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
-  const lsSet = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
-  const lsJson = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
+  // 大きい記録（読み込み結果・作品の情報・販売者・再生の記録・ログ）は IndexedDB（bigKV）に置く。用意は 20-core/016-store.js
+  let bigKV = null;
+  const lsGet = (k) => { if (bigKV && bigKV.has(k)) return bigKV.get(k); try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const lsSet = (k, v) => { if (bigKV && bigKV.has(k)) return bigKV.set(k, v); try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
+  const lsDel = (k) => { if (bigKV && bigKV.has(k)) return bigKV.del(k); try { localStorage.removeItem(k); } catch (e) { /* 無視 */ } };
+  const lsJson = (k, d) => { try { const v = JSON.parse(lsGet(k)); return v == null ? d : v; } catch (e) { return d; } };
   const lsSetJson = (k, v) => lsSet(k, JSON.stringify(v));
   // 日時：'md' 10/29 19:14（既定）・'ymd' 2026/10/29 19:14・'full' 秒まで・'d2' 26/10/29
   const DATE_FMT = { md: { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }, ymd: { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }, full: undefined };
@@ -154,5 +157,5 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.22.2'; // @version と合わせて更新する
+  const VER = '4.23.0'; // @version と合わせて更新する
 

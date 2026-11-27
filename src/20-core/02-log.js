@@ -1,10 +1,10 @@
   // ---------- エラーログ（このブラウザ内に最新300件まで保存） ----------
   function log(level, msg, ctx) {
     try {
-      const a = JSON.parse(localStorage.getItem(LS_LOG) || '[]');
+      const a = JSON.parse(lsGet(LS_LOG) || '[]');
       a.push({ t: Date.now(), level, msg: String(msg || '').slice(0, 500), ctx: ctx ? String(ctx).slice(0, 300) : '', v: VER });
       while (a.length > 300) a.shift();
-      localStorage.setItem(LS_LOG, JSON.stringify(a));
+      lsSet(LS_LOG, JSON.stringify(a));
     } catch (e) { /* 保存できなくても処理は続ける */ }
   }
   const readLog = () => { return lsJson(LS_LOG, []); };

@@ -1,6 +1,6 @@
   // ---------- 共有している状態（読み込み結果・画面の状態・各ステップの計画） ----------
   //   多くの部品から読み書きされる変数はここにまとめる（一覧は CLAUDE.md の「共有している状態」）
-  //   files / folders / meta … 読み込み結果（localStorage の scan / folders / scanmeta。保存は saveAll）
+  //   files / folders / meta … 読み込み結果（scan / folders は IndexedDB・scanmeta は localStorage。保存は saveAll）
   //   decision               … 重複で「残す／消す」を選んだ記録（ppdup:decision）
   //   view / mode            … いま開いている画面（scan・dup・tree など）／1〜8 の流れで見せるか 1 つだけか
   //   busy / afterScan       … 何か実行中か（ほかの操作を止める）／読み込みのあとに開く画面
@@ -15,13 +15,14 @@
   decision = lsJson(LS_DECISION, {});
   const saveDecision = () => { lsSetJson(LS_DECISION, decision); };
   const saveAll = () => {
-    try { localStorage.setItem(LS_FOLD, JSON.stringify(folders)); localStorage.setItem(LS_SCAN, JSON.stringify(files)); return true; }
-    catch (e) {
-      // 保存容量があふれたら、サムネイルのアドレス（大きい項目）を外して保存し直す（表示中の一覧はそのまま）
-      try { localStorage.setItem(LS_SCAN, JSON.stringify(files.map(({ thumb: _t, ...x }) => x))); log('warn', `読み込み結果が大きいため、サムネイルのアドレスを外して保存しました（ファイル ${files.length} 件）`, 'scan'); return true; }
-      catch (e2) { try { localStorage.removeItem(LS_SCAN); localStorage.removeItem(LS_FOLD); localStorage.removeItem(LS_META); } catch (e3) { /* 無視 */ } log('error', `読み込み結果を保存できませんでした（ブラウザの保存容量が足りません・ファイル ${files.length} 件）。次に開いたときは読み込み直しが必要です`, 'scan'); return false; }
-    }
+    if (lsSet(LS_FOLD, JSON.stringify(folders)) && lsSet(LS_SCAN, JSON.stringify(files))) return true;
+    // 保存容量があふれたら（IndexedDB が使えず、ブラウザの保存領域を使っているとき）、サムネイルのアドレス（大きい項目）を外して保存し直す（表示中の一覧はそのまま）
+    if (lsSet(LS_SCAN, JSON.stringify(files.map(({ thumb: _t, ...x }) => x)))) { log('warn', `読み込み結果が大きいため、サムネイルのアドレスを外して保存しました（ファイル ${files.length} 件）`, 'scan'); return true; }
+    lsDel(LS_SCAN); lsDel(LS_FOLD); lsDel(LS_META);
+    log('error', `読み込み結果を保存できませんでした（ブラウザの保存容量が足りません・ファイル ${files.length} 件）。次に開いたときは読み込み直しが必要です`, 'scan');
+    return false;
   };
+
   const stateOf = (f, idx) => decision[f.id] || (idx === 0 ? 'keep' : 'del');
   const hasScan = () => !!meta && (folders.length > 0 || files.length > 0); // このバージョンで読み込んだ結果だけを使う
   let view = 'scan';

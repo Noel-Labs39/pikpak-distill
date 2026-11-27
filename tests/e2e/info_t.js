@@ -35,6 +35,6 @@ const fs = require('fs');
   await p.fill('#pd-ql [data-pvi-act]', 'サンプルA、サンプルB'); await p.click('#pd-ql [data-pvi-save]'); await p.waitForTimeout(200);
   console.log('手入力', (await txt()).match(/女優.{0,30}/)[0]);
   await p.keyboard.press('Escape'); await p.waitForTimeout(200); console.log('Esc', await txt(), await p.evaluate(() => !!document.getElementById('pd-ql')));
-  console.log('log', await p.evaluate(() => JSON.stringify(JSON.parse(localStorage.getItem('ppdup:winfo:v1')))));
+  console.log('log', await p.evaluate(() => JSON.stringify(JSON.parse(PPDup.lsGet('ppdup:winfo:v1')))));
   await b.close();
 })();

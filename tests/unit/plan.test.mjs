@@ -30,10 +30,10 @@ test('重複：品番だけで比べるときは、連番違いも同じ組', ()
 });
 
 test('重複：数字だけのファイル名は、入っているフォルダの品番で読む', () => {
-  const W = dir('w', 'FC2-PPV-3189316', 'mp', ['root', 'mp', 'w']);
-  const files = [file('a', '3189316.mp4', 'w'), file('b', 'FC2-PPV-3189316.mp4', 'mp')];
+  const W = dir('w', 'FC2-PPV-4567890', 'mp', ['root', 'mp', 'w']);
+  const files = [file('a', '4567890.mp4', 'w'), file('b', 'FC2-PPV-4567890.mp4', 'mp')];
   assert.equal(buildGroups(files, 'name', [MP, W]).length, 1);
-  assert.equal(keyOf('3189316.mp4', 'name', 'FC2-PPV-3189316'), keyOf('FC2-PPV-3189316.mp4', 'name', ''));
+  assert.equal(keyOf('4567890.mp4', 'name', 'FC2-PPV-4567890'), keyOf('FC2-PPV-4567890.mp4', 'name', ''));
 });
 
 test('名前の重なり：(1)・(2) を順に付ける', () => {

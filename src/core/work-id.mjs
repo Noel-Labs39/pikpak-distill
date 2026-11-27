@@ -71,7 +71,7 @@ export const hasWorkId = (name, dirName) => !!parseWork(name, dirName);
 // 作品の品番（作品ID）。次の違いは同じ作品として扱う（フォルダ名を揃える・作品ごとに仕分けで使う）
 //   ・拡張子、重複回避の (1)
 //   ・分割・シーン違いの連番：-1 / -2、_1 / _2、part1、cd1、-A など
-//   ・配布元サイト名などの接頭辞：hhd800.com@FC2-PPV-1234567_1.mp4 → FC2-PPV-1234567
+//   ・配布元サイト名などの接頭辞：sample.com@FC2-PPV-1234567_1.mp4 → FC2-PPV-1234567
 //   ・FC2の表記ゆれ：FC2PPV-1234567 / FC2_PPV_1234567 / FC2-1234567 → FC2-PPV-1234567
 export function baseName(n, dirName) {
   const w = parseWork(n, dirName); if (w && (w.kind === 'fc2' || w.kind === 'code')) return w.label; // フォルダ名は品番だけ（タイトルはファイル名に残す）
@@ -79,7 +79,7 @@ export function baseName(n, dirName) {
   b = b.replace(/^[^@]*@/, '').replace(/^\[[^\]]*\]\s*/, '').trim();
   return b.replace(/^(.*\d{4,})(?:[\s_-]+(?:\d{1,2}|[A-Ea-e])|[\s_-]*(?:part|cd)\s?\d{1,2})$/i, '$1');
 }
-// ファイル名を整えた形：品番（-連番）_タイトル.拡張子（例：4k688.com@FC2-PPV-4988183_1 夏の思い出【高画質】.mp4 → FC2-PPV-4988183-1_夏の思い出.mp4）
+// ファイル名を整えた形：品番（-連番）_タイトル.拡張子（例：sample.net@FC2-PPV-2345678_1 夏の思い出【高画質】.mp4 → FC2-PPV-2345678-1_夏の思い出.mp4）
 //   ・品番は FC2-PPV-数字／ABC-123 にそろえる。連番は「-1」「-A」の形
 //   ・品番以外の文字はタイトルとして「_」のあとに残す。サイト名・URL・宣伝の【】・画質の表記は外す
 //   ・空白や Windows で使えない記号は「_」にする。タイトルは 40 文字まで

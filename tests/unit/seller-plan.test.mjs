@@ -2,7 +2,7 @@
 //   実行：npm run test:unit
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { workKeys, keyRec, resolveKeys, sellerFolderName, boxSidOf, buildSellerPlan } from '../../src/core/seller-plan.mjs';
+import { workKeys, keyRec, resolveKeys, sellerFolderName, boxSidOf, buildSellerPlan, isMisreadSeller, fixMisreadSellers } from '../../src/core/seller-plan.mjs';
 
 const CFG = { root: '販売者別', unknown: '販売者不明', review: '要確認' };
 const DB = {
@@ -104,4 +104,34 @@ test('計画：販売者別の中から読み込んだときは、全部を仕�
   const R = dir('bx', '販売X（x）', 'box', ['root', 'box', 'bx'], { isRoot: true, trailNames: ['ホーム', '販売者別', '販売X（x）'] });
   const ds = [R, dir('w', 'FC2-PPV-1000002', 'bx', ['root', 'box', 'bx', 'w'])];
   assert.equal(buildSellerPlan(ds, { cfg: CFG, sellerDb: DB }).length, 0);
+});
+
+test('読み違いの見分け方：メニューのリンク（ranking など）や「販売者」という名前', () => {
+  assert.equal(isMisreadSeller({ name: '販売者', sid: 'x' }), true);
+  assert.equal(isMisreadSeller({ name: 'ランキング', sid: 'bookmark-ranking' }), true);
+  assert.equal(isMisreadSeller({ name: ' Sellers ', sid: 'y' }), true);
+  assert.equal(isMisreadSeller({ name: '販売X', sid: 'x' }), false);
+  assert.equal(isMisreadSeller(null), false);
+});
+
+test('読み違いを直す：ほかのサイトの名前に・分からなければ消す・手入力は触らない・作品の情報の日時を新しく', () => {
+  const sdb = {
+    1000001: { status: 'ok', name: '販売者', sid: 'x', src: 'fc2cmadb', at: 1 },
+    1000002: { status: 'ok', name: 'ランキング', sid: 'ranking', src: 'fc2cmadb', at: 1 },
+    1000003: { status: 'ok', name: '販売者', sid: 'm', src: 'manual', at: 1 },
+    1000004: { status: 'ok', name: '販売Y', sid: 'y', src: 'fd2ppv', at: 1 },
+  };
+  const wi = {
+    1000001: { sellers: { fc2cmadb: { name: '販売者', sid: 'x' }, fd2ppv: { name: '販売X', sid: 'x1' } }, ack: 1, at: 1 },
+    1000002: { sellers: { fc2cmadb: { name: 'ランキング', sid: 'ranking' } }, at: 1 },
+  };
+  assert.equal(fixMisreadSellers(sdb, wi, 99), 2);
+  assert.deepEqual(sdb[1000001], { name: '販売X', sid: 'x1', src: 'fd2ppv', status: 'ok', at: 99 });
+  assert.equal(sdb[1000002], undefined);
+  assert.equal(sdb[1000003].src, 'manual');
+  assert.equal(sdb[1000004].name, '販売Y');
+  assert.deepEqual(Object.keys(wi[1000001].sellers), ['fd2ppv']);
+  assert.equal(wi[1000001].at, 99);
+  assert.equal(wi[1000001].ack, undefined);
+  assert.equal(fixMisreadSellers(sdb, wi, 100), 0); // 2 回目は何もしない
 });

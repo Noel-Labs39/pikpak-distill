@@ -20,27 +20,13 @@
   //   品番の鍵 → { title, actresses: [{ name, id, site }], tags, date, dur, mosaic, sellers: { サイト: { name, sid } }, manual: { actresses }, at }
   const LS_WINFO = 'ppdup:winfo:v1';
   let wInfo = lsJson(LS_WINFO, {});
-  // 4.18.x の不具合の後始末：fc2cmadb.com の上のメニューの「販売者」リンクを販売者として読んでいた記録を消し、その名前を選んでいた販売者は fd2ppv の名前に戻す
+  // 4.18.x の不具合の後始末：fc2cmadb.com の上のメニューの「販売者」リンクを販売者として読んでいた記録を直す（判定は src/core/seller-plan.mjs）
+  //   同期でも同じ判定で取り除くので、PikPak 側の古い記録から戻ってくることはない
   (() => {
-    const NAVSID = /^(bookmark-ranking|ranking|all|new|search|comments?)$/i; let fixed = 0;
-    Object.entries(wInfo).forEach(([key, o]) => {
-      const c = o && o.sellers && o.sellers.fc2cmadb; if (!c || !NAVSID.test(c.sid || '')) return;
-      delete o.sellers.fc2cmadb; delete o.ack; o.at = Date.now(); fixed++;
-      const rec = sellerDb[key];
-      if (rec && NAVSID.test(rec.sid || '')) { const f = o.sellers.fd2ppv; if (f) sellerDb[key] = { name: f.name, sid: f.sid, src: 'fd2ppv', status: 'ok', at: Date.now() }; else delete sellerDb[key]; saveSellerDb(); }
-    });
-    // 作品の情報に fc2cmadb の記録が残っていない（前の版で調べた・調べ直して上書きされた）ものも、販売者の記録そのものから見つけて直す
-    const BADNAME = /^(販売者|Sellers?|賣家|卖家)$/i;
-    let fixed2 = 0;
-    Object.entries(sellerDb).forEach(([key, rec]) => {
-      if (!rec || rec.src === 'manual' || !(NAVSID.test(rec.sid || '') || BADNAME.test(String(rec.name || '').trim()))) return;
-      const o = wInfo[key]; const ok = o && o.sellers && Object.values(o.sellers).find((x) => x && x.sid && !NAVSID.test(x.sid) && !BADNAME.test(String(x.name || '').trim()));
-      if (ok) sellerDb[key] = { name: ok.name, sid: ok.sid, src: ok === (o.sellers.fd2ppv || null) ? 'fd2ppv' : 'fc2cmadb', status: 'ok', at: Date.now() }; else delete sellerDb[key];
-      if (o) { Object.keys(o.sellers || {}).forEach((st) => { const x = o.sellers[st]; if (x && (NAVSID.test(x.sid || '') || BADNAME.test(String(x.name || '').trim()))) delete o.sellers[st]; }); delete o.ack; }
-      fixed2++;
-    });
-    if (fixed2) { saveSellerDb(); }
-    if (fixed || fixed2) { lsSetJson(LS_WINFO, wInfo); setTimeout(() => { try { log('info', `販売者名の読み違い（メニューの「販売者」）を ${fixed + fixed2} 件直しました。ほかのサイトで分かっているものはその名前に、分からないものは未調査に戻しました（「販売者を調べる」で調べ直せます）`); } catch (e) { /* 無視 */ } }, 0); }
+    const n = PPCore.fixMisreadSellers(sellerDb, wInfo);
+    if (!n) return;
+    saveSellerDb(); lsSetJson(LS_WINFO, wInfo);
+    setTimeout(() => { try { log('info', `販売者名の読み違い（メニューの「販売者」）を ${n} 件直しました。ほかのサイトで分かっているものはその名前に、分からないものは未調査に戻しました（「販売者を調べる」で調べ直せます）`); } catch (e) { /* 無視 */ } }, 0);
   })();
   function saveWorkInfo(k, r) {
     const i = r.info || {}, o = wInfo[k.key] || {}, site = i.site || r.src || '';

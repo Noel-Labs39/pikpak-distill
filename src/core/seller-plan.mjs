@@ -118,3 +118,31 @@ export function buildSellerPlan(ds, { cfg, sellerDb = {}, dirLabel = () => '' })
   }
   return plan;
 }
+
+// ---- 販売者名の読み違い（4.18.x の不具合）の見分け方と直し方 ----
+//   fc2cmadb.com の上のメニューにある「販売者」「ランキング」などのリンクを、販売者として読んでいた記録
+//   起動時の後始末と、PikPak で同期するとき（古い記録が戻ってこないように）の両方で使う
+export const NAV_SID = /^(bookmark-ranking|ranking|all|new|search|comments?)$/i;
+export const BAD_SELLER_NAME = /^(販売者|Sellers?|賣家|卖家)$/i;
+export const isMisreadSeller = (x) => !!x && (NAV_SID.test(String(x.sid || '')) || BAD_SELLER_NAME.test(String(x.name || '').trim()));
+// sellerDb（品番 → 販売者の記録）と wInfo（品番 → 作品の情報）をその場で直し、直した品番の数を返す
+//   ・作品の情報：読み違いのサイトの記録を外し、日時を新しくする（同期で古いものに負けないように）
+//   ・販売者の記録：ほかのサイトで分かっていればその名前に、分からなければ消す（未調査に戻す）。手入力は触らない
+export function fixMisreadSellers(sellerDb = {}, wInfo = {}, now = Date.now()) {
+  const keys = new Set();
+  Object.entries(wInfo).forEach(([key, o]) => {
+    if (!o || !o.sellers) return;
+    let hit = false;
+    Object.keys(o.sellers).forEach((st) => { if (isMisreadSeller(o.sellers[st])) { delete o.sellers[st]; hit = true; } });
+    if (hit) { delete o.ack; o.at = now; keys.add(key); }
+  });
+  Object.entries(sellerDb).forEach(([key, rec]) => {
+    if (!rec || rec.src === 'manual' || !isMisreadSeller(rec)) return;
+    const ss = (wInfo[key] && wInfo[key].sellers) || {};
+    const st = Object.keys(ss).find((s) => ss[s] && ss[s].sid && !isMisreadSeller(ss[s]));
+    if (st) sellerDb[key] = { name: ss[st].name, sid: ss[st].sid, src: st === 'fd2ppv' ? 'fd2ppv' : 'fc2cmadb', status: 'ok', at: now };
+    else delete sellerDb[key];
+    keys.add(key);
+  });
+  return keys.size;
+}

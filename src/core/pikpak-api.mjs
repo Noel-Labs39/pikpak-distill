@@ -80,7 +80,7 @@ export function createPikPakApi({ fetch, storage, log = () => {}, sleep = (ms) =
         const hd = apiHeaders();
         if (opt.captcha) { const ct = await getCaptcha(opt.captcha, tries > 0); if (ct) hd['x-captcha-token'] = ct; }
         if (opt._nocap) delete hd['x-captcha-token'];
-        const { captcha: _c, raw: _r, _cap: _k, _nocap: _n, probe: _p, ...o2 } = opt;
+        const { captcha: _c, raw: _r, _cap: _k, _nocap: _n, probe: _p, gone: _g, ...o2 } = opt;
         res = await http(/^https?:/.test(path) ? path : API + path, { ...o2, headers: hd });
       }
       catch (e) {
@@ -112,6 +112,8 @@ export function createPikPakApi({ fetch, storage, log = () => {}, sleep = (ms) =
           if (opt._cap === 1 && !opt.captcha) { opt = { ...opt, _cap: 2, _nocap: false, captcha: (opt.method || 'GET') + ':/drive/v1' + path.split('?')[0].replace(/^https?:\/\/[^/]+\/drive\/v1/, '') }; continue; }
           // 存在を確かめるだけの通信（probe）では、削除済みのファイル・フォルダにもこの返事が来るため「見つからない」として返す
           if (opt.probe) { const pe = new Error(msg); pe.captcha = true; pe.status = res.status; pe.where = where; throw pe; }
+          // 1 件だけ取りに行く通信（gone）でも同じ。削除済みとして返し、画面の再読み込みはしない
+          if (opt.gone) { const ge = new Error('見つかりません（削除・移動された可能性）'); ge.captcha = true; ge.gone = true; ge.status = res.status; ge.where = where; throw ge; }
           log('warn', msg + '（自動で回復します）', where); throw sessionError('認証の確認が必要です（' + msg + '）');
         }
         // 404：ファイル・フォルダがもうない（削除済み）。呼び出し側で「削除済み」と分かるように印を付ける

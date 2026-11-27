@@ -157,5 +157,5 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.23.0'; // @version と合わせて更新する
+  const VER = '4.23.1'; // @version と合わせて更新する
 

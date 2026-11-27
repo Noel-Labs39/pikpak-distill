@@ -7,7 +7,7 @@
 // @supportURL   https://github.com/Noel-Labs39/pikpak-distill/issues
 // @updateURL    https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
 // @downloadURL  https://raw.githubusercontent.com/Noel-Labs39/pikpak-distill/main/pikpak-distill.user.js
-// @version      4.23.0
+// @version      4.23.1
 // @icon         data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJwcGR1cC1sZyIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzIyYzNhNiIvPjxzdG9wIG9mZnNldD0iLjUiIHN0b3AtY29sb3I9IiMyZjZiZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3YjVjZmYiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxOCIgZmlsbD0iIzE0MTYxYyIvPjxyZWN0IHg9IjkiIHk9IjE0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxyZWN0IHg9IjkiIHk9IjM0IiB3aWR0aD0iMTMiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjUiIHN0cm9rZS13aWR0aD0iMyIvPjxwYXRoIGQ9Ik0yMiAyMmg2bDUgMTBNMjIgNDJoNmw1LTEwIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjcHBkdXAtbGcpIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PHBhdGggZD0iTTM2IDE4aDdhMTQgMTQgMCAwIDEgMCAyOGgtN3oiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNwcGR1cC1sZykiIHN0cm9rZS13aWR0aD0iNS41IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PGNpcmNsZSBjeD0iNTEiIGN5PSI0NSIgcj0iNiIgZmlsbD0iI2ZmYjAyMCIgc3Ryb2tlPSIjMTQxNjFjIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNNDguMyA0NWwxLjkgMS45IDMuMS0zLjQiIHN0cm9rZT0iIzE0MTYxYyIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=
 // @description  PikPakの重複ファイルを、サムネイルとサイズで比べて整理するツール。広告・宣伝などの不要ファイルの削除、作品ごとの仕分け、フォルダ名の整合、(1)の除去、チェックしたファイルの削除（ゴミ箱／完全削除）に対応。
 // @match        https://mypikpak.com/*
@@ -177,7 +177,7 @@
   const LS_OPT_NAME = 'ppdup:opt:cleanname:v1';
   const LS_OPT_JUNK = 'ppdup:opt:junk:v1';
   const SS_RESUME = 'ppdup:resume:v1';
-  const VER = '4.23.0'; // @version と合わせて更新する
+  const VER = '4.23.1'; // @version と合わせて更新する
 
   // ---------- 判定の部品（src/core/*.mjs）----------
   // 組み立てのときに esbuild で 1 つにまとめて、下の印の場所に入れる（PPCore）。画面側からは今までと同じ名前で呼ぶ
@@ -804,7 +804,7 @@
               if (ct) hd["x-captcha-token"] = ct;
             }
             if (opt._nocap) delete hd["x-captcha-token"];
-            const { captcha: _c, raw: _r, _cap: _k, _nocap: _n, probe: _p, ...o2 } = opt;
+            const { captcha: _c, raw: _r, _cap: _k, _nocap: _n, probe: _p, gone: _g, ...o2 } = opt;
             res = await http(/^https?:/.test(path) ? path : API + path, { ...o2, headers: hd });
           } catch (e) {
             if (e.session) throw e;
@@ -854,6 +854,14 @@
                 pe.status = res.status;
                 pe.where = where;
                 throw pe;
+              }
+              if (opt.gone) {
+                const ge = new Error("見つかりません（削除・移動された可能性）");
+                ge.captcha = true;
+                ge.gone = true;
+                ge.status = res.status;
+                ge.where = where;
+                throw ge;
               }
               log("warn", msg + "（自動で回復します）", where);
               throw sessionError("認証の確認が必要です（" + msg + "）");
@@ -1433,7 +1441,18 @@
     outFolders.unshift({ id: rootId, name: rootName, parentId: startTrail.length > 1 ? startTrail[startTrail.length - 2] : '', path: '', trail: startTrail, trailNames: rootId === 'root' ? [] : crumbs().map((c) => c.name), isRoot: true });
     return { files: outFiles, folders: outFolders, skipped, stopped: !!window.__ppdupStop };
   }
-  const apiGet = (id) => api('/files/' + id);
+  // 1 件だけ取りに行く。PikPak は削除済みのものにも「認証コードが無効です」を返すため、ログイン切れではなく「削除済み（e.gone）」として扱う
+  //   削除済みと分かった id は覚えておき、同じ id を何度も取りに行かない（新しく読み込み直したら忘れる）
+  const goneIds = new Set();
+  const goneErr = (id) => { const e = new Error('見つかりません（削除・移動された可能性）'); e.gone = true; e.id = id; return e; };
+  async function apiGetOne(id, q = '') {
+    if (goneIds.has(id)) throw goneErr(id);
+    try { return await api('/files/' + id + q, { gone: true }); } catch (e) {
+      if (e && e.gone) { if (!goneIds.has(id)) { goneIds.add(id); log('info', 'PikPak にないファイル・フォルダを飛ばしました（削除・移動された可能性）', 'GET /files/' + id); } throw goneErr(id); }
+      throw e;
+    }
+  }
+  const apiGet = (id) => apiGetOne(id);
   // 契約容量（上限・使用量・ゴミ箱の使用量）
   async function apiQuota() { const d = await api('/about'); const q = d.quota || {}; return { limit: +q.limit || 0, usage: +q.usage || 0, trash: +q.usage_in_trash || 0 }; }
   const apiRename = (id, name) => api('/files/' + id, { method: 'PATCH', body: JSON.stringify({ name }) });
@@ -4000,6 +4019,7 @@
     rsHide();
     if (busy) return;
     if (!ensureSession('scan')) return;
+    goneIds.clear(); // 読み込み直したら、削除済みと覚えた id を忘れる
     busy = true; scanning = true; renderNav(); renderScan();
     status('読み込み中…', 0);
     let trail = currentTrail(), where = '';
@@ -5877,7 +5897,7 @@
   }
   async function loadSources(id) {
     let info;
-    try { info = await api('/files/' + id + '?thumbnail_size=SIZE_LARGE'); } catch (e) { if (e.gone) throw markGone(id); throw e; }
+    try { info = await apiGetOne(id, '?thumbnail_size=SIZE_LARGE'); } catch (e) { if (e.gone) throw markGone(id); throw e; }
     const src = [];
     (Array.isArray(info.medias) ? info.medias : []).forEach((m) => {
       const url = m && m.link && m.link.url; if (!url) return;
@@ -8933,5 +8953,5 @@
   resumeAfterReload();
   ddStart();
 
-  window.PPDup = { visHooks, lsGet, bigKV, addJunkSweep, buildCleanPlan, buildSortPlan, buildRenamePlan, get folders() { return folders; }, scanApi, buildGroups, render, get files() { return files; }, set files(v) { files = v; } };
+  window.PPDup = { visHooks, lsGet, bigKV, apiGet, addJunkSweep, buildCleanPlan, buildSortPlan, buildRenamePlan, get folders() { return folders; }, scanApi, buildGroups, render, get files() { return files; }, set files(v) { files = v; } };
 })();

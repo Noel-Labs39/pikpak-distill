@@ -94,7 +94,18 @@
     outFolders.unshift({ id: rootId, name: rootName, parentId: startTrail.length > 1 ? startTrail[startTrail.length - 2] : '', path: '', trail: startTrail, trailNames: rootId === 'root' ? [] : crumbs().map((c) => c.name), isRoot: true });
     return { files: outFiles, folders: outFolders, skipped, stopped: !!window.__ppdupStop };
   }
-  const apiGet = (id) => api('/files/' + id);
+  // 1 件だけ取りに行く。PikPak は削除済みのものにも「認証コードが無効です」を返すため、ログイン切れではなく「削除済み（e.gone）」として扱う
+  //   削除済みと分かった id は覚えておき、同じ id を何度も取りに行かない（新しく読み込み直したら忘れる）
+  const goneIds = new Set();
+  const goneErr = (id) => { const e = new Error('見つかりません（削除・移動された可能性）'); e.gone = true; e.id = id; return e; };
+  async function apiGetOne(id, q = '') {
+    if (goneIds.has(id)) throw goneErr(id);
+    try { return await api('/files/' + id + q, { gone: true }); } catch (e) {
+      if (e && e.gone) { if (!goneIds.has(id)) { goneIds.add(id); log('info', 'PikPak にないファイル・フォルダを飛ばしました（削除・移動された可能性）', 'GET /files/' + id); } throw goneErr(id); }
+      throw e;
+    }
+  }
+  const apiGet = (id) => apiGetOne(id);
   // 契約容量（上限・使用量・ゴミ箱の使用量）
   async function apiQuota() { const d = await api('/about'); const q = d.quota || {}; return { limit: +q.limit || 0, usage: +q.usage || 0, trash: +q.usage_in_trash || 0 }; }
   const apiRename = (id, name) => api('/files/' + id, { method: 'PATCH', body: JSON.stringify({ name }) });

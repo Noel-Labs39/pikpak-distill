@@ -77,6 +77,7 @@ Japanese and English are supported. The language follows your browser and can be
 - 実行する直前に最新の状態を確かめ、名前や場所が想定と違うときは止めます。
 - 完全削除（ゴミ箱を経由しない削除）は元に戻せません。
 - 本ツールは PikPak の非公式ツールです。PikPak の仕様が変わると動かなくなることがあります。
+- PikPak の利用規約は、PikPak が作っていない・許可していないソフトの利用を禁じており、使った人のアカウントを止めることがあると定めています。使うかどうかは、[利用規約](https://mypikpak.com/en-US/policy/user-agreement)を読んだうえで、ご自身で判断してください。
 - 本ツールの利用によって生じたいかなる損害についても、作者は責任を負いません（MIT License）。
 
 ## ライセンス

@@ -1,46 +1,17 @@
   // ---------- 出演者・販売者（フォルダは動かさず、作品の情報から並べる） ----------
   //   作品ごと（品番）に代表の動画 1 本（いちばん大きいもの）を選び、出演者（手入力を優先）と販売者（調べた結果）で引けるようにする
-  const NO_ACT = '出演者不明', NO_SEL = '販売者不明';
+  //   中身を決める部分は src/core/library.mjs（試験あり）。ここでは画面側の状態を渡す
+  const { NO_ACT, NO_SEL, pplNames } = PPCore;
   let pplCache = null;
   function peopleIndex() {
     // 作り直しは軽いので、同じ一覧なら 3 秒だけ使い回す（作品の情報を調べ直したら次に開いたときに反映）
     if (pplCache && pplCache.files === files && Date.now() - pplCache.at < 3000) return pplCache;
-    const works = new Map();
-    files.forEach((f) => {
-      if (!VIDEO_EXT.has(extOf(f.name))) return;
-      const { k, w } = infoKeyOf(f.id, f.name); if (!k) return;
-      const o = works.get(k.key);
-      if (!o) works.set(k.key, { key: k.key, label: k.label, w, file: f, n: 1 });
-      else { o.n++; if ((+f.size || 0) > (+o.file.size || 0)) o.file = f; }
-    });
-    const act = new Map(), sel = new Map();
-    const add = (m, n, key) => { if (!m.has(n)) m.set(n, []); m.get(n).push(key); };
-    works.forEach((o, key) => {
-      const inf = wInfo[key];
-      const acts = inf && inf.manual && inf.manual.actresses ? inf.manual.actresses : ((inf && inf.actresses) || []).map((x) => x.name);
-      o.actors = acts.filter(Boolean);
-      const sd = sellerDb[key]; o.seller = sd && sd.status === 'ok' && sd.name ? sd.name : '';
-      o.title = (inf && inf.title) || '';
-      if (o.actors.length) o.actors.forEach((n) => add(act, n, key)); else add(act, NO_ACT, key);
-      add(sel, o.seller || NO_SEL, key);
-    });
-    pplCache = { at: Date.now(), files, works, act, sel };
+    pplCache = { at: Date.now(), files, ...PPCore.buildPeopleIndex(files, { isVideo: (f) => VIDEO_EXT.has(extOf(f.name)), keyOf: (f) => infoKeyOf(f.id, f.name), wInfo, sellerDb }) };
     return pplCache;
   }
   // 関連する作品：同じ出演者 → 同じ販売者の順（自分は除く）
-  function relatedWorks(key, max = 8) {
-    const P = peopleIndex(), o = P.works.get(key); if (!o) return [];
-    const out = [], seen = new Set([key]);
-    const push = (k, why) => { if (seen.has(k) || out.length >= max) return; seen.add(k); const x = P.works.get(k); if (x) out.push({ ...x, why }); };
-    o.actors.forEach((n) => (P.act.get(n) || []).forEach((k) => push(k, n)));
-    if (o.seller) (P.sel.get(o.seller) || []).forEach((k) => push(k, o.seller));
-    return out;
-  }
+  const relatedWorks = (key, max = 8) => PPCore.relatedWorks(peopleIndex(), key, max);
   let pplWant = null; // 開いたときに選んでおく {mode, name}
-  // 名前の一覧（作品数の多い順。「不明」は最後）。q で絞り込む
-  const pplNames = (m, q) => [...m.entries()].map(([n, ks]) => [n, ks.length])
-    .filter(([n]) => !q || n.toLowerCase().includes(q.toLowerCase()))
-    .sort((a, b) => ((a[0] === NO_ACT || a[0] === NO_SEL) - (b[0] === NO_ACT || b[0] === NO_SEL)) || b[1] - a[1] || a[0].localeCompare(b[0], 'ja'));
   function pplSideHtml() {
     const S = libSt, P = peopleIndex(), m = S.pmode === 'sel' ? P.sel : P.act;
     const list = pplNames(m, S.pq || '');
@@ -165,46 +136,18 @@
       (d.tasks || []).filter((t) => !used.has(t.id)).forEach((t) => out.push({ id: t.id, task: t.id, name: t.name || t.file_name || '', size: +t.file_size || 0, at: t.created_time || '', mode: 'pikpak', fid: t.file_id || '', st: ST[t.phase] || 'run', pct: +t.progress || 0, msg: t.message || '' }));
       return out.sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
     }
-    // 続きを見る：途中で止めたもの（このブラウザの再生の記録から。新しい順）
-    // 消す候補：見ながら仕分けで D を付けたもの
-    if (tab === 'cand') {
-      const db = mediaAll();
-      return Object.keys(db).filter((k) => db[k].tri === 'del').sort((a, b) => Date.parse(db[b].at) - Date.parse(db[a].at))
-        .map((k) => { const m = db[k], sf = fileById(k); return { id: k, name: m.name || (sf && sf.name) || k, size: m.size || (sf && sf.size) || 0, at: m.at, thumb: m.thumb || (sf && sf.thumb) || '' }; });
-    }
-    if (tab === 'cont') {
-      const db = mediaAll();
-      return Object.keys(db).filter((k) => db[k].pos > 0 && !db[k].done).sort((a, b) => Date.parse(db[b].at) - Date.parse(db[a].at)).slice(0, 300)
-        .map((k) => { const m = db[k], sf = fileById(k); return { id: k, name: m.name || (sf && sf.name) || k, size: m.size || (sf && sf.size) || 0, at: m.at, thumb: m.thumb || (sf && sf.thumb) || '' }; });
-    }
+    // 続きを見る：途中で止めたもの（このブラウザの再生の記録から。新しい順）／消す候補：見ながら仕分けで D を付けたもの
+    if (tab === 'cand' || tab === 'cont') return PPCore.mediaList(mediaAll(), tab, fileById);
     if (tab === 'hist') {
       let d = {}; try { d = await api(`/events?thumbnail_size=SIZE_MEDIUM&limit=100&filters=${encF({ type: { in: 'TYPE_PLAY' } })}`); } catch (e) { if (e.session) throw e; }
-      const seen = new Set(), out = [];
-      const db = mediaAll(); const loc = Object.keys(db).filter((k) => db[k].at).map((k) => ({ id: k, ...db[k] }));
-      (d.events || []).forEach((e) => {
-        const r = e.reference_resource || {}; const id = String(e.file_id || r.id || '');
-        if (!id || seen.has(id) || r.trashed) return; seen.add(id);
-        const sf = fileById(id);
-        out.push({ id, name: r.name || e.file_name || id, size: +(r.size || e.file_size) || 0, at: e.event_time || e.created_time || e.updated_time || '', thumb: r.thumbnail_link || e.thumbnail_link || (sf && sf.thumb) || '' });
-      });
-      // このブラウザで再生した記録と合わせる（同じファイルは新しい方の日時）
-      loc.forEach((x) => {
-        if (!x || !x.id) return;
-        const o = out.find((y) => y.id === x.id);
-        if (o) { if (Date.parse(x.at) > Date.parse(o.at || 0)) o.at = x.at; return; }
-        const sf = fileById(x.id); out.push({ id: x.id, name: x.name, size: x.size || (sf && sf.size) || 0, at: x.at, thumb: x.thumb || (sf && sf.thumb) || '' });
-      });
-      return out.sort((a, b) => (Date.parse(b.at) || 0) - (Date.parse(a.at) || 0));
+      return PPCore.mergeHistory(d.events, mediaAll(), fileById);
     }
     if (tab === 'star' || tab === 'trash') {
       const fl = tab === 'star' ? { trashed: { eq: false }, system_tag: { in: 'STAR' } } : { trashed: { eq: true } };
       const out = (await apiListAll('*', fl, 20)).map((f) => ({ id: f.id, name: f.name, size: +f.size || 0, folder: f.kind === 'drive#folder', at: f.modified_time || f.created_time || '', thumb: f.thumbnail_link || '', parentId: f.parent_id || '' }));
       if (tab === 'trash') {
         // 取りこぼしの候補：数字だけの名前で、その数字が入っていたフォルダの品番と同じもの（見て知らせるだけ・ゴミ箱は変えない）
-        const dn = new Map(folders.map((x) => [x.id, x.name]));
-        let k = 0;
-        out.forEach((it) => { const fd = dn.get(it.parentId); if (it.folder || !fd || !/^\d{5,8}(?!\d)/.test(splitName(it.name).stem)) return; const w = parseWork(it.name, fd); if (w && w.src === 'dir') { it.miss = fd; k++; } });
-        if (k) out.sort((a, b) => (b.miss ? 1 : 0) - (a.miss ? 1 : 0));
+        const k = PPCore.markTrashMissed(out, folders);
         if (k) log('info', `ゴミ箱：取りこぼしの候補 ${k} 件（数字だけの名前で、フォルダの品番と同じ番号）`);
       }
       return out;
@@ -216,15 +159,11 @@
       if (!libSt.pmode) libSt.pmode = lsGet('ppdup:pplmode:v1') === 'sel' ? 'sel' : 'act';
       const m = libSt.pmode === 'sel' ? P.sel : P.act;
       if (!libSt.pname || !m.has(libSt.pname)) libSt.pname = (pplNames(m, '')[0] || [''])[0];
-      return (m.get(libSt.pname) || []).map((k) => P.works.get(k)).filter(Boolean)
-        .sort((a, b) => Date.parse(b.file.ct || 0) - Date.parse(a.file.ct || 0))
-        .map((o) => ({ id: o.file.id, name: o.file.name, size: o.file.size, at: o.file.ct, path: o.file.path, thumb: o.file.thumb || '', work: o }));
+      return PPCore.peopleWorks(P, libSt.pmode, libSt.pname);
     }
     // 最近追加したもの：読み込んだ内容から（追加日の新しい順）
     if (!hasScan()) return null;
-    const lim = Date.now() - libSt.days * 864e5;
-    return files.filter((f) => f.ct && Date.parse(f.ct) >= lim).sort((a, b) => Date.parse(b.ct) - Date.parse(a.ct)).slice(0, 500)
-      .map((f) => ({ id: f.id, name: f.name, size: f.size, at: f.ct, path: f.path, thumb: f.thumb || '' }));
+    return PPCore.recentFiles(files, Date.now() - libSt.days * 864e5);
   }
   const libAuto = () => { return lsGet('ppdup:libauto:v1') !== '0'; };
   const libView = () => { try { const v = localStorage.getItem('ppdup:libview:v1'); return ['list', 'thumb', 'tile'].includes(v) ? v : 'tile'; } catch (e) { return 'tile'; } };

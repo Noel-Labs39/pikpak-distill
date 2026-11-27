@@ -337,7 +337,7 @@
   }
   async function loadSources(id) {
     let info;
-    try { info = await api('/files/' + id + '?thumbnail_size=SIZE_LARGE'); } catch (e) { if (e.gone) throw markGone(id); throw e; }
+    try { info = await apiGetOne(id, '?thumbnail_size=SIZE_LARGE'); } catch (e) { if (e.gone) throw markGone(id); throw e; }
     const src = [];
     (Array.isArray(info.medias) ? info.medias : []).forEach((m) => {
       const url = m && m.link && m.link.url; if (!url) return;

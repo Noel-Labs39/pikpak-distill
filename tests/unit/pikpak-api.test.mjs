@@ -94,6 +94,11 @@ test('存在の確認（probe）では、「認証コードが無効です」を
   await assert.rejects(pp.api('/files/gone', { raw: true, probe: true }), (e) => e.captcha === true && !e.session);
 });
 
+test('1 件取り（gone）では、「認証コードが無効です」を削除済みとして返す（ログイン切れにしない）', async () => {
+  const { pp } = make(() => ({ status: 400, body: { error: 'captcha_invalid', error_description: '認証コードが無効です' } }));
+  await assert.rejects(pp.api('/files/gone', { gone: true }), (e) => e.gone === true && e.captcha === true && !e.session);
+});
+
 test('削除済み（404）：削除済みの印を付けたエラー', async () => {
   const { pp } = make([{ status: 404, body: { error: 'file_not_found' } }]);
   await assert.rejects(pp.api('/files/f1'), (e) => e.gone === true && e.status === 404);

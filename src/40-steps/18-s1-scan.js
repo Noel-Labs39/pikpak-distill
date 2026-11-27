@@ -171,6 +171,7 @@
     rsHide();
     if (busy) return;
     if (!ensureSession('scan')) return;
+    goneIds.clear(); // 読み込み直したら、削除済みと覚えた id を忘れる
     busy = true; scanning = true; renderNav(); renderScan();
     status('読み込み中…', 0);
     let trail = currentTrail(), where = '';

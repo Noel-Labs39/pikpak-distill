@@ -31,7 +31,7 @@ let ng = 0; const ok = (c, m) => { console.log((c ? 'OK ' : 'NG ') + m); if (!c)
     await b.close(); }
   // 確認画面（場所の選択）
   { const { b, p } = await open(tree, 'https://mypikpak.com/drive/all/' + B);
-    await p.evaluate(() => { const x = [...document.querySelectorAll('button,a,[data-a]')].find((e) => /再読み込み|再スキャン/.test(e.textContent) && e.dataset.a !== 'rsgo'); window.__btn = x && (x.dataset.a || x.textContent); x && x.click(); });
+    await p.evaluate(() => { const x = [...document.querySelectorAll('button,a,[data-a]')].find((e) => /再読み込み|再スキャン|読み込み直す/.test(e.textContent) && e.dataset.a !== 'rsgo'); window.__btn = x && (x.dataset.a || x.textContent); x && x.click(); });
     await p.waitForTimeout(600);
     const has = await p.evaluate(() => !!document.querySelector('#pd-dlg input[name=pdscope]'));
     ok(has, '確認画面に場所の選択 （' + await p.evaluate(() => window.__btn) + '）');

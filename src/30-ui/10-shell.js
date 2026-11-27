@@ -999,7 +999,7 @@
   #pd-lib .pp-mode button{flex:1;height:34px;border-radius:17px;border:1px solid var(--line,#dde0e6);background:transparent;color:var(--fg);font-weight:700;cursor:pointer}
   #pd-lib .pp-mode button.on{background:var(--pri,#306fff);border-color:var(--pri,#306fff);color:#fff}
   #pd-lib .pp-q{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mute)}
-  #pd-lib .pp-q input{height:34px;border:1px solid var(--line,#dde0e6);border-radius:8px;padding:0 10px;font-size:14px;background:var(--bg2,#fff);color:var(--fg)}
+  #pd-lib .pp-q input{height:34px;border:1px solid var(--line,#dde0e6);border-radius:8px;padding:0 10px;font-size:14px;background:var(--ctl);color:var(--fg)}
   #pd-lib .pp-names{display:flex;flex-direction:column;gap:2px;max-height:60vh;overflow:auto}
   #pd-lib .pp-names button{display:flex;justify-content:space-between;gap:8px;padding:8px 10px;border:0;border-radius:8px;background:none;color:var(--fg);text-align:left;cursor:pointer;font-size:14px}
   #pd-lib .pp-names button:hover{background:var(--hov,#0000000d)}
@@ -1011,7 +1011,7 @@
   #pd-lib .pp-hd{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 12px;margin:0 0 12px}
   #pd-lib .pp-hd b{font-size:18px}
   #pd-lib .pp-sub{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-  #pd-lib .pp-chip{border:1px solid var(--line,#dde0e6);border-radius:999px;background:var(--bg2,#fff);color:var(--fg);padding:2px 10px;font-size:12px;cursor:pointer}
+  #pd-lib .pp-chip{border:1px solid var(--line,#dde0e6);border-radius:999px;background:var(--ctl);color:var(--fg);padding:2px 10px;font-size:12px;cursor:pointer}
   @media (max-width:720px){#pd-lib .pp-wrap{flex-direction:column}#pd-lib .pp-side{width:100%;position:static}#pd-lib .pp-names{max-height:30vh}}
   .pv-info .pv-ppl{display:flex;flex-direction:column;gap:4px;margin:0;padding:0 12px 8px}
   .pv-info .pv-ppl a{color:#7aa2ff}
@@ -1310,6 +1310,19 @@
   #ppdup.narrow .sv-dock.open .dk-q{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
   #ppdup .sv-dock .dk-q button{height:auto;padding:12px 8px;border-radius:16px;display:flex;flex-direction:column;align-items:flex-start;gap:2px;background:var(--panel2);border:0}
   #ppdup .sv-dock .dk-q small{font-size:11px;color:var(--mute);font-weight:500}
+  /* ---- 4.24 全体の骨組み：左メニューのまとまり・上のバーの検索と名前付きボタン ---- */
+  #ppdup .rail .rl-grp{display:none}
+  #ppdup:not(.pop):not(.narrow):not(.navmin) .rail .rl-grp{display:block;flex:none;padding:12px 12px 4px;font-size:11px;font-weight:800;color:var(--mute);letter-spacing:.04em}
+  #ppdup:not(.pop):not(.narrow):not(.navmin) .rail .rl-grp:first-child{padding-top:2px}
+  #ppdup .rail .rl-sep{margin-top:auto}
+  #ppdup .rail .rl-acct{margin-top:6px}
+  #ppdup:not(.phone) .hq{display:inline-flex}
+  #ppdup:not(.narrow):not(.pop) .sv-dock .dk-b [data-a=addlink],#ppdup:not(.narrow):not(.pop) .sv-dock .dk-b [data-a=rescan]{display:none}
+  #ppdup:not(.navhide):not(.narrow) header .hbtn[data-a=settings],#ppdup:not(.navhide):not(.narrow) header .hbtn.hacct{display:none!important}
+  #ppdup.pop header .hscan > span,#ppdup.narrow header .hscan > span{display:none}
+  #ppdup:not(.pop):not(.narrow) header .brand > .hbtn[data-a=addlink]{width:auto;padding:0 12px!important}
+  #ppdup:not(.pop):not(.narrow) header .brand > .hbtn[data-a=addlink] > span{display:inline}
+  @media (max-width:1100px){#ppdup header .hscan > span,#ppdup header .brand > .hbtn[data-a=addlink] > span{display:none!important}#ppdup header .hscan,#ppdup header .brand > .hbtn[data-a=addlink]{width:38px;padding:0!important;justify-content:center}}
   `;
   const style = document.createElement('style'); style.textContent = css; document.head.appendChild(style);
 
@@ -1375,33 +1388,32 @@
   const root = document.createElement('div'); root.id = 'ppdup';
   root.innerHTML = `
     <aside class="rail" data-r="rail">
-      <button data-a="toflow" data-rail="flow" title="整理（1〜7のステップ）">${RAIL_IC.flow}<span>整理</span></button>
+      <div class="rl-grp" aria-hidden="true">整理する</div>
+      <button data-a="toflow" data-rail="flow" title="整理（1〜8 のステップ）">${RAIL_IC.flow}<span>整理</span></button>
       <button data-a="tree" data-rail="tree" title="フォルダ一覧（Finder やエクスプローラーのように、フォルダを開いて中身を見られます）">${RAIL_IC.tree}<span>フォルダ​一覧</span></button>
-      <button data-a="lib" data-v="dl" data-rail="lib-dl" title="追加したもの（リンク・マグネットで追加した作品の保存状況とダウンロードの進み具合）">${RAIL_IC.dl}<span>追加したもの</span><i class="rb" data-r="rb-dl"></i></button>
+      <div class="rl-grp" aria-hidden="true">見る</div>
       <button data-a="lib" data-v="recent" data-rail="lib-recent" title="最近追加したもの（追加日の新しい順）">${RAIL_IC.recent}<span>最近の追加</span><i class="rb" data-r="rb-recent"></i></button>
       <button data-a="lib" data-v="cont" data-rail="lib-cont" title="続きを見る（途中で止めた動画）">${RAIL_IC.cont}<span>続きを見る</span></button>
       <button data-a="lib" data-v="people" data-rail="lib-people" title="出演者・販売者（作品の情報から、出演者・販売者ごとに作品を並べます。フォルダは動かしません）">${RAIL_IC.people}<span>出演者・販売者</span></button>
-      <button data-a="lib" data-v="cand" data-rail="lib-cand" title="消す候補（見ながら仕分けで D を付けたもの）">${RAIL_IC.cand}<span>消す候補</span><i class="rb" data-r="rb-cand"></i></button>
-      <button data-a="lib" data-v="hist" data-rail="lib-hist" title="再生した履歴">${RAIL_IC.hist}<span>再生履歴</span><i class="rb" data-r="rb-hist"></i></button>
       <button data-a="lib" data-v="star" data-rail="lib-star" title="スター付き">${RAIL_IC.star}<span>スター</span><i class="rb" data-r="rb-star"></i></button>
+      <button data-a="lib" data-v="hist" data-rail="lib-hist" title="再生した履歴">${RAIL_IC.hist}<span>再生履歴</span><i class="rb" data-r="rb-hist"></i></button>
+      <div class="rl-grp" aria-hidden="true">片付ける</div>
+      <button data-a="lib" data-v="dl" data-rail="lib-dl" title="追加したもの（リンク・マグネットで追加した作品の保存状況とダウンロードの進み具合）">${RAIL_IC.dl}<span>追加したもの</span><i class="rb" data-r="rb-dl"></i></button>
+      <button data-a="lib" data-v="cand" data-rail="lib-cand" title="消す候補（見ながら仕分けで D を付けたもの）">${RAIL_IC.cand}<span>消す候補</span><i class="rb" data-r="rb-cand"></i></button>
       <button data-a="lib" data-v="trash" data-rail="lib-trash" title="ゴミ箱（中身を見る・元に戻す・完全に削除）">${RAIL_IC.trash}<span>ゴミ箱</span><i class="rb" data-r="rb-trash"></i></button>
-      <button data-a="addlink" data-rail="add" title="リンク・マグネットを追加">${RAIL_IC.add}<span>リンク</span></button>
-      <button data-a="rescan" data-rail="scan" title="最新の状態を読み込み直す">${RAIL_IC.scan}<span>再読み込み</span></button>
-      <button data-a="settings" data-rail="set" title="設定（表示・再生・整理・情報）">${RAIL_IC.set}<span>設定</span></button>
       <div class="rl-sep"></div>
+      <button data-a="settings" data-rail="set" title="設定（表示・再生・整理・情報）">${RAIL_IC.set}<span>設定</span></button>
       <button class="rl-sub" data-a="log" title="ログを見る・不具合を報告する">${RAIL_IC.log}<span>ログ・不具合の報告</span></button>
-      <button class="rl-sub" data-a="setinfo" title="設定や記録を書き出す・読み込む">${RAIL_IC.setinfo}<span>書き出し／読み込み</span></button>
-      <button class="rl-sub" data-a="changelog" title="更新履歴（いまは v${VER}）">${RAIL_IC.changelog}<span>更新履歴（v${VER}）</span></button>
       <button class="rl-acct" data-a="acct" data-r="acct" title="PikPak のログイン状態と同期"></button>
     </aside>
     <header>
       <div class="brand"><button class="hbtn hic" data-a="navtoggle" title="左のメニューの表示を切り替える" aria-label="左のメニューの表示を切り替える"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>${LOGO}<h1 class="wm" aria-label="PikPak Distill – Dedupe"><small>PIKPAK DISTILL</small><span class="gw"><i aria-hidden="true">Dedupe</i><i aria-hidden="true">Dedupe</i><b>Dedupe</b></span></h1><span class="ver" title="いま動いているバージョン">v${VER}</span><span class="sp"></span>
-        <label class="hq" title="名前で絞り込み">${IC.search}<input type="text" data-a="tq" placeholder="名前で絞り込み・検索"></label><span class="seg hqs" data-r="tqs" title="探す範囲"><button data-a="tqs" data-v="here">このフォルダ</button><button data-a="tqs" data-v="all">すべて</button></span>
+        <label class="hq" title="名前で絞り込み">${IC.search}<input type="text" data-a="tq" placeholder="検索（品番・名前）"></label><span class="seg hqs" data-r="tqs" title="探す範囲"><button data-a="tqs" data-v="here">このフォルダ</button><button data-a="tqs" data-v="all">すべて</button></span>
         <div class="pd-quota" data-r="quota"></div>
         <span class="seg thm" data-r="theme" role="group" aria-label="テーマ"></span>
         <button class="hbtn" data-a="lang" title="表示言語を切り替える">${IC.globe}<span class="raw" data-r="langname"></span></button>
         <button class="hbtn" data-a="addlink" title="リンク・マグネットを追加（追加する前に、もうあるか確かめる）">${IC.link}<span>リンクを追加</span></button>
-        <button class="hbtn hic" data-a="edgescroll" data-r="edgebtn" title="端でスクロール：マウスを一覧の下（上）の端へ持っていくと、ゆっくりスクロールします" aria-label="端でスクロール"><svg viewBox="0 0 24 24"><path d="M12 4v16M8 8l4-4 4 4M8 16l4 4 4-4"/></svg></button>
+        <button class="hbtn hscan" data-a="rescan" title="PikPak の最新の状態を読み込み直す">${RAIL_IC.scan}<span>読み込み直す</span></button>
         <button class="hbtn hic" data-a="bell" title="お知らせ（エラー・新しいバージョン）" aria-label="お知らせ"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><i data-r="logbadge"></i></button>
         <button class="hbtn hacct" data-a="acct" data-r="acctbtn" title="PikPak のログイン状態と同期"></button>
         <button class="hbtn" data-a="settings" title="設定（表示・再生・整理・情報）">${IC.gear}<span>設定</span></button>
